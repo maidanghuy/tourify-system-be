@@ -15,5 +15,4 @@ public class TourifySystemBeApplication {
 
 		SpringApplication.run(TourifySystemBeApplication.class, args);
 	}
-
 }
