@@ -1,11 +1,15 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
+import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -15,13 +19,17 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("")
-    public Iterable<User> getAllUsers(){
-        return userService.getAllUsers();
+    public APIResponse<List<UserResponse>> getAllUsers(){
+        return APIResponse.<List<UserResponse>>builder()
+                .result(userService.getUsers())
+                .build();
     }
 
-    @PutMapping("/{id}")
-    public User updateUser(@PathVariable("id") String id, @RequestBody UserUpdateRequest request){
-        return userService.updateUser(id, request);
+    @PutMapping("/{userId}")
+    public APIResponse<UserResponse> updateUser(@PathVariable("userId") String userId, @RequestBody UserUpdateRequest request){
+        return APIResponse.<UserResponse>builder()
+                .result(userService.updateUser(userId, request))
+                .build();
     }
     /*
     Sample JSON:
@@ -40,8 +48,10 @@ public class UserController {
       }
     */
 
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") String id){
-        return userService.getUserById(id);
+    @GetMapping("/{userId}")
+    public APIResponse<UserResponse> getUserById(@PathVariable("userId") String id){
+        return APIResponse.<UserResponse>builder()
+                .result(userService.getUserById(id))
+                .build();
     }
 }

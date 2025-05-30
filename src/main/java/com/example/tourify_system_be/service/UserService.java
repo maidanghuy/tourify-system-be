@@ -1,7 +1,11 @@
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
+import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.User;
+import com.example.tourify_system_be.exception.AppException;
+import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.mapper.UserMapper;
 import com.example.tourify_system_be.repository.IUserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,39 +14,30 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
     IUserRepository userRepository;
+    UserMapper userMapper;
 
-    public Iterable<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserResponse> getUsers() {
+        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
-    public User updateUser(String id, UserUpdateRequest request){
+    public UserResponse updateUser(String id, UserUpdateRequest request){
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setUserName(request.getUserName());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setGender(request.getGender());
-        user.setAddress(request.getAddress());
-        user.setDob(request.getDob());
-        user.setStatus(request.getStatus());
-        user.setSocialLink(request.getSocialLink());
-        user.setAvatar(request.getAvatar());
-        user.setBackground(request.getBackground());
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        userMapper.updateUser(user, request);
         user.setUpdatedAt(LocalDateTime.now());
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public User getUserById(String id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserResponse getUserById(String id){
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 }
