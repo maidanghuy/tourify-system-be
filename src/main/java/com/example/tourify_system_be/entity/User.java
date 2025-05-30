@@ -72,5 +72,4 @@ public class User {
 
     @Column(name = "background")
     String background;
-
 }
