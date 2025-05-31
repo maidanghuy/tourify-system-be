@@ -1,12 +1,16 @@
 package com.example.tourify_system_be.service;
 
+import com.example.tourify_system_be.dto.request.LoginRequest;
+import com.example.tourify_system_be.dto.response.LoginResponse;
 import com.example.tourify_system_be.entity.TokenAuthentication;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
+import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -93,5 +97,42 @@ public class AuthService {
 
         tokenAuth.setIsUsed(true);
         tokenRepo.save(tokenAuth);
+    }
+
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        return userRepository.findByUserName(request.getUsername())
+                .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
+                .map(user -> {
+                    String token = JwtUtil.generateToken(user.getUserName());
+
+                    ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+                    LocalDateTime now = LocalDateTime.now(vietnamZone);
+                    LocalDateTime expiresAt = now.plusDays(1);
+
+                    TokenAuthentication tokenEntity = TokenAuthentication.builder()
+                            .tokenValue(token)
+                            .createAt(now)
+                            .expiresAt(expiresAt)
+                            .isUsed(true)
+                            .user(user)
+                            .build();
+
+                    tokenRepo.save(tokenEntity);
+
+                    return new LoginResponse("Login successful!", token);
+                })
+                .orElse(new LoginResponse("Invalid username or password", null));
+    }
+
+
+    public boolean logout(String tokenValue) {
+        TokenAuthentication token = tokenRepo.findByTokenValue(tokenValue);
+        if (token != null) {
+            token.setIsUsed(false);  // hoặc xóa tokenRepo.delete(token);
+            tokenRepo.save(token);
+            return true;
+        }
+        return false;
     }
 }
