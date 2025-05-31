@@ -1,12 +1,12 @@
 package com.example.tourify_system_be.controller;
 
-import com.example.tourify_system_be.dto.request.APIResponse;
-import com.example.tourify_system_be.dto.request.ChangePasswordRequest;
-import com.example.tourify_system_be.dto.request.UpdateAvatarRequest;
-import com.example.tourify_system_be.dto.request.UserUpdateRequest;
+import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.service.UserService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

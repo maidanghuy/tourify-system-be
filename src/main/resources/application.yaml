@@ -23,12 +23,28 @@ spring:
     port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
+    protocol: smtp
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  application:
+    name: tourify-system-be
 
   jackson:
     time-zone: Asia/Ho_Chi_Minh
+
+app:
+  backend:
+    url: http://localhost:8080/tourify
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
