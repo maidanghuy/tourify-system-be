@@ -15,11 +15,11 @@ import java.time.LocalDateTime;
 @Table(name = "token_authentication", schema = "Tourify")
 public class TokenAuthentication {
     @Id
-    @Column(name = "token_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "token_id", nullable = false, updatable = false)
     String tokenId;
 
-    @Column(name = "token_value")
+    @Column(name = "token_value", nullable = false, unique = true)
     String tokenValue;
 
     @Column(name = "create_at")
@@ -34,5 +34,4 @@ public class TokenAuthentication {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     User user;
-
 }
