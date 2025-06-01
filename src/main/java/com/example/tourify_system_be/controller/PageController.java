@@ -1,0 +1,25 @@
+package com.example.tourify_system_be.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class PageController {
+
+    @GetMapping("/register")
+    public String registerPage() {
+        return "register";  // Nếu dùng Thymeleaf: src/main/resources/templates/register.html
+        // Nếu là static: chuyển hướng frontend ra ngoài hoặc đổi URL
+    }
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
+
+    @GetMapping("/landing")
+    public String landingPage() {
+        return "landing";
+    }
+}
+

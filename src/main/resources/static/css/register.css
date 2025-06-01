@@ -1,0 +1,386 @@
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #42e1b4, #10532f);
+    background-size: 400% 400%;
+    animation: gradientShift 10s ease infinite;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Sóng nước animation */
+.wave-container {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    height: 180px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 43%;
+    filter: blur(8px);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-name: waveMove;
+    animation-duration: 12s;
+}
+
+
+.wave:nth-child(1) {
+    left: -50%;
+    animation-duration: 12s;
+    animation-delay: 0s;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+
+.wave:nth-child(2) {
+    left: -60%;
+    animation-duration: 18s;
+    animation-delay: -4s;
+    background: rgba(255, 255, 255, 0.08);
+    bottom: 15px;
+}
+
+
+.wave:nth-child(3) {
+    left: -55%;
+    animation-duration: 15s;
+    animation-delay: -2s;
+    background: rgba(255, 255, 255, 0.06);
+    bottom: 8px;
+}
+
+
+@keyframes waveMove {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+    50% {
+        transform: translateX(25%) translateY(15px);
+    }
+    100% {
+        transform: translateX(50%) translateY(0);
+    }
+}
+
+
+/* Đảm bảo card nằm trên sóng */
+.card-container {
+    position: relative;
+    z-index: 1;
+}
+
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+.card-container {
+    display: flex;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 90%;
+}
+
+/* Sóng nước animation */
+.wave-container {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 43%;
+    filter: blur(8px);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-name: waveMove;
+    animation-duration: 12s;
+}
+
+.wave:nth-child(1) {
+    left: -50%;
+    animation-duration: 12s;
+    animation-delay: 0s;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.wave:nth-child(2) {
+    left: -60%;
+    animation-duration: 18s;
+    animation-delay: -4s;
+    background: rgba(255, 255, 255, 0.09);
+    bottom: 20px;
+}
+
+.wave:nth-child(3) {
+    left: -55%;
+    animation-duration: 15s;
+    animation-delay: -2s;
+    background: rgba(255, 255, 255, 0.06);
+    bottom: 10px;
+}
+
+/* Đảm bảo nội dung trên sóng */
+.card-glass {
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    display: flex;
+    max-width: 950px;
+    width: 90%;
+    overflow: hidden;
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+.left-panel {
+    flex: 1;
+    position: relative;
+    min-height: 500px;
+    background-image: linear-gradient(
+            rgba(34, 139, 34, 0.45),
+            rgba(46, 139, 87, 0.65)
+    ),
+    url("https://images.pexels.com/photos/2265876/pexels-photo-2265876.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-blend-mode: overlay;
+    border-top-right-radius: 40px;
+    border-bottom-right-radius: 40px;
+    box-shadow: 8px 0 30px rgba(34, 139, 34, 0.3);
+    animation: kenBurns 25s ease-in-out infinite alternate;
+    overflow: hidden;
+}
+
+.right-panel {
+    flex: 1;
+    padding: 50px;
+    background: #ffffff;
+}
+
+.form-floating input {
+    border: 2px solid #dce6e0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-floating input:focus {
+    border-color: #49dcb1;
+    box-shadow: 0 0 12px rgba(73, 220, 177, 0.3);
+}
+
+.form-floating label {
+    color: #777;
+    transition: all 0.3s ease;
+}
+
+.form-floating input:focus ~ label,
+.form-floating input:not(:placeholder-shown) ~ label {
+    transform: translateY(-1.5rem) scale(0.85);
+    opacity: 0.85;
+    color: #49dcb1;
+}
+
+.btn-register {
+    background: linear-gradient(135deg, #00c896, #49dcb1);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-register:hover {
+    background: linear-gradient(135deg, #00b889, #3dd1a2);
+    box-shadow: 0 10px 30px rgba(0, 200, 150, 0.3);
+}
+
+.social-login {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #b9e0d1;
+    background-color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.social-btn i {
+    transition: transform 0.3s ease;
+}
+
+.social-btn:hover {
+    background-color: #10a576;
+    color: white;
+    box-shadow: 0 8px 20px rgba(16, 165, 118, 0.3);
+}
+
+.social-btn:hover i {
+    transform: scale(1.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-glass {
+        flex-direction: column;
+    }
+
+    .left-panel {
+        display: none;
+    }
+
+    .right-panel {
+        padding: 30px;
+    }
+}
+
+/* Hiệu ứng chuyển cảnh từ trái */
+.fade-slide-in {
+    animation: fadeInLeft 1s ease forwards;
+    opacity: 0;
+}
+
+/* Hiệu ứng gradient */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Fade in chung */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ken Burns */
+@keyframes kenBurns {
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+    100% {
+        transform: scale(1.1) translate(-10px, -10px);
+    }
+}
+
+/* Fade in từ trái */
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Sóng nước */
+@keyframes waveMove {
+    0% {
+        transform: translateX(0) translateY(0);
+    }
+    50% {
+        transform: translateX(25%) translateY(15px);
+    }
+    100% {
+        transform: translateX(50%) translateY(0);
+    }
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    z-index: 2;
+}
+.toggle-password:hover {
+    color: #49dcb1;
+}
+
+
+/* Message */
+#message {
+    margin-top: 1rem;
+    min-height: 1.5em;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .right-panel {
+        padding: 20px 15px;
+    }
+}
+
