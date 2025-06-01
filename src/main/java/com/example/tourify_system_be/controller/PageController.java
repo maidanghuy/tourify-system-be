@@ -21,5 +21,15 @@ public class PageController {
     public String landingPage() {
         return "landing";
     }
+
+    @GetMapping("forgot_password")
+    public String forgotPasswordPage() {
+        return "forgot_password";
+    }
+
+    @GetMapping("/reset_password")
+    public String restPasswordPage() {
+        return "reset_password";
+    }
 }
 
