@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Validate độ mạnh mật khẩu (ví dụ đơn giản)
-        if (newPassword.length < 8) {
-            alert("Mật khẩu phải có ít nhất 8 ký tự.");
+        if (newPassword.length < 6) {
+            alert("Mật khẩu phải có ít nhất 6 ký tự.");
             return;
         }
 
