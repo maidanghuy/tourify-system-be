@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.ok) {
                 alert("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập lại.");
                 // Ví dụ: chuyển đến trang đăng nhập
-                window.location.href = "/login";
+                window.location.href = "/tourify/login";
             } else {
                 const error = await response.json();
                 alert("Lỗi: " + (error.message || "Không thể đặt lại mật khẩu."));

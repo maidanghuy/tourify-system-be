@@ -22,7 +22,7 @@ public class PageController {
         return "landing";
     }
 
-    @GetMapping("forgot_password")
+    @GetMapping("/forgot_password")
     public String forgotPasswordPage() {
         return "forgot_password";
     }
