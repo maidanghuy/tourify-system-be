@@ -54,7 +54,7 @@ public class AuthService {
 
         tokenRepo.save(tokenAuth);
 
-        String resetLink = "http://localhost:8080/tourify/reset?token=" + token;
+        String resetLink = "http://localhost:8080/tourify/reset_password?token=" + token;
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
