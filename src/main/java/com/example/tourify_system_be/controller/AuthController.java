@@ -2,6 +2,7 @@ package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.LoginResponse;
+import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.service.AuthService;
 import com.example.tourify_system_be.service.UserService;
 import jakarta.transaction.Transactional;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -105,12 +108,19 @@ public class AuthController {
      * API xác nhận token từ email và tạo tài khoản (từ link xác nhận trong email).
      */
     @GetMapping("/confirm")
-    public ResponseEntity<String> confirmUser(@RequestParam("token") String token) {
-        boolean confirmed = userService.confirmTokenAndCreateUser(token);
-        if (confirmed) {
-            return ResponseEntity.ok("Xác nhận thành công! Bạn có thể đăng nhập.");
+    public RedirectView confirmEmail(@RequestParam("token") String token) {
+        boolean success = userService.confirmTokenAndCreateUser(token);
+        if (success) {
+            // Nếu thành công, chuyển hướng tới trang đăng nhập front-end
+            String loginUrl = UriComponentsBuilder
+                    .fromUriString("http://localhost:8080/tourify/landing")
+                    .queryParam("info", "account_activated")
+                    .build().toUriString();
+
+            return new RedirectView(loginUrl);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Xác nhận thất bại hoặc token hết hạn.");
+            // Token không hợp lệ hoặc lỗi -> quay lại trang đăng ký với thông báo lỗi
+            return new RedirectView("http://localhost:8080/tourify/register?error=token_invalid");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.tourify_system_be.mapper;
 
+import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
 import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.User;
