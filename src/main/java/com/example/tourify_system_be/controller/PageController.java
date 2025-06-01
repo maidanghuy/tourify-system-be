@@ -17,6 +17,11 @@ public class PageController {
         return "login";
     }
 
+    @GetMapping("/landing")
+    public String landingPage() {
+        return "landing";
+    }
+
     @GetMapping("forgot_password")
     public String forgotPasswordPage() {
         return "forgot_password";
@@ -27,3 +32,4 @@ public class PageController {
         return "reset_password";
     }
 }
+
