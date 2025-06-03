@@ -76,16 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(loginData)
         });
 
-        // **QUAN TRỌNG:** Đọc response body MỘT LẦN DUY NHẤT
         const data = await response.json();
 
-        if (response.ok) { // Kiểm tra HTTP status code (200-299)
-          // Đây là trường hợp đăng nhập thành công
+        if (response.ok) {
           showMessage('Đăng nhập thành công!', 'success');
           console.log('Login successful:', data);
 
-          if (data && data.token) {
-            localStorage.setItem('accessToken', data.token);
+          if (data && data.result.token) {
+            localStorage.setItem('accessToken', data.result.token);
             localStorage.setItem('username', username);
             window.location.href = '/tourify/landing';
           } else {
