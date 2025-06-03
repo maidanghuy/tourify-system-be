@@ -122,7 +122,7 @@ public class AuthService {
 
                     return new LoginResponse("Login successful!", token);
                 })
-                .orElse(new LoginResponse("Invalid username or password", null));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
     }
 
 

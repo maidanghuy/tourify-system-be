@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Validate độ mạnh mật khẩu (ví dụ đơn giản)
-        if (newPassword.length < 8) {
-            alert("Mật khẩu phải có ít nhất 8 ký tự.");
+        if (newPassword.length < 6) {
+            alert("Mật khẩu phải có ít nhất 6 ký tự.");
             return;
         }
 
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.ok) {
                 alert("Đặt lại mật khẩu thành công. Bạn có thể đăng nhập lại.");
                 // Ví dụ: chuyển đến trang đăng nhập
-                window.location.href = "tourify/login";
+                window.location.href = "/tourify/login";
             } else {
                 const error = await response.json();
                 alert("Lỗi: " + (error.message || "Không thể đặt lại mật khẩu."));
