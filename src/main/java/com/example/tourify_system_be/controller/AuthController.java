@@ -3,6 +3,8 @@ package com.example.tourify_system_be.controller;
 import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.LoginResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
+import com.example.tourify_system_be.exception.AppException;
+import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.service.AuthService;
 import com.example.tourify_system_be.service.UserService;
 import jakarta.transaction.Transactional;
@@ -60,49 +62,72 @@ public class AuthController {
     */
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public APIResponse<LoginResponse> login(@RequestBody LoginRequest request) {
+        return
+                APIResponse.<LoginResponse>builder()
+                        .result(authService.login(request))
+                        .build();
     }
+    /*
+    Sample JSON:
+    {
+        "username": "johndoe",
+        "password": "<PASSWORD>"
+    }
+    */
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserCreateRequest userDTO) {
+    public APIResponse<?> registerUser(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email đã tồn tại.");
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
 
         if (userService.userNameExists(userDTO.getUserName())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Tên đăng nhập đã tồn tại.");
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
         try {
             boolean result = userService.sendRegistrationToken(userDTO);
             if (!result) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body("Không thể gửi email xác nhận. Vui lòng kiểm tra thông tin và thử lại.");
+                throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN);
             }
-            return ResponseEntity.ok("Vui lòng kiểm tra email để xác nhận đăng ký.");
+            return APIResponse.<Void>builder()
+                    .message("Registration email sent successfully")
+                    .result(null)
+                    .build();
         } catch (Exception e) {
             logger.error("Lỗi trong quá trình gửi email xác nhận đăng ký: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Đã xảy ra lỗi khi gửi email xác nhận. Vui lòng thử lại sau.");
+            throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN);
         }
     }
+    /*
+    Sample JSON:
+    {
+        "email": "<EMAIL>",
+        "password": "<PASSWORD>",
+        "passwordConfirm": "<PASSWORD>"
+    }
+    */
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+    public APIResponse<?> logout(@RequestHeader("Authorization") String authHeader) {
         // Thông thường header Authorization: "Bearer eyJhbGciOi..."
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Invalid Authorization header");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
         String token = authHeader.substring(7);
         boolean result = authService.logout(token);
 
         if (result) {
-            return ResponseEntity.ok("Logout successful");
+            return APIResponse.<Void>builder()
+                            .message("Logout successfully")
+                            .result(null)
+                            .build();
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
     }
+
 
     /**
      * API xác nhận token từ email và tạo tài khoản (từ link xác nhận trong email).
@@ -123,4 +148,10 @@ public class AuthController {
             return new RedirectView("http://localhost:8080/tourify/register?error=token_invalid");
         }
     }
+    /*
+    Sample JSON:
+    {
+        "token": "<TOKEN>"
+    }
+    */
 }
