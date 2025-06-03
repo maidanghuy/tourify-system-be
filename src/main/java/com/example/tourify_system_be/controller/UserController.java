@@ -60,20 +60,33 @@ public class UserController {
     }
 
     @PutMapping("/avatar")
-    public ResponseEntity<?> updateAvatar(
+    public APIResponse<?> updateAvatar(
             @RequestParam String username,
             @RequestBody UpdateAvatarRequest request) {
 
         boolean updated = userService.updateAvatar(username, request.getAvatar());
         if (updated) {
-            return ResponseEntity.ok("Avatar updated successfully");
+            return APIResponse.<Void>builder()
+                            .message("Avatar updated successfully")
+                            .result(null)
+                            .build();
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return APIResponse.<Void>builder()
+                            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .message("Avatar update failed")
+                            .result(null)
+                            .build();
         }
     }
+    /*
+    Sample JSON:
+    {
+          "avatar": "https://example.com/avatar.jpg"
+      }
+    */
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+    public APIResponse<?> changePassword(@RequestBody ChangePasswordRequest request) {
         String result = userService.changePassword(
                 request.getUsername(),
                 request.getOldPassword(),
@@ -81,11 +94,24 @@ public class UserController {
                 request.getConfirmPassword());
 
         if ("Password changed successfully".equals(result)) {
-            return ResponseEntity.ok(result);
+            return APIResponse.builder()
+                    .message(result)
+                    .result(null)
+                    .code(HttpStatus.OK.value())
+                    .build();
         } else if ("Username does not exist".equals(result)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result);
+            return APIResponse.builder()
+                    .message(result)
+                    .result(null)
+                    .code(HttpStatus.NOT_FOUND.value())
+                    .build();
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            return APIResponse.builder()
+                    .message(result)
+                    .result(null)
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .build();
         }
     }
+
 }

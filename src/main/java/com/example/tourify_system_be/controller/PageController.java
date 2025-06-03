@@ -8,8 +8,7 @@ public class PageController {
 
     @GetMapping("/register")
     public String registerPage() {
-        return "register";  // Nếu dùng Thymeleaf: src/main/resources/templates/register.html
-        // Nếu là static: chuyển hướng frontend ra ngoài hoặc đổi URL
+        return "register";
     }
 
     @GetMapping("/login")
@@ -30,6 +29,11 @@ public class PageController {
     @GetMapping("/reset_password")
     public String restPasswordPage() {
         return "reset_password";
+    }
+
+    @GetMapping("/user/profile")
+    public String profilePage() {
+        return "profile";
     }
 }
 
