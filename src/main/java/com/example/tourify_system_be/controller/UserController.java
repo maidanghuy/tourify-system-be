@@ -114,4 +114,16 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userId}/lock")
+    public ResponseEntity<String> lockUser(@PathVariable String userId) {
+        userService.updateAccountStatus(userId, "locked");
+        return ResponseEntity.ok("User locked successfully.");
+    }
+
+    @PutMapping("/{userId}/unlock")
+    public ResponseEntity<String> unlockUser(@PathVariable String userId) {
+        userService.updateAccountStatus(userId, "active");
+        return ResponseEntity.ok("User unlocked successfully.");
+    }
+
 }
