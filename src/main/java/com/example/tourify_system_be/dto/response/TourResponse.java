@@ -18,8 +18,8 @@ public class TourResponse {
     private Integer touristNumberAssigned;
     private String thumbnail;
     private String status;
-
-    // Thông tin liên kết (chỉ lấy tên thay vì cả object tránh lỗi Lazy)
     private String placeName;
     private String categoryName;
+    private BigDecimal rating;
+    private String createdByUserName;
 }
