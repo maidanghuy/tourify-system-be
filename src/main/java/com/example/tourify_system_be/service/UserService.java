@@ -264,4 +264,12 @@ public class UserService {
     public boolean userNameExists(String username) {
         return userRepository.existsByUserName(username);
     }
+
+    public void updateAccountStatus(String userId, String status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        user.setStatus(status);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
 }
