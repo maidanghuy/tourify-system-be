@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -22,10 +23,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
 
+public class AuthController {
+    @Autowired
     private final AuthService authService;
+    @Autowired
     private final UserService userService;
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/forgot-password")
@@ -79,7 +83,8 @@ public class AuthController {
     @PostMapping("/register")
     public APIResponse<?> registerUser(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+            throw new AppException(ErrorCode.
+                    EMAIL_EXISTED);
         }
 
         if (userService.userNameExists(userDTO.getUserName())) {
