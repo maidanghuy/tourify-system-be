@@ -1,20 +1,14 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
-import com.example.tourify_system_be.dto.response.LoginResponse;
-import com.example.tourify_system_be.dto.response.UserResponse;
-import com.example.tourify_system_be.exception.AppException;
-import com.example.tourify_system_be.exception.ErrorCode;
-import com.example.tourify_system_be.service.AuthService;
-import com.example.tourify_system_be.service.UserService;
-import jakarta.transaction.Transactional;
+import com.example.tourify_system_be.dto.response.*;
+import com.example.tourify_system_be.exception.*;
+import com.example.tourify_system_be.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,10 +16,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
 
+public class AuthController {
+    @Autowired
     private final AuthService authService;
+    @Autowired
     private final UserService userService;
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @PostMapping("/forgot-password")
@@ -79,7 +76,8 @@ public class AuthController {
     @PostMapping("/register")
     public APIResponse<?> registerUser(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
+            throw new AppException(ErrorCode.
+                    EMAIL_EXISTED);
         }
 
         if (userService.userNameExists(userDTO.getUserName())) {

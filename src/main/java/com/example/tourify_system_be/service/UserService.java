@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -191,6 +193,69 @@ public class UserService {
             return false;
         }
     }
+
+    public void updateName(String username, String firstName, String lastName) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    public void updateEmail(String username, String email) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Kiểm tra email đã được dùng bởi người khác chưa
+        boolean emailUsedByAnotherUser = userRepository.existsByEmail(email) &&
+                !email.equalsIgnoreCase(user.getEmail());
+
+        if (emailUsedByAnotherUser) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_USED);
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setEmail(email);
+        userRepository.save(user);
+    }
+
+    public void updatePhone(String username, String phone) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        // Kiểm tra phonenumber đã được dùng bởi người khác chưa
+        boolean phoneUsedByAnotherUser = userRepository.existsByPhoneNumber(phone) || phone.equalsIgnoreCase(user.getPhoneNumber());
+        if (phoneUsedByAnotherUser) {
+            throw new AppException(ErrorCode.PHONE_ALREADY_USED);
+        }else{
+            user.setPhoneNumber(phone);
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
+        }
+    }
+
+    public void updateAddress(String username, String address) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setAddress(address);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+    public void updateDob(String username, String dob) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        LocalDate parsedDate = LocalDate.parse(dob, DateTimeFormatter.ISO_LOCAL_DATE);
+
+        user.setDob(parsedDate.atStartOfDay());
+
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
+
 
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
