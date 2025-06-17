@@ -27,6 +27,7 @@ public enum ErrorCode {
     EMAIL_ALREADY_USED(1015, "Email has already been used", HttpStatus.BAD_REQUEST),
     PHONE_ALREADY_USED(1016, "Phone number has already been used", HttpStatus.BAD_REQUEST),
 
+
     // 1100–1199: Quản lý người dùng
     // 1200–1299: Quản lý tour
     // 1300–1399: Thanh toán
