@@ -24,6 +24,9 @@ public enum ErrorCode {
     PASSWORD_TOO_SHORT(1012, "Password must be at least 6 characters long", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(1013, "Incorrect password", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED(1014, "Email already exists", HttpStatus.BAD_REQUEST),
+    PLACE_NOT_FOUND(1015,"Place not found",HttpStatus.BAD_REQUEST),
+    CATEGORY_NOT_FOUND(1016,"Category not found",HttpStatus.BAD_REQUEST),
+    NOT_SUBCOMPANY(1017,"Role isn't sub-company",HttpStatus.BAD_REQUEST),
 
     // 1100–1199: Quản lý người dùng
     // 1200–1299: Quản lý tour

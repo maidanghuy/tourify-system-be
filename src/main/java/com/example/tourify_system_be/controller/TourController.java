@@ -1,11 +1,19 @@
 package com.example.tourify_system_be.controller;
 
-import com.example.tourify_system_be.dto.request.TourFilterRequest;
-import com.example.tourify_system_be.dto.request.TourSearchRequest;
+import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.entity.Tour;
+import com.example.tourify_system_be.exception.AppException;
+import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.mapper.TourMapper;
+import com.example.tourify_system_be.security.CustomUserDetails;
 import com.example.tourify_system_be.service.TourService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +24,7 @@ import java.util.List;
 public class TourController {
 
     private final TourService tourService;
+    private final TourMapper tourMapper;
 
     @PostMapping("/search")
     public List<TourResponse> searchTours(@RequestBody TourSearchRequest request) {
@@ -25,6 +34,26 @@ public class TourController {
     @PostMapping("/filter")
     public List<TourResponse> filterTours(@RequestBody TourFilterRequest request) {
         return tourService.filterTours(request);
+    }
+
+    @PostMapping("")
+    public ResponseEntity<APIResponse<?>> createTour(@Valid @RequestBody TourCreateRequest request) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION); // hoặc trả về 401
+        }
+
+        CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
+
+        Tour createdTour = tourService.createTour(request, currentUser.getId());
+        TourResponse response = tourMapper.toResponse(createdTour);
+
+        return ResponseEntity.ok(APIResponse.builder()
+                .code(1000)
+                .message("Tour created successfully")
+                .result(response)
+                .build());
     }
 
 }

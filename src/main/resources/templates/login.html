@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,7 +16,7 @@
             href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
             rel="stylesheet"
     />
-    <link href="./css/login.css" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
 <body>
 <div class="wave-container" aria-hidden="true">
@@ -108,6 +108,6 @@
         </form>
     </div>
 </div>
-<script src="./js/login.js"></script>
+<script th:src="@{/js/login.js}"></script>
 </body>
 </html>
