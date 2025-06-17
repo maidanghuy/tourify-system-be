@@ -3,11 +3,14 @@ package com.example.tourify_system_be.service;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
 import com.example.tourify_system_be.dto.response.UserResponse;
+import com.example.tourify_system_be.entity.TokenAuthentication;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.UserMapper;
+import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
+import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +18,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -31,6 +31,8 @@ public class UserService {
     UserMapper userMapper;
     EmailService emailService;
     PasswordEncoder passwordEncoder;
+    JwtUtil jwtUtil;
+    ITokenAuthenticationRepository tokenRepo;
 
     Pattern EMAIL_REGEX = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     Duration TOKEN_VALID_DURATION = Duration.ofHours(24);
@@ -154,19 +156,19 @@ public class UserService {
     /**
      * Xác nhận token và lưu user vào DB với status = "active".
      */
-    @Transactional
-    public boolean confirmTokenAndCreateUser(String token) {
+
+    public String confirmTokenAndCreateUser(String token) {
         PendingUser pendingUser = pendingUsers.get(token);
         if (pendingUser == null) {
             System.err.println("Token không hợp lệ hoặc đã được sử dụng: " + token);
-            return false;
+            return null;
         }
 
         // Kiểm tra hạn sử dụng token
         if (pendingUser.getTokenCreatedAt().plus(TOKEN_VALID_DURATION).isBefore(Instant.now())) {
             pendingUsers.remove(token);
             System.err.println("Token hết hạn: " + token);
-            return false;
+            return null;
         }
 
         User user = pendingUser.getUser();
@@ -175,22 +177,40 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail()) || userRepository.existsByUserName(user.getUserName())) {
             pendingUsers.remove(token);
             System.err.println("Email hoặc username đã tồn tại: " + user.getEmail());
-            return false;
+            return null;
         }
 
         try {
             user.setStatus("active");
             user.setRole("user");
-            LocalDateTime now = LocalDateTime.now();
+            ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+            LocalDateTime now = LocalDateTime.now(vietnamZone);
             user.setCreatedAt(now);
             user.setUpdatedAt(now);
+
             userRepository.save(user);
+
+            // tao token cho user luu cookie
+            String accessToken = jwtUtil.generateToken( // ✅ gọi đúng instance
+                    user.getUserId(), user.getUserName(), user.getRole());
+
+            LocalDateTime expiresAt = now.plusDays(1);
+
+            TokenAuthentication tokenEntity = TokenAuthentication.builder()
+                    .tokenValue(token)
+                    .createAt(now)
+                    .expiresAt(expiresAt)
+                    .isUsed(true)
+                    .user(user)
+                    .build();
+            tokenRepo.save(tokenEntity);
+
             pendingUsers.remove(token);
 
-            return true;
+            return accessToken;
         } catch (Exception e) {
             System.err.println("Lỗi khi lưu user vào DB: " + e.getMessage());
-            return false;
+            return null;
         }
     }
 
