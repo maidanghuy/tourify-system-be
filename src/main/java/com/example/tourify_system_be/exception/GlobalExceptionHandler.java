@@ -2,6 +2,7 @@ package com.example.tourify_system_be.exception;
 
 import com.example.tourify_system_be.dto.request.APIResponse;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,60 +17,63 @@ public class GlobalExceptionHandler {
 
     private static final String MIN_ATTRIBUTE = "min";
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<APIResponse> handleRuntimeException(RuntimeException e){
+    /**
+     * Bắt tất cả Exception chưa xác định
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<APIResponse> handleException(Exception e) {
         APIResponse response = new APIResponse();
         response.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
         response.setMessage(e.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
 
-    @ExceptionHandler(value = AppException.class)
-    ResponseEntity<APIResponse> handleAppException(AppException e){
+    /**
+     * Bắt AppException có mã lỗi cụ thể
+     */
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<APIResponse> handleAppException(AppException e) {
         ErrorCode errorCode = e.getErrorCode();
-
 
         APIResponse response = new APIResponse();
         response.setCode(errorCode.getCode());
-        response.setMessage(e.getMessage());
+        response.setMessage(errorCode.getMessage());
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<APIResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
-        String enumKey = e.getFieldError().getDefaultMessage();
+    /**
+     * Bắt lỗi validate @Valid trong @RequestBody (DTO)
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<APIResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        FieldError fieldError = e.getBindingResult().getFieldError();
 
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-        Map<String, Object> attributes = null;
-        try {
-            errorCode = ErrorCode.valueOf(enumKey);
-
-            var constraintViolation =
-                    e.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-
-//            log.info(attributes.toString());
-
-        } catch (IllegalArgumentException ie) {
-
-        }
+        String message = (fieldError != null)
+                ? fieldError.getDefaultMessage()
+                : "Validation failed";
 
         APIResponse apiResponse = new APIResponse();
-
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(
-                Objects.nonNull(attributes)
-                        ? mapAttribute(errorCode.getMessage(), attributes)
-                        : errorCode.getMessage());
+        apiResponse.setCode(ErrorCode.INVALID_KEY.getCode());
+        apiResponse.setMessage(message);
 
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
-    private String mapAttribute(String message, Map<String, Object> attributes) {
-        String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
+    /**
+     * Bắt lỗi validate @RequestParam, @PathVariable (ví dụ @Min, @NotNull)
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<APIResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .findFirst()
+                .orElse("Invalid input");
 
-        return message.replace("{" + MIN_ATTRIBUTE + "}", minValue);
+        APIResponse response = new APIResponse();
+        response.setCode(ErrorCode.INVALID_KEY.getCode());
+        response.setMessage(message);
+
+        return ResponseEntity.badRequest().body(response);
     }
 }
