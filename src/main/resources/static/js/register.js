@@ -92,11 +92,18 @@
 
 document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", function () {
-        const targetId = this.getAttribute("data-target");
-        const targetInput = document.getElementById(targetId);
-        const isPassword = targetInput.getAttribute("type") === "password";
-        targetInput.setAttribute("type", isPassword ? "text" : "password");
-        this.classList.toggle("fa-eye");
-        this.classList.toggle("fa-eye-slash");
+        const passwordInput = document.getElementById("password");
+        const passwordConfirmInput = document.getElementById("passwordConfirm");
+        const isPassword = passwordInput.getAttribute("type") === "password";
+
+        // Toggle both password fields together
+        passwordInput.setAttribute("type", isPassword ? "text" : "password");
+        passwordConfirmInput.setAttribute("type", isPassword ? "text" : "password");
+
+        // Toggle both eye icons together
+        document.querySelectorAll(".toggle-password").forEach((eyeIcon) => {
+            eyeIcon.classList.toggle("fa-eye");
+            eyeIcon.classList.toggle("fa-eye-slash");
+        });
     });
 });

@@ -139,10 +139,39 @@ body {
 
 
 .tour-card-hover:hover {
-    transform: translateY(-6px);
+    scale: 1.04;
     box-shadow: 0 16px 40px rgba(32, 201, 151, 0.15);
     border-color: rgba(32, 201, 151, 0.3);
     background: linear-gradient(135deg, #ffffff 0%, #f8fdfb 100%);
+}
+
+.tour-card-hover {
+    /* ... các thuộc tính cũ ... */
+    position: relative;
+    overflow: hidden;
+}
+
+.tour-card-hover::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.4) 50%,
+        rgba(255,255,255,0) 100%
+    );
+    opacity: 0.7;
+    pointer-events: none;
+    transition: left 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.tour-card-hover:hover::after {
+    left: 125%;
+    transition: left 0.7s cubic-bezier(0.4,0,0.2,1);
 }
 
 

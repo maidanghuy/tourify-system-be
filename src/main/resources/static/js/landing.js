@@ -1,3 +1,37 @@
+window.onload = function () {
+    const token = getCookie("access_token");
+
+    if (token) {
+        // Lưu vào localStorage
+        localStorage.setItem("accessToken", token);
+        // console.log("Token saved to localStorage:", token);
+
+        // Xóa cookie ngay sau khi lưu
+        deleteCookie("access_token");
+        // console.log("Cookie 'access_token' deleted");
+    } else {
+        // console.warn("Cookie 'access_token' not found");
+    }
+};
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function deleteCookie(name) {
+    document.cookie = `${name}=; Max-Age=0; path=/;`;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const username = localStorage.getItem("username");
+    const userSpan = document.querySelector("#userMenu span span");
+    if (userSpan) {
+        userSpan.textContent = username ? username : "User";
+    }
+});
+
 const toggleBtn = document.getElementById("chatToggleBtn");
 const chatWidget = document.getElementById("chatWidget");
 
