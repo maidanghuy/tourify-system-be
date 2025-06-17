@@ -4,9 +4,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const profilePic = document.getElementById("profile-pic");
 
 
-    editIcon.addEventListener("click", () => {
-        fileInput.click();
-    });
+    // editIcon.addEventListener("click", () => {
+    //     fileInput.click();
+    // });
 
 
     document.addEventListener("DOMContentLoaded", function () {

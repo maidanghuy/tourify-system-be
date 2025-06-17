@@ -28,8 +28,8 @@ body {
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom right,
-            rgba(0, 0, 0, 0.35),
-            rgba(0, 0, 0, 0.1));
+    rgba(0, 0, 0, 0.35),
+    rgba(0, 0, 0, 0.1));
     z-index: 1;
     pointer-events: none;
     mix-blend-mode: multiply;
@@ -145,34 +145,12 @@ body {
     background: linear-gradient(135deg, #ffffff 0%, #f8fdfb 100%);
 }
 
-
-
-/* Image style */
-.tour-card-hover img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.tour-card-hover {
+    /* ... các thuộc tính cũ ... */
+    position: relative;
+    overflow: hidden;
 }
 
-
-/* Content styling */
-.tour-card-hover h6 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #212529;
-}
-
-
-.tour-card-hover small {
-    font-size: 0.875rem;
-    color: #6c757d;
-}
-
-
-/* Optional ripple overlay on hover */
 .tour-card-hover::after {
     content: "";
     position: absolute;
@@ -180,32 +158,22 @@ body {
     left: -75%;
     width: 50%;
     height: 100%;
-    background: rgba(32, 201, 151, 0.03);
-    transform: skewX(-20deg);
-    transition: left 0.5s ease;
+    background: linear-gradient(
+            120deg,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.4) 50%,
+            rgba(255,255,255,0) 100%
+    );
+    opacity: 0.7;
     pointer-events: none;
+    transition: left 0.5s cubic-bezier(0.4,0,0.2,1);
 }
-
 
 .tour-card-hover:hover::after {
     left: 125%;
+    transition: left 0.7s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* Pagination Styles */
-.pagination {
-    gap: 0.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.pagination .page-item {
-    margin: 0;
-}
 
 /* Image style */
 .tour-card-hover img {
@@ -303,13 +271,6 @@ body {
     box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
 }
 
-}
-
-.pagination .page-link:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4);
-}
-
 .pagination .page-item.active .page-link {
     background: linear-gradient(135deg, #20c997 0%, #17b28c 100%);
     color: white;
@@ -353,12 +314,6 @@ body {
 .pagination .page-link i {
     font-size: 0.9rem;
     transition: transform 0.3s ease;
-}
-
-.pagination .page-link:hover i {
-    transform: scale(1.1);
-}
-
 }
 
 .pagination .page-link:hover i {
@@ -497,22 +452,6 @@ html {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     /*border: 1px solid rgba(255, 255, 255, 0.2);*/
-}
-
-/* Smooth transition for all pagination elements */
-.pagination * {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Enhanced container styling */
-#place {
-    background: linear-gradient(135deg, rgba(142, 190, 185, 0.05) 0%, rgba(255, 255, 255, 0.1) 100%);
-    border-radius: 20px;
-    margin: 2rem auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Improved section title */
