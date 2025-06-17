@@ -4,13 +4,15 @@ import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.*;
 import com.example.tourify_system_be.exception.*;
 import com.example.tourify_system_be.service.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
@@ -74,7 +76,7 @@ public class AuthController {
     */
 
     @PostMapping("/register")
-    public APIResponse<?> registerUser(@Valid @RequestBody UserCreateRequest userDTO) {
+    public APIResponse<?> register(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
             throw new AppException(ErrorCode.
                     EMAIL_EXISTED);
@@ -131,19 +133,31 @@ public class AuthController {
      * API xác nhận token từ email và tạo tài khoản (từ link xác nhận trong email).
      */
     @GetMapping("/confirm")
-    public RedirectView confirmEmail(@RequestParam("token") String token) {
-        boolean success = userService.confirmTokenAndCreateUser(token);
-        if (success) {
-            // Nếu thành công, chuyển hướng tới trang đăng nhập front-end
+    public ResponseEntity<Object> confirmEmail(@RequestParam("token") String token, HttpServletResponse response) {
+        String accessToken = userService.confirmTokenAndCreateUser(token);
+
+        if (accessToken != null) {
+            // Tạo cookie chứa token
+            Cookie cookie = new Cookie("access_token", accessToken);
+            cookie.setHttpOnly(false); // Nếu muốn JS truy cập, set false
+            cookie.setSecure(false);   // Set true nếu dùng HTTPS
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24); // 1 ngày
+
+            response.addCookie(cookie);
+
+            // Redirect về frontend
             String loginUrl = UriComponentsBuilder
-                    .fromUriString("http://localhost:8080/tourify/landing")
-                    .queryParam("info", "account_activated")
+                    .fromUriString("http://localhost:8080/tourify")
                     .build().toUriString();
 
-            return new RedirectView(loginUrl);
+            return ResponseEntity.status(302)
+                    .header("Location", loginUrl)
+                    .build();
         } else {
-            // Token không hợp lệ hoặc lỗi -> quay lại trang đăng ký với thông báo lỗi
-            return new RedirectView("http://localhost:8080/tourify/register?error=token_invalid");
+            return ResponseEntity.status(302)
+                    .header("Location", "http://localhost:8080/tourify/register?error=token_invalid")
+                    .build();
         }
     }
     /*

@@ -32,6 +32,7 @@ public class AuthService {
     ITokenAuthenticationRepository tokenRepo;
     JavaMailSender mailSender;
     PasswordEncoder passwordEncoder;
+    JwtUtil jwtUtil;
 
     public void sendResetPasswordEmail(String email) {
 //        System.out.println(email);
@@ -104,7 +105,8 @@ public class AuthService {
         return userRepository.findByUserName(request.getUsername())
                 .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
                 .map(user -> {
-                    String token = JwtUtil.generateToken(user.getUserName());
+                    String token = jwtUtil.generateToken( // ✅ gọi đúng instance
+                            user.getUserId(), user.getUserName(), user.getRole());
 
                     ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
                     LocalDateTime now = LocalDateTime.now(vietnamZone);
@@ -124,6 +126,8 @@ public class AuthService {
                 })
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
     }
+
+
 
 
     public boolean logout(String tokenValue) {
