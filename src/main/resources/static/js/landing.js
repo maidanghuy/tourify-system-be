@@ -35,9 +35,6 @@ document.addEventListener("DOMContentLoaded", function() {
 const toggleBtn = document.getElementById("chatToggleBtn");
 const chatWidget = document.getElementById("chatWidget");
 
-const toggleBtn = document.getElementById("chatToggleBtn");
-const chatWidget = document.getElementById("chatWidget");
-
 // Pagination variables
 let currentPage = 0;
 const pageSize = 6;
