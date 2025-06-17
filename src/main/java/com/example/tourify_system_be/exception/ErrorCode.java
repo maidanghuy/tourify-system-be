@@ -30,6 +30,7 @@ public enum ErrorCode {
     CATEGORY_NOT_FOUND(1016,"Category not found",HttpStatus.BAD_REQUEST),
     NOT_SUBCOMPANY(1017,"Role isn't sub-company",HttpStatus.BAD_REQUEST),
 
+
     // 1100–1199: Quản lý người dùng
     // 1200–1299: Quản lý tour
     // 1300–1399: Thanh toán
