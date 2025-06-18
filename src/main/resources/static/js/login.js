@@ -15,6 +15,12 @@ function togglePassword() {
 
 // Lắng nghe sự kiện DOMContentLoaded để đảm bảo DOM đã được tải hoàn chỉnh
 document.addEventListener('DOMContentLoaded', () => {
+// ✅ Nếu đã có accessToken thì tự động chuyển đến landing page
+  const existingToken = localStorage.getItem('accessToken');
+  if (existingToken) {
+    window.location.href = '/tourify/landing';
+    return;
+  }
   const loginForm = document.querySelector('form');
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');
