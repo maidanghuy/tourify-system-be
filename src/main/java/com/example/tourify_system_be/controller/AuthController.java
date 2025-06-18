@@ -166,4 +166,26 @@ public class AuthController {
         "token": "<TOKEN>"
     }
     */
+
+    @GetMapping("/me")
+    public APIResponse<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        String token = authHeader.substring(7); // loại bỏ "Bearer "
+        UserResponse user = authService.getUserFromToken(token);
+
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return APIResponse.<UserResponse>builder()
+                .result(user)
+                .message("User information retrieved successfully")
+                .build();
+    }
+
+
+
 }
