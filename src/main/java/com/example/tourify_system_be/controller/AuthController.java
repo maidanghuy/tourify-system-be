@@ -1,8 +1,12 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.repository.IUserRepository;
+import org.springframework.ui.Model;
 import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.*;
+import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.exception.*;
+import com.example.tourify_system_be.security.JwtUtil;
 import com.example.tourify_system_be.service.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -24,6 +30,10 @@ public class AuthController {
     private final AuthService authService;
     @Autowired
     private final UserService userService;
+    @Autowired
+    private final JwtUtil jwtUtil;
+    @Autowired
+    private final IUserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -166,4 +176,11 @@ public class AuthController {
         "token": "<TOKEN>"
     }
     */
+
+    @GetMapping("/oauth2/success")
+    public APIResponse<?> loginWithGoogle(@AuthenticationPrincipal OAuth2User oAuth2User) {
+        return authService.loginWithGoogle(oAuth2User);
+    }
+
+
 }

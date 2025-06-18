@@ -295,4 +295,19 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    public User findOrCreateGoogleUser(String email, String name) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail(email);
+                    user.setUserName(email.split("@")[0]);
+                    user.setFirstName(name);
+                    user.setRole("user");
+                    user.setStatus("ACTIVE");
+                    user.setPassword(""); // hoặc chuỗi bất kỳ vì không dùng
+                    return userRepository.save(user);
+                });
+    }
+
 }

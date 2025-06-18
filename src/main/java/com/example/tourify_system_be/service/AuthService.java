@@ -1,5 +1,6 @@
 package com.example.tourify_system_be.service;
 
+import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.LoginRequest;
 import com.example.tourify_system_be.dto.response.LoginResponse;
 import com.example.tourify_system_be.entity.TokenAuthentication;
@@ -17,10 +18,13 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -139,4 +143,52 @@ public class AuthService {
         }
         return false;
     }
+
+    @Transactional
+    public APIResponse<Map<String, Object>> loginWithGoogle(OAuth2User oAuth2User) {
+        if (oAuth2User == null) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("name");
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    newUser.setUserName(email.split("@")[0]);
+                    newUser.setFirstName(name);
+                    newUser.setRole("user");
+                    newUser.setStatus("ACTIVE");
+                    newUser.setPassword("");
+                    newUser.setCreatedAt(LocalDateTime.now());
+                    newUser.setUpdatedAt(LocalDateTime.now());
+                    return userRepository.save(newUser);
+                });
+
+        String token = jwtUtil.generateToken(user.getUserId(), user.getUserName(), user.getRole());
+
+        TokenAuthentication tokenEntity = TokenAuthentication.builder()
+                .tokenValue(token)
+                .createAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusDays(1))
+                .isUsed(true)
+                .user(user)
+                .build();
+
+        tokenRepo.save(tokenEntity);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("message", "Login by Gmail successful");
+        result.put("token", token);
+        result.put("userName", user.getUserName()); // 👈 DỮ LIỆU MỚI
+
+        return APIResponse.<Map<String, Object>>builder()
+                .code(1000)
+                .message("Login by Gmail successful")
+                .result(result)
+                .build();
+    }
+
 }
