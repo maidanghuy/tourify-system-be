@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Always clear local storage and redirect after attempting API call
             localStorage.removeItem("username"); // Clear username
             localStorage.removeItem("accessToken"); // Clear the accessToken
-            window.location.href = "./login"; // Redirect to login page
+            window.location.href = "http://localhost:8080/tourify/login"; // Redirect to login page
         });
     }
 });

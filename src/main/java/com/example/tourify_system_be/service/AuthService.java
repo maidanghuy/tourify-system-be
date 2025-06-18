@@ -2,10 +2,12 @@ package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.request.LoginRequest;
 import com.example.tourify_system_be.dto.response.LoginResponse;
+import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.TokenAuthentication;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.mapper.UserMapper;
 import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
 import com.example.tourify_system_be.security.JwtUtil;
@@ -33,6 +35,7 @@ public class AuthService {
     JavaMailSender mailSender;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
+    UserMapper userMapper;
 
     public void sendResetPasswordEmail(String email) {
 //        System.out.println(email);
@@ -127,9 +130,6 @@ public class AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
     }
 
-
-
-
     public boolean logout(String tokenValue) {
         TokenAuthentication token = tokenRepo.findByTokenValue(tokenValue);
         if (token != null) {
@@ -139,4 +139,12 @@ public class AuthService {
         }
         return false;
     }
+
+    public UserResponse getUserFromToken(String token) {
+        String username = jwtUtil.extractUsername(token);
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return userMapper.toUserResponse(user);
+    }
+
 }

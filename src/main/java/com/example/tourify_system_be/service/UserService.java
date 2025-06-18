@@ -221,8 +221,12 @@ public class UserService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        if(firstName != null){
+            user.setFirstName(firstName);
+        }
+        if(lastName != null){
+            user.setLastName(lastName);
+        }
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
