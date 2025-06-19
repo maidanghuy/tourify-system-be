@@ -24,11 +24,65 @@ function deleteCookie(name) {
     document.cookie = `${name}=; Max-Age=0; path=/;`;
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const username = localStorage.getItem("username");
-    const userSpan = document.querySelector("#userMenu span span");
-    if (userSpan) {
-        userSpan.textContent = username ? username : "User";
+document.addEventListener("DOMContentLoaded", function () {
+    const accessToken = localStorage.getItem("accessToken");
+    const dropdownContainer = document.querySelector(".dropdown");
+    const logoutButton = document.getElementById("logout-link");
+
+    if (accessToken) {
+        // User is logged in - show dropdown and logout button
+        if (dropdownContainer) {
+            dropdownContainer.style.display = "block";
+        }
+        if (logoutButton) {
+            logoutButton.innerHTML = '<i class="fas fa-sign-out-alt me-1"></i>Logout';
+            // Remove any existing click handlers to avoid conflicts
+            logoutButton.replaceWith(logoutButton.cloneNode(true));
+            const newLogoutButton = document.getElementById("logout-link");
+
+            // Add the logout functionality from logout.js
+            newLogoutButton.addEventListener("click", async function (event) {
+                event.preventDefault();
+
+                try {
+                    const response = await fetch('http://localhost:8080/tourify/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        console.log('Logout successful on server.');
+                    } else {
+                        console.error('Logout failed on server:', response.status, response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error during logout API call:', error);
+                }
+
+                // Always clear local storage and redirect
+                localStorage.removeItem("username");
+                localStorage.removeItem("accessToken");
+                window.location.href = "./login";
+            });
+        }
+    } else {
+        // User is not logged in - hide dropdown and show login button
+        if (dropdownContainer) {
+            dropdownContainer.style.display = "none";
+        }
+        if (logoutButton) {
+            logoutButton.innerHTML = '<i class="fas fa-sign-in-alt me-1"></i>Login';
+            // Remove any existing click handlers
+            logoutButton.replaceWith(logoutButton.cloneNode(true));
+            const newLoginButton = document.getElementById("logout-link");
+
+            newLoginButton.addEventListener("click", function () {
+                window.location.href = "/tourify/login";
+            });
+        }
     }
 });
 

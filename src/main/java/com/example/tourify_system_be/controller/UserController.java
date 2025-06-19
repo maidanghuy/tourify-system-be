@@ -139,7 +139,7 @@ public class UserController {
             @RequestBody UpdatePhoneRequest request
     )
     {
-        userService.updatePhone(username, request.getPhoneNumber());
+        userService.updatePhone(username, request.getPhone());
         return APIResponse.builder()
                 .message("Update phone successfully")
                 .build();
