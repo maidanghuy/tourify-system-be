@@ -24,8 +24,8 @@ public class BookingTourService {
     private final TourRepository tourRepository;
     private final EmailService emailService; // ✅ THÊM DÒNG NÀY
 
-    public BookingTourResponse createBooking(BookingTourRequest request) {
-        User user = userRepository.findById(request.getUserId())
+    public BookingTourResponse createBooking(BookingTourRequest request, String userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
         Tour tour = tourRepository.findById(request.getTourId())
