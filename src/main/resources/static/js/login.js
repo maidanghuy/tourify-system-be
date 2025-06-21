@@ -1,4 +1,16 @@
-// Function để ẩn/hiện mật khẩu
+// ✅ Giải mã JWT để lấy thông tin role, sub (username)
+function parseJwt(token) {
+  try {
+    const base64Payload = token.split('.')[1];
+    const payload = atob(base64Payload);
+    return JSON.parse(payload);
+  } catch (e) {
+    console.error('Lỗi parse JWT:', e);
+    return null;
+  }
+}
+
+// 🔒 Ẩn/hiện mật khẩu
 function togglePassword() {
   const passwordField = document.getElementById('password');
   const eyeIcon = document.getElementById('eyeIcon');
@@ -13,14 +25,21 @@ function togglePassword() {
   }
 }
 
-// Lắng nghe sự kiện DOMContentLoaded để đảm bảo DOM đã được tải hoàn chỉnh
+// ✅ Khi DOM đã sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
-// ✅ Nếu đã có accessToken thì tự động chuyển đến landing page
+
+  // Nếu đã có token → decode & redirect theo role
   const existingToken = localStorage.getItem('accessToken');
   if (existingToken) {
-    window.location.href = '/tourify/landing';
+    const decoded = parseJwt(existingToken);
+    if (decoded && decoded.role === 'SUB_COMPANY') {
+      window.location.href = '/tourify/dashboard';
+    } else {
+      window.location.href = '/tourify/landing';
+    }
     return;
   }
+
   const loginForm = document.querySelector('form');
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');
@@ -33,11 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showMessage(message, type = 'error') {
     messageContainer.textContent = message;
     messageContainer.classList.remove('text-danger', 'text-success');
-    if (type === 'error') {
-      messageContainer.classList.add('text-danger');
-    } else {
-      messageContainer.classList.add('text-success');
-    }
+    messageContainer.classList.add(type === 'error' ? 'text-danger' : 'text-success');
   }
 
   if (loginForm) {
@@ -47,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
 
-      showMessage(''); // Xóa thông báo cũ
+      showMessage(''); // Clear old message
 
-      // --- Validation cơ bản ---
+      // ⚠️ Validation cơ bản
       if (!username) {
         showMessage('Username không được để trống.');
         usernameInput.focus();
@@ -68,55 +83,50 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const loginData = {
-        username: username,
-        password: password
-      };
+      const loginData = { username, password };
 
       try {
         const response = await fetch('http://localhost:8080/tourify/api/auth/login', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(loginData)
         });
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (response.ok && data.result && data.result.token) {
           showMessage('Đăng nhập thành công!', 'success');
-          console.log('Login successful:', data);
+          const token = data.result.token;
+          const decoded = parseJwt(token);
 
-          if (data && data.result.token) {
-            localStorage.setItem('accessToken', data.result.token);
-            localStorage.setItem('username', username);
-            window.location.href = '/tourify/landing';
+          if (!decoded || !decoded.role) {
+            showMessage('Không xác định được vai trò người dùng.', 'error');
+            return;
+          }
+
+          localStorage.setItem('accessToken', token);
+          localStorage.setItem('username', decoded.sub);
+          localStorage.setItem('role', decoded.role);
+
+          if (decoded.role === 'SUB_COMPANY') {
+            window.location.href = '/tourify/dashboard';
           } else {
-            // Trường hợp API trả về 200 OK nhưng body không có token hợp lệ
-            showMessage('Đăng nhập không thành công. Vui lòng thử lại.', 'error');
-            console.error('Login successful but no token received:', data);
+            window.location.href = '/tourify/landing';
           }
 
         } else {
-          // Đây là trường hợp đăng nhập thất bại (HTTP status code không phải 2xx)
-          // `data` ở đây chứa thông tin lỗi từ server
+          // Xử lý lỗi logic và token null
           let errorMessage = data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
-
-          // Cụ thể hóa thông báo nếu API trả về token là null cho trường hợp lỗi
-          if (data && data.token === null && data.message === "Invalid username or password") {
-             errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng.';
-          } else if (data && data.token === null) {
-              errorMessage = 'Đăng nhập không thành công. Vui lòng thử lại.';
+          if (data.token === null && data.message === "Invalid username or password") {
+            errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng.';
           }
-
-          showMessage(errorMessage, 'error'); // Hiển thị thông báo lỗi trên giao diện
+          showMessage(errorMessage, 'error');
           console.error('Login failed:', data);
         }
+
       } catch (error) {
-        // Xử lý lỗi mạng hoặc lỗi không mong muốn khác
         showMessage('Đã xảy ra lỗi khi kết nối đến máy chủ. Vui lòng thử lại sau.', 'error');
-        console.error('Network error or unexpected error:', error);
+        console.error('Lỗi mạng hoặc không xác định:', error);
       }
     });
   }
