@@ -75,7 +75,10 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Place</label>
-                    <input class="form-control" id="place" placeholder="Place">
+                    <select id="place" class="form-select">
+                      <option value="" disabled selected>Select a place</option>
+                    </select>
+
                 </div>
                 </div>
             </div>
@@ -87,15 +90,9 @@
                 <div class="form-section-title">Category</div>
                 <label class="form-label mt-2">Category Name</label>
                 <select id="categorySelect" class="form-select">
-        <option value="">Select a category</option>
-        <option value="adventure">Adventure</option>
-        <option value="culture">Culture</option>
-        <option value="relaxation">Relaxation</option>
-        <option value="wildlife">Wildlife</option>
-        <option value="beach">Beach</option>
-        <option value="city-tour">City Tour</option>
-        <option value="cruise">Cruise</option>
-        </select>
+                  <option value="" disabled selected>Select a category</option>
+                </select>
+
 
 
             </div>
@@ -266,7 +263,6 @@
           currentMediaType === "image" ? "imagePreview" : "videoPreview"
         );
 
-
         let mediaHTML = "";
         if (url) {
           mediaHTML =
@@ -281,12 +277,17 @@
               : `<a href="${fileURL}" target="_blank"><video src="${fileURL}" controls muted></video></a>`;
         }
 
+        // ✅ THÊM Ở ĐÂY
+        if (mediaHTML) {
+          preview.insertAdjacentHTML("beforeend", mediaHTML);
+          calculateCompletion(); // ✅ Thêm dòng này để cập nhật phần trăm hoàn thành
+        }
 
-        if (mediaHTML) preview.insertAdjacentHTML("beforeend", mediaHTML);
         bootstrap.Modal.getInstance(
           document.getElementById("mediaModal")
         ).hide();
       }
+
 
 
 
@@ -333,23 +334,17 @@
 
 
       function isMediaValid() {
-        const imageCount =
-          document.querySelectorAll("#imagePreview img").length;
-        const videoCount = document.querySelectorAll(
-          "#videoPreview video"
-        ).length;
+        const imageCount = document.querySelectorAll("#imagePreview img").length;
+        const videoCount = document.querySelectorAll("#videoPreview video").length;
         return {
-          valid: imageCount > 0 && videoCount > 0,
-          missing: [
-            ...(imageCount === 0
-              ? [{ label: "Image", scrollTo: "#imageDropzone" }]
-              : []),
-            ...(videoCount === 0
-              ? [{ label: "Video", scrollTo: "#videoDropzone" }]
-              : []),
-          ],
+          valid: imageCount > 0 || videoCount > 0, // ✅ Chỉ cần 1 trong 2
+          missing: imageCount === 0 && videoCount === 0
+            ? [{ label: "Image or Video", scrollTo: "#imageDropzone" }]
+            : [],
         };
       }
+
+
 
 
       function calculateCompletion() {
@@ -458,12 +453,12 @@
 
 
       function initAddTourPage() {
-        // ✅ Khởi tạo lại Select2 (sau khi DOM addTour được gắn vào)
-        $("#categorySelect, #statusSelect").select2({
+        // ✅ Khởi tạo Select2 cho các dropdown
+        $("#categorySelect, #statusSelect, #place").select2({
           placeholder: "Select an option",
           width: "100%",
+          allowClear: true
         });
-
 
         // ✅ Cập nhật badge khi chọn Status
         $("#statusSelect").on("change", function () {
@@ -471,8 +466,12 @@
           $("#statusBadge").text(selected);
         });
 
+        // ✅ Trigger cập nhật Completion khi chọn Category hoặc Place
+        $("#categorySelect, #place").on("change", function () {
+          calculateCompletion();
+        });
 
-        // ✅ Gán lại listener cho mỗi input
+        // ✅ Gán lại sự kiện input/change cho tất cả các trường required
         requiredFields.forEach(({ selector }) => {
           const el = document.querySelector(selector);
           if (el) {
@@ -481,8 +480,7 @@
           }
         });
 
-
-        // ✅ Gán lại DOMSubtreeModified cho media preview
+        // ✅ Gắn lại listener cho media zones (ảnh, video)
         const imageZone = document.querySelector("#imageDropzone");
         const videoZone = document.querySelector("#videoDropzone");
         if (imageZone) {
@@ -492,8 +490,7 @@
           videoZone.addEventListener("DOMSubtreeModified", calculateCompletion);
         }
 
-
-        // ✅ Gọi lại sau khi DOM sẵn sàng
+        // ✅ Gọi ngay khi DOM đã hoàn chỉnh
         setTimeout(() => {
           if (
             document.getElementById("completionBadge") &&
@@ -503,4 +500,5 @@
           }
         }, 100);
       }
+
 
