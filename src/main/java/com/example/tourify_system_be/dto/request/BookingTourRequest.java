@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class BookingTourRequest {
-    private String userId;
     private String tourId;
     private Integer adultNumber;
     private Integer childNumber;
