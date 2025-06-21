@@ -8,7 +8,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 
 @Service
 @RequiredArgsConstructor
@@ -53,8 +52,33 @@ public class EmailService {
             helper.setFrom(new InternetAddress("noreply@tourify.com", "Tourify Support"));
 
             mailSender.send(message);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void sendBookingConfirmationEmail(String email, String name, String tourName,
+                                             int total, String start, String end) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject("Xác nhận đặt tour thành công");
+
+            String htmlContent = "<html><body>" +
+                    "<p>Xin chào <strong>" + name + "</strong>,</p>" +
+                    "<p>Bạn đã đặt thành công tour <strong>" + tourName + "</strong>.</p>" +
+                    "<p><b>Thời gian:</b> " + start + " → " + end + "</p>" +
+                    "<p><b>Tổng tiền:</b> " + total + " VND</p>" +
+                    "<p>Cảm ơn bạn đã sử dụng dịch vụ của Tourify.</p>" +
+                    "<br><p>Trân trọng,<br/>Tourify Team</p>" +
+                    "</body></html>";
+
+            helper.setText(htmlContent, true);
+            helper.setFrom(new InternetAddress("noreply@tourify.com", "Tourify Support"));
+
+            mailSender.send(message);
         } catch (Exception e) {
             e.printStackTrace();
         }
