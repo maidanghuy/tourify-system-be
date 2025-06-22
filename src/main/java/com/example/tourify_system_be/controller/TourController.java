@@ -56,4 +56,8 @@ public class TourController {
                 .build());
     }
 
+    @GetMapping("/by-place-name")
+    public List<TourResponse> getToursByPlaceName(@RequestParam String placeName) {
+        return tourService.getToursByPlaceName(placeName);
+    }
 }

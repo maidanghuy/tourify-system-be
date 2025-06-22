@@ -128,13 +128,10 @@ function loadPlaces(page = 0) {
     const container = document.getElementById("placeCardsContainer");
     const paginationContainer = document.getElementById("pagination");
 
-    // Add loading class for smooth transition
     container.classList.add('loading');
-
-    // Show loading state
     container.innerHTML = '<div class="col-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 
-    fetch(`http://localhost:8080/tourify/api/place/paged?page=${page}&size=${pageSize}`)
+    fetch(`/tourify/api/place/paged?page=${page}&size=${pageSize}`)
         .then((response) => {
             if (!response.ok) {
                 throw new Error("Network response was not ok");
@@ -145,46 +142,39 @@ function loadPlaces(page = 0) {
             if (data.code === 1000 && data.result) {
                 const pageData = data.result;
                 currentPage = pageData.currentPage;
-
-                // Clear existing cards
                 container.innerHTML = "";
 
-                // Render places
                 if (pageData.content && pageData.content.length > 0) {
                     pageData.content.forEach((place) => {
                         const col = document.createElement("div");
                         const [lat, lng] = place.gpsCoordinates.split(",");
                         const imageUrl = `https://static-maps.yandex.ru/1.x/?ll=${lng.trim()},${lat.trim()}&size=400,400&z=13&l=map&pt=${lng.trim()},${lat.trim()},pm2rdm`;
-                        col.className = "col-md-4";
 
+                        col.className = "col-md-4";
                         col.innerHTML = `
-                        <div class="d-flex align-items-center p-3 rounded shadow-sm tour-card-hover">
-                            <img
-                                src="${imageUrl}"
-                                class="rounded me-3"
-                                width="64"
-                                height="64"
-                                alt="${place.placeName}"
-                            />
-                            <div>
-                                <h6 class="mb-1 fw-semibold">${place.placeName}</h6>
-                                <small class="text-muted">Rating: ${place.rating}</small>
+                        <a href="/tourify/tourlistbyplace?placeName=${encodeURIComponent(place.placeName)}" class="text-decoration-none text-dark">
+                            <div class="d-flex align-items-center p-3 rounded shadow-sm tour-card-hover">
+                                <img
+                                    src="${imageUrl}"
+                                    class="rounded me-3"
+                                    width="64"
+                                    height="64"
+                                    alt="${place.placeName}"
+                                />
+                                <div>
+                                    <h6 class="mb-1 fw-semibold">${place.placeName}</h6>
+                                    <small class="text-muted">Rating: ${place.rating}</small>
+                                </div>
                             </div>
-                        </div>
-                    `;
+                        </a>`;
                         container.appendChild(col);
                     });
                 } else {
                     container.innerHTML = "<div class='col-12 text-center'><p class='text-muted'>No places found.</p></div>";
                 }
 
-                // Render pagination
                 renderPagination(pageData);
-
-                // Remove loading class after content is loaded
-                setTimeout(() => {
-                    container.classList.remove('loading');
-                }, 100);
+                setTimeout(() => container.classList.remove('loading'), 100);
             } else {
                 container.innerHTML = "<div class='col-12 text-center'><p class='text-danger'>No places found.</p></div>";
                 container.classList.remove('loading');
@@ -196,6 +186,7 @@ function loadPlaces(page = 0) {
             container.classList.remove('loading');
         });
 }
+
 
 // Function to render pagination
 function renderPagination(pageData) {
