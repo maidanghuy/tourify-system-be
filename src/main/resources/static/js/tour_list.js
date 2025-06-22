@@ -172,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <button class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill">
                                     <i class="fas fa-plus"></i> Add to Favorites
                                 </button>
-                                <a href="/tour/detail/${tour.id}" class="btn btn-success px-4 rounded-pill">View Details</a>
+                                <a href="/tourify/tourDetail?id=${tour.id}" class="btn btn-success px-4 rounded-pill">View Details</a>
                             </div>
                         </div>
                     </div>

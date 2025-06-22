@@ -180,7 +180,8 @@ body {
 
 
 .edit-icon:hover {
-    background-color: #ff6a1f; /* màu cam đậm hơn chút */
+    background-color: #ff6a1f;
+    /* màu cam đậm hơn chút */
     transform: scale(1.1);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
@@ -219,6 +220,7 @@ body {
         transform: scale(0.7);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
@@ -388,4 +390,81 @@ body {
 .change-btn:active {
     transform: translateY(1px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Credit Card UI Modern */
+#creditcard-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.credit-card-ui {
+    background: linear-gradient(135deg, #2d7d6f 60%, #ff8042 100%);
+    color: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(45, 125, 111, 0.12);
+    padding: 24px 28px 18px 28px;
+    margin-bottom: 18px;
+    min-width: 320px;
+    max-width: 400px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    flex: 1 1 320px;
+}
+
+.credit-card-ui .cc-type {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.credit-card-ui .cc-number {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin: 18px 0 8px 0;
+    font-family: 'SFMono-Regular', monospace;
+}
+
+.credit-card-ui .cc-holder {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.credit-card-ui .cc-expiry {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.credit-card-ui .cc-label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+
+.credit-card-ui .cc-icon {
+    font-size: 2.2rem;
+    opacity: 0.7;
+    position: absolute;
+    bottom: 18px;
+    right: 24px;
+}
+
+@media (max-width: 600px) {
+    .credit-card-ui {
+        min-width: 90vw;
+        max-width: 98vw;
+        padding: 18px 10px 14px 16px;
+    }
+
+    #creditcard-list {
+        flex-direction: column;
+        gap: 10px;
+    }
 }

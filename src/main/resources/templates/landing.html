@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -149,10 +147,10 @@
                     <i class="bi bi-clock"></i>
                     <select class="form-select" name="duration">
                         <option value="" th:selected="${param.duration == null}">Any</option>
-                        <option value="1" th:selected="${param.duration == '1'}">01 Day</option>
-                        <option value="3" th:selected="${param.duration == '3'}">03 Day</option>
-                        <option value="5" th:selected="${param.duration == '5'}">05 Day</option>
-                        <option value="7" th:selected="${param.duration == '7'}">07 Day</option>
+                        <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
+                        <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
+                        <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
+                        <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
                     </select>
                 </div>
             </div>
@@ -162,13 +160,14 @@
                 <label class="form-label">Type</label>
                 <div class="form-floating-custom">
                     <i class="bi bi-globe-americas"></i>
-                    <input
-                            type="text"
-                            name="categoryName"
-                            class="form-control"
-                            placeholder="Enter type"
-                            th:value="${param.categoryName}"
-                    />
+                    <select class="form-select" name="categoryName">
+                        <option value="" th:selected="${param.categoryName == null}">Any</option>
+                        <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
+                        <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
+                        <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
+                        <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
+                        <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
+                    </select>
                 </div>
             </div>
 
@@ -197,17 +196,17 @@
     </div>
 
 
-    <!-- Tour Cards -->
+    <!-- Tour Cards by Place -->
     <div id="place" class="container py-5">
         <div class="text-center mb-4">
             <h2 class="fw-bold">Plan your perfect tour</h2>
-            <p class="text-muted">
-                Places & Tour Hire to our most popular destinations
-            </p>
+            <p class="text-muted">Places & Tour Hire to our most popular destinations</p>
         </div>
 
         <!-- Card Item -->
-        <div id="placeCardsContainer" class="row g-4"></div>
+        <div id="placeCardsContainer" class="row g-4">
+            <!-- Cards will be rendered here -->
+        </div>
 
         <!-- Pagination -->
         <div class="d-flex justify-content-center pagination-container">
@@ -218,6 +217,7 @@
             </nav>
         </div>
     </div>
+
 
 
     <!-- Contact Section -->
@@ -317,6 +317,7 @@
             </button>
         </div>
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/index.js"></script>

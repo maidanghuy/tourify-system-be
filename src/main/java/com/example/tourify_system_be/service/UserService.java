@@ -1,22 +1,33 @@
 package com.example.tourify_system_be.service;
 
+import com.example.tourify_system_be.dto.request.APIResponse;
+import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
+import com.example.tourify_system_be.dto.response.CreditCardResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
+import com.example.tourify_system_be.entity.CreditCard;
 import com.example.tourify_system_be.entity.TokenAuthentication;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.mapper.CreditCardMapper;
 import com.example.tourify_system_be.mapper.UserMapper;
+import com.example.tourify_system_be.repository.ICreditCardRepository;
 import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
 import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+
 import java.time.*;
 import java.time.Duration;
 import java.time.Instant;
@@ -31,7 +42,9 @@ import java.util.regex.Pattern;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
     IUserRepository userRepository;
+    ICreditCardRepository creditCardRepository;
     UserMapper userMapper;
+    CreditCardMapper creditCardMapper;
     EmailService emailService;
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
@@ -39,7 +52,6 @@ public class UserService {
 
     Pattern EMAIL_REGEX = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     Duration TOKEN_VALID_DURATION = Duration.ofHours(24);
-
 
     Map<String, PendingUser> pendingUsers = Collections.synchronizedMap(new HashMap<>());
 
@@ -65,7 +77,7 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
-    public UserResponse updateUser(String id, UserUpdateRequest request){
+    public UserResponse updateUser(String id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -75,11 +87,12 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public UserResponse getUserById(String id){
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.USER_NOT_FOUND)));
+    public UserResponse getUserById(String id) {
+        return userMapper.toUserResponse(
+                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    public Iterable<User> getAllUsers(){
+    public Iterable<User> getAllUsers() {
         System.out.println(userRepository.findAll());
         return userRepository.findAll();
     }
@@ -146,8 +159,7 @@ public class UserService {
             emailService.sendRegistrationConfirmationEmail(
                     user.getEmail(),
                     user.getFirstName() != null ? user.getFirstName() : user.getUserName(),
-                    token
-            );
+                    token);
 
             return true;
         } catch (Exception e) {
@@ -221,10 +233,10 @@ public class UserService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if(firstName != null){
+        if (firstName != null) {
             user.setFirstName(firstName);
         }
-        if(lastName != null){
+        if (lastName != null) {
             user.setLastName(lastName);
         }
         user.setUpdatedAt(LocalDateTime.now());
@@ -252,10 +264,11 @@ public class UserService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         // Kiểm tra phonenumber đã được dùng bởi người khác chưa
-        boolean phoneUsedByAnotherUser = userRepository.existsByPhoneNumber(phone) || phone.equalsIgnoreCase(user.getPhoneNumber());
+        boolean phoneUsedByAnotherUser = userRepository.existsByPhoneNumber(phone)
+                || phone.equalsIgnoreCase(user.getPhoneNumber());
         if (phoneUsedByAnotherUser) {
             throw new AppException(ErrorCode.PHONE_ALREADY_USED);
-        }else{
+        } else {
             user.setPhoneNumber(phone);
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
@@ -281,8 +294,6 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
-
-
 
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
@@ -312,5 +323,38 @@ public class UserService {
                     user.setPassword(""); // hoặc chuỗi bất kỳ vì không dùng
                     return userRepository.save(user);
                 });
+    }
+
+    public List<CreditCardResponse> getAllCreditCardByToken(String bearerToken) {
+        // Tách chuỗi "Bearer ..."
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+//        List<CreditCard> creditCards = creditCardRepository.findAllByUser();
+        List<CreditCard> creditCards = creditCardRepository.findAllByUser_UserId(userId);
+        return creditCards.stream().map(creditCardMapper::toCreditCardResponse).toList();
+    }
+
+//    @PostMapping("/creditcard")
+//    public APIResponse<?> addCreditCard(@RequestHeader("Authorization") String token, @Valid @RequestBody AddCreditCardRequest request) {
+//        return APIResponse.<CreditCardResponse>builder()
+//                .result(userService.addCreditCard(token, request))
+//                .build();
+//    }
+    public CreditCardResponse addCreditCard(String token, CreditCardRequest request) {
+        String jwt = token.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+//        System.out.println(user);
+//        CreditCard creditCard = creditCardMapper.toCreditCard(request);
+        CreditCard creditCard = creditCardMapper.toCreditCard(request);
+        creditCard.setCreatedAt(LocalDateTime.now());
+        creditCard.setUpdatedAt(LocalDateTime.now());
+        creditCard.setUser(user);
+//        System.out.println(creditCard);
+        creditCardRepository.save(creditCard);
+//        System.out.println(creditCard);
+        return creditCardMapper.toCreditCardResponse(creditCard);
     }
 }
