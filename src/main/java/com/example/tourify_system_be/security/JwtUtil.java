@@ -64,4 +64,13 @@ public class JwtUtil {
                 .getSubject();
     }
 
+    public String extractUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", String.class);
+    }
+
 }
