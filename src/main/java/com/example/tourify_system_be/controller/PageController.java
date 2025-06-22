@@ -60,5 +60,8 @@ public class PageController {
     public String dashboardPage() {
         return "dashboard";
     }
+
+    @GetMapping("/tourDetail")
+    public  String tourDetailPage(){return "tour_detail";}
 }
 
