@@ -1,3 +1,4 @@
+
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.request.TourCreateRequest;
@@ -12,15 +13,16 @@ import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.repository.*;
-import com.example.tourify_system_be.security.JwtUtil;
 import com.example.tourify_system_be.specification.TourSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.example.tourify_system_be.security.JwtUtil;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class TourService {
     private final IUserRepository iUserRepository;
     private final IPlaceRepository iPlaceRepository;
     private final ICategoryRepository iCategoryRepository;
+    private final ITourRepository tourRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -49,35 +52,44 @@ public class TourService {
         }).toList();
     }
 
+
     public List<TourResponse> filterTours(TourFilterRequest filter) {
-        return filter.getBaseTours().stream()
-                .filter(tour -> {
-                    boolean matches = true;
+            return filter.getBaseTours().stream()
+                    .filter(tour -> {
+                        boolean matches = true;
 
-                    if (filter.getMinPrice() != null)
-                        matches &= tour.getPrice() != null &&
-                                tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
+                        if (filter.getMinPrice() != null)
+                            matches &= tour.getPrice() != null &&
+                                    tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
 
-                    if (filter.getMaxPrice() != null)
-                        matches &= tour.getPrice() != null &&
-                                tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
+                        if (filter.getMaxPrice() != null)
+                            matches &= tour.getPrice() != null &&
+                                    tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
 
-                    if (filter.getMinRating() != null)
-                        matches &= tour.getRating() != null &&
-                                tour.getRating().compareTo(filter.getMinRating()) >= 0;
+                        if (filter.getMinRating() != null)
+                            matches &= tour.getRating() != null &&
+                                    tour.getRating().compareTo(filter.getMinRating()) >= 0;
 
-                    if (filter.getMaxRating() != null)
-                        matches &= tour.getRating() != null &&
-                                tour.getRating().compareTo(filter.getMaxRating()) <= 0;
+                        if (filter.getMaxRating() != null)
+                            matches &= tour.getRating() != null &&
+                                    tour.getRating().compareTo(filter.getMaxRating()) <= 0;
 
-                    if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
-                        matches &= tour.getCreatedByUserName() != null &&
-                                tour.getCreatedByUserName().toLowerCase()
-                                        .contains(filter.getCreatedByUserName().toLowerCase());
+                        if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
+                            matches &= tour.getCreatedByUserName() != null &&
+                                    tour.getCreatedByUserName().toLowerCase()
+                                            .contains(filter.getCreatedByUserName().toLowerCase());
 
-                    return matches;
-                })
-                .toList();
+                        return matches;
+                    })
+                    .toList();
+        }
+
+    public List<TourResponse> getMyTours(String bearerToken) {
+        String token = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<Tour> tours = itourRepository.findAllByManageBy_UserId(userId);
+        return tours.stream().map(this::convertToResponse).toList();
     }
 
     public Tour createTour(TourCreateRequest request, String userId) {
@@ -109,12 +121,11 @@ public class TourService {
         return itourRepository.save(tour);
     }
 
-    public List<TourResponse> getMyTours(String bearerToken) {
-        String token = bearerToken.replace("Bearer ", "");
-        String userId = jwtUtil.extractUserId(token);
-
-        List<Tour> tours = itourRepository.findAllByManageBy_UserId(userId);
-        return tours.stream().map(this::convertToResponse).toList();
+    public List<TourResponse> getToursByPlaceName(String placeName) {
+        return tourRepository.findByPlace_PlaceNameIgnoreCase(placeName)
+                .stream()
+                .map(tourMapper::toResponse)
+                .toList();
     }
 
     private TourResponse convertToResponse(Tour tour) {
@@ -136,4 +147,6 @@ public class TourService {
                 .bookedCustomerCount(0) // nếu chưa có booking, để mặc định
                 .build();
     }
-}
+
+    }
+
