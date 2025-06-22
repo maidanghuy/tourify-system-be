@@ -4,5 +4,11 @@ import com.example.tourify_system_be.entity.Tour;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+
+import java.util.List;
+
 public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecificationExecutor<Tour> {
+    List<Tour> findAllByManageBy_UserId(String userId);
+
+
 }
