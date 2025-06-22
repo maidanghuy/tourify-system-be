@@ -56,6 +56,12 @@ public class TourController {
                 .build());
     }
 
+
+    @GetMapping("/by-place-name")
+    public List<TourResponse> getToursByPlaceName(@RequestParam String placeName) {
+        return tourService.getToursByPlaceName(placeName);
+    }
+
     @GetMapping("/my-tours")
     public ResponseEntity<?> getMyTours(@RequestHeader("Authorization") String token) {
         List<TourResponse> myTours = tourService.getMyTours(token);
@@ -67,6 +73,4 @@ public class TourController {
                         .build()
         );
     }
-
-
 }
