@@ -1,4 +1,6 @@
 package com.example.tourify_system_be.controller;
+import com.example.tourify_system_be.dto.request.APIResponse;
+import com.example.tourify_system_be.dto.request.BookingCancelRequest;
 import com.example.tourify_system_be.dto.request.BookingTourRequest;
 import com.example.tourify_system_be.dto.response.BookingTourResponse;
 import com.example.tourify_system_be.service.BookingTourService;
@@ -7,18 +9,33 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api/booking")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingTourService bookingsTourService;
 
     @PostMapping
-    public ResponseEntity<BookingTourResponse> createBooking(
+    public APIResponse<?> createBooking(
             @Valid
             @RequestBody BookingTourRequest request,
             @RequestHeader("Authorization") String token) {
 
         BookingTourResponse createdBooking = bookingsTourService.createBooking(request, token);
-        return ResponseEntity.ok(createdBooking);
+        return APIResponse.<BookingTourResponse>builder()
+                .result(createdBooking)
+                .build();
+    }
+
+    @PutMapping("/cancel")
+    public APIResponse<?> cancelBooking(
+            @RequestBody BookingCancelRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        BookingTourResponse cancelBooking = bookingsTourService.cancelBooking(request, token);
+        return APIResponse.<BookingTourResponse>builder()
+                .result(cancelBooking)
+                .build();
     }
 }
+
+
