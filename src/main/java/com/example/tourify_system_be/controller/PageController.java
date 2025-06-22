@@ -61,7 +61,14 @@ public class PageController {
         return "dashboard";
     }
 
+    @GetMapping("/tourlistbyplace")
+    public String tourListByPlacePage(@RequestParam(required = false) String placeName, Model model) {
+        model.addAttribute("placeName", placeName); // để Thymeleaf có thể hiển thị tên địa điểm
+        return "tourlistbyplace";
+    }
+
     @GetMapping("/tourDetail")
     public  String tourDetailPage(){return "tour_detail";}
+
 }
 
