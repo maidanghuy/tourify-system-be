@@ -1,5 +1,7 @@
 package com.example.tourify_system_be.security;
 
+import com.example.tourify_system_be.exception.AppException;
+import com.example.tourify_system_be.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -52,7 +54,7 @@ public class JwtUtil {
             return true;
         } catch (JwtException ex) {
             System.out.println("❌ Token validation failed: " + ex.getMessage());
-            return false;
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
         }
     }
 
