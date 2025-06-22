@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
@@ -35,12 +33,12 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
                     <li class="nav-item">
-                        <a class="nav-link nav-custom active" href="#home">
+                        <a class="nav-link nav-custom active" th:href="@{/landing}">
                             <i class="fas fa-house me-2"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-custom" href="#detail">
+                        <a class="nav-link nav-custom" th:href="@{/detail}">
                             <i class="fas fa-info-circle me-2"></i>Detail
                         </a>
                     </li>
@@ -58,11 +56,11 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li>
-                                <a class="dropdown-item" href="user/profile" id="profile-view"><i
+                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
                                         class="fas fa-user-circle me-2"></i>View profile</a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="user/profile" id="profile-edit"><i
+                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-edit"><i
                                         class="fas fa-edit me-2"></i>Edit
                                     profile</a>
                             </li>
