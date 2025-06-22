@@ -56,4 +56,17 @@ public class TourController {
                 .build());
     }
 
+    @GetMapping("/my-tours")
+    public ResponseEntity<?> getMyTours(@RequestHeader("Authorization") String token) {
+        List<TourResponse> myTours = tourService.getMyTours(token);
+        return ResponseEntity.ok(
+                APIResponse.<List<TourResponse>>builder()
+                        .code(1000)
+                        .message("Success")
+                        .result(myTours)
+                        .build()
+        );
+    }
+
+
 }

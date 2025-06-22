@@ -12,6 +12,7 @@ import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.repository.*;
+import com.example.tourify_system_be.security.JwtUtil;
 import com.example.tourify_system_be.specification.TourSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class TourService {
     private final IUserRepository iUserRepository;
     private final IPlaceRepository iPlaceRepository;
     private final ICategoryRepository iCategoryRepository;
+    private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
         List<Tour> tours = itourRepository.findAll(TourSpecification.searchByCriteria(request));
@@ -105,5 +107,33 @@ public class TourService {
         tour.setUpdatedAt(LocalDateTime.now());
 
         return itourRepository.save(tour);
+    }
+
+    public List<TourResponse> getMyTours(String bearerToken) {
+        String token = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(token);
+
+        List<Tour> tours = itourRepository.findAllByManageBy_UserId(userId);
+        return tours.stream().map(this::convertToResponse).toList();
+    }
+
+    private TourResponse convertToResponse(Tour tour) {
+        return TourResponse.builder()
+                .tourId(tour.getTourId())
+                .tourName(tour.getTourName())
+                .description(tour.getDescription())
+                .price(tour.getPrice())
+                .duration(tour.getDuration())
+                .minPeople(tour.getMinPeople())
+                .maxPeople(tour.getMaxPeople())
+                .touristNumberAssigned(tour.getTouristNumberAssigned())
+                .thumbnail(tour.getThumbnail())
+                .status(tour.getStatus())
+                .placeName(tour.getPlace().getPlaceName())
+                .categoryName(tour.getCategory().getCategoryName())
+                .rating(BigDecimal.valueOf(5.0)) // hoặc tính trung bình nếu cần
+                .createdByUserName(tour.getManageBy().getUserId())
+                .bookedCustomerCount(0) // nếu chưa có booking, để mặc định
+                .build();
     }
 }
