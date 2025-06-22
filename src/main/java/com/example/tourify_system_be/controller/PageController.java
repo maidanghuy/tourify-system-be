@@ -42,7 +42,7 @@ public class PageController {
     public String profilePage() {
         return "profile";
     }
-
+  
     @GetMapping("/tour_list")
     public String tourListPage(@RequestParam(required = false) String placeName,
                                @RequestParam(required = false) String categoryName,
@@ -54,6 +54,11 @@ public class PageController {
         model.addAttribute("duration", duration);
         model.addAttribute("touristNumberAssigned", touristNumberAssigned);
         return "tour_list";
+    }
+  
+    @GetMapping("/dashboard")
+    public String dashboardPage() {
+        return "dashboard";
     }
 }
 

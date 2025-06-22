@@ -221,8 +221,12 @@ public class UserService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        if(firstName != null){
+            user.setFirstName(firstName);
+        }
+        if(lastName != null){
+            user.setLastName(lastName);
+        }
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
@@ -294,5 +298,19 @@ public class UserService {
         user.setStatus(status);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    public User findOrCreateGoogleUser(String email, String name) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail(email);
+                    user.setUserName(email.split("@")[0]);
+                    user.setFirstName(name);
+                    user.setRole("user");
+                    user.setStatus("ACTIVE");
+                    user.setPassword(""); // hoặc chuỗi bất kỳ vì không dùng
+                    return userRepository.save(user);
+                });
     }
 }

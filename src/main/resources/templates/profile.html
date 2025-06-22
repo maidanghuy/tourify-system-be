@@ -1,1263 +1,479 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <!DOCTYPE html>
-<html
-        lang="en"
-        xmlns:th="http://www.thymeleaf.org"
-        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tourify - User Profile</title>
     <!-- Bootstrap CSS, Font-Awesome v.v. -->
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
 
 
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
 
-<!--    <link rel="stylesheet" href="./css.css" />-->
+    <!--    <link rel="stylesheet" href="./css.css" />-->
     <link rel="stylesheet" href="../css/index.css" />
-
-    <style>
-        body {
-            padding-top: 0;
-        }
-
-
-        .profile-header {
-            position: relative;
-            height: 350px;
-            background-image: url("https://images.pexels.com/photos/1072179/pexels-photo-1072179.jpeg?auto=compress&cs=tinysrgb&w=1600");
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            margin-bottom: 60px;
-        }
-
-
-        /* Modal Container Custom */
-        .modal-content-custom {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            padding: 1rem 1.25rem;
-            background: #ffffff;
-            transition: all 0.3s ease;
-        }
-
-
-        /* Header Styling */
-        .modal-header {
-            border-bottom: 1px solid #e0e0e0;
-            background: linear-gradient(135deg, #2d7d6f, #ff8042);
-            color: white;
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
-            padding: 1rem 1.25rem;
-        }
-
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-
-
-        /* Close Button */
-        .modal-close-icon {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: white;
-        }
-
-
-        /* Body Styling */
-        .modal-body {
-            padding: 1rem 1.25rem;
-            font-size: 0.95rem;
-        }
-
-
-        /* Input Styling */
-        .modal-body .form-control {
-            border-radius: 8px;
-            border: 1px solid #ced4da;
-            transition: border-color 0.3s ease;
-        }
-
-
-        .modal-body .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.1rem rgba(45, 125, 111, 0.25);
-        }
-
-
-        /* Footer Buttons */
-        .modal-footer {
-            border-top: 1px solid #e0e0e0;
-            padding: 0.75rem 1.25rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-
-        .modal-footer .btn {
-            border-radius: 8px;
-            padding: 0.5rem 1.25rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-
-        .modal-footer .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-
-        .modal-footer .btn-primary:hover {
-            background-color: #256c60;
-            border-color: #256c60;
-        }
-
-
-        .modal-footer .btn-secondary {
-            background-color: #e9ecef;
-            color: #333;
-            border: none;
-        }
-
-
-        .modal-footer .btn-secondary:hover {
-            background-color: #d6d8db;
-        }
-
-
-        /* Divider Text */
-        .modal-body .text-center.fw-bold {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-
-        .upload-cover-btn {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 14px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-
-        .upload-cover-btn:hover {
-            background-color: rgba(0, 0, 0, 0.65);
-            transform: translateY(-1px);
-        }
-
-
-        .profile-pic-container {
-            position: absolute;
-            bottom: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            cursor: pointer;
-        }
-
-
-        .profile-pic {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 4px solid white;
-            object-fit: cover;
-        }
-
-
-        .edit-icon {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 50%;
-            padding: 9px 12px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-
-        .edit-icon:hover {
-            background-color: #ff6a1f; /* màu cam đậm hơn chút */
-            transform: scale(1.1);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-
-        .profile-pic-container:hover .profile-pic {
-            box-shadow: 0 0 8px 2px var(--secondary-color);
-        }
-
-
-        .avatar-full-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            justify-content: center;
-            align-items: center;
-        }
-
-
-        .avatar-full-modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            animation: zoomIn 0.3s ease-in-out;
-        }
-
-
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.7);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-
-        .user-info {
-            text-align: center;
-            margin-top: 60px;
-        }
-
-
-        .user-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-
-        .user-email {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-
-        .profile-tabs {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid #e9ecef;
-            margin-bottom: 24px;
-            background-color: #f9f9f9;
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-
-
-        .profile-tabs .nav-item {
-            flex: 1;
-            text-align: center;
-        }
-
-
-        .profile-tabs .nav-link {
-            display: block;
-            padding: 14px 0;
-            font-weight: 500;
-            font-size: 16px;
-            color: #6c757d;
-            position: relative;
-            background-color: transparent;
-            border: none;
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
-
-
-        /* Hover effect */
-        .profile-tabs .nav-link:hover {
-            color: var(--primary-color);
-            background-color: rgba(0, 0, 0, 0.03);
-        }
-
-
-        /* Active style */
-        .profile-tabs .nav-link.active {
-            color: var(--primary-color);
-            font-weight: 600;
-            background-color: #fff;
-        }
-
-
-        /* Underline active */
-        .profile-tabs .nav-link.active::after {
-            content: "";
-            position: absolute;
-            bottom: 0;
-            left: 25%;
-            width: 50%;
-            height: 3px;
-            background-color: var(--primary-color);
-            border-radius: 2px;
-        }
-
-
-        .account-section {
-            background-color: #fff;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-            transition: box-shadow 0.3s ease;
-        }
-
-
-        .account-section h2 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #1e1e1e;
-        }
-
-
-        .account-field {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 18px 0;
-            border-bottom: 1px solid #f1f3f5;
-        }
-
-
-        .field-label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #5f6368;
-            margin-bottom: 4px;
-        }
-
-
-        .field-value {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #202124;
-        }
-
-
-        /* Modern primary button */
-        .change-btn {
-            background-color: #f1f3f5;
-            color: #202124;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-
-        .change-btn i {
-            font-size: 13px;
-            color: #5f6368;
-        }
-
-
-        /* Hover state */
-        .change-btn:hover {
-            background-color: var(--secondary-color);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-
-        .change-btn:hover i {
-            color: white;
-        }
-
-
-        /* Active click state */
-        .change-btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-        }
-    </style>
+    <link rel="stylesheet" href="../css/profile.css" />
 </head>
 
 
 <body>
-<!-- Navbar -->
-<nav
-        class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm"
->
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img
-                    src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                    height="40"
-                    alt="Tourify"
-            />
-        </a>
-        <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainNavbar"
-                aria-controls="mainNavbar"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
-                <li class="nav-item">
-                    <a class="nav-link nav-custom active" href="#home">
-                        <i class="fas fa-house me-2"></i>Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-custom" href="#detail">
-                        <i class="fas fa-info-circle me-2"></i>Detail
-                    </a>
-                </li>
-            </ul>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                    height="40" alt="Tourify" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom active" href="#home">
+                            <i class="fas fa-house me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom" href="#detail">
+                            <i class="fas fa-info-circle me-2"></i>Detail
+                        </a>
+                    </li>
+                </ul>
 
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="dropdown">
-                    <button
-                            class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
-                            type="button"
-                            id="userMenu"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                    >
-                        <img
-                                src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-
-                                alt="Avatar"
-                                class="rounded-circle me-2"
-                                width="32"
-                                height="32"
-                        />
-                        <span
-                        >Hello,
-                    <span>User</span></span
-                        >
-                    </button>
-                    <ul
-                            class="dropdown-menu dropdown-menu-end"
-                            aria-labelledby="userMenu"
-                    >
-                        <li>
-                            <a class="dropdown-item" href="#" id="profile-view"
-                            ><i class="fas fa-user-circle me-2"></i>View profile</a
-                            >
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" id="profile-edit"
-                            ><i class="fas fa-edit me-2"></i>Edit profile</a
-                            >
-                        </li>
-                    </ul>
-                </div>
-                <form method="post">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
+                            type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
+                            <span>Hello,
+                                <span>User</span></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li>
+                                <a class="dropdown-item" href="user/profile" id="profile-view"><i
+                                        class="fas fa-user-circle me-2"></i>View profile</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="user/profile" id="profile-edit"><i
+                                        class="fas fa-edit me-2"></i>Edit
+                                    profile</a>
+                            </li>
+                        </ul>
+                    </div>
                     <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</nav>
-
-
-<!-- Profile Header -->
-<div class="profile-header">
-    <!-- Modal for Cover URL Input -->
-    <div
-            class="modal fade"
-            id="coverModal"
-            tabindex="-1"
-            aria-labelledby="coverModalLabel"
-            aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modal-content-custom">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="coverModalLabel">
-                        Update Cover Image
-                    </h5>
-                    <span
-                            class="modal-close-icon"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                    >&times;</span
-                    >
-                </div>
-                <div class="modal-body">
-                    <!-- Image URL -->
-                    <div class="mb-3">
-                        <label for="coverImageUrlInput" class="form-label"
-                        >Paste Image URL</label
-                        >
-                        <input
-                                type="text"
-                                class="form-control"
-                                id="coverImageUrlInput"
-                                placeholder="https://example.com/image.jpg"
-                        />
-                    </div>
-
-
-                    <div class="text-center fw-bold my-2">— OR —</div>
-
-
-                    <!-- File Upload -->
-                    <div class="mb-3">
-                        <label for="coverFileInput" class="form-label"
-                        >Choose from your device</label
-                        >
-                        <input
-                                type="file"
-                                class="form-control"
-                                id="coverFileInput"
-                                accept="image/*"
-                        />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                            type="button"
-                            class="btn btn-primary"
-                            onclick="updateCoverImage()"
-                    >
-                        Update
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 
 
-    <!-- Add this inside .profile-header -->
-    <div class="upload-cover-btn" onclick="showCoverModal()">
-        <i class="fas fa-upload"></i> Upload new cover
-    </div>
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <!-- Modal for Cover URL Input -->
+        <div class="modal fade" id="coverModal" tabindex="-1" aria-labelledby="coverModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modal-content-custom">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="coverModalLabel">
+                            Update Cover Image
+                        </h5>
+                        <span class="modal-close-icon" data-bs-dismiss="modal" aria-label="Close">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Image URL -->
+                        <div class="mb-3">
+                            <label for="coverImageUrlInput" class="form-label">Paste Image URL</label>
+                            <input type="text" class="form-control" id="coverImageUrlInput"
+                                placeholder="https://example.com/image.jpg" />
+                        </div>
 
 
-    <div class="profile-pic-container">
-        <img
-                id="profile-pic"
+                        <div class="text-center fw-bold my-2">— OR —</div>
+
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label for="coverFileInput" class="form-label">Choose from your device</label>
+                            <input type="file" class="form-control" id="coverFileInput" accept="image/*" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="updateCoverImage()">
+                            Update
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Add this inside .profile-header -->
+        <div class="upload-cover-btn" onclick="showCoverModal()">
+            <i class="fas fa-upload"></i> Upload new cover
+        </div>
+
+
+        <div class="profile-pic-container">
+            <img id="profile-pic"
                 src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Profile Picture"
-                class="profile-pic"
-                onclick="showFullAvatar()"
-        />
-        <div id="edit-icon" class="edit-icon" onclick="showAvatarModal()">
-            <i class="fas fa-pencil-alt"></i>
-        </div>
-        <input
-                type="file"
-                id="avatar-input"
-                accept="image/*"
-                style="display: none"
-        />
-    </div>
-
-
-    <!-- Full Avatar Modal -->
-    <div
-            id="avatarFullModal"
-            class="avatar-full-modal"
-            onclick="closeFullAvatar()"
-    >
-        <img id="full-avatar-image" alt="Full Avatar" />
-    </div>
-
-
-    <!-- Avatar URL Modal -->
-    <div
-            class="modal fade"
-            id="avatarModal"
-            tabindex="-1"
-            aria-labelledby="avatarModalLabel"
-            aria-hidden="true"
-    >
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="avatarModalLabel">Update Avatar</h5>
-                    <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Preview (optional) -->
-                    <div class="text-center mb-3">
-                        <img
-                                id="avatarPreview"
-                                src=""
-                                alt="Preview"
-                                class="img-thumbnail"
-                                style="max-width: 150px; display: none"
-                        />
-                    </div>
-
-
-                    <!-- URL input -->
-                    <input
-                            type="text"
-                            class="form-control mb-2"
-                            id="avatarImageUrlInput"
-                            placeholder="Enter avatar image URL"
-                    />
-
-
-                    <div class="text-center my-2">or</div>
-
-
-                    <!-- Choose file button -->
-                    <div class="text-center mt-2">
-                        <button
-                                class="btn btn-outline-secondary"
-                                onclick="triggerAvatarFileInput()"
-                        >
-                            Choose File
-                        </button>
-                        <div id="fileInputWrapper"></div>
-                        <!-- input file sẽ được tạo động ở đây -->
-                    </div>
-
-
-                    <!-- Placeholder to append file input dynamically -->
-                    <div id="fileInputWrapper" style="display: none"></div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">
-                        Cancel
-                    </button>
-                    <button class="btn btn-primary" onclick="updateAvatar()">
-                        Update
-                    </button>
-                </div>
+                alt="Profile Picture" class="profile-pic"
+                 onerror="this.onerror=null; this.src='../images/avatar_default.jpg';"
+                 onclick="showFullAvatar()" />
+            <div id="edit-icon" class="edit-icon" onclick="showAvatarModal()">
+                <i class="fas fa-pencil-alt"></i>
             </div>
+            <input type="file" id="avatar-input" accept="image/*" style="display: none" />
         </div>
-    </div>
-</div>
 
 
-<!-- Main Content -->
-<div class="container">
-    <!-- User Info -->
-    <div class="user-info">
-        <h1 class="user-name">John Doe.</h1>
-        <p class="user-email">johndoe@gmail.com</p>
-    </div>
+        <!-- Full Avatar Modal -->
+        <div id="avatarFullModal" class="avatar-full-modal" onclick="closeFullAvatar()">
+            <img id="full-avatar-image" alt="Full Avatar" />
+        </div>
 
 
-    <!-- Profile Tabs -->
-    <ul class="nav profile-tabs" id="profileTabs">
-        <li class="nav-item">
-            <a class="nav-link active" data-tab="account" href="#">Account</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-tab="history" href="#">History</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-tab="payment" href="#">Payment methods</a>
-        </li>
-    </ul>
-
-
-    <!-- Tab Content Wrapper -->
-    <div class="tab-content">
-        <!-- Account Tab -->
-        <div class="tab-pane active" id="tab-account">
-            <div class="account-section">
-                <h2><i class="fas fa-user-circle me-2"></i>Account</h2>
-
-
-                <!-- Template for each field -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-name"
-                >
-                    <div>
-                        <p class="field-label">Name</p>
-                        <p class="field-value" id="name-display">John Doe</p>
-                        <input
-                                type="text"
-                                class="form-control d-none"
-                                id="name-input"
-                                value="John Doe"
-                        />
+        <!-- Avatar URL Modal -->
+        <div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content modern-modal">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="avatarModalLabel">Update Avatar</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="name-change"
-                                onclick="editField('name')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="name-confirm"
-                                onclick="confirmField('name')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="name-cancel"
-                                onclick="cancelField('name')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
+                    <div class="modal-body">
+                        <!-- Preview (optional) -->
+                        <div class="text-center mb-3">
+                            <img id="avatarPreview" src="" alt="Preview" class="img-thumbnail"
+                                style="max-width: 150px; display: none" />
+                        </div>
 
 
-                <!-- Repeat for Email -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-email"
-                >
-                    <div>
-                        <p class="field-label">Email</p>
-                        <p class="field-value" id="email-display">
-                            john.doe@gmail.com
-                        </p>
-                        <input
-                                type="email"
-                                class="form-control d-none"
-                                id="email-input"
-                                value="john.doe@gmail.com"
-                        />
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="email-change"
-                                onclick="editField('email')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="email-confirm"
-                                onclick="confirmField('email')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="email-cancel"
-                                onclick="cancelField('email')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
+                        <!-- URL input -->
+                        <input type="text" class="form-control mb-2" id="avatarImageUrlInput"
+                            placeholder="Enter avatar image URL" />
 
 
-                <!-- Password -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-password"
-                >
-                    <div>
-                        <p class="field-label">Password</p>
-                        <p class="field-value" id="password-display">************</p>
-                        <input
-                                type="password"
-                                class="form-control d-none"
-                                id="password-input"
-                                value=""
-                                placeholder="Enter new password"
-                        />
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="password-change"
-                                onclick="editField('password')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="password-confirm"
-                                onclick="confirmField('password')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="password-cancel"
-                                onclick="cancelField('password')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
+                        <div class="text-center my-2">or</div>
 
 
-                <!-- Phone -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-phone"
-                >
-                    <div>
-                        <p class="field-label">Phone number</p>
-                        <p class="field-value" id="phone-display">+1 000-000-0000</p>
-                        <input
-                                type="text"
-                                class="form-control d-none"
-                                id="phone-input"
-                                value="+1 000-000-0000"
-                        />
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="phone-change"
-                                onclick="editField('phone')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="phone-confirm"
-                                onclick="confirmField('phone')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="phone-cancel"
-                                onclick="cancelField('phone')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
+                        <!-- Choose file button -->
+                        <div class="text-center mt-2">
+                            <button class="btn btn-outline-secondary" onclick="triggerAvatarFileInput()">
+                                Choose File
+                            </button>
+                            <div id="fileInputWrapper"></div>
+                            <!-- input file sẽ được tạo động ở đây -->
+                        </div>
 
 
-                <!-- Address -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-address"
-                >
-                    <div>
-                        <p class="field-label">Address</p>
-                        <p class="field-value" id="address-display">
-                            St 32 main downtown, Los Angeles, California, USA
-                        </p>
-                        <input
-                                type="text"
-                                class="form-control d-none"
-                                id="address-input"
-                                value="St 32 main downtown, Los Angeles, California, USA"
-                        />
+                        <!-- Placeholder to append file input dynamically -->
+                        <div id="fileInput" style="display: none"></div>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="address-change"
-                                onclick="editField('address')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
                         </button>
-                        <button
-                                class="change-btn d-none"
-                                id="address-confirm"
-                                onclick="confirmField('address')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="address-cancel"
-                                onclick="cancelField('address')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
-
-
-                <!-- DOB -->
-                <div
-                        class="account-field d-flex justify-content-between mb-3"
-                        id="field-dob"
-                >
-                    <div>
-                        <p class="field-label">Date of birth</p>
-                        <p class="field-value" id="dob-display">01-01-1992</p>
-                        <input
-                                type="date"
-                                class="form-control d-none"
-                                id="dob-input"
-                                value="1992-01-01"
-                        />
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button
-                                class="change-btn"
-                                id="dob-change"
-                                onclick="editField('dob')"
-                        >
-                            <i class="fas fa-pencil-alt"></i> Change
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="dob-confirm"
-                                onclick="confirmField('dob')"
-                        >
-                            <i class="fas fa-check"></i> Confirm
-                        </button>
-                        <button
-                                class="change-btn d-none"
-                                id="dob-cancel"
-                                onclick="cancelField('dob')"
-                        >
-                            <i class="fas fa-times"></i> Cancel
+                        <button class="btn btn-primary" onclick="updateAvatar()">
+                            Update
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-
-
-        <!-- History Tab -->
-        <div class="tab-pane" id="tab-history">
-            <p class="text-muted">No booking history available yet.</p>
-        </div>
-
-
-        <!-- Payment Methods Tab -->
-        <div class="tab-pane" id="tab-payment">
-            <p class="text-muted">No saved payment methods.</p>
-        </div>
     </div>
 
 
-    <!-- Newsletter Section -->
-    <div class="newsletter-section">
-        <div class="newsletter-content">
-            <h3 class="newsletter-title">Subscribe Newsletter</h3>
-            <p class="newsletter-subtitle">
-                The Travel<br />Get inspired! Receive travel discounts, tips and
-                behind the scenes stories.
-            </p>
-            <div class="newsletter-form">
-                <input
-                        type="email"
-                        class="newsletter-input"
-                        placeholder="Your email address"
-                />
-                <button class="newsletter-btn">Subscribe</button>
-            </div>
-        </div>
-        <img
-                src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                alt="Newsletter"
-                class="newsletter-image"
-        />
-    </div>
-</div>
-
-
-<!-- Footer -->
-<footer class="footer mt-5">
+    <!-- Main Content -->
     <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <h5 class="footer-title">g-lobe</h5>
-                <div class="social-icons">
-                    <a href="#" class="social-icon facebook"
-                    ><i class="fab fa-facebook"></i
-                    ></a>
-                    <a href="#" class="social-icon twitter"
-                    ><i class="fab fa-twitter"></i
-                    ></a>
-                    <a href="#" class="social-icon youtube"
-                    ><i class="fab fa-youtube"></i
-                    ></a>
-                    <a href="#" class="social-icon instagram"
-                    ><i class="fab fa-instagram"></i
-                    ></a>
+        <!-- User Info -->
+        <div class="user-info">
+            <h1 class="user-name">John Doe.</h1>
+        </div>
+
+        <!-- Profile Tabs -->
+        <ul class="nav profile-tabs" id="profileTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-tab="account" href="#">Account</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-tab="history" href="#">History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-tab="payment" href="#">Payment methods</a>
+            </li>
+        </ul>
+
+
+        <!-- Tab Content Wrapper -->
+        <div class="tab-content">
+            <!-- Account Tab -->
+            <div class="tab-pane active" id="tab-account">
+                <div class="account-section">
+                    <h2><i class="fas fa-user-circle me-2"></i>Account</h2>
+
+
+                    <!-- First Name -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-firstName">
+                        <div>
+                            <p class="field-label">First Name</p>
+                            <p class="field-value" id="firstName-display">John</p>
+                            <input type="text" class="form-control d-none" id="firstName-input" value="John" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="firstName-change" onclick="editField('firstName')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="firstName-confirm"
+                                onclick="confirmField('firstName')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="firstName-cancel" onclick="cancelField('firstName')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-lastName">
+                        <div>
+                            <p class="field-label">Last Name</p>
+                            <p class="field-value" id="lastName-display">Doe</p>
+                            <input type="text" class="form-control d-none" id="lastName-input" value="Doe" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="lastName-change" onclick="editField('lastName')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="lastName-confirm" onclick="confirmField('lastName')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="lastName-cancel" onclick="cancelField('lastName')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Email -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-email">
+                        <div>
+                            <p class="field-label">Email</p>
+                            <p class="field-value" id="email-display">
+                                john.doe@gmail.com
+                            </p>
+                            <input type="email" class="form-control d-none" id="email-input"
+                                value="john.doe@gmail.com" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="email-change" onclick="editField('email')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="email-confirm" onclick="confirmField('email')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="email-cancel" onclick="cancelField('email')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-password">
+                        <div>
+                            <p class="field-label">Password</p>
+                            <p class="field-value" id="password-display">************</p>
+                            <input type="password" class="form-control d-none" id="password-input" value=""
+                                placeholder="Enter new password" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="password-change" onclick="editField('password')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="password-confirm" onclick="confirmField('password')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="password-cancel" onclick="cancelField('password')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Phone -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-phone">
+                        <div>
+                            <p class="field-label">Phone number</p>
+                            <p class="field-value" id="phone-display">+1 000-000-0000</p>
+                            <input type="text" class="form-control d-none" id="phone-input" value="+1 000-000-0000" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="phone-change" onclick="editField('phone')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="phone-confirm" onclick="confirmField('phone')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="phone-cancel" onclick="cancelField('phone')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- Address -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-address">
+                        <div>
+                            <p class="field-label">Address</p>
+                            <p class="field-value" id="address-display">
+                                St 32 main downtown, Los Angeles, California, USA
+                            </p>
+                            <input type="text" class="form-control d-none" id="address-input"
+                                value="St 32 main downtown, Los Angeles, California, USA" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="address-change" onclick="editField('address')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="address-confirm" onclick="confirmField('address')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="address-cancel" onclick="cancelField('address')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- DOB -->
+                    <div class="account-field d-flex justify-content-between mb-3" id="field-dob">
+                        <div>
+                            <p class="field-label">Date of birth</p>
+                            <p class="field-value" id="dob-display">01-01-1992</p>
+                            <input type="date" class="form-control d-none" id="dob-input" value="1992-01-01" />
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="change-btn" id="dob-change" onclick="editField('dob')">
+                                <i class="fas fa-pencil-alt"></i> Change
+                            </button>
+                            <button class="change-btn d-none" id="dob-confirm" onclick="confirmField('dob')">
+                                <i class="fas fa-check"></i> Confirm
+                            </button>
+                            <button class="change-btn d-none" id="dob-cancel" onclick="cancelField('dob')">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Destinations</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Canada</a></li>
-                    <li><a href="#">Alaska</a></li>
-                    <li><a href="#">France</a></li>
-                    <li><a href="#">Iceland</a></li>
-                </ul>
+
+
+            <!-- History Tab -->
+            <div class="tab-pane" id="tab-history">
+                <p class="text-muted">No booking history available yet.</p>
             </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Activities</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Northern Lights</a></li>
-                    <li><a href="#">Cruising & sailing</a></li>
-                    <li><a href="#">Multi-activities</a></li>
-                    <li><a href="#">Kayaking</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Travel Blogs</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Bali Travel Guide</a></li>
-                    <li><a href="#">Sri Lanka Travel Guide</a></li>
-                    <li><a href="#">Peru Travel Guide</a></li>
-                    <li><a href="#">Bali Travel Guide</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5 class="footer-title">About Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
-                <h5 class="footer-title mt-3">Contact Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
+
+
+            <!-- Payment Methods Tab -->
+            <div class="tab-pane" id="tab-payment">
+                <p class="text-muted">No saved payment methods.</p>
             </div>
         </div>
+
+
+        <!-- Newsletter Section -->
+        <div class="newsletter-section">
+            <div class="newsletter-content">
+                <h3 class="newsletter-title">Subscribe Newsletter</h3>
+                <p class="newsletter-subtitle">
+                    The Travel<br />Get inspired! Receive travel discounts, tips and
+                    behind the scenes stories.
+                </p>
+                <div class="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="Your email address" />
+                    <button class="newsletter-btn">Subscribe</button>
+                </div>
+            </div>
+            <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                alt="Newsletter" class="newsletter-image" />
+        </div>
     </div>
-</footer>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/index.js"></script>
-<script>
-    function editField(field) {
-        document.getElementById(`${field}-display`).classList.add("d-none");
-        document.getElementById(`${field}-input`).classList.remove("d-none");
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5 class="footer-title">g-lobe</h5>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Destinations</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Canada</a></li>
+                        <li><a href="#">Alaska</a></li>
+                        <li><a href="#">France</a></li>
+                        <li><a href="#">Iceland</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Activities</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Northern Lights</a></li>
+                        <li><a href="#">Cruising & sailing</a></li>
+                        <li><a href="#">Multi-activities</a></li>
+                        <li><a href="#">Kayaking</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Travel Blogs</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Bali Travel Guide</a></li>
+                        <li><a href="#">Sri Lanka Travel Guide</a></li>
+                        <li><a href="#">Peru Travel Guide</a></li>
+                        <li><a href="#">Bali Travel Guide</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="footer-title">About Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                    <h5 class="footer-title mt-3">Contact Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
 
 
-        document.getElementById(`${field}-change`).classList.add("d-none");
-        document
-            .getElementById(`${field}-confirm`)
-            .classList.remove("d-none");
-        document.getElementById(`${field}-cancel`).classList.remove("d-none");
-    }
-
-
-    function confirmField(field) {
-        const newValue = document.getElementById(`${field}-input`).value;
-        document.getElementById(`${field}-display`).textContent = newValue;
-
-
-        document
-            .getElementById(`${field}-display`)
-            .classList.remove("d-none");
-        document.getElementById(`${field}-input`).classList.add("d-none");
-        document.getElementById(`${field}-confirm`).classList.add("d-none");
-        document.getElementById(`${field}-cancel`).classList.add("d-none");
-        document.getElementById(`${field}-change`).classList.remove("d-none");
-    }
-
-
-    function cancelField(field) {
-        const currentValue = document.getElementById(
-            `${field}-display`
-        ).textContent;
-        document.getElementById(`${field}-input`).value = currentValue;
-
-
-        document
-            .getElementById(`${field}-display`)
-            .classList.remove("d-none");
-        document.getElementById(`${field}-input`).classList.add("d-none");
-        document.getElementById(`${field}-confirm`).classList.add("d-none");
-        document.getElementById(`${field}-cancel`).classList.add("d-none");
-        document.getElementById(`${field}-change`).classList.remove("d-none");
-    }
-
-
-    function showCoverModal() {
-        const modal = new bootstrap.Modal(
-            document.getElementById("coverModal")
-        );
-        modal.show();
-    }
-
-
-    function updateCoverImage() {
-        const urlInput = document.getElementById("coverImageUrlInput").value;
-        const fileInput = document.getElementById("coverFileInput").files[0];
-
-
-        if (fileInput) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.querySelector(
-                    ".profile-header"
-                ).style.backgroundImage = `url('${e.target.result}')`;
-            };
-            reader.readAsDataURL(fileInput);
-        } else if (urlInput) {
-            document.querySelector(
-                ".profile-header"
-            ).style.backgroundImage = `url('${urlInput}')`;
-        }
-
-
-        // Đóng modal
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("coverModal")
-        );
-        modal.hide();
-    }
-
-
-    function showFullAvatar() {
-        const modal = document.getElementById("avatarFullModal");
-        const fullImg = document.getElementById("full-avatar-image");
-        fullImg.src = document.getElementById("profile-pic").src;
-        modal.style.display = "flex"; // <-- hiển thị ở đây thôi
-    }
-
-
-    function closeFullAvatar() {
-        document.getElementById("avatarFullModal").style.display = "none";
-    }
-
-
-    let avatarFromFile = false;
-
-
-    function showAvatarModal() {
-        avatarFromFile = false;
-        document.getElementById("avatarImageUrlInput").value = "";
-        document.getElementById("avatarPreview").style.display = "none";
-        document.getElementById("fileInputWrapper").innerHTML = "";
-
-
-        const modal = new bootstrap.Modal(
-            document.getElementById("avatarModal")
-        );
-        modal.show();
-    }
-
-
-    function triggerAvatarFileInput() {
-        const wrapper = document.getElementById("fileInputWrapper");
-        wrapper.innerHTML = ""; // Xóa input cũ nếu có
-        wrapper.style.display = "block";
-
-
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-        input.style.display = "none"; // không hiện, chỉ để gọi .click()
-
-
-        input.addEventListener("change", loadAvatarFromFile);
-
-
-        wrapper.appendChild(input);
-        input.click(); // Tới đây mới mở dialog chọn file
-    }
-
-
-    function loadAvatarFromFile(event) {
-        const file = event.target.files[0];
-        if (file && file.type.startsWith("image/")) {
-            avatarFromFile = true;
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = e.target.result;
-                document.getElementById("avatarPreview").src = img;
-                document.getElementById("avatarPreview").style.display = "block";
-                document.getElementById("profile-pic").src = img;
-
-
-                // Tự động đóng modal sau khi chọn ảnh
-                const modal = bootstrap.Modal.getInstance(
-                    document.getElementById("avatarModal")
-                );
-                modal.hide();
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-
-    function updateAvatar() {
-        const url = document
-            .getElementById("avatarImageUrlInput")
-            .value.trim();
-        const preview = document.getElementById("avatarPreview");
-
-
-        if (url) {
-            document.getElementById("profile-pic").src = url;
-            preview.src = url;
-            preview.style.display = "block";
-
-
-            // Đóng modal sau khi cập nhật từ URL
-            const modal = bootstrap.Modal.getInstance(
-                document.getElementById("avatarModal")
-            );
-            modal.hide();
-        }
-    }
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/index.js"></script>
+    <script src="../js/logout.js"></script>
+    <script src="../js/profile.js"></script>
 </body>
+
 </html>
