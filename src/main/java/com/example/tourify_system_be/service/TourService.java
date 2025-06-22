@@ -26,7 +26,7 @@ import java.util.List;
 public class TourService {
 
     private final ITourRepository itourRepository;
-    private final FeedbackRepository feedbackRepository;
+    private final IFeedbackRepository IFeedbackRepository;
     private final TourMapper tourMapper;
     private final IUserRepository iUserRepository;
     private final IPlaceRepository iPlaceRepository;
@@ -40,7 +40,7 @@ public class TourService {
             TourResponse res = tourMapper.toResponse(tour);
 
             // Tính và gán rating trung bình từ feedback
-            BigDecimal avgRating = feedbackRepository.findAverageRatingByTourId(tour.getTourId());
+            BigDecimal avgRating = IFeedbackRepository.findAverageRatingByTourId(tour.getTourId());
             res.setRating(avgRating != null ? avgRating.setScale(1, RoundingMode.HALF_UP) : null);
 
             return res;
