@@ -1,4 +1,5 @@
 package com.example.tourify_system_be.service;
+import com.example.tourify_system_be.dto.request.BookingCancelRequest;
 import com.example.tourify_system_be.dto.request.BookingTourRequest;
 import com.example.tourify_system_be.dto.response.BookingTourResponse;
 import com.example.tourify_system_be.entity.BookingTour;
@@ -42,7 +43,9 @@ public class BookingTourService {
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
 
         // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
-        if (Boolean.FALSE.equals(tokenAuth.getIsUsed())) {
+        TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(tokenValue)
+                .orElseThrow(() -> new AppException(ErrorCode.SESSION_EXPIRED));
+        if (!session.getIsUsed()) {
             throw new AppException(ErrorCode.SESSION_EXPIRED);
         }
 
@@ -138,6 +141,60 @@ public class BookingTourService {
                 .dayStart(booking.getDayStart())
                 .dayEnd(booking.getDayEnd())
                 .thumbnail(tour.getThumbnail())
+                .build();
+    }
+
+    public BookingTourResponse cancelBooking(BookingCancelRequest request, String token) {
+        // 1. Kiểm tra JWT token hợp lệ và lấy userId
+        String jwt = token.replace("Bearer ", "");
+        if (!jwtUtil.validateToken(jwt)) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
+        }
+
+        String userId = jwtUtil.extractUserId(jwt);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 2. Kiểm tra phiên đăng nhập có còn hợp lệ không
+        TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(jwt)
+                .orElseThrow(() -> new AppException(ErrorCode.SESSION_EXPIRED));
+        if (!session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
+        }
+
+
+        // 3. Tìm booking cần huỷ
+        BookingTour booking = bookingTourRepository.findById(request.getBookingId())
+                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+
+        if (!booking.getUser().getUserId().equals(user.getUserId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 4. Chỉ huỷ nếu trạng thái là "pending" hoặc "confirmed"
+        if (!booking.getStatus().equalsIgnoreCase("pending") &&
+                !booking.getStatus().equalsIgnoreCase("confirmed")) {
+            throw new AppException(ErrorCode.INVALID_BOOKING_STATUS);
+        }
+
+        // 5. Cập nhật trạng thái
+        booking.setStatus("cancelled");
+        bookingTourRepository.save(booking);
+//        booking.setCancelReason(request.getReason());
+        return BookingTourResponse.builder()
+                .bookingId(booking.getBookingId())
+                .userId(user.getUserId())
+                .userName(user.getFullName())
+                .tourId(booking.getTour().getTourId())
+                .tourName(booking.getTour().getTourName())
+                .adultNumber(booking.getAdultNumber())
+                .childNumber(booking.getChildNumber())
+                .totalPrice(booking.getTotalPrice())
+                .status(booking.getStatus())
+                .createdAt(booking.getCreatedAt())
+                .dayStart(booking.getDayStart())
+                .dayEnd(booking.getDayEnd())
+                .thumbnail(booking.getTour().getThumbnail())
                 .build();
     }
 }
