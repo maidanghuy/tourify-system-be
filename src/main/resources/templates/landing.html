@@ -134,11 +134,15 @@
                 <label class="form-label">Where</label>
                 <div class="form-floating-custom position-relative">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <input type="text" name="placeName" class="form-control" placeholder="Enter destination"
-                        th:value="${param.placeName}" />
+                    <input
+                            type="text"
+                            name="placeName"
+                            class="form-control"
+                            placeholder="Enter destination"
+                            th:value="${param.placeName}"
+                    />
                 </div>
             </div>
-
 
             <!-- Duration -->
             <div class="col-md-2">
@@ -146,47 +150,44 @@
                 <div class="form-floating-custom">
                     <i class="bi bi-clock"></i>
                     <select class="form-select" name="duration">
-                        <option value="" th:selected="${param.duration == null}">
-                            Any
-                        </option>
-                        <option value="1" th:selected="${param.duration == '1'}">
-                            01 Day
-                        </option>
-                        <option value="3" th:selected="${param.duration == '3'}">
-                            03 Day
-                        </option>
-                        <option value="5" th:selected="${param.duration == '5'}">
-                            05 Day
-                        </option>
-                        <option value="7" th:selected="${param.duration == '7'}">
-                            07 Day
-                        </option>
+                        <option value="" th:selected="${param.duration == null}">Any</option>
+                        <option value="1" th:selected="${param.duration == '1'}">01 Day</option>
+                        <option value="3" th:selected="${param.duration == '3'}">03 Day</option>
+                        <option value="5" th:selected="${param.duration == '5'}">05 Day</option>
+                        <option value="7" th:selected="${param.duration == '7'}">07 Day</option>
                     </select>
                 </div>
             </div>
-
 
             <!-- Category -->
             <div class="col-md-3">
                 <label class="form-label">Type</label>
                 <div class="form-floating-custom">
                     <i class="bi bi-globe-americas"></i>
-                    <input type="text" name="categoryName" class="form-control" placeholder="Enter type"
-                        th:value="${param.categoryName}" />
+                    <input
+                            type="text"
+                            name="categoryName"
+                            class="form-control"
+                            placeholder="Enter type"
+                            th:value="${param.categoryName}"
+                    />
                 </div>
             </div>
-
 
             <!-- People -->
             <div class="col-md-2">
                 <label class="form-label">People</label>
                 <div class="form-floating-custom">
                     <i class="bi bi-people-fill"></i>
-                    <input type="number" name="touristNumberAssigned" class="form-control" placeholder="Enter number"
-                        th:value="${param.touristNumberAssigned}" />
+                    <input
+                            type="number"
+                            name="touristNumberAssigned"
+                            class="form-control"
+                            placeholder="Enter number"
+                            th:value="${param.touristNumberAssigned}"
+                    />
                 </div>
             </div>
-
 
             <!-- Search Button -->
             <div class="col-md-2 d-grid">

@@ -72,4 +72,8 @@ public class User {
 
     @Column(name = "background")
     String background;
+
+    public String getFullName() {
+        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+    }
 }

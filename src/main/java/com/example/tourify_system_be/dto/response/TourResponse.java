@@ -20,6 +20,15 @@ public class TourResponse {
     private String status;
     private String placeName;
     private String categoryName;
-    private BigDecimal rating;
+
+    /**
+     * Trung bình đánh giá của tour (tính từ feedbacks).
+     * Giá trị mặc định là 5.0 nếu chưa có feedback nào.
+     */
+    @Builder.Default
+    private BigDecimal rating = BigDecimal.valueOf(5.0);
+
     private String createdByUserName;
+    // ✅ Mới thêm: số lượng khách đã đăng ký tour
+    private Integer bookedCustomerCount;
 }

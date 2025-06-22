@@ -1,7 +1,9 @@
 package com.example.tourify_system_be.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class PageController {
@@ -39,6 +41,19 @@ public class PageController {
     @GetMapping("/user/profile")
     public String profilePage() {
         return "profile";
+    }
+
+    @GetMapping("/tour_list")
+    public String tourListPage(@RequestParam(required = false) String placeName,
+                               @RequestParam(required = false) String categoryName,
+                               @RequestParam(required = false) Integer duration,
+                               @RequestParam(required = false) Integer touristNumberAssigned,
+                               Model model) {
+        model.addAttribute("placeName", placeName);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("duration", duration);
+        model.addAttribute("touristNumberAssigned", touristNumberAssigned);
+        return "tour_list";
     }
 }
 
