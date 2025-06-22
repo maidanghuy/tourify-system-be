@@ -38,6 +38,9 @@ public enum ErrorCode {
     INVALID_BOOKING_DATE(1204, "The tour start date must be at least 4 days from today", HttpStatus.BAD_REQUEST),
     INVALID_PEOPLE_COUNT(1205, "The number of people must be a non-negative integer", HttpStatus.BAD_REQUEST),
     TOUR_NOT_ACTIVE(1206, "The tour is currently inactive", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_FOUND(1301, "Booking not found", HttpStatus.NOT_FOUND),
+    INVALID_BOOKING_STATUS(1302, "Booking cannot be cancelled in its current state", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(1303, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
 
 
     // 1100–1199: Quản lý người dùng
