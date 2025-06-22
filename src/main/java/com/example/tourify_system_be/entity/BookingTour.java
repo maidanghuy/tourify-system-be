@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "bookings_tour", schema = "Tourify")
-public class BookingsTour {
+public class BookingTour {
     @Id
     @Column(name = "booking_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)

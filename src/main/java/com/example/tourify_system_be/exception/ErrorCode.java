@@ -26,9 +26,18 @@ public enum ErrorCode {
     EMAIL_EXISTED(1014, "Email already exists", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_USED(1015, "Email has already been used", HttpStatus.BAD_REQUEST),
     PHONE_ALREADY_USED(1016, "Phone number has already been used", HttpStatus.BAD_REQUEST),
-    PLACE_NOT_FOUND(1015,"Place not found",HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_FOUND(1016,"Category not found",HttpStatus.BAD_REQUEST),
-    NOT_SUBCOMPANY(1017,"Role isn't sub-company",HttpStatus.BAD_REQUEST),
+    PLACE_NOT_FOUND(1017,"Place not found",HttpStatus.BAD_REQUEST),
+    CATEGORY_NOT_FOUND(1018,"Category not found",HttpStatus.BAD_REQUEST),
+    NOT_SUBCOMPANY(1019,"Role isn't sub-company",HttpStatus.BAD_REQUEST),
+    BOOKING_FORBIDDEN_ROLE(1020, "Only regular users are allowed to book tours", HttpStatus.FORBIDDEN),
+    USER_DISABLED(1021, "Your account is not authorized to perform this action", HttpStatus.FORBIDDEN),
+    SESSION_EXPIRED(1022, "The login session has expired", HttpStatus.FORBIDDEN),
+    TOUR_NOT_FOUND(1201, "Tour not found", HttpStatus.NOT_FOUND),
+    EXCEED_MAX_PEOPLE(1202, "The number of people exceeds the tour's capacity", HttpStatus.BAD_REQUEST),
+    BELOW_MIN_PEOPLE(1203, "The number of participants is below the tour's minimum requirement", HttpStatus.BAD_REQUEST),
+    INVALID_BOOKING_DATE(1204, "The tour start date must be at least 4 days from today", HttpStatus.BAD_REQUEST),
+    INVALID_PEOPLE_COUNT(1205, "The number of people must be a non-negative integer", HttpStatus.BAD_REQUEST),
+    TOUR_NOT_ACTIVE(1206, "The tour is currently inactive", HttpStatus.BAD_REQUEST),
 
 
     // 1100–1199: Quản lý người dùng
