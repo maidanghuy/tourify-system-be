@@ -505,12 +505,12 @@ async function loadCreditCards() {
                     </div>
                     <div class="cc-label">Số thẻ</div>
                     <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
-                    <div class="row">
+                    <div class="row" style="margin-top: 35px">
                         <div class="col-7">
                             <div class="cc-label">Chủ thẻ</div>
                             <div class="cc-holder">${card.cardHolderName}</div>
                         </div>
-                        <div class="col-5 text-end">
+                        <div class="col-5 text-start">
                             <div class="cc-label">Hết hạn</div>
                             <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
                         </div>
@@ -518,6 +518,28 @@ async function loadCreditCards() {
                     <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
                 </div>
             `).join("");
+
+            listDiv.innerHTML += `
+                            <div class="credit-card-ui add-credit-card-card" onclick="showAddCreditCardModal()" style="cursor: pointer; background: #aaa;">
+                    <div class="cc-type">
+                        <i class="bi bi-plus-circle"></i> Thêm thẻ mới
+                    </div>
+                    <div class="cc-label">Số thẻ</div>
+                    <div class="cc-number text-muted">•••• •••• •••• ••••</div>
+                    <div class="row" style="margin-top: 35px">
+                        <div class="col-7">
+                            <div class="cc-label">Chủ thẻ</div>
+                            <div class="cc-holder text-muted">Chưa có</div>
+                        </div>
+                        <div class="col-5 text-start">
+                            <div class="cc-label">Hết hạn</div>
+                            <div class="cc-expiry text-muted">__/__</div>
+                        </div>
+                    </div>
+                    <div class="cc-icon"><i class="bi bi-credit-card-2-front"></i></div>
+                </div>
+
+            `
         } else {
             listDiv.innerHTML = '<div class="text-center text-muted">Chưa có thông tin, hãy thêm credit card.</div>';
         }
