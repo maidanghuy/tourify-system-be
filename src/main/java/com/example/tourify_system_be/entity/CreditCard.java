@@ -43,5 +43,4 @@ public class CreditCard {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     User user;
-
 }
