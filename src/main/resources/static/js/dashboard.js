@@ -609,4 +609,11 @@ function changePage(newPage) {
   }
 }
 
+  document.addEventListener("DOMContentLoaded", function () {
+    const username = localStorage.getItem("username") || "Guest";
+    document.getElementById("usernameDisplay").textContent = username;
+  });
+
+
+
 
