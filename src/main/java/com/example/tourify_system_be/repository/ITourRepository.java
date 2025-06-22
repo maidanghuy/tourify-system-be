@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecificationExecutor<Tour> {
-
-    // Tìm các tour theo tên địa điểm (placeName) — không phân biệt chữ hoa/thường
+    List<Tour> findAllByManageBy_UserId(String userId);
+      // Tìm các tour theo tên địa điểm (placeName) — không phân biệt chữ hoa/thường
     List<Tour> findByPlace_PlaceNameIgnoreCase(String placeName);
 }

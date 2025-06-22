@@ -1,5 +1,7 @@
 package com.example.tourify_system_be.security;
 
+import com.example.tourify_system_be.exception.AppException;
+import com.example.tourify_system_be.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -52,7 +54,7 @@ public class JwtUtil {
             return true;
         } catch (JwtException ex) {
             System.out.println("❌ Token validation failed: " + ex.getMessage());
-            return false;
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
         }
     }
 
@@ -62,6 +64,15 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", String.class);
     }
 
 }

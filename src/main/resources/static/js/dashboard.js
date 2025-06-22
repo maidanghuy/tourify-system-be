@@ -1,3 +1,8 @@
+      let toursData = [];      // lưu toàn bộ danh sách tour
+      let currentPage = 1;     // trang hiện tại
+      const pageSize = 6;      // số tour mỗi trang
+
+
       const pages = {
         dashboard: {
           title: "Dashboard",
@@ -160,67 +165,53 @@
       };
 
 
-      function loadPage(pageKey) {
-        const page = pages[pageKey];
-        if (!page) {
-          document.getElementById("mainContent").innerHTML =
-            "<h2>Page not found</h2>";
-          return;
-        }
+function loadPage(pageKey) {
+  const page = pages[pageKey];
+  if (!page) {
+    document.getElementById("mainContent").innerHTML = "<h2>Page not found</h2>";
+    return;
+  }
 
+  // ✅ RESET class active cho tất cả nav-link
+  document.querySelectorAll(".nav-link").forEach(link => {
+    link.classList.remove("active");
+  });
 
-        // Generate breadcrumb
-        const breadcrumbHtml = `
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                <h2 class="fw-bold text-success mb-1">${page.title}</h2>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb small">
-                    ${page.breadcrumbs
-                      .map(
-                        (crumb) => `
-                        <li class="breadcrumb-item">
-                        <a href="#" class="text-decoration-none text-muted" onclick="loadPage('${crumb}')">
-                            ${pages[crumb].title}
-                        </a>
-                        </li>`
-                      )
-                      .join("")}
-                    <li class="breadcrumb-item active text-success" aria-current="page">${
-                      page.title
-                    }</li>
-                    </ol>
-                </nav>
-                </div>
-            </div>`;
+  // ✅ THÊM class active cho đúng link
+  const linkId = pageKey + "Link"; // Ví dụ: "tourList" -> "tourListLink"
+  const activeLink = document.getElementById(linkId);
+  if (activeLink) {
+    activeLink.classList.add("active");
+  }
 
+  // ✅ HIỂN THỊ nội dung chính
+  const breadcrumbHtml = `
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold text-success mb-1">${page.title}</h2>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb small">
+            ${page.breadcrumbs.map(crumb => `
+              <li class="breadcrumb-item">
+                <a href="#" onclick="loadPage('${crumb}')"
+                   class="text-decoration-none text-muted">${pages[crumb].title}</a>
+              </li>`).join("")}
+            <li class="breadcrumb-item active text-success" aria-current="page">${page.title}</li>
+          </ol>
+        </nav>
+      </div>
+    </div>`;
 
-        // Inject content with breadcrumb if needed
-        document.getElementById("mainContent").innerHTML =
-          breadcrumbHtml + page.content;
+  document.getElementById("mainContent").innerHTML = breadcrumbHtml + page.content;
 
+  // ✅ Load các trang đặc biệt
+  if (pageKey === "addTour") {
+    setTimeout(() => initAddTourPage(), 0);
+  } else if (pageKey === "tourList") {
+    loadTourList();
+  }
+}
 
-        // Highlight active nav
-        document.querySelectorAll(".nav-link").forEach((link) => {
-          link.classList.remove("active");
-        });
-
-
-        const current = [...document.querySelectorAll(".nav-link")].find(
-          (link) => link.textContent.trim().includes(page.title)
-        );
-        if (current) current.classList.add("active");
-
-
-        // Toggle submenu for tour pages
-        const submenu = document.getElementById("tourSubmenu");
-        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(submenu);
-        if (pageKey === "addTour") {
-          setTimeout(() => {
-            initAddTourPage();
-          }, 0); // để chắc chắn DOM đã inject xong
-        }
-      }
 
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -500,5 +491,129 @@
           }
         }, 100);
       }
+
+async function loadTourList() {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/tourify/api/tours/my-tours", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+    if (res.ok && result.code === 1000) {
+      toursData = result.result || []; // ✅ lưu dữ liệu vào biến toàn cục
+      currentPage = 1;
+      renderTourList(); // ✅ gọi hàm mới (không truyền biến)
+    } else {
+      document.getElementById("mainContent").innerHTML =
+        "<div class='alert alert-warning'>Không có tour nào được tìm thấy.</div>";
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy danh sách tour:", error);
+    document.getElementById("mainContent").innerHTML =
+      "<div class='alert alert-danger'>Không thể kết nối máy chủ.</div>";
+  }
+}
+
+function renderTourList() {
+  const wrapper = document.getElementById("mainContent");
+  wrapper.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold text-success mb-0">Tour List</h2>
+    </div>
+  `;
+
+  const container = document.createElement("div");
+  container.className = "row g-3";
+
+  if (!Array.isArray(toursData) || toursData.length === 0) {
+    container.innerHTML = `<div class='alert alert-warning'>Chưa có tour nào.</div>`;
+  } else {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    const paginatedTours = toursData.slice(start, end); // ✅ chỉ lấy 6 tour
+
+    paginatedTours.forEach((tour) => {
+      const col = document.createElement("div");
+      col.className = "col-md-6 col-lg-4";
+      col.innerHTML = `
+        <div class="card h-100 shadow-sm">
+          <img src="${tour.thumbnail || 'https://via.placeholder.com/400x200?text=No+Image'}" class="card-img-top" style="height: 200px; object-fit: cover;">
+          <div class="card-body d-flex flex-column justify-content-between">
+            <div>
+              <h5 class="card-title">${tour.tourName}</h5>
+              <p class="card-text small text-muted">${tour.description || "No description provided."}</p>
+              <p class="mb-1"><i class="fas fa-tag text-success"></i> <strong>$${tour.price}</strong></p>
+              <p class="mb-1"><i class="fas fa-clock text-warning"></i> ${tour.duration} days</p>
+              <p class="mb-1"><i class="fas fa-users text-primary"></i> ${tour.minPeople}–${tour.maxPeople} people</p>
+              <span class="badge bg-${tour.status === 'DRAFT' ? 'secondary' : tour.status === 'ACTIVE' ? 'success' : 'warning'}">${tour.status}</span>
+            </div>
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm w-100" onclick="viewTour('${tour.tourId}')">
+                <i class="fas fa-eye"></i> View
+              </button>
+              <button class="btn btn-outline-warning btn-sm w-100" onclick="editTour('${tour.tourId}')">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-outline-danger btn-sm w-100" onclick="deleteTour('${tour.tourId}')">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>`;
+      container.appendChild(col);
+    });
+  }
+
+  wrapper.appendChild(container);
+  renderPagination(); // ✅ gọi thêm phân trang ở dưới
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(toursData.length / pageSize);
+  if (totalPages <= 1) return;
+
+  const pagination = document.createElement("nav");
+  pagination.className = "mt-4";
+  pagination.innerHTML = `
+    <ul class="pagination justify-content-center">
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trang trước</a>
+      </li>
+      ${Array.from({ length: totalPages }, (_, i) => `
+        <li class="page-item ${currentPage === i + 1 ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${i + 1})">${i + 1}</a>
+        </li>`).join('')}
+      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Trang sau</a>
+      </li>
+    </ul>
+  `;
+
+  document.getElementById("mainContent").appendChild(pagination);
+}
+
+
+function changePage(newPage) {
+  const totalPages = Math.ceil(toursData.length / pageSize);
+  if (newPage >= 1 && newPage <= totalPages) {
+    currentPage = newPage;
+    renderTourList();
+  }
+}
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const username = localStorage.getItem("username") || "Guest";
+    document.getElementById("usernameDisplay").textContent = username;
+  });
+
+
 
 
