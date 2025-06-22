@@ -15,6 +15,7 @@
     <!--    <link rel="stylesheet" href="./css.css" />-->
     <link rel="stylesheet" href="../css/index.css" />
     <link rel="stylesheet" href="../css/profile.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
 
@@ -127,8 +128,7 @@
             <img id="profile-pic"
                 src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=600"
                 alt="Profile Picture" class="profile-pic"
-                 onerror="this.onerror=null; this.src='../images/avatar_default.jpg';"
-                 onclick="showFullAvatar()" />
+                onerror="this.onerror=null; this.src='../images/avatar_default.jpg';" onclick="showFullAvatar()" />
             <div id="edit-icon" class="edit-icon" onclick="showAvatarModal()">
                 <i class="fas fa-pencil-alt"></i>
             </div>
@@ -386,7 +386,8 @@
 
             <!-- Payment Methods Tab -->
             <div class="tab-pane" id="tab-payment">
-                <p class="text-muted">No saved payment methods.</p>
+                <div id="creditcard-list"></div>
+                <button class="btn btn-primary mt-3" onclick="showAddCreditCardModal()">+ Thêm thẻ Credit Card</button>
             </div>
         </div>
 
@@ -465,6 +466,42 @@
             </div>
         </div>
     </footer>
+
+
+    <!-- Modal thêm credit card -->
+    <div class="modal fade" id="addCreditCardModal" tabindex="-1" aria-labelledby="addCreditCardModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="addCreditCardForm" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCreditCardModalLabel">Thêm Credit Card</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label">Số thẻ</label>
+                        <input type="text" class="form-control" id="cardNumber" name="cardNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardHolderName" class="form-label">Tên chủ thẻ</label>
+                        <input type="text" class="form-control" id="cardHolderName" name="cardHolderName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expiryTime" class="form-label">Ngày hết hạn</label>
+                        <input type="datetime-local" class="form-control" id="expiryTime" name="expiryTime">
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardType" class="form-label">Loại thẻ</label>
+                        <input type="text" class="form-control" id="cardType" name="cardType" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Thêm thẻ</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

@@ -212,7 +212,7 @@ async function updateFieldViaAPI(field, newValue) {
 
         const response = await fetch(`http://localhost:8080/tourify/api/user/${apiEndpoint}?username=${username}`, {
             method: 'PUT',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${accessToken}`
             },
@@ -472,5 +472,101 @@ function updateField(fieldName, displayValue, inputValue = null) {
         inputElement.value = inputValue;
     } else if (inputElement) {
         inputElement.value = displayValue;
+    }
+}
+
+//Load CreditCard
+document.addEventListener("DOMContentLoaded", () => {
+    loadCreditCards();
+
+    // Xử lý submit form thêm thẻ
+    document.getElementById("addCreditCardForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        await addCreditCard();
+    });
+});
+
+async function loadCreditCards() {
+    const accessToken = localStorage.getItem("accessToken");
+    const listDiv = document.getElementById("creditcard-list");
+    listDiv.innerHTML = '<div class="text-center text-muted">Đang tải...</div>';
+
+    try {
+        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+            headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        const data = await res.json();
+
+        if (data.result && data.result.length > 0) {
+            listDiv.innerHTML = data.result.map(card => `
+                <div class="credit-card-ui">
+                    <div class="cc-type">
+                        <i class="bi bi-credit-card"></i> ${card.cardType || "Khác"}
+                    </div>
+                    <div class="cc-label">Số thẻ</div>
+                    <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="cc-label">Chủ thẻ</div>
+                            <div class="cc-holder">${card.cardHolderName}</div>
+                        </div>
+                        <div class="col-5 text-end">
+                            <div class="cc-label">Hết hạn</div>
+                            <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
+                        </div>
+                    </div>
+                    <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
+                </div>
+            `).join("");
+        } else {
+            listDiv.innerHTML = '<div class="text-center text-muted">Chưa có thông tin, hãy thêm credit card.</div>';
+        }
+    } catch (err) {
+        listDiv.innerHTML = '<div class="text-danger">Không thể tải danh sách thẻ.</div>';
+    }
+}
+
+function formatCardNumber(num) {
+    if (!num) return '';
+    return num.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(expiry) {
+    // Nếu là yyyy-MM-ddTHH:mm:ss thì lấy yyyy-MM
+    if (expiry.length >= 7) return expiry.slice(0, 7);
+    return expiry;
+}
+
+function showAddCreditCardModal() {
+    const modal = new bootstrap.Modal(document.getElementById("addCreditCardModal"));
+    document.getElementById("addCreditCardForm").reset();
+    modal.show();
+}
+
+async function addCreditCard() {
+    const accessToken = localStorage.getItem("accessToken");
+    const form = document.getElementById("addCreditCardForm");
+    const cardNumber = form.cardNumber.value;
+    const cardHolderName = form.cardHolderName.value;
+    const expiryTime = form.expiryTime.value ? form.expiryTime.value : null;
+    const cardType = form.cardType.value;
+
+    try {
+        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ cardNumber, cardHolderName, expiryTime, cardType })
+        });
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById("addCreditCardModal")).hide();
+            await loadCreditCards();
+        } else {
+            alert("Thêm thẻ thất bại!");
+        }
+    } catch (err) {
+        alert("Có lỗi khi thêm thẻ!");
     }
 }
