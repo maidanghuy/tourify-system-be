@@ -9,10 +9,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedback, String> {
+public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
 
     // Lấy danh sách feedback theo tour
     List<Feedback> findByTour_TourId(String tourId);
+
+    // Lấy danh sách feedback theo tour và status
+    List<Feedback> findByTour_TourIdAndStatus(String tourId, String status);
 
     // Tính trung bình rating (tối ưu)
     @Query("SELECT AVG(f.rating) FROM Feedback f WHERE f.tour.tourId = :tourId")

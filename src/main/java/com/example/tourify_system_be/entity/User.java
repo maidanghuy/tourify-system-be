@@ -74,6 +74,6 @@ public class User {
     String background;
 
     public String getFullName() {
-        return this.firstName + " " + this.lastName;
+        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
     }
 }
