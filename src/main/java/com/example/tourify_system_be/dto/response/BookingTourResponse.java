@@ -18,4 +18,5 @@ public class BookingTourResponse {
     private Integer totalPrice;
     private String status;
     private LocalDateTime createdAt;
+    private String thumbnail;
 }
