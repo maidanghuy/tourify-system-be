@@ -56,7 +56,6 @@ public class GlobalExceptionHandler {
         APIResponse apiResponse = new APIResponse();
         apiResponse.setCode(ErrorCode.INVALID_KEY.getCode());
         apiResponse.setMessage(message);
-
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
