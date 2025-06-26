@@ -113,6 +113,9 @@ public class UserService {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 return "Old password incorrect";
             }
+            if(newPassword.equals(oldPassword)){
+                return "New password same like old password";
+            }
             if (!newPassword.equals(confirmPassword)) {
                 return "New password confirmation does not match";
             }
