@@ -151,14 +151,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <div class="ms-2">${generateStarRating(tour.rating)}</div>
                             </div>
                             <div class="mb-2 text-muted small">
-    <i class="fas fa-location-dot me-1 text-success"></i> ${tour.placeName}
-    <span class="mx-2">|</span>
-    <i class="fas fa-tag me-1 text-success"></i> ${tour.categoryName}
-    <span class="mx-2">|</span>
-    <i class="fas fa-calendar-alt me-1 text-success"></i> ${tour.duration} days
-    <span class="mx-2">|</span>
-    <i class="fas fa-users me-1 text-success"></i> ${tour.touristNumberAssigned?.toLocaleString() || 0} booked
-</div>
+                                <i class="fas fa-location-dot me-1 text-success"></i> ${tour.placeName}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-tag me-1 text-success"></i> ${tour.categoryName}
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-calendar-alt me-1 text-success"></i> ${tour.duration} days
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-users me-1 text-success"></i> ${tour.touristNumberAssigned?.toLocaleString() || 0} booked
+                            </div>
 
                             <div class="text-muted small">
                                 <i class="fas fa-user-tie me-1" style="color: #0a6e4d"></i>
@@ -172,7 +172,13 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <button class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill">
                                     <i class="fas fa-plus"></i> Add to Favorites
                                 </button>
-                                <a href="/tourify/tourDetail?id=${tour.id}" class="btn btn-success px-4 rounded-pill">View Details</a>
+                                <a href="/tourify/tourDetail?id=${tour.tourId}"  class="btn btn-success px-4 rounded-pill">View Details</a>
+                                <button
+                                      class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
+                                      onclick="bookingNow('${tour.tourId}')"
+                                    >
+                                    <i class="fas fa-calendar-plus"></i> Book Now
+                                    </button>
                             </div>
                         </div>
                     </div>
