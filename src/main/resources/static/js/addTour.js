@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/tourify/api/tours", {
+        const response = await fetch("/tourify/api/tours", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadPlacesAndCategories() {
   const categorySelect = document.getElementById("categorySelect");
   try {
-    const res = await fetch("http://localhost:8080/tourify/api/categories");
+    const res = await fetch("/tourify/api/categories");
     const categories = await res.json();
     console.log("🎯 Categories fetched:", categories);
 
@@ -90,7 +90,7 @@ async function loadPlacesAndCategories() {
 
   const placeSelect = document.getElementById("place");
   try {
-    const res = await fetch("http://localhost:8080/tourify/api/place");
+    const res = await fetch("/tourify/api/place");
     const result = await res.json();
     console.log("📍 Places fetched:", result.result);
 

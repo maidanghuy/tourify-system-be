@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     container.innerHTML = "";
     paginationWrapper.classList.add("d-none");
 
-    fetch("http://localhost:8080/tourify/api/tours/search", {
+    fetch("/tourify/api/tours/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody)

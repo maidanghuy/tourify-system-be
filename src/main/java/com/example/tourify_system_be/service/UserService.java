@@ -329,32 +329,20 @@ public class UserService {
         // Tách chuỗi "Bearer ..."
         String jwt = bearerToken.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
-
-//        List<CreditCard> creditCards = creditCardRepository.findAllByUser();
         List<CreditCard> creditCards = creditCardRepository.findAllByUser_UserId(userId);
         return creditCards.stream().map(creditCardMapper::toCreditCardResponse).toList();
     }
 
-//    @PostMapping("/creditcard")
-//    public APIResponse<?> addCreditCard(@RequestHeader("Authorization") String token, @Valid @RequestBody AddCreditCardRequest request) {
-//        return APIResponse.<CreditCardResponse>builder()
-//                .result(userService.addCreditCard(token, request))
-//                .build();
-//    }
     public CreditCardResponse addCreditCard(String token, CreditCardRequest request) {
         String jwt = token.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        System.out.println(user);
-//        CreditCard creditCard = creditCardMapper.toCreditCard(request);
         CreditCard creditCard = creditCardMapper.toCreditCard(request);
         creditCard.setCreatedAt(LocalDateTime.now());
         creditCard.setUpdatedAt(LocalDateTime.now());
         creditCard.setUser(user);
-//        System.out.println(creditCard);
         creditCardRepository.save(creditCard);
-//        System.out.println(creditCard);
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
 }
