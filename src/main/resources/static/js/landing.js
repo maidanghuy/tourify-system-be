@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
                 try {
-                    const response = await fetch('http://localhost:8080/tourify/api/auth/logout', {
+                    const response = await fetch('/tourify/api/auth/logout', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
