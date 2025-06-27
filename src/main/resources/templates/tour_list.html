@@ -88,7 +88,7 @@
 <div class="container py-3">
     <!-- Modern Tour Search Form -->
     <div class="booking-form">
-        <form class="row g-3 align-items-end" method="get" action="/tourify/tour_list">
+        <form class="row g-3 align-items-end" method="get" action="/tourify/tour">
             <!-- Where -->
             <div class="col-md-3">
                 <label class="form-label">Where</label>
@@ -337,9 +337,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="./js/tour_list.js"></script>
 <script src="./js/index.js"></script>
-<script src="js/landing.js"></script>
 <script src="js/logout.js"></script>
-
+<script>
+    function bookingNow(tourId) {
+        // Chuyển trang với query param id
+        window.location.href = `tour/booking?id=${tourId}`;
+    }
+</script>
 
 </body>
 </html>
