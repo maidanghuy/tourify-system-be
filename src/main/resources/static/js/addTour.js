@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
         maxPeople: parseInt(document.getElementById("maxPeople").value),
         touristNumberAssigned: 0,
         status: statusMap[document.getElementById("statusSelect").value], // ✅ chuyển đổi về DRAFT/ACTIVE/INACTIVE
-        place: document.getElementById("place").value,                   // ✅ dùng đúng key theo DTO
-        category: document.getElementById("categorySelect").value,       // ✅ dùng đúng key theo DTO
+        place: document.getElementById("place").value, // ✅ dùng đúng key theo DTO
+        category: document.getElementById("categorySelect").value, // ✅ dùng đúng key theo DTO
         thumbnail: getFirstImageUrlOrNull()
       };
 
@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok && result.code === 1000) {
           // ✅ Hiển thị toast thành công
           const toastEl = document.getElementById("successToast");
-          const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+          const toast = new bootstrap.Toast(toastEl, {
+            delay: 3000
+          });
           toast.show();
 
 
@@ -53,8 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setTimeout(() => {
             loadPage("addTour");
           }, 1500);
-        }
-         else {
+        } else {
           alert("❌ " + (result.message || "Tạo tour thất bại."));
         }
 

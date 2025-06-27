@@ -16,12 +16,16 @@ public class PaymentController {
     private final PayOSService payOSService;
 
     @PostMapping("/create")
-    public APIResponse<?> createPayment(@RequestBody CreatePaymentRequest req) throws Exception {
-        Map<String, String> result = payOSService.createPaymentLink(req);
+    public APIResponse<?> createPayment(
+            @RequestBody CreatePaymentRequest req,
+            @RequestHeader("Authorization") String authHeader) throws Exception {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+
+        Map<String, String> result = payOSService.createPaymentLink(req, authHeader);
         return APIResponse.<Map<String, String>>builder()
                 .result(result)
                 .build();
     }
 }
-
-
