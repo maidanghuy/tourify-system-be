@@ -634,3 +634,12 @@ body {
         max-width: 200px;
     }
 }
+
+/*QR CORE*/
+.qr-loading {
+    animation: qr-spin 1s linear infinite;
+    opacity: 0.5;
+}
+@keyframes qr-spin {
+    100% { transform: rotate(360deg); }
+}
