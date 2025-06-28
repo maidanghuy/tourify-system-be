@@ -3,7 +3,6 @@ package com.example.tourify_system_be.dto.response;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,6 +12,7 @@ public class FeedbackResponse {
     private String userFullName;
     private String title;
     private String content;
-    private BigDecimal rating;
+    private Double rating;
     private LocalDateTime createdAt;
+    private String status;  // pending/approved/rejected
 }

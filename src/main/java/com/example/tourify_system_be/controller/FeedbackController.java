@@ -1,23 +1,42 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.dto.request.FeedbackRequest;
 import com.example.tourify_system_be.dto.response.FeedbackResponse;
 import com.example.tourify_system_be.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/feedbacks")
 @RequiredArgsConstructor
+@RequestMapping("/api/feedbacks")
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
     @GetMapping("/tour/{tourId}")
-    public ResponseEntity<List<FeedbackResponse>> getFeedbacksByTour(@PathVariable String tourId) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByTour(tourId));
+    public List<FeedbackResponse> getByTour(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String tourId) {
+        return feedbackService.getFeedbacksByTour(token, tourId);
+    }
+
+
+    /**
+     * Khách hàng gửi feedback (status sẽ là pending, chờ admin duyệt)
+     */
+    @PostMapping
+    public ResponseEntity<FeedbackResponse> add(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestBody @Validated FeedbackRequest request) {
+
+        var resp = feedbackService.addFeedback(authorization, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 }
+
