@@ -20,6 +20,9 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -36,39 +39,67 @@ public class FeedbackService {
      */
     @Transactional(readOnly = true)
     public List<FeedbackResponse> getFeedbacksByTour(String bearerToken, String tourId) {
-        // 1) Tách token, parse userDetails
+        // 1) Xác thực token
         if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
         String jwt = bearerToken.substring(7);
         jwtUtil.validateToken(jwt);
-        CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
-        String role = user.getRole();
 
-        // 2) Chỉ cho ADMIN hoặc SUB_COMPANY
-        if (!role.equalsIgnoreCase("ADMIN") && !role.equalsIgnoreCase("SUB_COMPANY")) {
+        // 2) Lấy user và chuẩn hoá role (không phụ thuộc hoa/thường)
+        CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
+        String role = Optional.ofNullable(user.getRole())
+                .map(String::trim)
+                .orElse("")
+                .toUpperCase(Locale.ROOT);
+        boolean isUser       = "USER".equals(role);
+        boolean isSubCompany = "SUB_COMPANY".equals(role);
+        boolean isAdmin      = "ADMIN".equals(role);
+        if (!isUser && !isSubCompany && !isAdmin) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
-        // 3) Lấy feedback
-        List<Feedback> list = feedbackRepository.findByTour_TourIdAndStatus(tourId, "approved");
-        if (list.isEmpty()) {
+        // 3) Kiểm tra tour tồn tại
+        if (!tourRepo.existsById(tourId)) {
             throw new AppException(ErrorCode.TOUR_NOT_FOUND);
         }
 
-        // 4) Map về DTO
-        return list.stream()
+        // 4) Lấy feedback tuỳ role
+        List<Feedback> feedbacks;
+        if (isUser) {
+            // USER: chỉ xem feedback có status != "rejected" và != "deleted"
+            List<String> excludedStatuses = List.of("REJECTED", "DELETED");
+            feedbacks = feedbackRepository
+                    .findByTour_TourIdAndStatusNotIn(
+                            tourId, excludedStatuses
+                    );
+        } else {
+            // ADMIN & SUB_COMPANY: xem tất cả feedback
+            feedbacks = feedbackRepository.findByTour_TourId(tourId);
+        }
+
+        // 5) Nếu không có feedback phù hợp
+        if (feedbacks.isEmpty()) {
+            throw new AppException(ErrorCode.FEEDBACK_NOT_FOUND);
+        }
+
+        // 6) Map entity → DTO
+        return feedbacks.stream()
                 .map(fb -> FeedbackResponse.builder()
                         .feedbackId(fb.getFeedbackId())
                         .userFullName(fb.getUser().getFullName())
                         .title(fb.getTitle())
                         .content(fb.getContent())
-                        .rating(fb.getRating().doubleValue())  // FIX: chuyển BigDecimal → double
+                        .rating(fb.getRating().doubleValue())
                         .createdAt(fb.getCreateAt())
                         .status(fb.getStatus())
                         .build())
                 .toList();
     }
+
+
+
+
 
 
     @Transactional
