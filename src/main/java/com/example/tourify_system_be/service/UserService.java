@@ -1,6 +1,5 @@
 package com.example.tourify_system_be.service;
 
-import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
@@ -16,17 +15,14 @@ import com.example.tourify_system_be.mapper.UserMapper;
 import com.example.tourify_system_be.repository.ICreditCardRepository;
 import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
+import com.example.tourify_system_be.security.CustomUserDetails;
 import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.time.*;
 import java.time.Duration;
@@ -112,6 +108,9 @@ public class UserService {
         return userRepository.findByUserName(username).map(user -> {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 return "Old password incorrect";
+            }
+            if(newPassword.equals(oldPassword)){
+                return "New password same like old password";
             }
             if (!newPassword.equals(confirmPassword)) {
                 return "New password confirmation does not match";
@@ -335,7 +334,7 @@ public class UserService {
         return creditCards.stream().map(creditCardMapper::toCreditCardResponse).toList();
     }
 
-//    @PostMapping("/creditcard")
+    //    @PostMapping("/creditcard")
 //    public APIResponse<?> addCreditCard(@RequestHeader("Authorization") String token, @Valid @RequestBody AddCreditCardRequest request) {
 //        return APIResponse.<CreditCardResponse>builder()
 //                .result(userService.addCreditCard(token, request))
@@ -356,5 +355,57 @@ public class UserService {
         creditCardRepository.save(creditCard);
 //        System.out.println(creditCard);
         return creditCardMapper.toCreditCardResponse(creditCard);
+    }
+    /**
+     * Khoá tài khoản (chỉ role = "user" hoặc "tour_company").
+     */
+    @Transactional
+    public void lockAccount(String token, String userId) {
+
+        String jwt = token.replace("Bearer ", "");
+        CustomUserDetails customUserDetails = jwtUtil.getUserDetailsFromToken(jwt);
+        if (customUserDetails == null || !customUserDetails.getRole().equalsIgnoreCase("ADMIN")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String role = u.getRole();
+        if (!role.equals("user") && !role.equals("SUB_COMPANY")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        if (!u.getStatus().equalsIgnoreCase("LOCKED")) {
+            u.setStatus("LOCKED");
+            u.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(u);
+        }
+    }
+
+    /**
+     * Mở khoá tài khoản (chỉ role = "user" hoặc "tour_company").
+     */
+    @Transactional
+    public void unlockAccount(String token, String userId) {
+
+        String jwt = token.replace("Bearer ", "");
+        CustomUserDetails customUserDetails = jwtUtil.getUserDetailsFromToken(jwt);
+        if (customUserDetails == null || !customUserDetails.getRole().equalsIgnoreCase("ADMIN")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        String role = u.getRole();
+        if (!role.equals("user") && !role.equals("SUB_COMPANY")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        if (!u.getStatus().equalsIgnoreCase("ACTIVE")) {
+            u.setStatus("ACTIVE");
+            u.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(u);
+        }
     }
 }
