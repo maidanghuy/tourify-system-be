@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.*;
 import java.time.Duration;
@@ -357,52 +358,78 @@ public class UserService {
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
     /**
-     * Khoá tài khoản (chỉ role = "user" hoặc "tour_company").
+     * Khoá tài khoản (chỉ ADMIN có quyền khóa, và chỉ khóa được tài khoản của USER hoặc SUB_COMPANY).
      */
     @Transactional
-    public void lockAccount(String token, String userId) {
-
-        String jwt = token.replace("Bearer ", "");
-        CustomUserDetails customUserDetails = jwtUtil.getUserDetailsFromToken(jwt);
-        if (customUserDetails == null || !customUserDetails.getRole().equalsIgnoreCase("ADMIN")) {
+    public void lockAccount(String bearerToken, String userId) {
+        // 1) Xác thực token và chỉ cho ADMIN
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
+        String jwt = bearerToken.substring("Bearer ".length()).trim();
+        jwtUtil.validateToken(jwt);
+        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
+        if (currentUser == null ||
+                ! "ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        // 2) Lấy user cần khóa
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        String role = u.getRole();
-        if (!role.equals("user") && !role.equals("SUB_COMPANY")) {
+        // 3) Chỉ khóa được các account có role USER hoặc SUB_COMPANY
+        String targetRole = Optional.ofNullable(u.getRole())
+                .map(String::trim)
+                .orElse("");
+        boolean canBeLocked = "USER".equalsIgnoreCase(targetRole)
+                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
+        if (!canBeLocked) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
-        if (!u.getStatus().equalsIgnoreCase("LOCKED")) {
+        // 4) Nếu chưa ở trạng thái LOCKED, thì cập nhật
+        if (!"LOCKED".equalsIgnoreCase(u.getStatus())) {
             u.setStatus("LOCKED");
             u.setUpdatedAt(LocalDateTime.now());
             userRepository.save(u);
         }
     }
 
+
     /**
-     * Mở khoá tài khoản (chỉ role = "user" hoặc "tour_company").
+     * Mở khoá tài khoản (chỉ ADMIN có quyền và chỉ cho phép mở khóa tài khoản USER hoặc SUB_COMPANY).
      */
     @Transactional
-    public void unlockAccount(String token, String userId) {
-
-        String jwt = token.replace("Bearer ", "");
-        CustomUserDetails customUserDetails = jwtUtil.getUserDetailsFromToken(jwt);
-        if (customUserDetails == null || !customUserDetails.getRole().equalsIgnoreCase("ADMIN")) {
+    public void unlockAccount(String bearerToken, String userId) {
+        // 1) Xác thực token và chỉ cho ADMIN
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+        String jwt = bearerToken.substring("Bearer ".length()).trim();
+        jwtUtil.validateToken(jwt);
+        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
+        if (currentUser == null ||
+                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
+        // 2) Lấy user cần mở khóa
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        String role = u.getRole();
-        if (!role.equals("user") && !role.equals("SUB_COMPANY")) {
+        // 3) Chỉ mở khóa các account có role USER hoặc SUB_COMPANY
+        String targetRole = Optional.ofNullable(u.getRole())
+                .map(String::trim)
+                .orElse("");
+        boolean canBeUnlocked = "USER".equalsIgnoreCase(targetRole)
+                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
+        if (!canBeUnlocked) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
-        if (!u.getStatus().equalsIgnoreCase("ACTIVE")) {
+        // 4) Nếu chưa ở trạng thái ACTIVE thì cập nhật
+        if (!"ACTIVE".equalsIgnoreCase(u.getStatus())) {
             u.setStatus("ACTIVE");
             u.setUpdatedAt(LocalDateTime.now());
             userRepository.save(u);

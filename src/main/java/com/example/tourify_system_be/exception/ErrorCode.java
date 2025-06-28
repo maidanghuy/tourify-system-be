@@ -42,7 +42,8 @@ public enum ErrorCode {
     INVALID_BOOKING_STATUS(1302, "Booking cannot be cancelled in its current state", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1303, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
     OPERATION_NOT_ALLOWED(1304, "Operation not allowed for this role", HttpStatus.FORBIDDEN),
-    INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST);
+    INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST),
+    FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
