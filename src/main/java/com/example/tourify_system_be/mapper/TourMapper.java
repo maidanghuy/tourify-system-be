@@ -18,10 +18,4 @@ public interface TourMapper {
     @Mapping(target = "place", ignore = true)
     @Mapping(target = "category", ignore = true)
     Tour toEntity(TourCreateRequest request);
-
-    @Mapping(target = "createdByUserName", source = "manageBy.userName")
-    @Mapping(target = "placeName", source = "place.placeName")
-    @Mapping(target = "categoryName", source = "category.categoryName")
-    TourResponse toResponse1(Tour tour);
-
 }
