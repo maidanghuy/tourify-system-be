@@ -45,7 +45,7 @@
         console.log("Registering with data:", data);
 
         try {
-            const response = await fetch("http://localhost:8080/tourify/api/auth/register", {
+            const response = await fetch("/tourify/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

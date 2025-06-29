@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (accessToken) {
                 try {
-                    const response = await fetch('http://localhost:8080/tourify/api/auth/logout', {
+                    const response = await fetch('/tourify/api/auth/logout', {
                         method: 'POST', // Typically logout is a POST request
                         headers: {
                             'Content-Type': 'application/json', // Assuming your API expects JSON, adjust if needed
@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
             localStorage.removeItem("accessToken"); // Clear the accessToken
 
 
-              window.location.href = "http://localhost:8080/tourify/login";
+              window.location.href = "/tourify/login";
              // Redirect to login page
         });
     }

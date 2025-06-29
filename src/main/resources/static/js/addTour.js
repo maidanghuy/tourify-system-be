@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
         maxPeople: parseInt(document.getElementById("maxPeople").value),
         touristNumberAssigned: 0,
         status: statusMap[document.getElementById("statusSelect").value], // ✅ chuyển đổi về DRAFT/ACTIVE/INACTIVE
-        place: document.getElementById("place").value,                   // ✅ dùng đúng key theo DTO
-        category: document.getElementById("categorySelect").value,       // ✅ dùng đúng key theo DTO
+        place: document.getElementById("place").value, // ✅ dùng đúng key theo DTO
+        category: document.getElementById("categorySelect").value, // ✅ dùng đúng key theo DTO
         thumbnail: getFirstImageUrlOrNull()
       };
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8080/tourify/api/tours", {
+        const response = await fetch("/tourify/api/tours", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response.ok && result.code === 1000) {
           // ✅ Hiển thị toast thành công
           const toastEl = document.getElementById("successToast");
-          const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+          const toast = new bootstrap.Toast(toastEl, {
+            delay: 3000
+          });
           toast.show();
 
 
@@ -53,8 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setTimeout(() => {
             loadPage("addTour");
           }, 1500);
-        }
-         else {
+        } else {
           alert("❌ " + (result.message || "Tạo tour thất bại."));
         }
 
@@ -72,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadPlacesAndCategories() {
   const categorySelect = document.getElementById("categorySelect");
   try {
-    const res = await fetch("http://localhost:8080/tourify/api/categories");
+    const res = await fetch("/tourify/api/categories");
     const categories = await res.json();
     console.log("🎯 Categories fetched:", categories);
 
@@ -90,7 +91,7 @@ async function loadPlacesAndCategories() {
 
   const placeSelect = document.getElementById("place");
   try {
-    const res = await fetch("http://localhost:8080/tourify/api/place");
+    const res = await fetch("/tourify/api/place");
     const result = await res.json();
     console.log("📍 Places fetched:", result.result);
 

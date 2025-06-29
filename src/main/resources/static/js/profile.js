@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/tourify/api/user/avatar?username=${username}`, {
+            const response = await fetch(`/tourify/api/user/avatar?username=${username}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -135,7 +135,7 @@ async function updateNameViaAPI(field, newValue) {
             lastName: field === 'lastName' ? newValue : currentLastName
         };
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/name?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/name?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -210,7 +210,7 @@ async function updateFieldViaAPI(field, newValue) {
             requestBody = { [field]: newValue };
         }
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/${apiEndpoint}?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/${apiEndpoint}?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -397,7 +397,7 @@ function updateAvatar() {
 // Function to fetch user data from API
 async function fetchUserData(accessToken) {
     try {
-        const response = await fetch('http://localhost:8080/tourify/api/auth/me', {
+        const response = await fetch('/tourify/api/auth/me', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -492,7 +492,7 @@ async function loadCreditCards() {
     listDiv.innerHTML = '<div class="text-center text-muted">Đang tải...</div>';
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             headers: { "Authorization": `Bearer ${accessToken}` }
         });
         const data = await res.json();
@@ -574,7 +574,7 @@ async function addCreditCard() {
     const cardType = form.cardType.value;
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,

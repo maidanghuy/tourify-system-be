@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán thành công</title>
+</head>
+    <body>
+        <h1>Thanh toán thành công!</h1>
+        <p>Mã trả về: <span th:text="${code}">[code]</span></p>
+        <p>Transaction ID: <span th:text="${transactionId}">[id]</span></p>
+        <p>Order Code: <span th:text="${orderCode}">[orderCode]</span></p>
+        <p>Trạng thái: <span th:text="${status}">[status]</span></p>
+        <p><a href="landing">Quay lại trang chủ</a></p>
+    </body>
+</html>

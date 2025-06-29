@@ -500,7 +500,7 @@ async function loadTourList() {
   }
 
   try {
-    const res = await fetch("http://localhost:8080/tourify/api/tours/my-tours", {
+    const res = await fetch("/tourify/api/tours/my-tours", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

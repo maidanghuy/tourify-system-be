@@ -2,6 +2,7 @@ server:
   port: 8080
   servlet:
     context-path: /tourify
+  forward-headers-strategy: framework
 
 spring:
   config:
@@ -59,9 +60,17 @@ spring:
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
+
+payos:
+  client-id: ${PAYOS_CLIENT_ID}
+  api-key: ${PAYOS_API_KEY}
+  checksum-key: ${PAYOS_CHECKSUM_KEY}
+  return-url: http://localhost:8080/tourify/${RETURN_URL}
+  cancel-url: http://localhost:8080/tourify/${CANCEL_URL}
+
 app:
   backend:
-    url: http://localhost:8080/tourify
+    url: https://bce5-2001-ee0-7b22-a660-1cfe-c069-6df8-6bf0.ngrok-free.app/tourify
 
 logging:
   level:
