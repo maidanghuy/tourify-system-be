@@ -69,54 +69,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
         pageData.forEach(tour => {
             container.insertAdjacentHTML("beforeend", `
-                <div class="col-md-12 mb-3">
-                  <div class="card tour-card shadow-sm border-0 rounded-4">
-                    <div class="row g-0 align-items-stretch">
-                      <div class="col-md-4">
-                        <img src="${tour.thumbnail}" class="w-100 h-100 object-fit-cover" alt="Thumbnail" />
-                      </div>
-                      <div class="col-md-8">
-                        <div class="card-body d-flex flex-column justify-content-between h-100">
-                          <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="fw-bold mb-0">${tour.tourName}</h5>
-                            <div>${generateStarRating(tour.rating)}</div>
-                          </div>
-                          <div class="text-muted small mb-2">
-                            <i class="fas fa-location-dot text-success me-1"></i>${tour.placeName}
-                            <span class="mx-2">|</span>
-                            <i class="fas fa-tag text-success me-1"></i>${tour.categoryName}
-                            <span class="mx-2">|</span>
-                            <i class="fas fa-calendar-alt text-success me-1"></i>${tour.duration} days
-                            <span class="mx-2">|</span>
-                            <i class="fas fa-users text-success me-1"></i>${tour.touristNumberAssigned?.toLocaleString()||0} booked
-                          </div>
-                          <div class="text-muted small mb-3">
-                            <i class="fas fa-user-tie me-1" style="color:#0a6e4d"></i>
-                            By <a href="/company/${encodeURIComponent(tour.createdByUserName)}" class="fw-semibold text-decoration-none" style="color:#0a6e4d">
-                              ${tour.createdByUserName || "Unknown"}
-                            </a>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-success fw-bold fs-5">$${tour.price}</span>
-                            <div class="btn-group">
-                              <button class="btn btn-light border favorite-btn">
-                                <i class="fas fa-heart text-danger"></i>
-                              </button>
-                              <a href="/tourify/tourDetail?id=${tour.tourId}" class="btn btn-success">
-                                <i class="fas fa-eye"></i>
-                              </a>
-                              <a href="/tourify/tourBooking?id=${tour.tourId}" class="btn btn-primary">
-                                <i class="fas fa-calendar-check"></i>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            `);
+    <div class="tour-luxury-card d-flex align-items-stretch mb-4" style="background: linear-gradient(135deg, #e5f9ff 0%, #fffbe7 100%); border-radius: 24px; box-shadow: 0 8px 32px rgba(24,70,130,0.09);">
+  <!-- Image + badges -->
+  <div class="position-relative tour-img-wrap" style="min-width:220px; max-width:220px; border-radius: 20px 0 0 20px; overflow: hidden;">
+    <img src="${tour.thumbnail}" class="w-100 h-100 object-fit-cover" alt="Thumbnail" style="min-height: 200px; object-fit: cover;">
+    <!-- Category badge -->
+    <span class="badge tour-type-badge position-absolute"
+          style="top:16px; left:16px;">
+      ${tour.categoryName || "Unknown"}
+    </span>
+    <!-- Rating badge -->
+    <span class="badge tour-rating-badge position-absolute"
+          style="top:16px; right:16px;">
+      <i class="fas fa-star me-1"></i>
+      ${(tour.rating !== undefined && tour.rating !== null) ? tour.rating : "N/A"}
+    </span>
+  </div>
+  <!-- Info -->
+  <div class="flex-grow-1 d-flex flex-column p-4" style="background: transparent;">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h5 class="fw-bold mb-2" style="font-size: 1.3rem;">${tour.tourName}</h5>
+        <div class="text-muted mb-2" style="font-size:1rem;">
+          <i class="fas fa-location-dot me-1"></i>${tour.placeName}
+          <span class="mx-2">·</span>
+          <i class="fas fa-calendar-alt me-1"></i>${tour.duration} days
+          <span class="mx-2">·</span>
+          <i class="fas fa-users me-1"></i>${tour.touristNumberAssigned?.toLocaleString() || 0} booked
+        </div>
+      </div>
+      <div class="d-flex align-items-center tour-company-badge px-3 py-2 ms-2 rounded-pill"
+           tabindex="0"
+           style="background: #f3faf5; color: #139169; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.12s;">
+        <i class="fa fa-user-circle me-2" style="font-size: 1.22em;"></i>
+        ${tour.createdByUserName || "Unknown"}
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="tour-desc p-2 px-3 rounded-3 bg-white shadow-sm" style="font-size:1rem; color:#566478;">
+        ${tour.description || "Discover an amazing journey with Tourify"}
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-auto">
+      <div class="fw-bold" style="font-size:1.5rem; color:#139169;">
+        ${tour.price.toLocaleString()} <span class="fs-6 fw-normal" style="color:#a0b0c2;">VND</span>
+      </div>
+      <div class="d-flex gap-2 tour-actions">
+        <button class="action-btn" title="Add to favorites"><i class="fa fa-heart"></i></button>
+        <a href="/tourify/tourDetail?id=${tour.tourId}" class="action-btn" title="View details"><i class="fa fa-eye"></i></a>
+        <a href="/tourify/tourBooking?id=${tour.tourId}" class="action-btn" title="Book this tour"><i class="fa fa-plane-departure"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+    `);
         });
+
 
         scrollTarget.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -197,14 +206,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     ratingButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", function() {
             const val = parseInt(btn.dataset.value, 10);
             if (selectedFilters.rating === val) {
-                // click 2nd time: off
+                // Click lần 2: OFF
                 selectedFilters.rating = null;
-                btn.classList.remove("active");
+                ratingButtons.forEach(b => b.classList.remove("active"));
             } else {
-                // click 1st time: on
+                // Click sang rating khác: ON
                 ratingButtons.forEach(b => b.classList.remove("active"));
                 selectedFilters.rating = val;
                 btn.classList.add("active");
@@ -212,6 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
             renderFilteredTours();
         });
     });
+
+
 
     // Initial fetch
     const params = new URLSearchParams(window.location.search);
