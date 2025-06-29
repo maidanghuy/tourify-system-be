@@ -68,7 +68,7 @@ public class FeedbackService {
         List<Feedback> feedbacks;
         if (isUser) {
             // USER: chỉ xem feedback có status != "rejected" và != "deleted"
-            List<String> excludedStatuses = List.of("REJECTED", "DELETED");
+            List<String> excludedStatuses = List.of("REJECTED", "DELETED", "PENDING");
             feedbacks = feedbackRepository
                     .findByTour_TourIdAndStatusNotIn(
                             tourId, excludedStatuses
