@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,5 +71,13 @@ public class TourController {
                         .result(myTours)
                         .build()
         );
+    }
+
+    /**
+     * So sánh tour: gửi body ["id1","id2",...], nhận về List<TourResponse]
+     */
+    @PostMapping("/compare")
+    public List<TourResponse> compare(@RequestBody List<String> tourIds) {
+        return tourService.compareTours(tourIds);
     }
 }
