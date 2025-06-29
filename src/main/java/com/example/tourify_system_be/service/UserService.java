@@ -435,5 +435,4 @@ public class UserService {
             userRepository.save(u);
         }
     }
-
 }
