@@ -1,17 +1,17 @@
 // js/tour_list.js
 document.addEventListener("DOMContentLoaded", () => {
-    const priceInput     = document.getElementById("priceRange");
-    const priceValue     = document.getElementById("priceValue");
-    const durationInput  = document.getElementById("durationRange");
-    const durationValue  = document.getElementById("durationValue");
-    const ratingButtons  = document.querySelectorAll(".rating-btn");
+    const priceInput = document.getElementById("priceRange");
+    const priceValue = document.getElementById("priceValue");
+    const durationInput = document.getElementById("durationRange");
+    const durationValue = document.getElementById("durationValue");
+    const ratingButtons = document.querySelectorAll(".rating-btn");
     const companyFilterContainer = document.getElementById("companyFilterContainer");
-    const container      = document.getElementById("tourResultsContainer");
-    const noTourMsg      = document.getElementById("noTourMsg");
+    const container = document.getElementById("tourResultsContainer");
+    const noTourMsg = document.getElementById("noTourMsg");
     const loadingSpinner = document.getElementById("loadingSpinner");
-    const pagination     = document.getElementById("pagination");
+    const pagination = document.getElementById("pagination");
     const paginationWrapper = pagination.closest(".text-center");
-    const scrollTarget   = document.getElementById("tourListScrollable");
+    const scrollTarget = document.getElementById("tourListScrollable");
 
     const chunkSize = 4;
     let allTours = [];
@@ -46,9 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderFilteredTours() {
         const { price, duration, rating, companies } = selectedFilters;
         filteredTours = allTours.filter(tour => (
-            (!price    || tour.price <= price) &&
+            (!price || tour.price <= price) &&
             (!duration || tour.duration >= duration) &&
-            (!rating   || Math.floor(tour.rating) === rating) &&
+            (!rating || Math.floor(tour.rating) === rating) &&
             (companies.length === 0 || companies.includes(tour.createdByUserName))
         ));
 
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ${tour.price.toLocaleString()} <span class="fs-6 fw-normal" style="color:#a0b0c2;">VND</span>
       </div>
       <div class="d-flex gap-2 tour-actions">
-        <button class="action-btn" title="Add to favorites"><i class="fa fa-heart"></i></button>
+        <button class="action-btn btn-favorite" data-tour-id="${tour.tourId}" title="Add to favorites"><i class="fa fa-heart"></i></button>
         <a href="/tourify/tourDetail?id=${tour.tourId}" class="action-btn" title="View details"><i class="fa fa-eye"></i></a>
         <a href="/tourify/tourBooking?id=${tour.tourId}" class="action-btn" title="Book this tour"><i class="fa fa-plane-departure"></i></a>
       </div>
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     ratingButtons.forEach(btn => {
-        btn.addEventListener("click", function() {
+        btn.addEventListener("click", function () {
             const val = parseInt(btn.dataset.value, 10);
             if (selectedFilters.rating === val) {
                 // Click lần 2: OFF
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(data => {
             allTours = data || [];
             const maxPrice = Math.max(0, ...allTours.map(t => t.price));
-            priceInput.max   = maxPrice;
+            priceInput.max = maxPrice;
             priceInput.value = maxPrice;
             selectedFilters.price = maxPrice;
             updateDisplayCount();
@@ -259,4 +259,116 @@ document.addEventListener("DOMContentLoaded", () => {
             loadingSpinner.classList.add("d-none");
             showNoTourMessage();
         });
+
+    // Thêm sau khi render danh sách tour:
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-favorite')) {
+            const btn = e.target.closest('.btn-favorite');
+            const tourId = btn.getAttribute('data-tour-id');
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                Toastify({
+                    text: "<i class='fas fa-exclamation-circle me-2'></i>Please login to add favorite!",
+                    duration: 2500,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#fff3cd",
+                        color: "#856404",
+                        border: "1.5px solid #ffeeba",
+                        borderRadius: "0.7rem",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        boxShadow: "0 2px 8px #ffeeba77",
+                        padding: "0.7rem 1.2rem"
+                    },
+                    escapeMarkup: false,
+                    offset: { x: 20, y: 20 },
+                    avatar: false
+                }).showToast();
+                return;
+            }
+            btn.disabled = true;
+            fetch(`/tourify/api/user/favorites/${tourId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code === 1000) {
+                        btn.classList.add('active');
+                        btn.querySelector('i').classList.add('text-danger');
+                        Toastify({
+                            text: "<i class='fas fa-check-circle me-2'></i>Added to favorites!",
+                            duration: 2000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: "#fff",
+                                color: "#16b686",
+                                border: "1.5px solid #b8ead2",
+                                borderRadius: "0.7rem",
+                                fontSize: "1rem",
+                                fontWeight: 500,
+                                boxShadow: "0 2px 8px rgba(34,197,94,0.07)",
+                                padding: "0.7rem 1.2rem"
+                            },
+                            escapeMarkup: false,
+                            offset: { x: 20, y: 20 },
+                            avatar: false
+                        }).showToast();
+                    } else {
+                        btn.disabled = false;
+                        Toastify({
+                            text: `<i class='fas fa-exclamation-triangle me-2'></i>${data.message || 'Failed to add favorite!'}`,
+                            duration: 2500,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: "#fff3cd",
+                                color: "#856404",
+                                border: "1.5px solid #ffeeba",
+                                borderRadius: "0.7rem",
+                                fontSize: "1rem",
+                                fontWeight: 500,
+                                boxShadow: "0 2px 8px #ffeeba77",
+                                padding: "0.7rem 1.2rem"
+                            },
+                            escapeMarkup: false,
+                            offset: { x: 20, y: 20 },
+                            avatar: false
+                        }).showToast();
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    Toastify({
+                        text: "<i class='fas fa-exclamation-triangle me-2'></i>Failed to add favorite!",
+                        duration: 2500,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#fff3cd",
+                            color: "#856404",
+                            border: "1.5px solid #ffeeba",
+                            borderRadius: "0.7rem",
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            boxShadow: "0 2px 8px #ffeeba77",
+                            padding: "0.7rem 1.2rem"
+                        },
+                        escapeMarkup: false,
+                        offset: { x: 20, y: 20 },
+                        avatar: false
+                    }).showToast();
+                });
+        }
+    });
 });

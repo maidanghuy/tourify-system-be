@@ -197,4 +197,13 @@ public class BookingTourService {
                 .thumbnail(booking.getTour().getThumbnail())
                 .build();
     }
+
+    public void markAsPaid(long orderCode) {
+        String bookingId = String.valueOf(orderCode);
+        BookingTour booking = bookingTourRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        booking.setStatus("PAID");
+        bookingTourRepository.save(booking);
+    }
 }

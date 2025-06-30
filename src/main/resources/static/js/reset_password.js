@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const response = await fetch("http://localhost:8080/tourify/api/auth/reset-password", {
+            const response = await fetch("/tourify/api/auth/reset-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/tourify/api/user/avatar?username=${username}`, {
+            const response = await fetch(`/tourify/api/user/avatar?username=${username}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -186,7 +186,7 @@ async function updateNameViaAPI(field, newValue) {
             lastName: field === 'lastName' ? newValue : currentLastName
         };
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/name?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/name?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -261,7 +261,7 @@ async function updateFieldViaAPI(field, newValue) {
             requestBody = { [field]: newValue };
         }
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/${apiEndpoint}?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/${apiEndpoint}?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -449,7 +449,7 @@ function updateAvatar() {
 // Function to fetch user data from API
 async function fetchUserData(accessToken) {
     try {
-        const response = await fetch('http://localhost:8080/tourify/api/auth/me', {
+        const response = await fetch('/tourify/api/auth/me', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -544,7 +544,7 @@ async function loadCreditCards() {
     listDiv.innerHTML = '<div class="text-center text-muted">Đang tải...</div>';
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             headers: { "Authorization": `Bearer ${accessToken}` }
         });
         const data = await res.json();
@@ -552,23 +552,34 @@ async function loadCreditCards() {
         if (data.result && data.result.length > 0) {
             listDiv.innerHTML = data.result.map(card => `
                 <div class="credit-card-ui">
-                    <div class="cc-type">
-                        <i class="bi bi-credit-card"></i> ${card.cardType || "Khác"}
-                    </div>
-                    <div class="cc-label">Số thẻ</div>
-                    <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
-                    <div class="row" style="margin-top: 35px">
-                        <div class="col-7">
-                            <div class="cc-label">Chủ thẻ</div>
-                            <div class="cc-holder">${card.cardHolderName}</div>
-                        </div>
-                        <div class="col-5 text-start">
-                            <div class="cc-label">Hết hạn</div>
-                            <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
-                        </div>
-                    </div>
-                    <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
-                </div>
+  <div class="logo"></div>
+  <div class="chip">
+    <!-- Chip SVG -->
+    <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="26" rx="6" fill="#eee9" />
+      <rect x="7" y="7" width="26" height="12" rx="3" fill="#ccc9" />
+      <rect x="13" y="11" width="14" height="4" rx="1" fill="#bbb7" />
+    </svg>
+  </div>
+  <div class="cc-type">
+    <i class="bi bi-credit-card"></i>
+    ${card.cardType || "Khác"}
+    <span class="wave ms-1"><i class="bi bi-wifi"></i></span>
+  </div>
+  <div class="cc-label">Số thẻ</div>
+  <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
+  <div class="row" style="margin-top: 10px;">
+    <div>
+      <div class="cc-label">Chủ thẻ</div>
+      <div class="cc-holder">${card.cardHolderName}</div>
+    </div>
+    <div class="text-start">
+      <div class="cc-label">Hết hạn</div>
+      <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
+</div>
+  </div>
+  <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
+</div>
             `).join("");
 
             listDiv.innerHTML += `
@@ -626,7 +637,7 @@ async function addCreditCard() {
     const cardType = form.cardType.value;
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,

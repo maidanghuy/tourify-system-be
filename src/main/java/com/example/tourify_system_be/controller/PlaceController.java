@@ -5,10 +5,7 @@ import com.example.tourify_system_be.dto.response.PageResponse;
 import com.example.tourify_system_be.dto.response.PlaceResponse;
 import com.example.tourify_system_be.service.PlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

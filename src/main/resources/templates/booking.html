@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Tourify - Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+
+    <link href="../css/index.css" rel="stylesheet" />
+    <link href="../css/booking.css" rel="stylesheet" />
+
+
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/landing}">
+                <img alt="Tourify" height="40"
+                    src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600" />
+            </a>
+            <button aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler" data-bs-target="#mainNavbar" data-bs-toggle="collapse" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom active" th:href="@{/landing}">
+                            <i class="fas fa-house me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom" th:href="@{/detail}">
+                            <i class="fas fa-info-circle me-2"></i>Detail
+                        </a>
+                    </li>
+                </ul>
+
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button aria-expanded="false"
+                            class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
+                            data-bs-toggle="dropdown" id="userMenu" type="button">
+                            <img alt="Avatar" class="rounded-circle me-2" height="32"
+                                src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                width="32" />
+                            <span>Hello,
+                                <span>User</span></span>
+                        </button>
+                        <ul aria-labelledby="userMenu" class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" id="profile-view" th:href="@{/user/profile}"><i
+                                        class="fas fa-user-circle me-2"></i>View profile</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" id="profile-edit" th:href="@{/user/profile}"><i
+                                        class="fas fa-edit me-2"></i>Edit
+                                    profile</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm px-3" id="logout-link" type="submit">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <!-- Breadcrumb + Title + Price -->
+        <nav aria-label="breadcrumb" class="custom-breadcrumb mt-3 mb-4">
+            <ol class="breadcrumb bg-white rounded shadow-sm px-3 py-2">
+                <!-- Home -->
+                <li class="breadcrumb-item">
+                    <a href="./landingpage.html">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+
+
+                <!-- Da Nang -->
+                <li class="breadcrumb-item">
+                    <a href="/destination/da-nang">
+                        <i class="fas fa-map-marker-alt me-1"></i>Da Nang
+                    </a>
+                </li>
+
+
+                <!-- Tour Detail -->
+                <li class="breadcrumb-item">
+                    <a href="tourdetail.html">
+                        <i class="fas fa-route me-1"></i>Da Nang City Discovery Tour
+                    </a>
+                </li>
+
+
+                <!-- Booking Page (current) -->
+                <li aria-current="page" class="breadcrumb-item active">
+                    <i class="fas fa-ticket-alt me-1"></i>Booking
+                </li>
+            </ol>
+        </nav>
+
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <div class="section-box">
+                    <div class="d-flex justify-content-between align-items-center tour-header">
+                        <h4 class="tour-title">Da Nang City Discovery Tour</h4>
+                        <div class="price">$240</div>
+                    </div>
+
+
+                    <div class="mt-4 p-4 bg-light rounded-4 shadow-sm">
+                        <div class="row align-items-center">
+                            <!-- Adult & Child Modern Control -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <!-- Adult -->
+                                    <label class="form-label fw-semibold text-dark mb-2">Adult</label>
+                                    <div class="input-group fancy-counter mb-4">
+                                        <button class="counter-btn minus" data-target="adultInput">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input class="form-control counter-display" id="adultInput" readonly type="text"
+                                            value="1" />
+                                        <button class="counter-btn plus" data-target="adultInput">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+
+                                    <!-- Child -->
+                                    <label class="form-label fw-semibold text-dark mb-2">Child</label>
+                                    <div class="input-group fancy-counter">
+                                        <button class="counter-btn minus" data-target="childInput">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input class="form-control counter-display" id="childInput" readonly type="text"
+                                            value="1" />
+                                        <button class="counter-btn plus" data-target="childInput">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- Right column: Booking code -->
+                            <div class="col-md-6 d-flex justify-content-center">
+                                <div
+                                    class="airline-box d-flex align-items-center p-4 rounded-4 border border-success-subtle shadow-lg gap-4 bg-white airline-glow">
+                                    <div class="airline-logo-box">
+                                        <img alt="Airline" class="img-fluid rounded-circle
+                                    airline-logo"
+                                            src="https://images.pexels.com/photos/15483696/pexels-photo-15483696/free-photo-of-c-c-a-r-p-saudi.jpeg" />
+                                    </div>
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <h5 class="mb-1 fw-bold text-center fs-5" style="
+                          color: #20c997;
+                          text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+                          letter-spacing: 0.5px;
+                        ">
+                                            HOIANNA
+                                        </h5>
+
+
+                                        <span
+                                            class="badge text-bg-light px-3 py-2 shadow-sm text-secondary fw-semibold rounded-pill">
+                                            Code: HOIANNA320
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Dates -->
+                        <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+
+                            <!-- Start Date -->
+                            <div class="date-container d-flex align-items-center gap-2">
+                                <div class="calendar-icon-box">
+                                    <i class="fas fa-calendar-alt text-success"></i>
+                                </div>
+                                <!-- input ẩn để tận dụng picker gốc -->
+                                <input class="date-raw d-none" id="startDateRaw" type="date">
+                                <!-- input hiển thị DD-MM-YYYY -->
+                                <input class="form-control date-display" id="startDateDisplay" placeholder="dd-mm-yyyy"
+                                    readonly type="text" />
+                            </div>
+
+                            <!-- Plane Icon -->
+                            <div class="d-flex align-items-center">
+                                <span class="mx-1">•──</span>
+                                <i class="fas fa-plane fa-lg text-dark"></i>
+                                <span class="mx-1">──•</span>
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="date-container d-flex align-items-center gap-2">
+                                <div class="calendar-icon-box">
+                                    <i class="fas fa-calendar-alt text-success"></i>
+                                </div>
+                                <input class="date-raw d-none" id="endDateRaw" type="date">
+                                <input class="form-control date-display" id="endDateDisplay" placeholder="dd-mm-yyyy"
+                                    readonly type="text" />
+                            </div>
+
+                        </div>
+
+                        <!-- Discount -->
+                        <div class="form-floating-modern mb-4">
+                            <select class="form-select discount-select shadow-sm rounded-pill" id="discountSelect">
+                                <option selected>HUVYUDEPTRAI-SALE50</option>
+                                <option>TOUR50</option>
+                                <option>SUMMER20</option>
+                            </select>
+                            <label for="discountSelect">
+                                <i class="fas fa-gift me-2 text-success"></i> Discount Code
+                            </label>
+                        </div>
+
+
+                        <!-- Payment Methods -->
+                        <div class="payment-options d-flex flex-column gap-3 mt-4">
+                            <!-- Pay in Bank -->
+                            <label class="payment-card active" for="payBank">
+                                <input checked class="form-check-input visually-hidden" id="payBank" name="payment"
+                                    type="radio" />
+                                <div class="payment-text">
+                                    <div class="payment-title">Pay in bank</div>
+                                    <div class="payment-subtext">
+                                        Payment will be made in cash upon delivery.
+                                    </div>
+                                </div>
+                                <div class="payment-circle"></div>
+                            </label>
+
+
+                            <!-- Pay in T-Pay -->
+                            <label class="payment-card" for="payTpay">
+                                <input class="form-check-input visually-hidden" id="payTpay" name="payment"
+                                    type="radio" />
+                                <div class="payment-text">
+                                    <div class="payment-title">Pay in T-Pay</div>
+                                    <div class="payment-subtext">
+                                        T-Pay is a secure and user-friendly e-wallet designed
+                                        specifically for travelers booking with Tourify.
+                                    </div>
+                                </div>
+                                <div class="payment-circle"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="section-box p-4 bg-white rounded-4 shadow-sm">
+                    <!-- Avatar & Card -->
+                    <div class="d-flex align-items-center rounded-4 p-3 mb-4 shadow position-relative" id="cardHeader"
+                        onclick="toggleReveal(this)" style="
+                cursor: pointer;
+                background: rgba(240, 255, 250, 0.7);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+              ">
+                        <!-- Avatar -->
+                        <img alt="User Avatar" class="rounded-circle border border-success shadow-sm me-3" height="50"
+                            src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                            width="50" />
+
+
+                        <!-- Info -->
+                        <div class="d-flex justify-content-between align-items-center w-100">
+                            <div class="fw-semibold text-dark d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-credit-card text-success fs-5"></i>
+
+
+                                <!-- Card number -->
+                                <span id="cardNumber">**** <span class="fw-bold">4321</span></span>
+
+
+                                <!-- Toggle visibility -->
+                                <button aria-label="Toggle card number"
+                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
+                                    onclick="toggleCardNumber(event)" style="width: 34px; height: 34px"
+                                    title="Toggle card number">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                            </div>
+
+
+                            <!-- Check icon -->
+                            <i class="fas fa-check-circle fs-4 text-muted" id="checkIcon"
+                                style="transition: color 0.25s ease"></i>
+                        </div>
+                    </div>
+
+
+                    <!-- Editable Fields -->
+                    <div class="d-none" id="accountFields">
+                        <!-- Name -->
+                        <div class="mb-3" id="nameField">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" id="nameView">
+                                <div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-id-badge me-2"></i>Name
+                                    </div>
+                                    <div class="fw-bold" id="nameDisplay">John Doe</div>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm" onclick="editField('name')">
+                                    <i class="fas fa-pen me-1"></i> Change
+                                </button>
+                            </div>
+                            <div class="d-none" id="nameEdit">
+                                <label class="text-muted small mb-1">Name</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input class="form-control" id="nameInput" style="max-width: 300px" type="text"
+                                        value="John Doe" />
+                                    <button class="btn btn-light shadow-sm" onclick="confirmField('name')">
+                                        <i class="fas fa-check text-success me-1"></i> Confirm
+                                    </button>
+                                    <button class="btn btn-light shadow-sm" onclick="cancelField('name')">
+                                        <i class="fas fa-times text-danger me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="mb-3" id="emailField">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" id="emailView">
+                                <div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-envelope me-2"></i>Email
+                                    </div>
+                                    <div class="fw-bold" id="emailDisplay">
+                                        john.doe@gmail.com
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm" onclick="editField('email')">
+                                    <i class="fas fa-pen me-1"></i> Change
+                                </button>
+                            </div>
+                            <div class="d-none" id="emailEdit">
+                                <label class="text-muted small mb-1">Email</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input class="form-control" id="emailInput" style="max-width: 300px" type="email"
+                                        value="john.doe@gmail.com" />
+                                    <button class="btn btn-light shadow-sm" onclick="confirmField('email')">
+                                        <i class="fas fa-check text-success me-1"></i> Confirm
+                                    </button>
+                                    <button class="btn btn-light shadow-sm" onclick="cancelField('email')">
+                                        <i class="fas fa-times text-danger me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Phone -->
+                        <div class="mb-3" id="phoneField">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" id="phoneView">
+                                <div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-phone me-2"></i>Phone
+                                    </div>
+                                    <div class="fw-bold" id="phoneDisplay">+1 000-000-0000</div>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm" onclick="editField('phone')">
+                                    <i class="fas fa-pen me-1"></i> Change
+                                </button>
+                            </div>
+                            <div class="d-none" id="phoneEdit">
+                                <label class="text-muted small mb-1">Phone</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input class="form-control" id="phoneInput" style="max-width: 300px" type="text"
+                                        value="+1 000-000-0000" />
+                                    <button class="btn btn-light shadow-sm" onclick="confirmField('phone')">
+                                        <i class="fas fa-check text-success me-1"></i> Confirm
+                                    </button>
+                                    <button class="btn btn-light shadow-sm" onclick="cancelField('phone')">
+                                        <i class="fas fa-times text-danger me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Address -->
+                        <div class="mb-3" id="addressField">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" id="addressView">
+                                <div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Address
+                                    </div>
+                                    <div class="fw-bold" id="addressDisplay">
+                                        St 32 main downtown, Los Angeles, California, USA
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm" onclick="editField('address')">
+                                    <i class="fas fa-pen me-1"></i> Change
+                                </button>
+                            </div>
+                            <div class="d-none" id="addressEdit">
+                                <label class="text-muted small mb-1">Address</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input class="form-control" id="addressInput" style="max-width: 500px" type="text"
+                                        value="St 32 main downtown, Los Angeles, California, USA" />
+                                    <button class="btn btn-light shadow-sm" onclick="confirmField('address')">
+                                        <i class="fas fa-check text-success me-1"></i> Confirm
+                                    </button>
+                                    <button class="btn btn-light shadow-sm" onclick="cancelField('address')">
+                                        <i class="fas fa-times text-danger me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Date of Birth -->
+                        <div class="mb-3" id="dobField">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap" id="dobView">
+                                <div>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-calendar-alt me-2"></i>Date of Birth
+                                    </div>
+                                    <div class="fw-bold" id="dobDisplay">01-01-1992</div>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm" onclick="editField('dob')">
+                                    <i class="fas fa-pen me-1"></i> Change
+                                </button>
+                            </div>
+                            <div class="d-none" id="dobEdit">
+                                <label class="text-muted small mb-1">Date of Birth</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input class="form-control" id="dobInput" style="max-width: 200px" type="date"
+                                        value="01-01-1992" />
+                                    <button class="btn btn-light shadow-sm" onclick="confirmField('dob')">
+                                        <i class="fas fa-check text-success me-1"></i> Confirm
+                                    </button>
+                                    <button class="btn btn-light shadow-sm" onclick="cancelField('dob')">
+                                        <i class="fas fa-times text-danger me-1"></i> Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <div class="card-summary">
+                    <div class="d-flex align-items-center mb-4">
+                        <img alt="Tour Thumbnail" class="rounded-4 shadow-sm me-3" height="60"
+                            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" style="object-fit: cover"
+                            width="60" />
+                        <div>
+                            <h6 class="mb-1">Da Nang City Discovery Tour</h6>
+                            <small><i class="fas fa-star text-warning me-1"></i>Very Good · 54
+                                reviews</small>
+                        </div>
+                    </div>
+
+
+                    <div class="booking-protection">
+                        <i class="fas fa-shield-alt text-success"></i>
+                        <span>Your booking is protected by
+                            <strong class="text-dark">golobe</strong></span>
+                    </div>
+
+
+                    <div class="border-top pt-3">
+                        <div class="price-row">
+                            <span>Original Price</span>
+                            <span>400 VND</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Discount</span>
+                            <span class="text-success">- 100 VND</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Taxes</span>
+                            <span>20 VND</span>
+                        </div>
+                        <div class="price-row">
+                            <span>Service Fee</span>
+                            <span>10 VND</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Total</span>
+                            <span>2000 VND</span>
+                        </div>
+                    </div>
+
+
+                    <button class="btn btn-checkout mt-4 w-100" disabled id="checkoutBtn"
+                        onclick="handleCheckout(this)">
+                        <i class="fas fa-credit-card me-2"></i>Check Out
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Newsletter Section -->
+        <div class="newsletter-section">
+            <div class="newsletter-content">
+                <h3 class="newsletter-title">Subscribe Newsletter</h3>
+                <p class="newsletter-subtitle">
+                    The Travel<br />Get inspired! Receive travel discounts, tips and
+                    behind the scenes stories.
+                </p>
+                <div class="newsletter-form">
+                    <input class="newsletter-input" placeholder="Your email address" type="email" />
+                    <button class="newsletter-btn">Subscribe</button>
+                </div>
+            </div>
+            <img alt="Newsletter" class="newsletter-image"
+                src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600" />
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5 class="footer-title">g-lobe</h5>
+                    <div class="social-icons">
+                        <a class="social-icon facebook" href="#"><i class="fab fa-facebook"></i></a>
+                        <a class="social-icon twitter" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="social-icon youtube" href="#"><i class="fab fa-youtube"></i></a>
+                        <a class="social-icon instagram" href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Destinations</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Canada</a></li>
+                        <li><a href="#">Alaska</a></li>
+                        <li><a href="#">France</a></li>
+                        <li><a href="#">Iceland</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Activities</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Northern Lights</a></li>
+                        <li><a href="#">Cruising & sailing</a></li>
+                        <li><a href="#">Multi-activities</a></li>
+                        <li><a href="#">Kayaking</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Travel Blogs</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Bali Travel Guide</a></li>
+                        <li><a href="#">Sri Lanka Travel Guide</a></li>
+                        <li><a href="#">Peru Travel Guide</a></li>
+                        <li><a href="#">Bali Travel Guide</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="footer-title">About Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                    <h5 class="footer-title mt-3">Contact Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- QR Code Modal -->
+    <div aria-hidden="true" aria-labelledby="qrModalLabel" class="modal fade" id="qrModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 text-center position-relative">
+                <!-- Nút đóng modal (X) -->
+                <button aria-label="Close" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"
+                    type="button"></button>
+
+
+                <h5 class="modal-title fw-bold mb-3 text-success" id="qrModalLabel" style="font-size: 1.75rem">
+                    TOURIFY
+                </h5>
+
+
+                <div class="form-check d-flex align-items-center gap-2 mb-3">
+                    <input class="form-check-input custom-checkbox" id="saveInfoCheck" type="checkbox" />
+                    <label class="form-check-label small" for="saveInfoCheck">
+                        Securely save my information for 1-click checkout
+                    </label>
+                </div>
+
+
+                <div class="px-4 py-2 lg:basis-1/2" id="showQRCode">
+                    <div class="flex items-center justify-center w-full text-center">
+                        <canvas id="qr"></canvas>
+                    </div>
+                </div>
+
+
+                <button class="btn btn-outline-success mt-4 px-4 py-2 rounded-pill fw-semibold"
+                    onclick="reloadQRCode()">
+                    Reload QA Code
+                </button>
+
+
+                <p class="text-muted small mt-3 mb-0 px-3" style="font-size: 0.75rem">
+                    By confirming your subscription, you allow The Outdoor Inn Crowd
+                    Limited to charge your card for this payment and future payments in
+                    accordance with their terms. You can always cancel your
+                    subscription.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="../js/index.js"></script>
+</body>
+
+</html>
+<script>
+    var isCardRevealed = false;
+
+
+    document.querySelectorAll(".plus").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const input = document.getElementById(btn.dataset.target);
+            let value = parseInt(input.value);
+            input.value = value + 1;
+        });
+    });
+
+
+    document.querySelectorAll(".minus").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const input = document.getElementById(btn.dataset.target);
+            let value = parseInt(input.value);
+            if (value > 0) {
+                input.value = value - 1;
+            }
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll(".payment-card").forEach((card) => {
+        card.addEventListener("click", () => {
+            // Remove 'active' from all
+            document
+                .querySelectorAll(".payment-card")
+                .forEach((el) => el.classList.remove("active"));
+
+
+            // Add to current
+            card.classList.add("active");
+
+
+            // Set radio checked manually
+            const radio = card.querySelector("input[type='radio']");
+            if (radio) radio.checked = true;
+        });
+    });
+</script>
+
+<script>
+    let isCardNumberVisible = false;
+
+
+    function toggleReveal(headerEl) {
+        const fields = document.getElementById("accountFields");
+        const checkIcon = document.getElementById("checkIcon");
+        const checkoutBtn = document.getElementById("checkoutBtn");
+
+
+        isCardRevealed = !isCardRevealed;
+
+
+        fields.classList.toggle("d-none", !isCardRevealed);
+        checkIcon.classList.toggle("text-muted", !isCardRevealed);
+        checkIcon.classList.toggle("text-success", isCardRevealed);
+
+
+        headerEl.classList.toggle("clicked", isCardRevealed);
+        headerEl.classList.toggle("bg-light", !isCardRevealed);
+        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+
+
+        // Enable checkout only when card is revealed
+        checkoutBtn.disabled = !isCardRevealed;
+    }
+
+
+    function toggleCardNumber(event) {
+        event.stopPropagation();
+        const display = document.getElementById("cardNumber");
+        const eye = document.getElementById("eyeIcon");
+
+
+        if (isCardNumberVisible) {
+            display.innerHTML = "**** <span class='fw-bold'>4321</span>";
+            eye.classList.replace("fa-eye-slash", "fa-eye");
+        } else {
+            display.innerHTML =
+                "<span class='fw-bold'>1234 5678 9012 4321</span>";
+            eye.classList.replace("fa-eye", "fa-eye-slash");
+        }
+
+
+        isCardNumberVisible = !isCardNumberVisible;
+    }
+
+
+    function editField(field) {
+        document.getElementById(field + "View").classList.add("d-none");
+        document.getElementById(field + "Edit").classList.remove("d-none");
+    }
+
+
+    function cancelField(field) {
+        document.getElementById(field + "Edit").classList.add("d-none");
+        document.getElementById(field + "View").classList.remove("d-none");
+    }
+
+
+    function confirmField(field) {
+        const value = document.getElementById(field + "Input").value;
+        document.getElementById(field + "Display").textContent = value;
+        cancelField(field);
+    }
+</script>
+
+<script>
+    function toggleReveal(headerEl) {
+        const fields = document.getElementById("accountFields");
+        const checkIcon = document.getElementById("checkIcon");
+
+
+        isCardRevealed = !isCardRevealed;
+
+
+        fields.classList.toggle("d-none", !isCardRevealed);
+        checkIcon.classList.toggle("text-muted", !isCardRevealed);
+        checkIcon.classList.toggle("text-success", isCardRevealed);
+
+
+        // toggle glow
+        headerEl.classList.toggle("clicked", isCardRevealed);
+        headerEl.classList.toggle("bg-light", !isCardRevealed);
+        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+    }
+</script>
+
+<script>
+    function showLoading(btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        // Simulate submit
+        setTimeout(
+            () => (btn.innerHTML = `<i class="fas fa-check me-2"></i>Paid`),
+            1500
+        );
+    }
+</script>
+
+<script>
+    function handleCheckout(btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+
+
+        // Show QR code modal
+        handlerevealQRCodeModal();
+
+        setTimeout(() => {
+            btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
+            btn.disabled = false;
+
+            const qrModal = new bootstrap.Modal(
+                document.getElementById("qrModal")
+            );
+            qrModal.show();
+        }, 1500);
+    }
+
+
+    function reloadQRCode() {
+        handlerevealQRCodeModal();
+    }
+
+    function handlerevealQRCodeModal() {
+        const token = localStorage.getItem('accessToken');
+        const username = localStorage.getItem('username');
+        const qrCanvas = document.getElementById("qr");
+
+        if (!token || !username) {
+            alert("Bạn chưa đăng nhập.");
+            return;
+        }
+
+        // Thêm hiệu ứng loading
+        qrCanvas.classList.add("qr-loading");
+
+        // Lấy các giá trị từ HTML
+        const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
+        const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+        const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+
+        const body = {
+            amount: amount,
+            description: `Dat tour`
+        };
+
+        fetch('/tourify/api/payment/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(body)
+        })
+            .then(res => res.json())
+            .then(data => {
+                // Xóa hiệu ứng loading
+                qrCanvas.classList.remove("qr-loading");
+                if (data.code === 1000 && data.result?.qrCode) {
+                    console.loc(data);
+                    const qrCode = data.result.qrCode;
+                    // Tạo mã QR bằng QRious
+                    const qr = new QRious({
+                        element: qrCanvas,
+                        value: qrCode,
+                        size: 256,
+                        level: 'H'
+                    });
+                } else {
+                    alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+                }
+            })
+            .catch(err => {
+                qrCanvas.classList.remove("qr-loading");
+                alert('Có lỗi xảy ra trong quá trình thanh toán.');
+            });
+    }
+</script>
+
+<script>
+    function toggleReveal(headerEl) {
+        const fields = document.getElementById("accountFields");
+        const checkIcon = document.getElementById("checkIcon");
+        const checkoutBtn = document.getElementById("checkoutBtn"); // nút nằm ngoài
+
+
+        // Toggle trạng thái
+        isCardRevealed = !isCardRevealed;
+
+
+        // Ẩn/hiện thông tin
+        fields.classList.toggle("d-none", !isCardRevealed);
+
+
+        // Đổi màu icon
+        checkIcon.classList.toggle("text-muted", !isCardRevealed);
+        checkIcon.classList.toggle("text-success", isCardRevealed);
+
+
+        // Đổi màu header
+        headerEl.classList.toggle("clicked", isCardRevealed);
+        headerEl.classList.toggle("bg-light", !isCardRevealed);
+        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+
+
+        // ✅ Bật/tắt nút Check Out
+        if (checkoutBtn) {
+            checkoutBtn.disabled = !isCardRevealed;
+        }
+    }
+</script>
+
+<script>
+    document.querySelectorAll('.date-container').forEach(container => {
+        const raw = container.querySelector('.date-raw');
+        const disp = container.querySelector('.date-display');
+
+        // Khi click vào ô hiển thị, mở picker của input type=date
+        disp.addEventListener('click', () => {
+            raw.showPicker?.(); // Chrome/Edge
+            raw.click();       // fallback
+        });
+
+        // Khi chọn ngày xong, định dạng lại và gán vào ô hiển thị
+        raw.addEventListener('change', () => {
+            if (!raw.value) return;
+            const [year, month, day] = raw.value.split('-');
+            disp.value = `${day}-${month}-${year}`;
+        });
+    });
+</script>
+</body>
+
+</html>
