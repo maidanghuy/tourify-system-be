@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const response = await fetch("http://localhost:8080/tourify/api/auth/forgot-password", {
+            const response = await fetch("/tourify/api/auth/forgot-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
