@@ -1,229 +1,374 @@
-document.addEventListener("DOMContentLoaded", function () {
+// js/tour_list.js
+document.addEventListener("DOMContentLoaded", () => {
     const priceInput = document.getElementById("priceRange");
     const priceValue = document.getElementById("priceValue");
     const durationInput = document.getElementById("durationRange");
     const durationValue = document.getElementById("durationValue");
     const ratingButtons = document.querySelectorAll(".rating-btn");
-    const applyFilterBtn = document.getElementById("applyFilterBtn");
-
+    const companyFilterContainer = document.getElementById("companyFilterContainer");
     const container = document.getElementById("tourResultsContainer");
     const noTourMsg = document.getElementById("noTourMsg");
     const loadingSpinner = document.getElementById("loadingSpinner");
     const pagination = document.getElementById("pagination");
     const paginationWrapper = pagination.closest(".text-center");
+    const scrollTarget = document.getElementById("tourListScrollable");
 
+    const chunkSize = 4;
     let allTours = [];
     let filteredTours = [];
-    const chunkSize = 4;
 
-    priceInput.addEventListener("input", () => {
-        priceValue.textContent = `$${priceInput.value}`;
-    });
-
-    durationInput.addEventListener("input", () => {
-        durationValue.textContent = `${durationInput.value} days`;
-    });
-
-    ratingButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            ratingButtons.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-        });
-    });
-
-    const params = new URLSearchParams(window.location.search);
-    const requestBody = {
-        placeName: params.get("placeName") || null,
-        categoryName: params.get("categoryName") || null,
-        duration: params.get("duration") ? parseInt(params.get("duration")) : null,
-        touristNumberAssigned: params.get("touristNumberAssigned") ? parseInt(params.get("touristNumberAssigned")) : null
+    const selectedFilters = {
+        price: null,
+        duration: parseInt(durationInput.value, 10),
+        rating: null,
+        companies: []
     };
 
-    loadingSpinner.classList.remove("d-none");
-    container.innerHTML = "";
-    paginationWrapper.classList.add("d-none");
+    function updateDisplayCount() {
+        priceValue.textContent = `${parseInt(priceInput.value, 10).toLocaleString()} VND`;
+        durationValue.textContent = `${parseInt(durationInput.value, 10)} day(s)`;
+    }
 
-    fetch("http://localhost:8080/tourify/api/tours/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-    })
-        .then(response => response.json())
-        .then(tours => {
-            loadingSpinner.classList.add("d-none");
-            allTours = tours;
-            filteredTours = [...allTours];
+    function generateStarRating(rating) {
+        if (!rating || isNaN(rating)) return `<span class="text-muted small fst-italic">Unrated</span>`;
+        rating = Math.min(Math.round(rating * 2) / 2, 5);
+        const full = Math.floor(rating),
+            half = rating % 1 !== 0,
+            empty = 5 - full - (half ? 1 : 0);
+        return (
+            '<i class="fas fa-star text-warning"></i>'.repeat(full) +
+            (half ? '<i class="fas fa-star-half-alt text-warning"></i>' : '') +
+            '<i class="far fa-star text-warning"></i>'.repeat(empty) +
+            ` <span class="ms-1 text-muted small">(${rating.toFixed(1)})</span>`
+        );
+    }
 
-            if (!tours || tours.length === 0) {
-                showNoTourMessage();
-                paginationWrapper.classList.add("d-none");
-            } else {
-                noTourMsg.style.display = "none";
-                renderPagination();
-                paginationWrapper.classList.remove("d-none");
-            }
-        })
-        .catch(error => {
-            loadingSpinner.classList.add("d-none");
-            console.error("Error loading tours:", error);
-            container.innerHTML = `<div class="text-danger text-center w-100 py-4">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Failed to load tours. Please try again later.
-            </div>`;
-        });
-
-    applyFilterBtn.addEventListener("click", () => {
-        const maxPrice = parseFloat(priceInput.value);
-        const minDuration = parseInt(durationInput.value);
-        const selectedRating = parseInt(document.querySelector(".rating-btn.active")?.dataset.value || "0");
-        const selectedCompanies = Array.from(document.querySelectorAll("input[type=checkbox]:checked"))
-            .map(cb => cb.nextElementSibling.textContent.trim());
-
-        filteredTours = allTours.filter(tour => {
-            return (!maxPrice || tour.price <= maxPrice) &&
-                (!minDuration || tour.duration >= minDuration) &&
-                (!selectedRating || (tour.rating && Math.floor(tour.rating) >= selectedRating)) &&
-                (selectedCompanies.length === 0 || selectedCompanies.includes(tour.createdByUserName));
-        });
+    function renderFilteredTours() {
+        const { price, duration, rating, companies } = selectedFilters;
+        filteredTours = allTours.filter(tour => (
+            (!price || tour.price <= price) &&
+            (!duration || tour.duration >= duration) &&
+            (!rating || Math.floor(tour.rating) === rating) &&
+            (companies.length === 0 || companies.includes(tour.createdByUserName))
+        ));
 
         if (filteredTours.length === 0) {
             showNoTourMessage();
             paginationWrapper.classList.add("d-none");
         } else {
-            noTourMsg.style.display = "none";
-            renderPagination();
+            noTourMsg.classList.add("d-none");
             paginationWrapper.classList.remove("d-none");
+            renderPagination(0);
         }
-    });
-
-    function generateStarRating(rating) {
-        if (typeof rating !== 'number' || isNaN(rating) || rating <= 0) {
-            return '<span class="text-muted small fst-italic">This tour has not been rated yet</span>';
-        }
-
-        // Clamp rating to a max of 5
-        if (rating > 5) rating = 5;
-
-        // Round to the nearest 0.5
-        rating = Math.round(rating * 2) / 2;
-
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 !== 0;
-        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-        let html = '';
-
-        for (let i = 0; i < fullStars; i++) {
-            html += '<i class="fas fa-star text-warning"></i>';
-        }
-        if (hasHalfStar) {
-            html += '<i class="fas fa-star-half-alt text-warning"></i>';
-        }
-        for (let i = 0; i < emptyStars; i++) {
-            html += '<i class="far fa-star text-warning"></i>';
-        }
-
-        html += ` <span class="ms-1 text-muted small">(${rating.toFixed(1)})</span>`;
-        return html;
     }
-
 
     function renderToursPage(pageIndex) {
         container.innerHTML = "";
         const start = pageIndex * chunkSize;
-        const end = start + chunkSize;
-        const pageData = filteredTours.slice(start, end);
+        const pageData = filteredTours.slice(start, start + chunkSize);
 
         pageData.forEach(tour => {
-            const html = `
-        <div class="col-md-12">
-            <div class="card tour-card shadow-sm border-0 rounded-4 mb-3">
-                <div class="row g-0 align-items-stretch">
-                    <div class="col-md-4">
-                        <div class="h-100">
-                            <img src="${tour.thumbnail}" class="fixed-tour-thumbnail w-100 h-100" alt="Tour Thumbnail" />
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body d-flex flex-column justify-content-between h-100">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="card-title fw-bold text-dark mb-0">${tour.tourName}</h5>
-                                <div class="ms-2">${generateStarRating(tour.rating)}</div>
-                            </div>
-                            <div class="mb-2 text-muted small">
-                                <i class="fas fa-location-dot me-1 text-success"></i> ${tour.placeName}
-                                <span class="mx-2">|</span>
-                                <i class="fas fa-tag me-1 text-success"></i> ${tour.categoryName}
-                                <span class="mx-2">|</span>
-                                <i class="fas fa-calendar-alt me-1 text-success"></i> ${tour.duration} days
-                                <span class="mx-2">|</span>
-                                <i class="fas fa-users me-1 text-success"></i> ${tour.touristNumberAssigned?.toLocaleString() || 0} booked
-                            </div>
+            container.insertAdjacentHTML("beforeend", `
+    <div class="tour-luxury-card d-flex align-items-stretch mb-4" style="background: linear-gradient(135deg, #e5f9ff 0%, #fffbe7 100%); border-radius: 24px; box-shadow: 0 8px 32px rgba(24,70,130,0.09);">
+  <!-- Image + badges -->
+  <div class="position-relative tour-img-wrap" style="min-width:220px; max-width:220px; border-radius: 20px 0 0 20px; overflow: hidden;">
+    <img src="${tour.thumbnail}" class="w-100 h-100 object-fit-cover" alt="Thumbnail" style="min-height: 200px; object-fit: cover;">
+    <!-- Category badge -->
+    <span class="badge tour-type-badge position-absolute"
+          style="top:16px; left:16px;">
+      ${tour.categoryName || "Unknown"}
+    </span>
+    <!-- Rating badge -->
+    <span class="badge tour-rating-badge position-absolute"
+          style="top:16px; right:16px;">
+      <i class="fas fa-star me-1"></i>
+      ${(tour.rating !== undefined && tour.rating !== null) ? tour.rating : "N/A"}
+    </span>
+  </div>
+  <!-- Info -->
+  <div class="flex-grow-1 d-flex flex-column p-4" style="background: transparent;">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h5 class="fw-bold mb-2" style="font-size: 1.3rem;">${tour.tourName}</h5>
+        <div class="text-muted mb-2" style="font-size:1rem;">
+          <i class="fas fa-location-dot me-1"></i>${tour.placeName}
+          <span class="mx-2">·</span>
+          <i class="fas fa-calendar-alt me-1"></i>${tour.duration} days
+          <span class="mx-2">·</span>
+          <i class="fas fa-users me-1"></i>${tour.touristNumberAssigned?.toLocaleString() || 0} booked
+        </div>
+      </div>
+      <div class="d-flex align-items-center tour-company-badge px-3 py-2 ms-2 rounded-pill"
+           tabindex="0"
+           style="background: #f3faf5; color: #139169; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.12s;">
+        <i class="fa fa-user-circle me-2" style="font-size: 1.22em;"></i>
+        ${tour.createdByUserName || "Unknown"}
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="tour-desc p-2 px-3 rounded-3 bg-white shadow-sm" style="font-size:1rem; color:#566478;">
+        ${tour.description || "Discover an amazing journey with Tourify"}
+      </div>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-auto">
+      <div class="fw-bold" style="font-size:1.5rem; color:#139169;">
+        ${tour.price.toLocaleString()} <span class="fs-6 fw-normal" style="color:#a0b0c2;">VND</span>
+      </div>
+      <div class="d-flex gap-2 tour-actions">
+        <button class="action-btn btn-favorite" data-tour-id="${tour.tourId}" title="Add to favorites"><i class="fa fa-heart"></i></button>
+        <a href="/tourify/tourDetail?id=${tour.tourId}" class="action-btn" title="View details"><i class="fa fa-eye"></i></a>
+        <a href="/tourify/tourBooking?id=${tour.tourId}" class="action-btn" title="Book this tour"><i class="fa fa-plane-departure"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
 
-                            <div class="text-muted small">
-                                <i class="fas fa-user-tie me-1" style="color: #0a6e4d"></i>
-                                Tour by:
-                                <a href="/company/${encodeURIComponent(tour.createdByUserName)}" class="fw-semibold text-decoration-none" style="color: #0a6e4d">
-                                    ${tour.createdByUserName || "Unknown"}
-                                </a>
-                            </div>
-                            <p class="card-text text-success fw-bold fs-5 mt-2">$${tour.price}</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <button class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill">
-                                    <i class="fas fa-plus"></i> Add to Favorites
-                                </button>
-                                <a href="/tourify/tourDetail?id=${tour.tourId}"  class="btn btn-success px-4 rounded-pill">View Details</a>
-                                <button
-                                      class="btn btn-outline-success d-flex align-items-center gap-2 px-3 rounded-pill"
-                                      onclick="bookingNow('${tour.tourId}')"
-                                    >
-                                    <i class="fas fa-calendar-plus"></i> Book Now
-                                    </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-            container.insertAdjacentHTML("beforeend", html);
+    `);
         });
+
+
+        scrollTarget.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function renderPagination() {
+    function renderPagination(currentPage) {
         const totalPages = Math.ceil(filteredTours.length / chunkSize);
         pagination.innerHTML = "";
 
-        for (let i = 0; i < totalPages; i++) {
+        const mkBtn = (label, idx, opts = {}) => {
             const li = document.createElement("li");
-            li.className = "page-item";
-            li.innerHTML = `<button class="page-link">${i + 1}</button>`;
-            li.addEventListener("click", () => {
-                renderToursPage(i);
-                setActivePage(i);
-            });
-            pagination.appendChild(li);
+            li.className = `page-item${opts.active ? " active" : ""}${opts.disabled ? " disabled" : ""}`;
+            li.innerHTML = `<button class="page-link">${label}</button>`;
+            if (!opts.disabled && idx !== null) {
+                li.firstElementChild.addEventListener("click", () => {
+                    renderPagination(idx);
+                    renderToursPage(idx);
+                });
+            }
+            return li;
+        };
+
+        pagination.appendChild(mkBtn("←", currentPage - 1, { disabled: currentPage === 0 }));
+
+        const start = Math.max(0, currentPage - 1), end = Math.min(totalPages, start + 3);
+        if (start > 0) {
+            pagination.appendChild(mkBtn("1", 0));
+            if (start > 1) pagination.appendChild(mkBtn("...", null, { disabled: true }));
+        }
+        for (let i = start; i < end; i++) {
+            pagination.appendChild(mkBtn(i + 1, i, { active: i === currentPage }));
+        }
+        if (end < totalPages) {
+            if (end < totalPages - 1) pagination.appendChild(mkBtn("...", null, { disabled: true }));
+            pagination.appendChild(mkBtn(totalPages, totalPages - 1));
         }
 
-        setActivePage(0);
-    }
+        pagination.appendChild(mkBtn("→", currentPage + 1, { disabled: currentPage === totalPages - 1 }));
 
-    function setActivePage(index) {
-        const buttons = document.querySelectorAll("#pagination .page-item");
-        buttons.forEach((btn, i) => {
-            btn.classList.toggle("active", i === index);
-        });
-        renderToursPage(index);
+        // <-- CHỈNH THÊM DÒNG NÀY để tự vẽ page đầu tiên -->
+        renderToursPage(currentPage);
     }
 
     function showNoTourMessage() {
-        noTourMsg.style.display = "block";
-        container.innerHTML = `
-            <div class="no-tour-message w-100">
-                <div class="p-4 rounded-4 shadow-sm bg-light d-flex flex-column align-items-center justify-content-center">
-                    <i class="fas fa-search-minus fa-3x text-secondary mb-3"></i>
-                    <h5 class="text-secondary fw-semibold mb-1">No Tours Found</h5>
-                    <p class="text-muted mb-0">We couldn't find any tours matching your search. Please try different keywords.</p>
-                </div>
-            </div>`;
+        noTourMsg.classList.remove("d-none");
+        container.innerHTML = "";
     }
+
+    function renderCompanyFilters(tours) {
+        const names = [...new Set(tours.map(t => t.createdByUserName))];
+        companyFilterContainer.innerHTML = names.map((n, i) => `
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input company-checkbox" id="comp-${i}" value="${n}">
+              <label class="form-check-label" for="comp-${i}">${n}</label>
+            </div>
+        `).join("");
+
+        document.querySelectorAll(".company-checkbox").forEach(cb => {
+            cb.addEventListener("change", () => {
+                selectedFilters.companies = Array.from(
+                    document.querySelectorAll(".company-checkbox:checked")
+                ).map(x => x.value);
+                renderFilteredTours();
+            });
+        });
+    }
+
+    // Event listeners
+    priceInput.addEventListener("input", e => {
+        selectedFilters.price = parseInt(e.target.value, 10);
+        updateDisplayCount();
+        renderFilteredTours();
+    });
+
+    durationInput.addEventListener("input", e => {
+        selectedFilters.duration = parseInt(e.target.value, 10);
+        updateDisplayCount();
+        renderFilteredTours();
+    });
+
+    ratingButtons.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const val = parseInt(btn.dataset.value, 10);
+            if (selectedFilters.rating === val) {
+                // Click lần 2: OFF
+                selectedFilters.rating = null;
+                ratingButtons.forEach(b => b.classList.remove("active"));
+            } else {
+                // Click sang rating khác: ON
+                ratingButtons.forEach(b => b.classList.remove("active"));
+                selectedFilters.rating = val;
+                btn.classList.add("active");
+            }
+            renderFilteredTours();
+        });
+    });
+
+
+
+    // Initial fetch
+    const params = new URLSearchParams(window.location.search);
+    const requestBody = {
+        placeName: params.get("placeName"),
+        categoryName: params.get("categoryName"),
+        duration: params.get("duration") ? parseInt(params.get("duration"), 10) : null,
+        touristNumberAssigned: params.get("touristNumberAssigned")
+            ? parseInt(params.get("touristNumberAssigned"), 10)
+            : null
+    };
+
+    loadingSpinner.classList.remove("d-none");
+    fetch("/tourify/api/tours/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+    })
+        .then(res => res.json())
+        .then(data => {
+            allTours = data || [];
+            const maxPrice = Math.max(0, ...allTours.map(t => t.price));
+            priceInput.max = maxPrice;
+            priceInput.value = maxPrice;
+            selectedFilters.price = maxPrice;
+            updateDisplayCount();
+
+            loadingSpinner.classList.add("d-none");
+            renderCompanyFilters(allTours);
+            renderFilteredTours();
+        })
+        .catch(err => {
+            console.error("Failed to load tours", err);
+            loadingSpinner.classList.add("d-none");
+            showNoTourMessage();
+        });
+
+    // Thêm sau khi render danh sách tour:
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.btn-favorite')) {
+            const btn = e.target.closest('.btn-favorite');
+            const tourId = btn.getAttribute('data-tour-id');
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                Toastify({
+                    text: "<i class='fas fa-exclamation-circle me-2'></i>Please login to add favorite!",
+                    duration: 2500,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "#fff3cd",
+                        color: "#856404",
+                        border: "1.5px solid #ffeeba",
+                        borderRadius: "0.7rem",
+                        fontSize: "1rem",
+                        fontWeight: 500,
+                        boxShadow: "0 2px 8px #ffeeba77",
+                        padding: "0.7rem 1.2rem"
+                    },
+                    escapeMarkup: false,
+                    offset: { x: 20, y: 20 },
+                    avatar: false
+                }).showToast();
+                return;
+            }
+            btn.disabled = true;
+            fetch(`/tourify/api/user/favorites/${tourId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code === 1000) {
+                        btn.classList.add('active');
+                        btn.querySelector('i').classList.add('text-danger');
+                        Toastify({
+                            text: "<i class='fas fa-check-circle me-2'></i>Added to favorites!",
+                            duration: 2000,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: "#fff",
+                                color: "#16b686",
+                                border: "1.5px solid #b8ead2",
+                                borderRadius: "0.7rem",
+                                fontSize: "1rem",
+                                fontWeight: 500,
+                                boxShadow: "0 2px 8px rgba(34,197,94,0.07)",
+                                padding: "0.7rem 1.2rem"
+                            },
+                            escapeMarkup: false,
+                            offset: { x: 20, y: 20 },
+                            avatar: false
+                        }).showToast();
+                    } else {
+                        btn.disabled = false;
+                        Toastify({
+                            text: `<i class='fas fa-exclamation-triangle me-2'></i>${data.message || 'Failed to add favorite!'}`,
+                            duration: 2500,
+                            close: true,
+                            gravity: "top",
+                            position: "right",
+                            style: {
+                                background: "#fff3cd",
+                                color: "#856404",
+                                border: "1.5px solid #ffeeba",
+                                borderRadius: "0.7rem",
+                                fontSize: "1rem",
+                                fontWeight: 500,
+                                boxShadow: "0 2px 8px #ffeeba77",
+                                padding: "0.7rem 1.2rem"
+                            },
+                            escapeMarkup: false,
+                            offset: { x: 20, y: 20 },
+                            avatar: false
+                        }).showToast();
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    Toastify({
+                        text: "<i class='fas fa-exclamation-triangle me-2'></i>Failed to add favorite!",
+                        duration: 2500,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            background: "#fff3cd",
+                            color: "#856404",
+                            border: "1.5px solid #ffeeba",
+                            borderRadius: "0.7rem",
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            boxShadow: "0 2px 8px #ffeeba77",
+                            padding: "0.7rem 1.2rem"
+                        },
+                        escapeMarkup: false,
+                        offset: { x: 20, y: 20 },
+                        avatar: false
+                    }).showToast();
+                });
+        }
+    });
 });

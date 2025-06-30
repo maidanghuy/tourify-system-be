@@ -1,32 +1,28 @@
 package com.example.tourify_system_be.service;
 
-import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
 import com.example.tourify_system_be.dto.response.CreditCardResponse;
+import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
-import com.example.tourify_system_be.entity.CreditCard;
-import com.example.tourify_system_be.entity.TokenAuthentication;
-import com.example.tourify_system_be.entity.User;
+import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.CreditCardMapper;
+import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.mapper.UserMapper;
-import com.example.tourify_system_be.repository.ICreditCardRepository;
-import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
-import com.example.tourify_system_be.repository.IUserRepository;
+import com.example.tourify_system_be.repository.*;
+import com.example.tourify_system_be.security.CustomUserDetails;
 import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.util.StringUtils;
 
 import java.time.*;
 import java.time.Duration;
@@ -36,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +40,8 @@ import java.util.regex.Pattern;
 public class UserService {
     IUserRepository userRepository;
     ICreditCardRepository creditCardRepository;
+    ITourFavoriteRepository tourFavoriteRepository;
+    ITourRepository tourRepository;
     UserMapper userMapper;
     CreditCardMapper creditCardMapper;
     EmailService emailService;
@@ -54,6 +53,7 @@ public class UserService {
     Duration TOKEN_VALID_DURATION = Duration.ofHours(24);
 
     Map<String, PendingUser> pendingUsers = Collections.synchronizedMap(new HashMap<>());
+    private final TourMapper tourMapper;
 
     static class PendingUser {
         private final User user;
@@ -112,6 +112,9 @@ public class UserService {
         return userRepository.findByUserName(username).map(user -> {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 return "Old password incorrect";
+            }
+            if (newPassword.equals(oldPassword)) {
+                return "New password same like old password";
             }
             if (!newPassword.equals(confirmPassword)) {
                 return "New password confirmation does not match";
@@ -330,31 +333,153 @@ public class UserService {
         String jwt = bearerToken.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
 
-//        List<CreditCard> creditCards = creditCardRepository.findAllByUser();
+        // List<CreditCard> creditCards = creditCardRepository.findAllByUser();
         List<CreditCard> creditCards = creditCardRepository.findAllByUser_UserId(userId);
         return creditCards.stream().map(creditCardMapper::toCreditCardResponse).toList();
     }
 
-//    @PostMapping("/creditcard")
-//    public APIResponse<?> addCreditCard(@RequestHeader("Authorization") String token, @Valid @RequestBody AddCreditCardRequest request) {
-//        return APIResponse.<CreditCardResponse>builder()
-//                .result(userService.addCreditCard(token, request))
-//                .build();
-//    }
     public CreditCardResponse addCreditCard(String token, CreditCardRequest request) {
         String jwt = token.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-//        System.out.println(user);
-//        CreditCard creditCard = creditCardMapper.toCreditCard(request);
         CreditCard creditCard = creditCardMapper.toCreditCard(request);
         creditCard.setCreatedAt(LocalDateTime.now());
         creditCard.setUpdatedAt(LocalDateTime.now());
         creditCard.setUser(user);
-//        System.out.println(creditCard);
         creditCardRepository.save(creditCard);
-//        System.out.println(creditCard);
         return creditCardMapper.toCreditCardResponse(creditCard);
+    }
+
+    /**
+     * Khoá tài khoản (chỉ ADMIN có quyền khóa, và chỉ khóa được tài khoản của USER
+     * hoặc SUB_COMPANY).
+     */
+    @Transactional
+    public void lockAccount(String bearerToken, String userId) {
+        // 1) Xác thực token và chỉ cho ADMIN
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+        String jwt = bearerToken.substring("Bearer ".length()).trim();
+        jwtUtil.validateToken(jwt);
+        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
+        if (currentUser == null ||
+                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        // 2) Lấy user cần khóa
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 3) Chỉ khóa được các account có role USER hoặc SUB_COMPANY
+        String targetRole = Optional.ofNullable(u.getRole())
+                .map(String::trim)
+                .orElse("");
+        boolean canBeLocked = "USER".equalsIgnoreCase(targetRole)
+                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
+        if (!canBeLocked) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        // 4) Nếu chưa ở trạng thái LOCKED, thì cập nhật
+        if (!"LOCKED".equalsIgnoreCase(u.getStatus())) {
+            u.setStatus("LOCKED");
+            u.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(u);
+        }
+    }
+
+    /**
+     * Mở khoá tài khoản (chỉ ADMIN có quyền và chỉ cho phép mở khóa tài khoản USER
+     * hoặc SUB_COMPANY).
+     */
+    @Transactional
+    public void unlockAccount(String bearerToken, String userId) {
+        // 1) Xác thực token và chỉ cho ADMIN
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+        String jwt = bearerToken.substring("Bearer ".length()).trim();
+        jwtUtil.validateToken(jwt);
+        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
+        if (currentUser == null ||
+                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        // 2) Lấy user cần mở khóa
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // 3) Chỉ mở khóa các account có role USER hoặc SUB_COMPANY
+        String targetRole = Optional.ofNullable(u.getRole())
+                .map(String::trim)
+                .orElse("");
+        boolean canBeUnlocked = "USER".equalsIgnoreCase(targetRole)
+                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
+        if (!canBeUnlocked) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        // 4) Nếu chưa ở trạng thái ACTIVE thì cập nhật
+        if (!"ACTIVE".equalsIgnoreCase(u.getStatus())) {
+            u.setStatus("ACTIVE");
+            u.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(u);
+        }
+    }
+
+    public List<TourResponse> getFavoritesByToken(String bearerToken) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+        List<TourFavorite> favorites = tourFavoriteRepository.findByUser_UserId(userId);
+
+        return favorites.stream()
+                .map(tourFavorite -> tourMapper.toTourResponse(tourFavorite.getTour()))
+                .toList();
+    }
+
+    public boolean removeFavoriteByToken(String bearerToken, String tourId) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Tìm favorite theo userId và tourId
+        Optional<TourFavorite> favoriteOpt = tourFavoriteRepository.findByUser_UserIdAndTour_TourId(userId, tourId);
+        if (favoriteOpt.isPresent()) {
+            tourFavoriteRepository.delete(favoriteOpt.get());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addFavoriteByToken(String bearerToken, String tourId) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Kiểm tra đã có favorite chưa
+        Optional<TourFavorite> favoriteOpt = tourFavoriteRepository.findByUser_UserIdAndTour_TourId(userId, tourId);
+        if (favoriteOpt.isPresent()) {
+            return false; // Đã có trong favorites
+        }
+        // Lấy user và tour
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Tour> tourOpt = tourRepository.findTourByTourId(tourId); // hoặc
+                                                                                  // tourRepository.findById(tourId)
+        if (userOpt.isPresent() && tourOpt.isPresent()) {
+
+            TourFavoriteId favoriteId = new TourFavoriteId();
+            favoriteId.setTourId(tourId);
+            favoriteId.setUserId(userId);
+
+            TourFavorite favorite = new TourFavorite();
+            favorite.setId(favoriteId);
+            favorite.setUser(userOpt.get());
+            favorite.setTour(tourOpt.get());
+            tourFavoriteRepository.save(favorite);
+            return true;
+        }
+        return false;
     }
 }

@@ -44,13 +44,17 @@ public enum ErrorCode {
     TOUR_COMPANY_UNAUTHORIZED_TOUR(1208, "Tour-company can only add tours from their own company into the promotion.", HttpStatus.UNAUTHORIZED),
     BOOKING_NOT_FOUND(1209, "Booking not found", HttpStatus.NOT_FOUND),
     INVALID_BOOKING_STATUS(1210, "Booking cannot be cancelled in its current state", HttpStatus.BAD_REQUEST),
-
+    OPERATION_NOT_ALLOWED(1304, "Operation not allowed for this role", HttpStatus.FORBIDDEN),
+    INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST),
+    FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND);
 
 
     // 1100–1199: Quản lý người dùng
     // 1200–1299: Quản lý tour
     // 1300–1399: Thanh toán
-    ;
+
+
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

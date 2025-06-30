@@ -33,12 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const username = localStorage.getItem("username");
         if (!username) {
-            alert("Username not found in localStorage");
+            showToast("Username not found in localStorage","danger");
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/tourify/api/user/avatar?username=${username}`, {
+            const response = await fetch(`/tourify/api/user/avatar?username=${username}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -47,14 +47,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok) {
-                alert("Avatar updated successfully!");
+                showToast("Avatar updated successfully!","success");
             } else {
                 const errorText = await response.text();
-                alert("Failed to update avatar: " + errorText);
+                showToast("Failed to update avatar: " + errorText,"danger");
             }
         } catch (error) {
             console.error("Error updating avatar:", error);
-            alert("An error occurred while updating avatar.");
+            showToast("An error occurred while updating avatar.","warning");
         }
     });
 });
@@ -91,26 +91,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function editField(field) {
     document.getElementById(`${field}-display`).classList.add("d-none");
-    document.getElementById(`${field}-input`).classList.remove("d-none");
-
-
+    if (field === 'password') {
+        document.getElementById("password-edit-fields").classList.remove("d-none");
+    } else {
+        document.getElementById(`${field}-input`).classList.remove("d-none");
+    }
     document.getElementById(`${field}-change`).classList.add("d-none");
-    document
-        .getElementById(`${field}-confirm`)
-        .classList.remove("d-none");
+    document.getElementById(`${field}-confirm`).classList.remove("d-none");
     document.getElementById(`${field}-cancel`).classList.remove("d-none");
 }
 
 
 function confirmField(field) {
-    const newValue = document.getElementById(`${field}-input`).value;
-
-    // Check if it's firstName or lastName field that needs API call
     if (field === 'firstName' || field === 'lastName') {
+        const newValue = document.getElementById(`${field}-input`).value;
         updateNameViaAPI(field, newValue);
+    } else if (field === 'password') {
+        changePasswordAPI();
     } else {
-        // For other fields, call their respective APIs
+        const newValue = document.getElementById(`${field}-input`).value;
         updateFieldViaAPI(field, newValue);
+    }
+}
+
+async function changePasswordAPI() {
+    const accessToken = localStorage.getItem("accessToken");
+    const username = localStorage.getItem("username");
+    const oldPassword = document.getElementById("current-password-input").value;
+    const newPassword = document.getElementById("new-password-input").value;
+    const confirmPassword = document.getElementById("confirm-password-input").value;
+
+    // Validate input
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        showToast("Please fill in all password fields!","info");
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        showToast("New password and confirm password do not match!","warning");
+        return;
+    }
+    if (newPassword.length < 6) {
+        showToast("New password must be at least 6 characters.","warning");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8080/tourify/api/user/change-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({
+                username,
+                oldPassword,
+                newPassword,
+                confirmPassword
+            })
+        });
+        const data = await response.json();
+        if (data.code === 200) {
+            showToast("Password changed successfully! Logging out...", "success");
+            setTimeout(() => {
+                logoutAndRedirect();
+            }, 1600); // chờ toast hiện xong rồi logout (1.6 giây, đủ đẹp)
+            // Không cần cancelField('password') nữa, vì logout rồi
+        } else {
+            showToast(data.message || "Failed to change password.", "danger");
+        }
+    } catch (error) {
+        showToast("Error changing password. Try again!","danger");
+        console.error(error);
     }
 }
 
@@ -120,7 +171,7 @@ async function updateNameViaAPI(field, newValue) {
     const username = localStorage.getItem("username");
 
     if (!accessToken || !username) {
-        alert("Authentication required. Please login again.");
+        showToast("Authentication required. Please login again.","warning");
         return;
     }
 
@@ -135,7 +186,7 @@ async function updateNameViaAPI(field, newValue) {
             lastName: field === 'lastName' ? newValue : currentLastName
         };
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/name?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/name?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -159,17 +210,17 @@ async function updateNameViaAPI(field, newValue) {
                 const fullName = `${requestBody.firstName} ${requestBody.lastName}`.trim();
                 document.querySelector(".user-name").textContent = fullName;
 
-                alert("Name updated successfully!");
+                showToast("Name updated successfully!","success");
             } else {
-                alert("Failed to update name: " + (data.message || "Unknown error"));
+                showToast("Failed to update name: " + (data.message || "Unknown error"),"danger");
             }
         } else {
             const errorText = await response.text();
-            alert("Failed to update name: " + errorText);
+            showToast("Failed to update name: " + errorText,"danger");
         }
     } catch (error) {
         console.error("Error updating name:", error);
-        alert("An error occurred while updating name.");
+        showToast("An error occurred while updating name.","danger");
     }
 }
 
@@ -179,7 +230,7 @@ async function updateFieldViaAPI(field, newValue) {
     const username = localStorage.getItem("username");
 
     if (!accessToken || !username) {
-        alert("Authentication required. Please login again.");
+        showToast("Authentication required. Please login again.","warning");
         return;
     }
 
@@ -195,7 +246,7 @@ async function updateFieldViaAPI(field, newValue) {
 
         const apiEndpoint = fieldMapping[field];
         if (!apiEndpoint) {
-            alert("Unknown field: " + field);
+            showToast("Unknown field: " + field,"info");
             return;
         }
 
@@ -210,7 +261,7 @@ async function updateFieldViaAPI(field, newValue) {
             requestBody = { [field]: newValue };
         }
 
-        const response = await fetch(`http://localhost:8080/tourify/api/user/${apiEndpoint}?username=${username}`, {
+        const response = await fetch(`/tourify/api/user/${apiEndpoint}?username=${username}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -236,31 +287,32 @@ async function updateFieldViaAPI(field, newValue) {
                     document.getElementById(`${field}-input`).value = '';
                 }
 
-                alert(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`);
+                showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`,"success");
             } else {
-                alert(`Failed to update ${field}: ` + (data.message || "Unknown error"));
+                showToast(`Failed to update ${field}: ` + (data.message || "Unknown error"),"warning");
             }
         } else {
             const errorText = await response.text();
-            alert(`Failed to update ${field}: ` + errorText);
+            showToast(`Failed to update ${field}: ` + errorText,"danger");
         }
     } catch (error) {
         console.error(`Error updating ${field}:`, error);
-        alert(`An error occurred while updating ${field}.`);
+        showToast(`An error occurred while updating ${field}.`,"warning");
     }
 }
 
 function cancelField(field) {
-    const currentValue = document.getElementById(
-        `${field}-display`
-    ).textContent;
-    document.getElementById(`${field}-input`).value = currentValue;
-
-
-    document
-        .getElementById(`${field}-display`)
-        .classList.remove("d-none");
-    document.getElementById(`${field}-input`).classList.add("d-none");
+    if (field === 'password') {
+        document.getElementById("password-edit-fields").classList.add("d-none");
+        // Xóa sạch value các ô password
+        document.getElementById("current-password-input").value = "";
+        document.getElementById("new-password-input").value = "";
+        document.getElementById("confirm-password-input").value = "";
+    } else {
+        document.getElementById(`${field}-input`).classList.add("d-none");
+        document.getElementById(`${field}-input`).value = document.getElementById(`${field}-display`).textContent;
+    }
+    document.getElementById(`${field}-display`).classList.remove("d-none");
     document.getElementById(`${field}-confirm`).classList.add("d-none");
     document.getElementById(`${field}-cancel`).classList.add("d-none");
     document.getElementById(`${field}-change`).classList.remove("d-none");
@@ -397,7 +449,7 @@ function updateAvatar() {
 // Function to fetch user data from API
 async function fetchUserData(accessToken) {
     try {
-        const response = await fetch('http://localhost:8080/tourify/api/auth/me', {
+        const response = await fetch('/tourify/api/auth/me', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -492,7 +544,7 @@ async function loadCreditCards() {
     listDiv.innerHTML = '<div class="text-center text-muted">Đang tải...</div>';
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             headers: { "Authorization": `Bearer ${accessToken}` }
         });
         const data = await res.json();
@@ -500,23 +552,34 @@ async function loadCreditCards() {
         if (data.result && data.result.length > 0) {
             listDiv.innerHTML = data.result.map(card => `
                 <div class="credit-card-ui">
-                    <div class="cc-type">
-                        <i class="bi bi-credit-card"></i> ${card.cardType || "Khác"}
-                    </div>
-                    <div class="cc-label">Số thẻ</div>
-                    <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
-                    <div class="row" style="margin-top: 35px">
-                        <div class="col-7">
-                            <div class="cc-label">Chủ thẻ</div>
-                            <div class="cc-holder">${card.cardHolderName}</div>
-                        </div>
-                        <div class="col-5 text-start">
-                            <div class="cc-label">Hết hạn</div>
-                            <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
-                        </div>
-                    </div>
-                    <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
-                </div>
+  <div class="logo"></div>
+  <div class="chip">
+    <!-- Chip SVG -->
+    <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="26" rx="6" fill="#eee9" />
+      <rect x="7" y="7" width="26" height="12" rx="3" fill="#ccc9" />
+      <rect x="13" y="11" width="14" height="4" rx="1" fill="#bbb7" />
+    </svg>
+  </div>
+  <div class="cc-type">
+    <i class="bi bi-credit-card"></i>
+    ${card.cardType || "Khác"}
+    <span class="wave ms-1"><i class="bi bi-wifi"></i></span>
+  </div>
+  <div class="cc-label">Số thẻ</div>
+  <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
+  <div class="row" style="margin-top: 10px;">
+    <div>
+      <div class="cc-label">Chủ thẻ</div>
+      <div class="cc-holder">${card.cardHolderName}</div>
+    </div>
+    <div class="text-start">
+      <div class="cc-label">Hết hạn</div>
+      <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
+</div>
+  </div>
+  <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
+</div>
             `).join("");
 
             listDiv.innerHTML += `
@@ -574,7 +637,7 @@ async function addCreditCard() {
     const cardType = form.cardType.value;
 
     try {
-        const res = await fetch("http://localhost:8080/tourify/api/user/creditcard", {
+        const res = await fetch("/tourify/api/user/creditcard", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${accessToken}`,
@@ -586,9 +649,45 @@ async function addCreditCard() {
             bootstrap.Modal.getInstance(document.getElementById("addCreditCardModal")).hide();
             await loadCreditCards();
         } else {
-            alert("Thêm thẻ thất bại!");
+            showToast("Thêm thẻ thất bại!","info");
         }
     } catch (err) {
-        alert("Có lỗi khi thêm thẻ!");
+        showToast("Có lỗi khi thêm thẻ!","warning");
     }
+}
+
+function showToast(message, type = "success") {
+    // type: "success", "danger", "info", "warning"
+    const toast = document.getElementById("toastNotify");
+    const toastBody = document.getElementById("toastNotifyBody");
+
+    // Icon cho từng loại
+    let icon = "";
+    if (type === "success") icon = "✅ ";
+    if (type === "danger") icon = "❌ ";
+    if (type === "info") icon = "ℹ️ ";
+    if (type === "warning") icon = "⚠️ ";
+
+    toastBody.innerHTML = `<span style="font-size:1.2em;margin-right:6px;">${icon}</span>${message}`;
+
+    // Đổi màu nền
+    toast.className = "toast align-items-center text-white border-0";
+    if (type === "success") toast.classList.add("bg-success");
+    if (type === "danger") toast.classList.add("bg-danger");
+    if (type === "info") toast.classList.add("bg-info");
+    if (type === "warning") toast.classList.add("bg-warning");
+
+    // Hiện toast
+    const bsToast = new bootstrap.Toast(toast, { delay: 2500 });
+    bsToast.show();
+}
+
+function logoutAndRedirect() {
+    // Xóa localStorage hoặc token tuỳ dự án
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    localStorage.removeItem("tourify_chat_history");
+    // ...xóa các key khác nếu có
+    window.location.href = "/tourify/login";
 }
