@@ -99,8 +99,9 @@
 
             <!-- Da Nang -->
             <li class="breadcrumb-item">
-                <a href="/destination/da-nang">
-                    <i class="fas fa-map-marker-alt me-1"></i>Da Nang
+                <a href="location/da-nang">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    <span id="place-name" >Da Nang</span>
                 </a>
             </li>
 
@@ -108,7 +109,8 @@
             <!-- Tour Detail -->
             <li class="breadcrumb-item">
                 <a href="tourdetail.html">
-                    <i class="fas fa-route me-1"></i>Da Nang City Discovery Tour
+                    <i class="fas fa-route me-1"></i>
+                    <span id="tour-title-short-link" >Da Nang City Discovery Tour</span>
                 </a>
             </li>
 
@@ -129,8 +131,8 @@
                 <div
                         class="d-flex justify-content-between align-items-center tour-header"
                 >
-                    <h4 class="tour-title">Da Nang City Discovery Tour</h4>
-                    <div class="price">$240</div>
+                    <h4 id="tour-title" class="tour-title">Da Nang City Discovery Tour</h4>
+                    <div id="tour-price" class="price">$240</div>
                 </div>
 
 
@@ -145,6 +147,7 @@
                                 >
                                 <div class="input-group fancy-counter mb-4">
                                     <button
+                                            id="adult-minus"
                                             class="counter-btn minus"
                                             data-target="adultInput"
                                     >
@@ -157,7 +160,7 @@
                                             type="text"
                                             value="1"
                                     />
-                                    <button class="counter-btn plus" data-target="adultInput">
+                                    <button id="adult-plus" class="counter-btn plus" data-target="adultInput">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
@@ -169,6 +172,7 @@
                                 >
                                 <div class="input-group fancy-counter">
                                     <button
+                                            id="child-minus"
                                             class="counter-btn minus"
                                             data-target="childInput"
                                     >
@@ -179,9 +183,9 @@
                                             id="childInput"
                                             readonly
                                             type="text"
-                                            value="1"
+                                            value="0"
                                     />
-                                    <button class="counter-btn plus" data-target="childInput">
+                                    <button id="child-plus" class="counter-btn plus" data-target="childInput">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
@@ -639,7 +643,7 @@
                             width="60"
                     />
                     <div>
-                        <h6 class="mb-1">Da Nang City Discovery Tour</h6>
+                        <h6 id="tour-sub-title" class="mb-1">Da Nang City Discovery Tour</h6>
                         <small
                         ><i class="fas fa-star text-warning me-1"></i>Very Good · 54
                             reviews</small
@@ -660,7 +664,7 @@
                 <div class="border-top pt-3">
                     <div class="price-row">
                         <span>Original Price</span>
-                        <span>400 VND</span>
+                        <span id="original-price" class="price-row" >400 VND</span>
                     </div>
                     <div class="price-row">
                         <span>Discount</span>
@@ -855,230 +859,7 @@
 <!-- Bootstrap JS Bundle (includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
-
-<script>
-    var isCardRevealed = false;
-
-
-    document.querySelectorAll(".plus").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const input = document.getElementById(btn.dataset.target);
-            let value = parseInt(input.value);
-            input.value = value + 1;
-        });
-    });
-
-
-    document.querySelectorAll(".minus").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const input = document.getElementById(btn.dataset.target);
-            let value = parseInt(input.value);
-            if (value > 0) {
-                input.value = value - 1;
-            }
-        });
-    });
-</script>
-
-<script>
-    document.querySelectorAll(".payment-card").forEach((card) => {
-        card.addEventListener("click", () => {
-            // Remove 'active' from all
-            document
-                .querySelectorAll(".payment-card")
-                .forEach((el) => el.classList.remove("active"));
-
-
-            // Add to current
-            card.classList.add("active");
-
-
-            // Set radio checked manually
-            const radio = card.querySelector("input[type='radio']");
-            if (radio) radio.checked = true;
-        });
-    });
-</script>
-
-<script>
-    let isCardNumberVisible = false;
-
-
-    function toggleReveal(headerEl) {
-        const fields = document.getElementById("accountFields");
-        const checkIcon = document.getElementById("checkIcon");
-        const checkoutBtn = document.getElementById("checkoutBtn");
-
-
-        isCardRevealed = !isCardRevealed;
-
-
-        fields.classList.toggle("d-none", !isCardRevealed);
-        checkIcon.classList.toggle("text-muted", !isCardRevealed);
-        checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-        headerEl.classList.toggle("clicked", isCardRevealed);
-        headerEl.classList.toggle("bg-light", !isCardRevealed);
-        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
-
-
-        // Enable checkout only when card is revealed
-        checkoutBtn.disabled = !isCardRevealed;
-    }
-
-
-    function toggleCardNumber(event) {
-        event.stopPropagation();
-        const display = document.getElementById("cardNumber");
-        const eye = document.getElementById("eyeIcon");
-
-
-        if (isCardNumberVisible) {
-            display.innerHTML = "**** <span class='fw-bold'>4321</span>";
-            eye.classList.replace("fa-eye-slash", "fa-eye");
-        } else {
-            display.innerHTML =
-                "<span class='fw-bold'>1234 5678 9012 4321</span>";
-            eye.classList.replace("fa-eye", "fa-eye-slash");
-        }
-
-
-        isCardNumberVisible = !isCardNumberVisible;
-    }
-
-
-    function editField(field) {
-        document.getElementById(field + "View").classList.add("d-none");
-        document.getElementById(field + "Edit").classList.remove("d-none");
-    }
-
-
-    function cancelField(field) {
-        document.getElementById(field + "Edit").classList.add("d-none");
-        document.getElementById(field + "View").classList.remove("d-none");
-    }
-
-
-    function confirmField(field) {
-        const value = document.getElementById(field + "Input").value;
-        document.getElementById(field + "Display").textContent = value;
-        cancelField(field);
-    }
-</script>
-
-<script>
-    function toggleReveal(headerEl) {
-        const fields = document.getElementById("accountFields");
-        const checkIcon = document.getElementById("checkIcon");
-
-
-        isCardRevealed = !isCardRevealed;
-
-
-        fields.classList.toggle("d-none", !isCardRevealed);
-        checkIcon.classList.toggle("text-muted", !isCardRevealed);
-        checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-        // toggle glow
-        headerEl.classList.toggle("clicked", isCardRevealed);
-        headerEl.classList.toggle("bg-light", !isCardRevealed);
-        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
-    }
-</script>
-
-<script>
-    function showLoading(btn) {
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-        // Simulate submit
-        setTimeout(
-            () => (btn.innerHTML = `<i class="fas fa-check me-2"></i>Paid`),
-            1500
-        );
-    }
-</script>
-
-<script>
-    function handleCheckout(btn) {
-        btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-
-
-        setTimeout(() => {
-            btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
-            btn.disabled = false;
-
-
-            const qrModal = new bootstrap.Modal(
-                document.getElementById("qrModal")
-            );
-            qrModal.show();
-        }, 1500);
-    }
-
-
-    function reloadQRCode() {
-        // Nếu muốn đổi ảnh thì bạn có thể gọi lại ảnh khác tại đây
-        alert("QR Code reloaded!");
-    }
-</script>
-
-<script>
-    function toggleReveal(headerEl) {
-        const fields = document.getElementById("accountFields");
-        const checkIcon = document.getElementById("checkIcon");
-        const checkoutBtn = document.getElementById("checkoutBtn"); // nút nằm ngoài
-
-
-        // Toggle trạng thái
-        isCardRevealed = !isCardRevealed;
-
-
-        // Ẩn/hiện thông tin
-        fields.classList.toggle("d-none", !isCardRevealed);
-
-
-        // Đổi màu icon
-        checkIcon.classList.toggle("text-muted", !isCardRevealed);
-        checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-        // Đổi màu header
-        headerEl.classList.toggle("clicked", isCardRevealed);
-        headerEl.classList.toggle("bg-light", !isCardRevealed);
-        headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
-
-
-        // ✅ Bật/tắt nút Check Out
-        if (checkoutBtn) {
-            checkoutBtn.disabled = !isCardRevealed;
-        }
-    }
-</script>
-
-<script>
-    document.querySelectorAll('.date-container').forEach(container => {
-        const raw = container.querySelector('.date-raw');
-        const disp = container.querySelector('.date-display');
-
-        // Khi click vào ô hiển thị, mở picker của input type=date
-        disp.addEventListener('click', () => {
-            raw.showPicker?.(); // Chrome/Edge
-            raw.click();       // fallback
-        });
-
-        // Khi chọn ngày xong, định dạng lại và gán vào ô hiển thị
-        raw.addEventListener('change', () => {
-            if (!raw.value) return;
-            const [year, month, day] = raw.value.split('-');
-            disp.value = `${day}-${month}-${year}`;
-        });
-    });
-</script>
-
-
+<script src="../js/booking.js"></script>
 
 </body>
 </html>
