@@ -73,5 +73,8 @@ public class PageController {
     @GetMapping("/tour/booking")
     public String tourDetailPage2() {return "booking";}
 
+    @GetMapping("/user/favorites")
+    public String userFavorites() {return "favorites";}
+
 }
 
