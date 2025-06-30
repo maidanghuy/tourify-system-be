@@ -10,4 +10,5 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
     List<Tour> findAllByManageBy_UserId(String userId);
       // Tìm các tour theo tên địa điểm (placeName) — không phân biệt chữ hoa/thường
     List<Tour> findByPlace_PlaceNameIgnoreCase(String placeName);
+    Tour findByTourId(String tourId);
 }

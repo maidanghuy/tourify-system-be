@@ -148,5 +148,15 @@ public class TourService {
                 .build();
     }
 
+    public List<TourResponse> getAllTours() {
+        return itourRepository.findAll().stream()
+                .map(this::convertToResponse)
+                .toList();
     }
 
+    public TourResponse getTourById(String tourId) {
+        Tour tour = itourRepository.findById(tourId)
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+        return tourMapper.toResponse(tour);
+    }
+}
