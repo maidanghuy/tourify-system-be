@@ -4,23 +4,22 @@ import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
 import com.example.tourify_system_be.dto.response.CreditCardResponse;
+import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
-import com.example.tourify_system_be.entity.CreditCard;
-import com.example.tourify_system_be.entity.TokenAuthentication;
-import com.example.tourify_system_be.entity.User;
+import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.CreditCardMapper;
+import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.mapper.UserMapper;
-import com.example.tourify_system_be.repository.ICreditCardRepository;
-import com.example.tourify_system_be.repository.ITokenAuthenticationRepository;
-import com.example.tourify_system_be.repository.IUserRepository;
+import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.security.CustomUserDetails;
 import com.example.tourify_system_be.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 public class UserService {
     IUserRepository userRepository;
     ICreditCardRepository creditCardRepository;
+    ITourFavoriteRepository tourFavoriteRepository;
+    ITourRepository tourRepository;
     UserMapper userMapper;
     CreditCardMapper creditCardMapper;
     EmailService emailService;
@@ -51,6 +53,7 @@ public class UserService {
     Duration TOKEN_VALID_DURATION = Duration.ofHours(24);
 
     Map<String, PendingUser> pendingUsers = Collections.synchronizedMap(new HashMap<>());
+    private final TourMapper tourMapper;
 
     static class PendingUser {
         private final User user;
@@ -110,7 +113,7 @@ public class UserService {
             if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
                 return "Old password incorrect";
             }
-            if(newPassword.equals(oldPassword)){
+            if (newPassword.equals(oldPassword)) {
                 return "New password same like old password";
             }
             if (!newPassword.equals(confirmPassword)) {
@@ -330,7 +333,7 @@ public class UserService {
         String jwt = bearerToken.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
 
-//        List<CreditCard> creditCards = creditCardRepository.findAllByUser();
+        // List<CreditCard> creditCards = creditCardRepository.findAllByUser();
         List<CreditCard> creditCards = creditCardRepository.findAllByUser_UserId(userId);
         return creditCards.stream().map(creditCardMapper::toCreditCardResponse).toList();
     }
@@ -347,8 +350,10 @@ public class UserService {
         creditCardRepository.save(creditCard);
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
+
     /**
-     * Khoá tài khoản (chỉ ADMIN có quyền khóa, và chỉ khóa được tài khoản của USER hoặc SUB_COMPANY).
+     * Khoá tài khoản (chỉ ADMIN có quyền khóa, và chỉ khóa được tài khoản của USER
+     * hoặc SUB_COMPANY).
      */
     @Transactional
     public void lockAccount(String bearerToken, String userId) {
@@ -360,7 +365,7 @@ public class UserService {
         jwtUtil.validateToken(jwt);
         CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
         if (currentUser == null ||
-                ! "ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
@@ -386,9 +391,9 @@ public class UserService {
         }
     }
 
-
     /**
-     * Mở khoá tài khoản (chỉ ADMIN có quyền và chỉ cho phép mở khóa tài khoản USER hoặc SUB_COMPANY).
+     * Mở khoá tài khoản (chỉ ADMIN có quyền và chỉ cho phép mở khóa tài khoản USER
+     * hoặc SUB_COMPANY).
      */
     @Transactional
     public void unlockAccount(String bearerToken, String userId) {
@@ -424,5 +429,57 @@ public class UserService {
             u.setUpdatedAt(LocalDateTime.now());
             userRepository.save(u);
         }
+    }
+
+    public List<TourResponse> getFavoritesByToken(String bearerToken) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+        List<TourFavorite> favorites = tourFavoriteRepository.findByUser_UserId(userId);
+
+        return favorites.stream()
+                .map(tourFavorite -> tourMapper.toTourResponse(tourFavorite.getTour()))
+                .toList();
+    }
+
+    public boolean removeFavoriteByToken(String bearerToken, String tourId) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Tìm favorite theo userId và tourId
+        Optional<TourFavorite> favoriteOpt = tourFavoriteRepository.findByUser_UserIdAndTour_TourId(userId, tourId);
+        if (favoriteOpt.isPresent()) {
+            tourFavoriteRepository.delete(favoriteOpt.get());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addFavoriteByToken(String bearerToken, String tourId) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Kiểm tra đã có favorite chưa
+        Optional<TourFavorite> favoriteOpt = tourFavoriteRepository.findByUser_UserIdAndTour_TourId(userId, tourId);
+        if (favoriteOpt.isPresent()) {
+            return false; // Đã có trong favorites
+        }
+        // Lấy user và tour
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Tour> tourOpt = tourRepository.findTourByTourId(tourId); // hoặc
+                                                                                  // tourRepository.findById(tourId)
+        if (userOpt.isPresent() && tourOpt.isPresent()) {
+
+            TourFavoriteId favoriteId = new TourFavoriteId();
+            favoriteId.setTourId(tourId);
+            favoriteId.setUserId(userId);
+
+            TourFavorite favorite = new TourFavorite();
+            favorite.setId(favoriteId);
+            favorite.setUser(userOpt.get());
+            favorite.setTour(tourOpt.get());
+            tourFavoriteRepository.save(favorite);
+            return true;
+        }
+        return false;
     }
 }
