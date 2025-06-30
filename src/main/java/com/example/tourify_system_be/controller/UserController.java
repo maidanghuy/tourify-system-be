@@ -6,11 +6,13 @@ import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.entity.TourFavorite;
+import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -100,87 +102,42 @@ public class UserController {
                 }
         }
 
-        @PutMapping("/name")
-        public APIResponse<?> updateName(
-                        @RequestParam String username,
-                        @RequestBody UpdateNameRequest request) {
-                userService.updateName(username, request.getFirstName(), request.getLastName());
-                return APIResponse.builder()
-                                .message("Update name successfully")
-                                .build();
+        @PutMapping("/profile")
+        public APIResponse<?> updateProfile(
+                        @RequestHeader("Authorization") String token,
+                        @Valid @RequestBody UserUpdateRequest request,
+                        BindingResult bindingResult) {
+                if (bindingResult.hasErrors()) {
+                        String errorMsg = bindingResult.getFieldErrors().stream()
+                                        .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                                        .reduce((a, b) -> a + "; " + b)
+                                        .orElse("Invalid input");
+                        return APIResponse.builder()
+                                        .code(400)
+                                        .message(errorMsg)
+                                        .result(null)
+                                        .build();
+                }
+                try {
+                        userService.updateProfile(token, request);
+                        return APIResponse.builder()
+                                        .message("Update profile successfully")
+                                        .code(1000)
+                                        .build();
+                } catch (AppException ex) {
+                        return APIResponse.builder()
+                                        .code(400)
+                                        .message(ex.getMessage())
+                                        .result(null)
+                                        .build();
+                } catch (Exception ex) {
+                        return APIResponse.builder()
+                                        .code(500)
+                                        .message("Internal server error")
+                                        .result(null)
+                                        .build();
+                }
         }
-        /*
-         * Sample JSON:
-         * {
-         * "firstName": "<FirstName>",
-         * "lastName": "<LastName>"
-         * }
-         */
-
-        @PutMapping("/email")
-        public APIResponse<?> updateEmail(
-                        @RequestParam String username,
-                        @RequestBody UpdateEmailRequest request) {
-                userService.updateEmail(username, request.getEmail());
-                return APIResponse.builder()
-                                .message("Update email successfully")
-                                .build();
-        }
-        /*
-         * Sample JSON:
-         * {
-         * "email": "<EMAIL>"
-         * }
-         */
-
-        @PutMapping("/phone")
-        public APIResponse<?> updatePhone(
-                        @RequestParam String username,
-                        @RequestBody UpdatePhoneRequest request) {
-                userService.updatePhone(username, request.getPhone());
-                return APIResponse.builder()
-                                .message("Update phone successfully")
-                                .build();
-        }
-        /*
-         * Sample JSON:
-         * {
-         * "phoneNumber": "0987654321"
-         * }
-         */
-
-        @PutMapping("/address")
-        public APIResponse<?> updateAddress(
-                        @RequestParam String username,
-                        @RequestBody UpdateAddressRequest request) {
-                userService.updateAddress(username, request.getAddress());
-                return APIResponse.builder()
-                                .message("Update address successfully")
-                                .build();
-        }
-        /*
-         * Sample JSON:
-         * {
-         * "address": "123 Main Street, City"
-         * }
-         */
-
-        @PutMapping("/dob")
-        public APIResponse<?> updateDob(
-                        @RequestParam String username,
-                        @RequestBody UpdateDobRequest request) {
-                userService.updateDob(username, request.getDob());
-                return APIResponse.builder()
-                                .message("Update dob successfully")
-                                .build();
-        }
-
-        /*
-         * Sample JSON:
-         * {
-         * "dob": "2004-08-31"
-         * }
-         */
 
         @GetMapping("/creditcard")
         public APIResponse<?> getCreditCards(@RequestHeader("Authorization") String token) {
