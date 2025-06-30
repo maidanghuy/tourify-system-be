@@ -39,7 +39,6 @@ public class TourResponse {
 
     String createdByUserName;
     // ✅ Mới thêm: số lượng khách đã đăng ký tour
-    private Integer bookedCustomerCount;
-    private UserResponse managementBy;
     Integer bookedCustomerCount;
+    UserResponse managementBy;
 }
