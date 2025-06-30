@@ -466,7 +466,7 @@ public class UserService {
         // Lấy user và tour
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Tour> tourOpt = tourRepository.findTourByTourId(tourId); // hoặc
-                                                                                  // tourRepository.findById(tourId)
+                                                                          // tourRepository.findById(tourId)
         if (userOpt.isPresent() && tourOpt.isPresent()) {
 
             TourFavoriteId favoriteId = new TourFavoriteId();
@@ -481,5 +481,48 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public void updateProfile(String bearerToken, UserUpdateRequest req) {
+        String jwt = bearerToken.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (req.getEmail() != null) {
+            // Kiểm tra email đã được dùng bởi người khác chưa
+            boolean emailUsedByAnotherUser = userRepository.existsByEmail(req.getEmail()) &&
+                    !req.getEmail().equalsIgnoreCase(user.getEmail());
+            if (emailUsedByAnotherUser) {
+                throw new AppException(ErrorCode.EMAIL_ALREADY_USED);
+            }
+            user.setEmail(req.getEmail());
+        }
+
+        if (req.getPhoneNumber() != null) {
+            boolean phoneUsedByAnotherUser = userRepository.existsByPhoneNumber(req.getPhoneNumber()) &&
+                    !req.getPhoneNumber().equalsIgnoreCase(user.getPhoneNumber());
+            if (phoneUsedByAnotherUser) {
+                throw new AppException(ErrorCode.PHONE_ALREADY_USED);
+            }
+            user.setPhoneNumber(req.getPhoneNumber());
+        }
+
+        if (req.getFirstName() != null)
+            user.setFirstName(req.getFirstName());
+        if (req.getLastName() != null)
+            user.setLastName(req.getLastName());
+        if (req.getAddress() != null)
+            user.setAddress(req.getAddress());
+        if (req.getDob() != null) {
+            try {
+                LocalDateTime parsedDate = req.getDob();
+                user.setDob(parsedDate);
+            } catch (Exception e) {
+                throw new AppException(ErrorCode.INVALID_DATE_FORMAT);
+            }
+        }
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

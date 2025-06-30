@@ -43,7 +43,11 @@ public enum ErrorCode {
     UNAUTHORIZED(1303, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
     OPERATION_NOT_ALLOWED(1304, "Operation not allowed for this role", HttpStatus.FORBIDDEN),
     INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST),
-    FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND);
+    FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND),
+    INVALID_DATE_FORMAT(1601, "Invalid date format", HttpStatus.BAD_REQUEST)
+
+    ;
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
