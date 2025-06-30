@@ -14,10 +14,10 @@
 
 
     <!--    <link rel="stylesheet" href="./css.css" />-->
-
+    <link rel="stylesheet" href="css/chatbot.css">
     <link rel="stylesheet" href="css/index.css" />
     <link rel="stylesheet" href="css/landing.css" />
-
+    
 </head>
 
 
@@ -294,10 +294,31 @@
         </div>
     </footer>
 
+    <button class="chat-button" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <h3>Chatbot</h3>
+            <button class="close-btn" onclick="toggleChat()">&times;</button>
+        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <div class="chat-input-container">
+            <textarea id="userInput" class="input-box" placeholder="Nhập tin nhắn…"></textarea>
+            <button onclick="sendMessage()" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/chatbot.js"></script>
     <script src="js/index.js"></script>
     <script src="js/logout.js"></script>
     <script src="js/landing.js"></script>
+
 </body>
 
 </html>
