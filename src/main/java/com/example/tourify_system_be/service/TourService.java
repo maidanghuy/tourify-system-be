@@ -148,6 +148,11 @@ public class TourService {
                 .build();
     }
 
+    public List<TourResponse> getAllTours() {
+        return itourRepository.findAll().stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
     /**
      * So sánh tour: trả về tối đa 4 tour cùng lúc.
      */
@@ -167,5 +172,11 @@ public class TourService {
                 .map(tourMapper::toResponse)
                 .toList();
     }
-}
 
+
+    public TourResponse getTourById(String tourId) {
+        Tour tour = itourRepository.findById(tourId)
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+        return tourMapper.toResponse(tour);
+    }
+}

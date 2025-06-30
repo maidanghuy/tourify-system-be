@@ -10,5 +10,4 @@ public class BookingTourRequest {
     private Integer adultNumber;
     private Integer childNumber;
     private LocalDateTime dayStart;
-    private LocalDateTime dayEnd;
 }
