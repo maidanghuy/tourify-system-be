@@ -5,6 +5,7 @@ import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.entity.User;
+import com.example.tourify_system_be.entity.TourFavorite;
 import org.mapstruct.*;
 import java.math.BigDecimal;
 
@@ -26,4 +27,8 @@ public interface TourMapper {
     // MapStruct sẽ gọi mapper này để ánh xạ User → UserResponse
     UserResponse map(User user);
     TourResponse toResponse1(Tour tour);
+    @Mapping(target = "createdByUserName", source = "manageBy.userName")
+    @Mapping(target = "placeName", source = "place.placeName")
+    @Mapping(target = "categoryName", source = "category.categoryName")
+    TourResponse toTourResponse(Tour tour);
 }

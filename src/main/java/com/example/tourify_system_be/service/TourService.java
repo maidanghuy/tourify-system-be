@@ -153,6 +153,26 @@ public class TourService {
                 .map(this::convertToResponse)
                 .toList();
     }
+    /**
+     * So sánh tour: trả về tối đa 4 tour cùng lúc.
+     */
+    public List<TourResponse> compareTours(List<String> tourIds) {
+        if (tourIds.size() < 2 || tourIds.size() > 4) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        // Lấy entity
+        List<Tour> tours = tourRepository.findAllByTourIdIn(tourIds);
+        if (tours.size() != tourIds.size()) {
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+        }
+
+        // Map → DTO (TourResponse đã có trường bookedCustomerCount)
+        return tours.stream()
+                .map(tourMapper::toResponse)
+                .toList();
+    }
+
 
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
