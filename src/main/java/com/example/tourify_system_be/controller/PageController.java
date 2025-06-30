@@ -43,7 +43,7 @@ public class PageController {
         return "profile";
     }
   
-    @GetMapping("/tour_list")
+    @GetMapping("/tour")
     public String tourListPage(@RequestParam(required = false) String placeName,
                                @RequestParam(required = false) String categoryName,
                                @RequestParam(required = false) Integer duration,
@@ -70,11 +70,13 @@ public class PageController {
     @GetMapping("/tourDetail")
     public  String tourDetailPage(){return "tour_detail";}
 
-    @GetMapping("/tour/booking")
-    public String tourDetailPage2() {return "booking";}
-
     @GetMapping("/user/favorites")
     public String userFavorites() {return "favorites";}
+
+    @GetMapping("/tour/booking")
+    public String bookingPage() {
+        return "booking";
+    }
 
 }
 

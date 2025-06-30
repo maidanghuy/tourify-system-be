@@ -32,18 +32,29 @@ public enum ErrorCode {
     BOOKING_FORBIDDEN_ROLE(1020, "Only regular users are allowed to book tours", HttpStatus.FORBIDDEN),
     USER_DISABLED(1021, "Your account is not authorized to perform this action", HttpStatus.FORBIDDEN),
     SESSION_EXPIRED(1022, "The login session has expired", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED(1023, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
+    ROLE_NOT_ALLOWED(1024, "Only admin or tour-company has permission to perform this function", HttpStatus.UNAUTHORIZED),
     TOUR_NOT_FOUND(1201, "Tour not found", HttpStatus.NOT_FOUND),
     EXCEED_MAX_PEOPLE(1202, "The number of people exceeds the tour's capacity", HttpStatus.BAD_REQUEST),
     BELOW_MIN_PEOPLE(1203, "The number of participants is below the tour's minimum requirement", HttpStatus.BAD_REQUEST),
     INVALID_BOOKING_DATE(1204, "The tour start date must be at least 4 days from today", HttpStatus.BAD_REQUEST),
     INVALID_PEOPLE_COUNT(1205, "The number of people must be a non-negative integer", HttpStatus.BAD_REQUEST),
     TOUR_NOT_ACTIVE(1206, "The tour is currently inactive", HttpStatus.BAD_REQUEST),
-    BOOKING_NOT_FOUND(1301, "Booking not found", HttpStatus.NOT_FOUND),
-    INVALID_BOOKING_STATUS(1302, "Booking cannot be cancelled in its current state", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED(1303, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
+    DUPLICATE_PROMOTION_CODE(1207, "A promotion with this code already exists in the system", HttpStatus.BAD_REQUEST),
+    TOUR_COMPANY_UNAUTHORIZED_TOUR(1208, "Tour-company can only add tours from their own company into the promotion.", HttpStatus.UNAUTHORIZED),
+    BOOKING_NOT_FOUND(1209, "Booking not found", HttpStatus.NOT_FOUND),
+    INVALID_BOOKING_STATUS(1210, "Booking cannot be cancelled in its current state", HttpStatus.BAD_REQUEST),
     OPERATION_NOT_ALLOWED(1304, "Operation not allowed for this role", HttpStatus.FORBIDDEN),
     INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST),
     FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND);
+
+
+    // 1100–1199: Quản lý người dùng
+    // 1200–1299: Quản lý tour
+    // 1300–1399: Thanh toán
+
+
+
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

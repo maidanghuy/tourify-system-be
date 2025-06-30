@@ -1,5 +1,8 @@
 package com.example.tourify_system_be.dto.response;
 
+import com.example.tourify_system_be.entity.User;
+import lombok.Builder;
+import lombok.Data;
 import com.example.tourify_system_be.entity.Category;
 import com.example.tourify_system_be.entity.Place;
 import com.example.tourify_system_be.entity.User;
@@ -37,4 +40,5 @@ public class TourResponse {
     String createdByUserName;
     // ✅ Mới thêm: số lượng khách đã đăng ký tour
     Integer bookedCustomerCount;
+    UserResponse managementBy;
 }
