@@ -78,5 +78,9 @@ public class PageController {
         return "booking";
     }
 
+    @GetMapping("/user/edit-account")
+    public String editAccountPage() {
+        return "edit_account";
+    }
 }
 
