@@ -17,57 +17,59 @@
     <h4 class="text-center fw-bold mb-4">Dashlab</h4>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="loadPage('dashboard')">
+            <a id="dashboardLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('dashboard')">
                 <i class="fas fa-th-large me-2"></i> Dashboard
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tourSubmenu" role="button" aria-expanded="false" aria-controls="tourSubmenu">
+            <!-- CHÚ Ý: menu cha có id="tourMenuLink" -->
+            <a id="tourMenuLink" class="nav-link d-flex justify-content-between align-items-center"
+               data-bs-toggle="collapse" data-bs-target="#tourSubmenu" role="button" aria-expanded="false" aria-controls="tourSubmenu">
                 <span><i class="fas fa-suitcase me-2"></i> Tour</span>
                 <i class="fas fa-chevron-down small toggle-icon"></i>
             </a>
             <div class="collapse" id="tourSubmenu">
                 <ul class="nav flex-column ms-3">
                     <li class="nav-item">
-                        <a id="tourListLink" class="nav-link" href="#" onclick="loadPage('tourList')">
-                        <i class="fas fa-list me-2"></i> Tour List
+                        <a id="tourListLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('tourList')">
+                            <i class="fas fa-list me-2"></i> Tour List
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="addTourLink" class="nav-link" href="#" onclick="loadPage('addTour')">
-                        <i class="fas fa-plus me-2"></i> Add Tour
+                        <a id="addTourLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('addTour')">
+                            <i class="fas fa-plus me-2"></i> Add Tour
                         </a>
                     </li>
                 </ul>
             </div>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="loadPage('categories')">
+            <a id="categoriesLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('categories')">
                 <i class="fas fa-th-list me-2"></i> Categories
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex justify-content-between align-items-center" href="#" onclick="loadPage('booking')">
-                <span><i class="fas fa-calendar-alt me-2"></i> Booking</span>
-                <span class="badge bg-danger rounded-pill">2</span>
+            <a id="bookingLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('booking')">
+                <i class="fas fa-calendar-alt me-2"></i> Booking
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="loadPage('customers')">
+            <a id="customersLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('customers')">
                 <i class="fas fa-users me-2"></i> Customers
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="loadPage('seller')">
+            <a id="sellerLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('seller')">
                 <i class="fas fa-store me-2"></i> Seller
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#" onclick="loadPage('analytics')">
+            <a id="analyticsLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('analytics')">
                 <i class="fas fa-chart-line me-2"></i> Analytics
             </a>
         </li>
     </ul>
+
 </div>
 
 <div class="topbar d-flex justify-content-between align-items-center p-3 bg-light">
@@ -135,10 +137,13 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script th:src="@{/js/index.js}"></script>
+<script th:src="@{/js/addTour.js}"></script>
 <script th:src="@{/js/dashboard.js}"></script>
 <script th:src="@{/js/logout.js}"></script>
-<script th:src="@{/js/addTour.js}"></script>
+
 
 </body>
 </html>

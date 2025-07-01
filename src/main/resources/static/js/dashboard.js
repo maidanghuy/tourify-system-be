@@ -12,7 +12,7 @@
         tourList: {
           title: "Tour List",
           breadcrumbs: ["dashboard"],
-          content: `<p>Here is the list of tours.</p>`,
+          content: `<div id="tourListBody"></div>`,
         },
         addTour: {
           title: "Add Tour",
@@ -61,11 +61,11 @@
                 <div class="row g-2">
                 <div class="col-md-6">
                     <label class="form-label">Min people</label>
-                    <input class="form-control" id="minPeople" placeholder="Min people">
+                    <input class="form-control" id="minPeople" placeholder="Min people" type="number" min="1">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Max people</label>
-                    <input class="form-control" id="maxPeople" placeholder="Max people">
+                    <input class="form-control" id="maxPeople" placeholder="Max people" type="number" min="1">
                 </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 <div class="row g-2">
                 <div class="col-md-6">
                     <label class="form-label">Duration</label>
-                    <input class="form-control" id="duration" placeholder="Duration (days)">
+                    <input class="form-control" id="duration" placeholder="Duration (days)" type="number" min="1">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Place</label>
@@ -172,19 +172,37 @@ function loadPage(pageKey) {
     return;
   }
 
-  // ✅ RESET class active cho tất cả nav-link
-  document.querySelectorAll(".nav-link").forEach(link => {
-    link.classList.remove("active");
-  });
+  // --- ACTIVE NAV-LINK ---
+  // Bỏ active ở mọi nav-link
+  document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
 
-  // ✅ THÊM class active cho đúng link
-  const linkId = pageKey + "Link"; // Ví dụ: "tourList" -> "tourListLink"
+  // Đặt active cho link hiện tại
+  const linkId = pageKey + "Link";
   const activeLink = document.getElementById(linkId);
-  if (activeLink) {
-    activeLink.classList.add("active");
+  if (activeLink) activeLink.classList.add('active');
+
+  // Nếu là trang con của "Tour", mở submenu và active luôn menu cha
+  const tourPages = ['tourList', 'addTour'];
+  if (tourPages.includes(pageKey)) {
+    // Active menu cha "Tour"
+    document.getElementById('tourMenuLink')?.classList.add('active');
+
+    // Mở submenu (nếu chưa mở)
+    const submenu = document.getElementById("tourSubmenu");
+    if (submenu && !submenu.classList.contains('show')) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+  } else {
+    // Nếu sang trang khác, đóng submenu nếu đang mở
+    const submenu = document.getElementById("tourSubmenu");
+    if (submenu && submenu.classList.contains('show')) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+    // Bỏ active menu cha
+    document.getElementById('tourMenuLink')?.classList.remove('active');
   }
 
-  // ✅ HIỂN THỊ nội dung chính
+  // --- HIỂN THỊ NỘI DUNG ---
   const breadcrumbHtml = `
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
@@ -193,7 +211,7 @@ function loadPage(pageKey) {
           <ol class="breadcrumb small">
             ${page.breadcrumbs.map(crumb => `
               <li class="breadcrumb-item">
-                <a href="#" onclick="loadPage('${crumb}')"
+                <a href="javascript:void(0)" onclick="loadPage('${crumb}')"
                    class="text-decoration-none text-muted">${pages[crumb].title}</a>
               </li>`).join("")}
             <li class="breadcrumb-item active text-success" aria-current="page">${page.title}</li>
@@ -204,7 +222,7 @@ function loadPage(pageKey) {
 
   document.getElementById("mainContent").innerHTML = breadcrumbHtml + page.content;
 
-  // ✅ Load các trang đặc biệt
+  // Load các trang đặc biệt
   if (pageKey === "addTour") {
     setTimeout(() => initAddTourPage(), 0);
   } else if (pageKey === "tourList") {
@@ -214,22 +232,24 @@ function loadPage(pageKey) {
 
 
 
+
       document.addEventListener("DOMContentLoaded", function () {
         loadPage("addTour");
         const submenu = document.getElementById("tourSubmenu");
         const icon = document.querySelector("#tourToggle .toggle-icon");
 
 
-        submenu.addEventListener("show.bs.collapse", () => {
-          icon.classList.remove("fa-chevron-down");
-          icon.classList.add("fa-chevron-up");
-        });
+        if (submenu && icon) {
+          submenu.addEventListener("show.bs.collapse", () => {
+            icon.classList.remove("fa-chevron-down");
+            icon.classList.add("fa-chevron-up");
+          });
 
-
-        submenu.addEventListener("hide.bs.collapse", () => {
-          icon.classList.remove("fa-chevron-up");
-          icon.classList.add("fa-chevron-down");
-        });
+          submenu.addEventListener("hide.bs.collapse", () => {
+            icon.classList.remove("fa-chevron-up");
+            icon.classList.add("fa-chevron-down");
+          });
+        }
       });
 
 
@@ -381,7 +401,7 @@ function loadPage(pageKey) {
             missingFields
               .map(
                 ({ label, scrollTo }) =>
-                  `<a href="#" onclick="scrollToElement('${scrollTo}')" class="text-danger fw-semibold text-decoration-underline me-1">${label}</a>`
+                  `<a href="javascript:void(0)" onclick="scrollToElement('${scrollTo}')" class="text-danger fw-semibold text-decoration-underline me-1">${label}</a>`
               )
               .join(", ");
         } else {
@@ -431,10 +451,8 @@ function loadPage(pageKey) {
 
 
         // Live watch for media zone
-        const imageZone = document.querySelector("#imageDropzone");
-        const videoZone = document.querySelector("#videoDropzone");
-        imageZone.addEventListener("DOMSubtreeModified", calculateCompletion);
-        videoZone.addEventListener("DOMSubtreeModified", calculateCompletion);
+        observeMediaZone(document.querySelector("#imageDropzone"));
+        observeMediaZone(document.querySelector("#videoDropzone"));
 
 
         calculateCompletion(); // Initial
@@ -443,54 +461,57 @@ function loadPage(pageKey) {
 
 
 
-      function initAddTourPage() {
-        // ✅ Khởi tạo Select2 cho các dropdown
-        $("#categorySelect, #statusSelect, #place").select2({
-          placeholder: "Select an option",
-          width: "100%",
-          allowClear: true
-        });
+function initAddTourPage() {
+  // Gọi load data cho category & place mỗi lần vào Add Tour
+  loadPlacesAndCategories();
 
-        // ✅ Cập nhật badge khi chọn Status
-        $("#statusSelect").on("change", function () {
-          const selected = $(this).val();
-          $("#statusBadge").text(selected);
-        });
+  // Select2 chỉ setup cho status ở đây
+  $("#statusSelect").select2({
+    placeholder: "Select an option",
+    width: "100%",
+    allowClear: true
+  });
 
-        // ✅ Trigger cập nhật Completion khi chọn Category hoặc Place
-        $("#categorySelect, #place").on("change", function () {
-          calculateCompletion();
-        });
+  $("#statusSelect").on("change", function () {
+    const selected = $(this).val();
+    $("#statusBadge").text(selected);
+  });
 
-        // ✅ Gán lại sự kiện input/change cho tất cả các trường required
-        requiredFields.forEach(({ selector }) => {
-          const el = document.querySelector(selector);
-          if (el) {
-            el.addEventListener("input", calculateCompletion);
-            el.addEventListener("change", calculateCompletion);
-          }
-        });
+  $("#categorySelect, #place").on("change", function () {
+    calculateCompletion();
+  });
 
-        // ✅ Gắn lại listener cho media zones (ảnh, video)
-        const imageZone = document.querySelector("#imageDropzone");
-        const videoZone = document.querySelector("#videoDropzone");
-        if (imageZone) {
-          imageZone.addEventListener("DOMSubtreeModified", calculateCompletion);
-        }
-        if (videoZone) {
-          videoZone.addEventListener("DOMSubtreeModified", calculateCompletion);
-        }
+  requiredFields.forEach(({ selector }) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      el.addEventListener("input", calculateCompletion);
+      el.addEventListener("change", calculateCompletion);
+    }
+  });
 
-        // ✅ Gọi ngay khi DOM đã hoàn chỉnh
-        setTimeout(() => {
-          if (
-            document.getElementById("completionBadge") &&
-            document.getElementById("missingFieldsMsg")
-          ) {
-            calculateCompletion();
-          }
-        }, 100);
-      }
+  observeMediaZone(document.querySelector("#imageDropzone"));
+  observeMediaZone(document.querySelector("#videoDropzone"));
+
+  setTimeout(() => {
+    if (
+      document.getElementById("completionBadge") &&
+      document.getElementById("missingFieldsMsg")
+    ) {
+      calculateCompletion();
+    }
+  }, 100);
+  // Gán lại sự kiện click cho nút Add Tour mỗi lần vào trang này
+    const addBtn = document.getElementById("addTourBtn");
+    if (addBtn) {
+      addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
+    }
+}
+
+function observeMediaZone(zone) {
+  if (!zone) return;
+  const observer = new MutationObserver(calculateCompletion);
+  observer.observe(zone, { childList: true, subtree: true });
+}
 
 async function loadTourList() {
   const token = localStorage.getItem("accessToken");
@@ -523,12 +544,11 @@ async function loadTourList() {
 }
 
 function renderTourList() {
-  const wrapper = document.getElementById("mainContent");
-  wrapper.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="fw-bold text-success mb-0">Tour List</h2>
-    </div>
-  `;
+  const body = document.getElementById("tourListBody");
+  if (!body) return;
+
+  // Chỉ render vào body, KHÔNG set lại mainContent!
+  body.innerHTML = ""; // clear list trước
 
   const container = document.createElement("div");
   container.className = "row g-3";
@@ -538,7 +558,7 @@ function renderTourList() {
   } else {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
-    const paginatedTours = toursData.slice(start, end); // ✅ chỉ lấy 6 tour
+    const paginatedTours = toursData.slice(start, end);
 
     paginatedTours.forEach((tour) => {
       const col = document.createElement("div");
@@ -572,9 +592,10 @@ function renderTourList() {
     });
   }
 
-  wrapper.appendChild(container);
-  renderPagination(); // ✅ gọi thêm phân trang ở dưới
+  body.appendChild(container);
+  renderPagination(); // gọi lại phân trang
 }
+
 
 function renderPagination() {
   const totalPages = Math.ceil(toursData.length / pageSize);
@@ -585,20 +606,23 @@ function renderPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trang trước</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">Trang trước</a>
       </li>
       ${Array.from({ length: totalPages }, (_, i) => `
         <li class="page-item ${currentPage === i + 1 ? 'active' : ''}">
-          <a class="page-link" href="#" onclick="changePage(${i + 1})">${i + 1}</a>
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1})">${i + 1}</a>
         </li>`).join('')}
       <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Trang sau</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">Trang sau</a>
       </li>
     </ul>
   `;
 
-  document.getElementById("mainContent").appendChild(pagination);
+  // Thêm vào đúng vị trí trong tourListBody
+  const body = document.getElementById("tourListBody");
+  if (body) body.appendChild(pagination);
 }
+
 
 
 function changePage(newPage) {
