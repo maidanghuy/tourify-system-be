@@ -514,5 +514,227 @@ input[type=range]::-moz-range-thumb {
     box-shadow: 0 1px 6px #0001;
 }
 
+/* ==== Nền và shadow modal ==== */
+#compareModal .modal-content {
+    background: linear-gradient(135deg, #e7fff3 0%, #f7fafd 100%);
+    border-radius: 1.2rem;
+    box-shadow: 0 10px 36px 0 rgba(19,145,105,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.09);
+    border: none;
+    transition: box-shadow 0.3s;
+}
+#compareModal .modal-content:focus-within {
+    box-shadow: 0 18px 48px 0 rgba(19,145,105,0.25), 0 2px 8px 0 rgba(0,0,0,0.10);
+}
+
+/* ==== Header gradient deep, icon pulse ==== */
+#compareModal .modal-header {
+    background: linear-gradient(135deg, #61e4bb 0%, #139169 100%);
+    border-top-left-radius: 1.2rem;
+    border-top-right-radius: 1.2rem;
+    box-shadow: 0 4px 16px rgba(19,145,105,0.15);
+}
+#compareModal .modal-header .modal-title {
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    display: flex;
+    align-items: center;
+}
+#compareModal .modal-header .icon-pulse {
+    animation: pulse 1.6s infinite ease-in-out;
+    margin-right: .7rem;
+    font-size: 1.4em;
+}
+@keyframes pulse {
+    0%,100% { transform: scale(1);}
+    50% { transform: scale(1.15);}
+}
+
+/* ==== Sticky header, pastel background ==== */
+#compareModal .table thead.sticky-top {
+    background: rgba(255,255,255,0.94);
+    box-shadow: 0 1px 7px 0 rgba(19,145,105,0.04);
+}
+#compareModal .table thead th {
+    color: #139169;
+    font-weight: 600;
+    border-bottom: 2px solid #c8f6e5;
+    background: rgba(235,255,250,0.83);
+    font-size: 1.07em;
+    text-align: center;
+    padding: .95rem 1rem;
+    transition: background .2s;
+}
+#compareModal .table thead th:first-child {
+    border-top-left-radius: .7rem;
+}
+#compareModal .table thead th:last-child {
+    border-top-right-radius: .7rem;
+}
+
+/* ==== Không hiệu ứng hover trên bảng, chỉ màu row nhẹ ==== */
+#compareModal .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f9fdfb;
+}
+#compareModal .table-striped > tbody > tr:nth-of-type(even) {
+    background-color: #f3f8f6;
+}
+#compareModal .table tbody tr { transition: background .2s; }
+
+/* ==== Highlight khác biệt, mỗi cột một màu mềm mại ==== */
+:root {
+    --tour1-bg: #fff4f1;
+    --tour2-bg: #ebfcf1;
+    --tour3-bg: #e8f2fd;
+    --tour4-bg: #fff8e5;
+}
+#compareModal .compare-diff {
+    position: relative;
+    border-left: 4px solid transparent;
+    box-shadow: 0 0 0 0 rgba(0,0,0,0.06);
+    transition: background .35s, border-color .35s;
+}
+#compareModal .compare-diff:nth-child(2) {
+    background: var(--tour1-bg) !important;
+    border-left-color: #ffb4a2 !important;
+}
+#compareModal .compare-diff:nth-child(3) {
+    background: var(--tour2-bg) !important;
+    border-left-color: #78dba9 !important;
+}
+#compareModal .compare-diff:nth-child(4) {
+    background: var(--tour3-bg) !important;
+    border-left-color: #82b1ff !important;
+}
+#compareModal .compare-diff:nth-child(5) {
+    background: var(--tour4-bg) !important;
+    border-left-color: #ffd180 !important;
+}
+/* Không hiệu ứng hover bảng khác biệt nữa */
+#compareModal .compare-diff:hover { filter: none; transform: none; }
+
+/* ==== Nút Compare hiệu ứng gradient và nổi bật ==== */
+#doCompareBtn,
+.btn-gradient-success {
+    background: linear-gradient(135deg, #6BE7C5 0%, #139169 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 16px rgba(19,145,105,0.19);
+    border-radius: 2.5rem;
+    padding: .7rem 2.2rem;
+    font-size: 1.05em;
+    font-weight: 500;
+    transition: box-shadow .28s, transform .22s, background .22s;
+}
+#doCompareBtn:disabled,
+.btn-gradient-success:disabled {
+    background: linear-gradient(135deg, #e1eedd 0%, #9be8c3 100%);
+    color: #c8d8ce;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+#doCompareBtn:hover:not(:disabled),
+.btn-gradient-success:hover:not(:disabled) {
+    box-shadow: 0 8px 28px rgba(19,145,105,0.33);
+    transform: translateY(-2px) scale(1.045);
+    filter: brightness(1.03);
+}
+
+/* ==== Dropdown select box hiện đại ==== */
+.form-select-xl {
+    min-height: 4.1rem;
+    border: 2px solid #b7efdc;
+    border-radius: .85rem;
+    padding: 1rem 1.3rem;
+    font-size: 1.04em;
+    box-shadow: 0 2px 12px rgba(19,145,105,0.10);
+    background: #fff;
+    transition: box-shadow .2s, border-color .22s;
+    cursor: pointer;
+}
+.form-select-xl:focus {
+    outline: none;
+    border-color: #22b783;
+    box-shadow: 0 0 0 3px rgba(19,145,105,0.18);
+}
+
+/* ==== Custom scrollbar cho table ==== */
+#compareModal .table-responsive::-webkit-scrollbar {
+    width: 9px;
+}
+#compareModal .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(19,145,105,0.23);
+    border-radius: 6px;
+}
+
+/* ==== Blur backdrop cho modal ==== */
+.modal-backdrop-blur .modal-backdrop {
+    background-color: rgba(20,48,40,0.18) !important;
+    backdrop-filter: blur(6px);
+}
+
+/* ==== Scale & fade animation ==== */
+@keyframes scaleFadeIn {
+    from { transform: scale(0.95) translateY(-24px); opacity: 0; }
+    to   { transform: scale(1)    translateY(0);     opacity: 1; }
+}
+.animate-scale-fade {
+    animation: scaleFadeIn 0.36s cubic-bezier(.42,1.45,.62,1.02) forwards;
+}
+
+/* ==== Loại bỏ hover vùng bảng ==== */
+#compareModal .table tbody tr:hover { background: unset; }
+
+/* ==== Đảm bảo bảng bo góc dưới ==== */
+#compareModal .modal-content {
+    border-bottom-left-radius: 1.2rem !important;
+    border-bottom-right-radius: 1.2rem !important;
+}
+
+
+.btn-view-detail {
+    width: 25px;  /* nhỏ lại nếu cần */
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0fd3b5 0%, #25b6e1 100%);
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(36, 208, 200, 0.19);
+    transition: box-shadow 0.18s, transform 0.18s, background 0.18s;
+    color: #fff;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.btn-view-detail i.fa-eye {
+    font-size: 0.8rem;   /* nhỏ lại */
+    line-height: 1;
+    text-decoration: none !important; /* Chắc chắn không bị underline */
+    display: block;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.07));
+    transition: color 0.18s;
+}
+
+.btn-view-detail:hover,
+.btn-view-detail:focus {
+    background: linear-gradient(135deg, #25b6e1 0%, #0fd3b5 100%);
+    transform: scale(1.08);
+    box-shadow: 0 7px 20px rgba(15, 211, 181, 0.18), 0 1.5px 7px #25b6e144;
+}
+
+.btn-view-detail:hover i.fa-eye,
+.btn-view-detail:focus i.fa-eye {
+    color: #f5ff9d;
+}
+
+.btn-view-detail, .btn-view-detail * {
+    text-decoration: none !important;
+}
+
 
 

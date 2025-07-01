@@ -11,6 +11,7 @@ import com.example.tourify_system_be.security.CustomUserDetails;
 import com.example.tourify_system_be.service.TourService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -77,9 +78,16 @@ public class TourController {
     /**
      * So sánh tour: gửi body ["id1","id2",...], nhận về List<TourResponse]
      */
-    @PostMapping("/compare")
-    public List<TourResponse> compare(@RequestBody List<String> tourIds) {
-        return tourService.compareTours(tourIds);
+    @PostMapping(
+            value = "/compare",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<TourResponse>> compareTours(
+            @RequestBody List<String> tourIds) {
+
+        List<TourResponse> comparisons = tourService.compareTours(tourIds);
+        return ResponseEntity.ok(comparisons);
     }
 
     @GetMapping("/{id}")
