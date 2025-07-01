@@ -22,6 +22,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -54,35 +57,35 @@ public class TourService {
 
 
     public List<TourResponse> filterTours(TourFilterRequest filter) {
-            return filter.getBaseTours().stream()
-                    .filter(tour -> {
-                        boolean matches = true;
+        return filter.getBaseTours().stream()
+                .filter(tour -> {
+                    boolean matches = true;
 
-                        if (filter.getMinPrice() != null)
-                            matches &= tour.getPrice() != null &&
-                                    tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
+                    if (filter.getMinPrice() != null)
+                        matches &= tour.getPrice() != null &&
+                                tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
 
-                        if (filter.getMaxPrice() != null)
-                            matches &= tour.getPrice() != null &&
-                                    tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
+                    if (filter.getMaxPrice() != null)
+                        matches &= tour.getPrice() != null &&
+                                tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
 
-                        if (filter.getMinRating() != null)
-                            matches &= tour.getRating() != null &&
-                                    tour.getRating().compareTo(filter.getMinRating()) >= 0;
+                    if (filter.getMinRating() != null)
+                        matches &= tour.getRating() != null &&
+                                tour.getRating().compareTo(filter.getMinRating()) >= 0;
 
-                        if (filter.getMaxRating() != null)
-                            matches &= tour.getRating() != null &&
-                                    tour.getRating().compareTo(filter.getMaxRating()) <= 0;
+                    if (filter.getMaxRating() != null)
+                        matches &= tour.getRating() != null &&
+                                tour.getRating().compareTo(filter.getMaxRating()) <= 0;
 
-                        if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
-                            matches &= tour.getCreatedByUserName() != null &&
-                                    tour.getCreatedByUserName().toLowerCase()
-                                            .contains(filter.getCreatedByUserName().toLowerCase());
+                    if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
+                        matches &= tour.getCreatedByUserName() != null &&
+                                tour.getCreatedByUserName().toLowerCase()
+                                        .contains(filter.getCreatedByUserName().toLowerCase());
 
-                        return matches;
-                    })
-                    .toList();
-        }
+                    return matches;
+                })
+                .toList();
+    }
 
     public List<TourResponse> getMyTours(String bearerToken) {
         String token = bearerToken.replace("Bearer ", "");
@@ -148,24 +151,48 @@ public class TourService {
                 .build();
     }
 
+    public List<TourResponse> getAllTours() {
+        return itourRepository.findAll().stream()
+                .map(this::convertToResponse)
+                .toList();
+    }
     /**
      * So sánh tour: trả về tối đa 4 tour cùng lúc.
      */
     public List<TourResponse> compareTours(List<String> tourIds) {
-        if (tourIds.size() < 2 || tourIds.size() > 4) {
+        // 1) Validate số lượng và trùng lặp
+        if (tourIds == null
+                || tourIds.size() < 2
+                || tourIds.size() > 4
+                || tourIds.stream().distinct().count() != tourIds.size()) {
             throw new AppException(ErrorCode.INVALID_REQUEST);
         }
 
-        // Lấy entity
+        // 2) Lấy danh sách Tour từ DB
         List<Tour> tours = tourRepository.findAllByTourIdIn(tourIds);
         if (tours.size() != tourIds.size()) {
             throw new AppException(ErrorCode.TOUR_NOT_FOUND);
         }
 
-        // Map → DTO (TourResponse đã có trường bookedCustomerCount)
-        return tours.stream()
-                .map(tourMapper::toResponse)
+        // 3) Map Tour → DTO và giữ nguyên thứ tự theo list tourIds
+        Map<String, Tour> tourMap = tours.stream()
+                .collect(Collectors.toMap(Tour::getTourId, Function.identity()));
+
+        return tourIds.stream()
+                .map(id -> {
+                    Tour tour = tourMap.get(id);
+                    // (chỉ phòng trường hợp, thực tế sẽ luôn có vì đã kiểm size phía trên)
+                    if (tour == null) {
+                        throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+                    }
+                    return tourMapper.toResponse(tour);
+                })
                 .toList();
     }
-}
 
+    public TourResponse getTourById(String tourId) {
+        Tour tour = itourRepository.findById(tourId)
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+        return tourMapper.toResponse(tour);
+    }
+}
