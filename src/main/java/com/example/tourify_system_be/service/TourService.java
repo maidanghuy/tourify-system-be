@@ -22,6 +22,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -148,24 +151,36 @@ public class TourService {
                 .build();
     }
 
-    /**
-     * So sánh tour: trả về tối đa 4 tour cùng lúc.
-     */
     public List<TourResponse> compareTours(List<String> tourIds) {
-        if (tourIds.size() < 2 || tourIds.size() > 4) {
+        // 1) Validate số lượng và trùng lặp
+        if (tourIds == null
+                || tourIds.size() < 2
+                || tourIds.size() > 4
+                || tourIds.stream().distinct().count() != tourIds.size()) {
             throw new AppException(ErrorCode.INVALID_REQUEST);
         }
 
-        // Lấy entity
+        // 2) Lấy danh sách Tour từ DB
         List<Tour> tours = tourRepository.findAllByTourIdIn(tourIds);
         if (tours.size() != tourIds.size()) {
             throw new AppException(ErrorCode.TOUR_NOT_FOUND);
         }
 
-        // Map → DTO (TourResponse đã có trường bookedCustomerCount)
-        return tours.stream()
-                .map(tourMapper::toResponse)
+        // 3) Map Tour → DTO và giữ nguyên thứ tự theo list tourIds
+        Map<String, Tour> tourMap = tours.stream()
+                .collect(Collectors.toMap(Tour::getTourId, Function.identity()));
+
+        return tourIds.stream()
+                .map(id -> {
+                    Tour tour = tourMap.get(id);
+                    // (chỉ phòng trường hợp, thực tế sẽ luôn có vì đã kiểm size phía trên)
+                    if (tour == null) {
+                        throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+                    }
+                    return tourMapper.toResponse(tour);
+                })
                 .toList();
     }
+
 }
 

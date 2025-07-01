@@ -55,9 +55,6 @@ public class FeedbackService {
         boolean isUser       = "USER".equals(role);
         boolean isSubCompany = "SUB_COMPANY".equals(role);
         boolean isAdmin      = "ADMIN".equals(role);
-        if (!isUser && !isSubCompany && !isAdmin) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
-        }
 
         // 3) Kiểm tra tour tồn tại
         if (!tourRepo.existsById(tourId)) {
@@ -96,9 +93,6 @@ public class FeedbackService {
                         .build())
                 .toList();
     }
-
-
-
 
 
 
@@ -150,4 +144,29 @@ public class FeedbackService {
                 .status(fb.getStatus())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public FeedbackResponse getLatestApprovedFeedback(String tourId) {
+        // 1) Kiểm tra tour tồn tại
+        if (!tourRepo.existsById(tourId)) {
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+        }
+
+        // 2) Lấy feedback mới nhất với status = "APPROVED"
+        Feedback fb = feedbackRepository
+                .findTopByTour_TourIdAndStatusOrderByCreateAtDesc(tourId, "APPROVED")
+                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
+
+        // 3) Map entity → DTO
+        return FeedbackResponse.builder()
+                .feedbackId(fb.getFeedbackId())
+                .userFullName(fb.getUser().getFullName())
+                .title(fb.getTitle())
+                .content(fb.getContent())
+                .rating(fb.getRating().doubleValue())
+                .createdAt(fb.getCreateAt())
+                .status(fb.getStatus())
+                .build();
+    }
+
 }
