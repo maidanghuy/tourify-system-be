@@ -22,301 +22,301 @@
 
 
 <body>
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
-    <div class="container">
-        <a class="navbar-brand" th:href="@{/landing}">
-            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                 height="40" alt="Tourify" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/landing}">
+                <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                    height="40" alt="Tourify" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                 aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
-                <li class="nav-item">
-                    <a class="nav-link nav-custom active" th:href="@{/landing}">
-                        <i class="fas fa-house me-2"></i>Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-custom" th:href="@{/user/favorites}">
-                        <i class="fas fa-heart me-2"></i>Favorites
-                    </a>
-                </li>
-            </ul>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom active" th:href="@{/landing}">
+                            <i class="fas fa-house me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom" th:href="@{/user/favorites}">
+                            <i class="fas fa-heart me-2"></i>Favorites
+                        </a>
+                    </li>
+                </ul>
 
-            <div class="d-flex align-items-center gap-3">
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                             alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
-                        <span>Hello,
+                            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
+                            <span>Hello,
                                 <span>User</span></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                        <li>
-                            <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
-                        </li>
-                    </ul>
-
-                </div>
-                <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
-                    <i class="fas fa-sign-out-alt me-1"></i>Logout
-                </button>
-            </div>
-        </div>
-    </div>
-</nav>
-
-
-<!-- Hero Carousel Section -->
-<section id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
-    <div class="carousel-inner">
-        <!-- Slide 1 -->
-        <div class="carousel-item active">
-            <div class="hero hero-slide d-flex align-items-center justify-content-center">
-                <div class="container text-center text-white animate-slide">
-                    <h2 class="fw-light animate-fadein">Helping Others</h2>
-                    <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
-                    <p class="lead animate-delay">Special offers to suit your plan</p>
                 </div>
             </div>
         </div>
+    </nav>
 
 
-        <!-- Slide 2 -->
-        <div class="carousel-item">
-            <div class="hero hero-slide d-flex align-items-center justify-content-center" style="
+    <!-- Hero Carousel Section -->
+    <section id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+                <div class="hero hero-slide d-flex align-items-center justify-content-center">
+                    <div class="container text-center text-white animate-slide">
+                        <h2 class="fw-light animate-fadein">Helping Others</h2>
+                        <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
+                        <p class="lead animate-delay">Special offers to suit your plan</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+                <div class="hero hero-slide d-flex align-items-center justify-content-center" style="
               background-image: url('https://images.pexels.com/photos/1450360/pexels-photo-1450360.jpeg?auto=compress&cs=tinysrgb&w=600');
             ">
-                <div class="container text-center text-white animate-slide">
-                    <h2 class="fw-light animate-fadein">Helping Others</h2>
-                    <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
-                    <p class="lead animate-delay">Special offers to suit your plan</p>
+                    <div class="container text-center text-white animate-slide">
+                        <h2 class="fw-light animate-fadein">Helping Others</h2>
+                        <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
+                        <p class="lead animate-delay">Special offers to suit your plan</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <!-- Slide 3 -->
-        <div class="carousel-item">
-            <div class="hero hero-slide d-flex align-items-center justify-content-center" style="
+            <!-- Slide 3 -->
+            <div class="carousel-item">
+                <div class="hero hero-slide d-flex align-items-center justify-content-center" style="
               background-image: url('https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1600');
             ">
-                <div class="container text-center text-white animate-slide">
-                    <h2 class="fw-light animate-fadein">Helping Others</h2>
-                    <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
-                    <p class="lead animate-delay">Special offers to suit your plan</p>
+                    <div class="container text-center text-white animate-slide">
+                        <h2 class="fw-light animate-fadein">Helping Others</h2>
+                        <h1 class="display-4 fw-bold animate-slideup">LIVE & TRAVEL</h1>
+                        <p class="lead animate-delay">Special offers to suit your plan</p>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
+
+
+    <!-- Modern Tour Search Form -->
+    <div class="booking-form">
+        <form class="row g-3 align-items-end" method="get" action="/tourify/tour">
+            <!-- Where -->
+            <div class="col-md-3">
+                <label class="form-label">Where</label>
+                <div class="form-floating-custom position-relative">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <input
+                            type="text"
+                            name="placeName"
+                            class="form-control"
+                            placeholder="Enter destination"
+                            th:value="${param.placeName}"
+                    />
+                </div>
+            </div>
+
+            <!-- Duration -->
+            <div class="col-md-2">
+                <label class="form-label">Duration</label>
+                <div class="form-floating-custom">
+                    <i class="bi bi-clock"></i>
+                    <select class="form-select" name="duration">
+                        <option value="" th:selected="${param.duration == null}">Any</option>
+                        <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
+                        <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
+                        <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
+                        <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="col-md-3">
+                <label class="form-label">Type</label>
+                <div class="form-floating-custom">
+                    <i class="bi bi-globe-americas"></i>
+                    <select class="form-select" name="categoryName">
+                        <option value="" th:selected="${param.categoryName == null}">Any</option>
+                        <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
+                        <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
+                        <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
+                        <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
+                        <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- People -->
+            <div class="col-md-2">
+                <label class="form-label">People</label>
+                <div class="form-floating-custom">
+                    <i class="bi bi-people-fill"></i>
+                    <input
+                            type="number"
+                            name="touristNumberAssigned"
+                            class="form-control"
+                            placeholder="Enter number"
+                            th:value="${param.touristNumberAssigned}"
+                    />
+                </div>
+            </div>
+
+            <!-- Search Button -->
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn search-btn">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
     </div>
-</section>
 
 
-<!-- Modern Tour Search Form -->
-<div class="booking-form">
-    <form class="row g-3 align-items-end" method="get" action="/tourify/tour_list">
-        <!-- Where -->
-        <div class="col-md-3">
-            <label class="form-label">Where</label>
-            <div class="form-floating-custom position-relative">
-                <i class="bi bi-geo-alt-fill"></i>
-                <input
-                        type="text"
-                        name="placeName"
-                        class="form-control"
-                        placeholder="Enter destination"
-                        th:value="${param.placeName}"
-                />
-            </div>
+    <!-- Tour Cards by Place -->
+    <div id="place" class="container py-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Plan your perfect tour</h2>
+            <p class="text-muted">Places & Tour Hire to our most popular destinations</p>
         </div>
 
-        <!-- Duration -->
-        <div class="col-md-2">
-            <label class="form-label">Duration</label>
-            <div class="form-floating-custom">
-                <i class="bi bi-clock"></i>
-                <select class="form-select" name="duration">
-                    <option value="" th:selected="${param.duration == null}">Any</option>
-                    <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
-                    <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
-                    <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
-                    <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
-                </select>
-            </div>
+        <!-- Card Item -->
+        <div id="placeCardsContainer" class="row g-4">
+            <!-- Cards will be rendered here -->
         </div>
 
-        <!-- Category -->
-        <div class="col-md-3">
-            <label class="form-label">Type</label>
-            <div class="form-floating-custom">
-                <i class="bi bi-globe-americas"></i>
-                <select class="form-select" name="categoryName">
-                    <option value="" th:selected="${param.categoryName == null}">Any</option>
-                    <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
-                    <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
-                    <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
-                    <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
-                    <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
-                </select>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center pagination-container">
+            <nav aria-label="Place pagination">
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination items will be generated here -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+
+
+    <!-- Contact Section -->
+    <div class="container py-5 newsletter-section">
+        <div class="newsletter-content">
+            <h3 class="newsletter-title">Subscribe Newsletter</h3>
+            <p class="newsletter-subtitle">
+                The Travel<br />Get inspired! Receive travel discounts, tips and
+                behind the scenes stories.
+            </p>
+            <div class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Your email address" />
+                <button class="newsletter-btn">Subscribe</button>
             </div>
         </div>
+        <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
+            alt="Newsletter" class="newsletter-image" />
+    </div>
 
-        <!-- People -->
-        <div class="col-md-2">
-            <label class="form-label">People</label>
-            <div class="form-floating-custom">
-                <i class="bi bi-people-fill"></i>
-                <input
-                        type="number"
-                        name="touristNumberAssigned"
-                        class="form-control"
-                        placeholder="Enter number"
-                        th:value="${param.touristNumberAssigned}"
-                />
+
+    <!-- Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h5 class="footer-title">g-lobe</h5>
+                    <div class="social-icons">
+                        <a href="#" class="social-icon facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Destinations</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Canada</a></li>
+                        <li><a href="#">Alaska</a></li>
+                        <li><a href="#">France</a></li>
+                        <li><a href="#">Iceland</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Our Activities</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Northern Lights</a></li>
+                        <li><a href="#">Cruising & sailing</a></li>
+                        <li><a href="#">Multi-activities</a></li>
+                        <li><a href="#">Kayaking</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h5 class="footer-title">Travel Blogs</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Bali Travel Guide</a></li>
+                        <li><a href="#">Sri Lanka Travel Guide</a></li>
+                        <li><a href="#">Peru Travel Guide</a></li>
+                        <li><a href="#">Bali Travel Guide</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5 class="footer-title">About Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                    <h5 class="footer-title mt-3">Contact Us</h5>
+                    <ul class="footer-links">
+                        <li><a href="#">Our Story</a></li>
+                        <li><a href="#">Work with us</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
+    </footer>
 
-        <!-- Search Button -->
-        <div class="col-md-2 d-grid">
-            <button type="submit" class="btn search-btn">
-                <i class="bi bi-search"></i> Search
+    <button class="chat-button" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <h3>Chatbot</h3>
+            <button class="close-btn" onclick="toggleChat()">&times;</button>
+        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <div class="chat-input-container">
+            <textarea id="userInput" class="input-box" placeholder="Nhập tin nhắn…"></textarea>
+            <button onclick="sendMessage()" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
             </button>
         </div>
-    </form>
-</div>
-
-
-<!-- Tour Cards by Place -->
-<div id="place" class="container py-5">
-    <div class="text-center mb-4">
-        <h2 class="fw-bold">Plan your perfect tour</h2>
-        <p class="text-muted">Places & Tour Hire to our most popular destinations</p>
     </div>
 
-    <!-- Card Item -->
-    <div id="placeCardsContainer" class="row g-4">
-        <!-- Cards will be rendered here -->
-    </div>
-
-    <!-- Pagination -->
-    <div class="d-flex justify-content-center pagination-container">
-        <nav aria-label="Place pagination">
-            <ul class="pagination" id="pagination">
-                <!-- Pagination items will be generated here -->
-            </ul>
-        </nav>
-    </div>
-</div>
 
 
-
-<!-- Contact Section -->
-<div class="container py-5 newsletter-section">
-    <div class="newsletter-content">
-        <h3 class="newsletter-title">Subscribe Newsletter</h3>
-        <p class="newsletter-subtitle">
-            The Travel<br />Get inspired! Receive travel discounts, tips and
-            behind the scenes stories.
-        </p>
-        <div class="newsletter-form">
-            <input type="email" class="newsletter-input" placeholder="Your email address" />
-            <button class="newsletter-btn">Subscribe</button>
-        </div>
-    </div>
-    <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
-         alt="Newsletter" class="newsletter-image" />
-</div>
-
-
-<!-- Footer -->
-<footer class="footer mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <h5 class="footer-title">g-lobe</h5>
-                <div class="social-icons">
-                    <a href="#" class="social-icon facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Destinations</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Canada</a></li>
-                    <li><a href="#">Alaska</a></li>
-                    <li><a href="#">France</a></li>
-                    <li><a href="#">Iceland</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Activities</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Northern Lights</a></li>
-                    <li><a href="#">Cruising & sailing</a></li>
-                    <li><a href="#">Multi-activities</a></li>
-                    <li><a href="#">Kayaking</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Travel Blogs</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Bali Travel Guide</a></li>
-                    <li><a href="#">Sri Lanka Travel Guide</a></li>
-                    <li><a href="#">Peru Travel Guide</a></li>
-                    <li><a href="#">Bali Travel Guide</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5 class="footer-title">About Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
-                <h5 class="footer-title mt-3">Contact Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<button class="chat-button" onclick="toggleChat()">
-    <i class="fas fa-comment-dots"></i>
-</button>
-
-<div class="chat-container" id="chatContainer">
-    <div class="chat-header">
-        <h3>Chatbot</h3>
-        <button class="close-btn" onclick="toggleChat()">&times;</button>
-    </div>
-    <div id="chatBox" class="chat-box"></div>
-    <div class="chat-input-container">
-        <textarea id="userInput" class="input-box" placeholder="Nhập tin nhắn…"></textarea>
-        <button onclick="sendMessage()" class="send-btn">
-            <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
-</div>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/chatbot.js"></script>
-<script src="js/index.js"></script>
-<script src="js/logout.js"></script>
-<script src="js/landing.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/logout.js"></script>
+    <script src="js/landing.js"></script>
 
 </body>
 

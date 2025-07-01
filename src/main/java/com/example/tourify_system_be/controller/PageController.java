@@ -43,7 +43,7 @@ public class PageController {
         return "profile";
     }
   
-    @GetMapping("/tour_list")
+    @GetMapping("/tour")
     public String tourListPage(@RequestParam(required = false) String placeName,
                                @RequestParam(required = false) String categoryName,
                                @RequestParam(required = false) Integer duration,
