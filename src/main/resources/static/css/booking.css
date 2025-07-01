@@ -1,0 +1,645 @@
+
+body {
+    padding-top: 30px;
+}
+
+
+.tour-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #004d40; /* đậm hơn màu nền */
+}
+
+
+.price {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #ff6f61; /* đỏ san hô nhẹ */
+}
+
+
+.modern-counter {
+    display: flex;
+    max-width: 200px;
+    border-radius: 50px;
+    box-shadow: 0 4px 14px rgba(0, 184, 148, 0.2);
+    overflow: hidden;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+
+.modern-counter .btn {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    width: 45px;
+    transition: background-color 0.2s;
+    color: #00b894;
+}
+
+
+.modern-counter .btn:hover {
+    background-color: #e0f7f4;
+    color: #019172;
+}
+
+
+.modern-counter .count-display {
+    border: none;
+    font-weight: 600;
+    color: #2d3436;
+    font-size: 1rem;
+    padding: 8px 0;
+    width: 60px;
+    background-color: transparent;
+}
+
+
+.modern-counter .count-display:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+
+.fancy-counter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 220px;
+    border-radius: 50px;
+    background: linear-gradient(145deg, #ffffff, #f2fefc);
+    box-shadow: 0 6px 12px rgba(0, 184, 148, 0.15);
+    padding: 5px 8px;
+    transition: all 0.3s ease;
+}
+
+
+.counter-btn {
+    background: white;
+    border: none;
+    color: #00b894;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 184, 148, 0.2);
+}
+
+
+.counter-btn:hover {
+    background-color: #e0f7f4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 184, 148, 0.25);
+}
+
+
+.counter-display {
+    border: none;
+    width: 60px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background-color: transparent;
+    color: #2d3436;
+}
+
+
+.counter-display:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+
+.airline-logo-box {
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.airline-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border-radius: 50%;
+    border: 2px solid #20c997;
+}
+
+
+.airline-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+
+.airline-glow:hover {
+    box-shadow: 0 0 15px rgba(32, 201, 151, 0.2);
+}
+
+
+.calendar-icon-box {
+    background-color: #e6f5f2;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.date-label {
+    font-weight: 500;
+    color: #212529;
+    font-size: 1rem;
+}
+
+
+.fa-plane {
+    transform: rotate(0deg); /* or rotate(-45deg) for slant */
+}
+
+
+@media (max-width: 576px) {
+    .date-label {
+        font-size: 0.9rem;
+    }
+
+
+    .calendar-icon-box {
+        padding: 5px;
+    }
+}
+
+
+.form-floating-modern {
+    position: relative;
+}
+
+
+.discount-select {
+    padding: 0.75rem 1.25rem;
+    padding-left: 3rem;
+    border: 2px solid #00b894;
+    font-weight: 500;
+    color: #004d40;
+    transition: all 0.3s ease;
+}
+
+
+.discount-select:focus {
+    border-color: #009e8e;
+    box-shadow: 0 0 0 0.2rem rgba(0, 184, 148, 0.2);
+}
+
+
+.form-floating-modern label {
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    background: #fff;
+    padding: 0 8px;
+    font-size: 0.875rem;
+    color: #00b894;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+
+.discount-select option {
+    font-weight: 500;
+}
+
+
+/* Optional glow hover effect */
+.discount-select:hover {
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.15);
+}
+
+
+.payment-card {
+    border: 2px solid #d4d4d4;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: white;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
+}
+
+
+.payment-card.active {
+    background-color: #a9eadf;
+    border-color: #00b894;
+}
+
+
+.payment-title {
+    font-weight: 700;
+    color: #004d40;
+    font-size: 1.05rem;
+}
+
+
+.payment-subtext {
+    font-size: 0.95rem;
+    color: #333;
+    margin-top: 4px;
+    max-width: 90%;
+}
+
+
+.payment-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #004d40;
+    border-radius: 50%;
+    background-color: white;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+
+.payment-card.active .payment-circle {
+    background-color: #00b894;
+    box-shadow: 0 0 0 2px white inset;
+}
+
+
+.visually-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+.section-box {
+    border-radius: 20px;
+    background: linear-gradient(145deg, #ffffff, #f4fdfc);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07),
+    0 0 0 1px rgba(32, 201, 151, 0.1);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    transition: all 0.3s ease;
+}
+
+
+.section-box:hover::before {
+    opacity: 0.15;
+}
+
+
+/* Avatar & Card container */
+#cardHeader {
+    background: rgba(240, 255, 250, 0.65);
+    backdrop-filter: blur(12px);
+    border-radius: 1rem;
+    box-shadow: 0 8px 24px rgba(0, 184, 148, 0.1),
+    0 0 0 1px rgba(0, 184, 148, 0.15);
+    transition: all 0.4s ease;
+    padding: 1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* Hover effect */
+#cardHeader:hover {
+    background: rgba(210, 255, 235, 0.8);
+    box-shadow: 0 12px 28px rgba(0, 184, 148, 0.25),
+    0 0 0 1px rgba(0, 184, 148, 0.2);
+    transform: translateY(-2px);
+}
+
+
+/* Avatar image */
+#cardHeader img {
+    border: 2px solid #1c736e;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    transition: transform 0.3s ease;
+}
+
+
+#cardHeader:hover img {
+    transform: scale(1.05);
+}
+
+
+/* Card icon */
+#cardHeader i.fa-credit-card {
+    font-size: 1.25rem;
+    color: #1c736e;
+}
+
+
+/* Card number */
+#cardNumber {
+    font-family: "Fira Code", monospace;
+    font-size: 1rem;
+    color: #2d3436;
+}
+
+
+/* Eye button */
+#cardHeader button {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+
+#cardHeader button:hover {
+    background-color: #1c736e;
+    transform: scale(1.05);
+}
+
+
+/* Check icon */
+#checkIcon {
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+
+#cardHeader.clicked #checkIcon {
+    color: #1c736e;
+    transform: scale(1.2);
+}
+
+
+#accountFields .mb-3 {
+    background-color: #eafaf8; /* xanh nhạt nền đồng bộ */
+    border-left: 4px solid #1c736e; /* xanh đậm chủ đạo */
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    transition: box-shadow 0.3s ease;
+}
+
+
+#acco untFields .mb-3:hover {
+    box-shadow: 0 4px 12px rgba(28, 115, 110, 0.15);
+}
+
+
+#accountFields .text-muted {
+    font-size: 0.85rem;
+    color: #1c736e;
+}
+
+
+#accountFields .fw-bold {
+    font-size: 1.05rem;
+    color: #0d3f3c;
+}
+
+
+#accountFields button.btn-outline-success {
+    color: #1c736e;
+    border-color: #1c736e;
+}
+
+
+#accountFields button.btn-outline-success:hover {
+    background-color: #1c736e;
+    color: white;
+    border-color: #1c736e;
+}
+
+
+#accountFields input.form-control:focus {
+    border-color: #1c736e;
+    box-shadow: 0 0 0 0.2rem rgba(28, 115, 110, 0.2);
+}
+
+
+#accountFields label {
+    color: #1c736e;
+    font-weight: 500;
+}
+
+
+.card-summary {
+    background: linear-gradient(135deg, #ffffff 0%, #f4fcfa 100%);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(28, 115, 110, 0.06);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease-in-out;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+
+.card-summary:hover {
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(28, 115, 110, 0.1);
+}
+
+
+.card-summary h6 {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1c736e;
+}
+
+
+.card-summary small {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+
+.card-summary .booking-protection {
+    background: #e8f8f5;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    border: 1px dashed #1c736e;
+}
+
+
+.card-summary .price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+
+.card-summary .price-row span:first-child {
+    color: #6c757d;
+}
+
+
+.card-summary .price-row span:last-child {
+    font-weight: 600;
+}
+
+
+.card-summary .total-row {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1c736e;
+}
+
+
+.btn-checkout {
+    background: linear-gradient(to right, #1c736e, #198754);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 50px;
+    box-shadow: 0 6px 12px rgba(0, 184, 148, 0.15);
+    transition: all 0.25s ease-in-out;
+}
+
+
+.btn-checkout:hover {
+    background: #145f59;
+    box-shadow: 0 8px 18px rgba(0, 184, 148, 0.3);
+}
+
+
+/* Modal chính */
+#qrModal .modal-content {
+    border-radius: 1.25rem;
+    border: none;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.15);
+    padding: 2rem;
+    max-width: 420px;
+    margin: auto;
+    text-align: center;
+    position: relative;
+}
+
+
+/* Tiêu đề */
+#qrModal .modal-title {
+    font-weight: 700;
+    color: #13795b;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+
+.form-check-input.custom-checkbox {
+    all: unset;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #13795b;
+    border-radius: 6px;
+    background-color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+
+
+.form-check-input.custom-checkbox:checked {
+    background-color: #13795b;
+    border-color: #13795b;
+}
+
+
+/* ✅ Dấu tick căn giữa hoàn toàn và đẹp */
+.form-check-input.custom-checkbox:checked::after {
+    content: "";
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    display: inline-block;
+}
+
+
+/* Ảnh QR */
+#qrModal img {
+    display: block;
+    margin: 0 auto 1.5rem auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 260px;
+}
+
+
+/* Nút bấm */
+#qrModal button.btn-outline-success {
+    border-radius: 999px;
+    padding: 0.5rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    border: 2px solid #13795b;
+    color: #13795b;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+
+#qrModal button.btn-outline-success:hover {
+    background-color: #13795b;
+    color: white;
+}
+
+
+/* Ghi chú dưới QR */
+#qrModal p.text-muted {
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    line-height: 1.4;
+    padding: 0 1rem;
+}
+
+
+/* Responsive */
+@media (max-width: 576px) {
+    #qrModal .modal-content {
+        padding: 1.5rem 1rem;
+    }
+
+
+    #qrModal .modal-title {
+        font-size: 1.5rem;
+    }
+
+
+    #qrModal img {
+        max-width: 200px;
+    }
+}
+
+/*QR CORE*/
+.qr-loading {
+    animation: qr-spin 1s linear infinite;
+    opacity: 0.5;
+}
+@keyframes qr-spin {
+    100% { transform: rotate(360deg); }
+}

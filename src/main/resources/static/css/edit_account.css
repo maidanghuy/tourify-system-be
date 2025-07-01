@@ -1,0 +1,6 @@
+input:focus, button:focus {
+    box-shadow: 0 0 0 0.1rem #17e38c50 !important;
+    border-color: #21c8b4 !important;
+}
+.card { transition: box-shadow .16s, transform .16s; }
+.card:hover { box-shadow: 0 8px 30px #b8ead2cc, 0 1.5px 2.5px #bbb1; transform: translateY(-2px) scale(1.01);}
