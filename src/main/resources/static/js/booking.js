@@ -129,10 +129,15 @@ function toggleReveal(headerEl) {
 
 
 function showLoading(btn) {
-    btn.disabled = true;
-    btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
-    // Simulate submit
-    setTimeout(() => (btn.innerHTML = `<i class="fas fa-check me-2"></i>Paid`), 1500);
+    function showLoading(btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
+        // Simulate submit
+        setTimeout(
+            () => (btn.innerHTML = `<i class="fas fa-check me-2"></i>Paid`),
+            1500
+        );
+    }
 }
 
 
@@ -140,6 +145,8 @@ function handleCheckout(btn) {
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
 
+    // Show QR code modal
+    handlerevealQRCodeModal();
 
     setTimeout(() => {
         btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
@@ -153,8 +160,7 @@ function handleCheckout(btn) {
 
 
 function reloadQRCode() {
-    // Nếu muốn đổi ảnh thì bạn có thể gọi lại ảnh khác tại đây
-    alert("QR Code reloaded!");
+    handlerevealQRCodeModal();
 }
 
 
@@ -294,3 +300,64 @@ document.addEventListener("DOMContentLoaded",  function () {
             updatePrice();
         }
     });
+
+function handlerevealQRCodeModal() {
+    const token = localStorage.getItem('accessToken');
+    const username = localStorage.getItem('username');
+    const qrCanvas = document.getElementById("qr");
+
+
+    if (!token || !username) {
+        alert("Bạn chưa đăng nhập.");
+        return;
+    }
+
+
+    // Thêm hiệu ứng loading
+    qrCanvas.classList.add("qr-loading");
+
+
+    // Lấy các giá trị từ HTML
+    const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
+    const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+    const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+
+
+    const body = {
+        amount: amount,
+        description: `Dat tour`
+    };
+
+    console.log(body);
+
+    fetch('/tourify/api/payment/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    })
+        .then(res => res.json())
+        .then(data => {
+            // Xóa hiệu ứng loading
+            qrCanvas.classList.remove("qr-loading");
+            if (data.code === 1000 && data.result?.qrCode) {
+                console.log(data);
+                const qrCode = data.result.qrCode;
+                // Tạo mã QR bằng QRious
+                const qr = new QRious({
+                    element: qrCanvas,
+                    value: qrCode,
+                    size: 256,
+                    level: 'H'
+                });
+            } else {
+                alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+            }
+        })
+        .catch(err => {
+            qrCanvas.classList.remove("qr-loading");
+            alert('Có lỗi xảy ra trong quá trình thanh toán.');
+        });
+}
