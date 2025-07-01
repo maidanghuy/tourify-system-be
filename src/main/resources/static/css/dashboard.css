@@ -547,3 +547,45 @@ body {
         font-weight: 500;
       }
 
+/* Menu cha "Tour" khi active: chỉ bo góc trên */
+#tourMenuLink.active {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Submenu KHÔNG đặt nền (transparent), chỉ thêm chút bóng đổ nếu thích */
+#tourSubmenu {
+  margin-top: 3px;
+  background: transparent !important;
+  box-shadow: none;
+  border-radius: 0;
+  padding-bottom: 0;
+  padding-top: 3px;
+}
+
+/* Menu con lùi vào, mỗi nav-link bo tròn, padding lớn, cách đều */
+#tourSubmenu .nav-link {
+  margin-left: 0;
+  margin-bottom: 4px;
+  padding-left: 2.2rem;
+  border-radius: 12px !important;
+  background: transparent !important;
+  transition: background 0.18s;
+}
+
+/* Active submenu nổi bật (màu xanh vừa phải) */
+#tourSubmenu .nav-link.active {
+  background: #2f8765 !important;
+  color: #fff !important;
+}
+
+/* Hover submenu con */
+#tourSubmenu .nav-link:not(.active):hover {
+  background: #daf5e9 !important;
+  color: #2f5f46 !important;
+}
+
+/* Optional: tăng khoảng cách tổng thể nếu muốn */
+#tourSubmenu.show {
+  margin-bottom: 8px;
+}
