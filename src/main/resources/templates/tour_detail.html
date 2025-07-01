@@ -51,12 +51,12 @@
     <div class="collapse navbar-collapse" id="mainNavbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
         <li class="nav-item">
-          <a class="nav-link nav-custom" th:href="@{/home}">
+          <a class="nav-link nav-custom" th:href="@{/landing}">
             <i class="fas fa-heart me-2"></i>Home
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link nav-custom" th:href="@{/favorites}">
+          <a class="nav-link nav-custom" th:href="@{/user/favorites}">
             <i class="fas fa-heart me-2"></i>Favorites
           </a>
         </li>
@@ -84,19 +84,14 @@
                   <span>Vu NH.</span></span
             >
           </button>
-          <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="userMenu"
-          >
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
             <li>
-              <a class="dropdown-item" href="#" id="profile-view"
-              ><i class="fas fa-user-circle me-2"></i>View profile</a
-              >
+              <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
+                      class="fas fa-user-circle me-2"></i>View Profile</a>
             </li>
             <li>
-              <a class="dropdown-item" href="#" id="profile-edit"
-              ><i class="fas fa-edit me-2"></i>Edit profile</a
-              >
+              <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
+                      class="fas fa-edit me-2"></i>Edit Account</a>
             </li>
           </ul>
         </div>

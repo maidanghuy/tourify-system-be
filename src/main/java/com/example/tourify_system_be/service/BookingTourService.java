@@ -6,10 +6,7 @@ import com.example.tourify_system_be.entity.BookingTour;
 import com.example.tourify_system_be.entity.TokenAuthentication;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.entity.User;
-import com.example.tourify_system_be.repository.BookingTourRepository;
-import com.example.tourify_system_be.repository.TokenAuthenticationRepository;
-import com.example.tourify_system_be.repository.TourRepository;
-import com.example.tourify_system_be.repository.UserRepository;
+import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.security.JwtUtil;
@@ -27,11 +24,11 @@ import java.time.LocalDateTime;
 
 public class BookingTourService {
 
-    private final BookingTourRepository bookingTourRepository;
-    private final UserRepository userRepository;
-    private final TourRepository tourRepository;
+    private final IBookingTourRepository bookingTourRepository;
+    private final IUserRepository iUserRepository;
+    private final ITourRepository iTourRepository;
     private final EmailService emailService;
-    private final TokenAuthenticationRepository tokenAuthenticationRepository;
+    private final ITokenAuthenticationRepository iTokenAuthenticationRepository;
     private final JwtUtil jwtUtil;
 
     public BookingTourResponse createBooking(BookingTourRequest request, String token) {
@@ -39,12 +36,16 @@ public class BookingTourService {
         String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
 
         // Tìm token trong DB
-        TokenAuthentication tokenAuth = tokenAuthenticationRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_TOKEN));
+        TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (tokenAuth == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
 
         // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
-        TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(tokenValue)
-                .orElseThrow(() -> new AppException(ErrorCode.SESSION_EXPIRED));
+        TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
+        }
         if (!session.getIsUsed()) {
             throw new AppException(ErrorCode.SESSION_EXPIRED);
         }
@@ -62,7 +63,7 @@ public class BookingTourService {
             throw new AppException(ErrorCode.BOOKING_FORBIDDEN_ROLE);
         }
 
-        Tour tour = tourRepository.findById(request.getTourId())
+        Tour tour = iTourRepository.findById(request.getTourId())
                 .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
         // Trạng thái tour phải là "active" thì mới đặt tour được
         if (!"active".equalsIgnoreCase(tour.getStatus())) {
@@ -95,7 +96,7 @@ public class BookingTourService {
         tour.setTouristNumberAssigned(
                 tour.getTouristNumberAssigned() == null ? totalPeople : tour.getTouristNumberAssigned() + totalPeople
         );
-        tourRepository.save(tour);
+        iTourRepository.save(tour);
 
         // ✅ Tính giá
         BigDecimal totalPrice = tour.getPrice().multiply(BigDecimal.valueOf(totalPeople));
@@ -152,12 +153,14 @@ public class BookingTourService {
         }
 
         String userId = jwtUtil.extractUserId(jwt);
-        User user = userRepository.findById(userId)
+        User user = iUserRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         // 2. Kiểm tra phiên đăng nhập có còn hợp lệ không
-        TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(jwt)
-                .orElseThrow(() -> new AppException(ErrorCode.SESSION_EXPIRED));
+        TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(jwt);
+        if (session == null) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED);
+        }
         if (!session.getIsUsed()) {
             throw new AppException(ErrorCode.SESSION_EXPIRED);
         }

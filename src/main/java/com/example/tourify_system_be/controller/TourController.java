@@ -2,6 +2,7 @@ package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.TourResponse;
+import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
@@ -87,5 +88,21 @@ public class TourController {
 
         List<TourResponse> comparisons = tourService.compareTours(tourIds);
         return ResponseEntity.ok(comparisons);
+    }
+
+    @GetMapping("/{id}")
+    public APIResponse<TourResponse> getTourById(@PathVariable("id") String id) {
+        TourResponse response = tourService.getTourById(id);
+        return APIResponse.<TourResponse>builder()
+                .result(response)
+                .build();
+    }
+
+    @GetMapping("")
+    public APIResponse<List<TourResponse>> getAllTours() {
+        List<TourResponse> response = tourService.getAllTours();
+        return APIResponse.<List<TourResponse>>builder()
+                .result(response)
+                .build();
     }
 }
