@@ -57,35 +57,35 @@ public class TourService {
 
 
     public List<TourResponse> filterTours(TourFilterRequest filter) {
-        return filter.getBaseTours().stream()
-                .filter(tour -> {
-                    boolean matches = true;
+            return filter.getBaseTours().stream()
+                    .filter(tour -> {
+                        boolean matches = true;
 
-                    if (filter.getMinPrice() != null)
-                        matches &= tour.getPrice() != null &&
-                                tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
+                        if (filter.getMinPrice() != null)
+                            matches &= tour.getPrice() != null &&
+                                    tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
 
-                    if (filter.getMaxPrice() != null)
-                        matches &= tour.getPrice() != null &&
-                                tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
+                        if (filter.getMaxPrice() != null)
+                            matches &= tour.getPrice() != null &&
+                                    tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
 
-                    if (filter.getMinRating() != null)
-                        matches &= tour.getRating() != null &&
-                                tour.getRating().compareTo(filter.getMinRating()) >= 0;
+                        if (filter.getMinRating() != null)
+                            matches &= tour.getRating() != null &&
+                                    tour.getRating().compareTo(filter.getMinRating()) >= 0;
 
-                    if (filter.getMaxRating() != null)
-                        matches &= tour.getRating() != null &&
-                                tour.getRating().compareTo(filter.getMaxRating()) <= 0;
+                        if (filter.getMaxRating() != null)
+                            matches &= tour.getRating() != null &&
+                                    tour.getRating().compareTo(filter.getMaxRating()) <= 0;
 
-                    if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
-                        matches &= tour.getCreatedByUserName() != null &&
-                                tour.getCreatedByUserName().toLowerCase()
-                                        .contains(filter.getCreatedByUserName().toLowerCase());
+                        if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
+                            matches &= tour.getCreatedByUserName() != null &&
+                                    tour.getCreatedByUserName().toLowerCase()
+                                            .contains(filter.getCreatedByUserName().toLowerCase());
 
-                    return matches;
-                })
-                .toList();
-    }
+                        return matches;
+                    })
+                    .toList();
+        }
 
     public List<TourResponse> getMyTours(String bearerToken) {
         String token = bearerToken.replace("Bearer ", "");
@@ -189,7 +189,7 @@ public class TourService {
                 })
                 .toList();
     }
-
+  
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
                 .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));

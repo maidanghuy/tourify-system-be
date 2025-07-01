@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
@@ -24,4 +25,6 @@ public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
      */
     @Query("SELECT AVG(f.rating) FROM Feedback f WHERE f.tour.tourId = :tourId")
     BigDecimal findAverageRatingByTourId(@Param("tourId") String tourId);
+
+    Optional<Feedback> findTopByTour_TourIdAndStatusOrderByCreateAtDesc(String tourId, String status);
 }

@@ -19,7 +19,7 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    @GetMapping("/tour/{tourId}")
+    @GetMapping("/{tourId}")
     public List<FeedbackResponse> getByTour(
             @RequestHeader("Authorization") String token,
             @PathVariable String tourId) {
@@ -37,6 +37,17 @@ public class FeedbackController {
 
         var resp = feedbackService.addFeedback(authorization, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+    }
+
+    /**
+     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho một tour
+     */
+    @GetMapping("/{tourId}/latest-approved")
+    public ResponseEntity<FeedbackResponse> getLatestApproved(
+            @PathVariable String tourId) {
+
+        FeedbackResponse latest = feedbackService.getLatestApprovedFeedback(tourId);
+        return ResponseEntity.ok(latest);
     }
 }
 

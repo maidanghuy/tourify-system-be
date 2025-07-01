@@ -59,33 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Chat widget toggle
-const toggleBtn = document.getElementById("chatToggleBtn");
-const chatWidget = document.getElementById("chatWidget");
-toggleBtn && toggleBtn.addEventListener("click", () => {
-    chatWidget.style.display =
-        chatWidget.style.display === "flex" ? "none" : "flex";
-});
-
-// Chat send (example)
-function sendMessage() {
-    const userText = document.getElementById("userInput").value;
-    if (!userText) return;
-    fetch("https://api.chatbase.co/api/v1/chat", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer YOUR_CHATBASE_API_KEY",
-        },
-        body: JSON.stringify({
-            messages: [{ role: "user", content: userText }],
-            chatbotId: "YOUR_CHATBOT_ID",
-        }),
-    })
-        .then(res => res.json())
-        .then(data => console.log("AI Response:", data))
-        .catch(err => console.error("Error:", err));
-}
 
 // Pagination state
 let currentPage = 0;

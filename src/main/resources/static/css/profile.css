@@ -394,79 +394,11 @@ body {
 
 
 /* Credit Card UI Modern */
-#creditcard-list {
+#creditcard-list{
     display: flex;
     flex-wrap: wrap;
-    gap: 18px;
-    flex-direction: row;
-    justify-content: flex-start;
-}
-
-.credit-card-ui {
-    background: linear-gradient(135deg, #2d7d6f 60%, #ff8042 100%);
-    color: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 18px rgba(45, 125, 111, 0.12);
-    padding: 24px 28px 18px 28px;
-    margin-bottom: 18px;
-    min-width: 320px;
-    max-width: 400px;
-    position: relative;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-    flex: 1 1 320px;
-}
-
-.credit-card-ui .cc-type {
-    position: absolute;
-    top: 18px;
-    right: 24px;
-    font-size: 1.5rem;
-    opacity: 0.8;
-}
-
-.credit-card-ui .cc-number {
-    font-size: 1.3rem;
-    letter-spacing: 2px;
-    margin: 18px 0 8px 0;
-    font-family: 'SFMono-Regular', monospace;
-}
-
-.credit-card-ui .cc-holder {
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.credit-card-ui .cc-expiry {
-    font-size: 0.95rem;
-    opacity: 0.85;
-}
-
-.credit-card-ui .cc-label {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-bottom: 2px;
-}
-
-.credit-card-ui .cc-icon {
-    font-size: 2.2rem;
-    opacity: 0.7;
-    position: absolute;
-    bottom: 18px;
-    right: 24px;
-}
-
-@media (max-width: 600px) {
-    .credit-card-ui {
-        min-width: 90vw;
-        max-width: 98vw;
-        padding: 18px 10px 14px 16px;
-    }
-
-    #creditcard-list {
-        flex-direction: column;
-        gap: 10px;
-    }
+    justify-content: space-between;
+    gap: 50px;
 }
 
 .credit-card-ui {
@@ -577,4 +509,102 @@ body {
     height: 48px;
     background: url('https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png') center/contain no-repeat;
     opacity: 0.87;
+}
+
+@media (max-width: 600px) {
+    .credit-card-ui {
+        min-width: 90vw;
+        max-width: 98vw;
+        padding: 18px 10px 14px 16px;
+    }
+
+    #creditcard-list {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Profile Edit Modal Custom Style */
+#editProfileModal .modal-content {
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.13);
+    border: none;
+}
+
+#editProfileModal .modal-header {
+    border-bottom: none;
+    background: linear-gradient(90deg, #e3fbe8 60%, #b8ead2 100%);
+    border-radius: 1.5rem 1.5rem 0 0;
+    padding-top: 1.2rem;
+    padding-bottom: 1.2rem;
+}
+
+#editProfileModal .modal-title {
+    color: #13795b;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: 0.01em;
+}
+
+#editProfileModal .modal-body {
+    padding: 2rem 1.5rem 1.2rem 1.5rem;
+}
+
+#editProfileModal label.form-label {
+    color: #159a7d;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+#editProfileModal .form-control {
+    border-radius: 0.7rem;
+    border: 1.5px solid #b8ead2;
+    font-size: 1.05rem;
+    transition: border-color 0.18s;
+}
+
+#editProfileModal .form-control:focus {
+    border-color: #16b686;
+    box-shadow: 0 0 0 0.15rem #b8ead2a0;
+}
+
+#editProfileModal .modal-footer {
+    border-top: none;
+    padding-bottom: 1.3rem;
+    padding-top: 0.7rem;
+}
+
+#editProfileModal .btn-success {
+    background: linear-gradient(90deg, #16b686 60%, #b8ead2 100%);
+    border: none;
+    font-weight: 700;
+    padding: 0.55rem 2.2rem;
+    border-radius: 1.2rem;
+    font-size: 1.08rem;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 8px #b8ead2a0;
+}
+
+#editProfileModal .btn-success:hover {
+    background: linear-gradient(90deg, #159a7d 80%, #e3fbe8 100%);
+}
+
+#editProfileModal .btn-secondary {
+    border-radius: 1.2rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+@media (max-width: 600px) {
+    #editProfileModal .modal-body {
+        padding: 1.1rem 0.7rem 0.7rem 0.7rem;
+    }
+
+    #editProfileModal .modal-content {
+        border-radius: 0.7rem;
+    }
+
+    #editProfileModal .modal-header {
+        border-radius: 0.7rem 0.7rem 0 0;
+    }
 }

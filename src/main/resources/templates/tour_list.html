@@ -1,37 +1,28 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tourify - Tour Listing</title>
+    <!DOCTYPE html>
+    <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-    />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tourify - Tour Listing</title>
 
-    <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-            rel="stylesheet"
-    />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-    <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-    />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
-    <link rel="stylesheet" href="./css/index.css" />
-    <link rel="stylesheet" href="./css/tour_list.css" />
-</head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 
-<body>
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+        <link rel="stylesheet" href="./css/index.css" />
+        <link rel="stylesheet" href="./css/tour_list.css" />
+    </head>
+
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
         <div class="container">
             <a class="navbar-brand" th:href="@{/landing}">
                 <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
@@ -44,13 +35,13 @@
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
                     <li class="nav-item">
-                        <a class="nav-link nav-custom active" th:href="@{/landing}">
+                        <a class="nav-link nav-custom" th:href="@{/landing}">
                             <i class="fas fa-house me-2"></i>Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-custom" th:href="@{/detail}">
-                            <i class="fas fa-info-circle me-2"></i>Detail
+                        <a class="nav-link nav-custom" th:href="@{/user/favorites}">
+                            <i class="fas fa-heart me-2"></i>Favorites
                         </a>
                     </li>
                 </ul>
@@ -68,11 +59,11 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li>
                                 <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
-                                        class="fas fa-user-circle me-2"></i>View profile</a>
+                                        class="fas fa-user-circle me-2"></i>View Profile</a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-edit"><i class="fas fa-edit me-2"></i>Edit
-                                    profile</a>
+                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
+                                        class="fas fa-edit me-2"></i>Edit Account</a>
                             </li>
                         </ul>
                     </div>
@@ -84,251 +75,338 @@
         </div>
     </nav>
 
-<!-- Main Content -->
-<div class="container py-3">
-    <!-- Modern Tour Search Form -->
-    <div class="booking-form">
-        <form class="row g-3 align-items-end" method="get" action="/tourify/tour_list">
-            <!-- Where -->
-            <div class="col-md-3">
-                <label class="form-label">Where</label>
-                <div class="form-floating-custom position-relative">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <input
-                            type="text"
-                            name="placeName"
-                            class="form-control"
-                            placeholder="Enter destination"
-                            th:value="${param.placeName}"
-                    />
-                </div>
-            </div>
-
-            <!-- Duration -->
-            <div class="col-md-2">
-                <label class="form-label">Duration</label>
-                <div class="form-floating-custom">
-                    <i class="bi bi-clock"></i>
-                    <select class="form-select" name="duration">
-                        <option value="" th:selected="${param.duration == null}">Any</option>
-                        <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
-                        <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
-                        <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
-                        <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Category -->
-            <div class="col-md-3">
-                <label class="form-label">Type</label>
-                <div class="form-floating-custom">
-                    <i class="bi bi-globe-americas"></i>
-                    <select class="form-select" name="categoryName">
-                        <option value="" th:selected="${param.categoryName == null}">Any</option>
-                        <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
-                        <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
-                        <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
-                        <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
-                        <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
-                    </select>
-                </div>
-            </div>
-
-            <!-- People -->
-            <div class="col-md-2">
-                <label class="form-label">People</label>
-                <div class="form-floating-custom">
-                    <i class="bi bi-people-fill"></i>
-                    <input
-                            type="number"
-                            name="touristNumberAssigned"
-                            class="form-control"
-                            placeholder="Enter number"
-                            th:value="${param.touristNumberAssigned}"
-                    />
-                </div>
-            </div>
-
-            <!-- Search Button -->
-            <div class="col-md-2 d-grid">
-                <button type="submit" class="btn search-btn">
-                    <i class="bi bi-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-
-
-    <div class="row">
-        <!-- Filters -->
-        <div class="col-md-3">
-            <div class="filter-box mb-4">
-                <h5>Filters</h5>
-
-                <!-- Price Filter -->
-                <div class="mb-3">
-                    <label for="priceRange">
-                        Price: <span id="priceValue" class="fw-bold text-success">$1000</span>
-                    </label>
-                    <input type="range" class="form-range" id="priceRange" min="1000" max="8000000" step="10" />
-                </div>
-
-                <!-- Duration Filter -->
-                <div class="mb-3">
-                    <label for="durationRange">
-                        Duration: <span id="durationValue" class="fw-bold text-success">1 day(s)</span>
-                    </label>
-                    <input type="range" class="form-range" id="durationRange" min="1" max="30" step="1" value="1" />
-                </div>
-
-                <!-- Rating Filter -->
-                <label class="mt-2">Rating</label>
-                <div class="d-flex gap-1 mb-2">
-                    <button class="btn btn-sm rating-btn" data-value="1">1★</button>
-                    <button class="btn btn-sm rating-btn" data-value="2">2★</button>
-                    <button class="btn btn-sm rating-btn" data-value="3">3★</button>
-                    <button class="btn btn-sm rating-btn" data-value="4">4★</button>
-                    <button class="btn btn-sm rating-btn" data-value="5">5★</button>
-                </div>
-
-                <!-- Company Filter -->
-                <label class="mt-2">Company</label>
-                <div id="companyFilterContainer" class="mb-3">
-                    <!-- Checkbox của Company sẽ được tạo tự động bằng JavaScript -->
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Tour Results -->
-        <div class="col-md-9 d-flex flex-column">
-            <!-- Vùng cuộn riêng biệt cho danh sách tour -->
-            <div id="tourListScrollable" class="tour-list-scrollable flex-grow-1">
-                <div id="tourResultsWrapper" class="row g-3">
-
-                    <!-- No tours message -->
-                    <div id="noTourMsg" class="no-tour-message w-100 d-none">
-                        <div class="p-4 rounded-4 shadow-sm bg-light d-flex flex-column align-items-center justify-content-center">
-                            <i class="fas fa-search-minus fa-3x text-secondary mb-3"></i>
-                            <h5 class="text-secondary fw-semibold mb-1">No Tours Found</h5>
-                            <p class="text-muted mb-0">We couldn't find any tours matching your search. Please try different keywords.</p>
+        <!-- Main Content -->
+        <div class="container py-3">
+            <!-- Modern Tour Search Form -->
+            <div class="booking-form">
+                <form class="row g-3 align-items-end" method="get" action="/tourify/tour_list">
+                    <!-- Where -->
+                    <div class="col-md-3">
+                        <label class="form-label">Where</label>
+                        <div class="form-floating-custom position-relative">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <input
+                                    type="text"
+                                    name="placeName"
+                                    class="form-control"
+                                    placeholder="Enter destination"
+                                    th:value="${param.placeName}"
+                            />
                         </div>
                     </div>
 
-                    <!-- Loading Spinner -->
-                    <div id="loadingSpinner" class="w-100 text-center py-5 d-none">
-                        <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Loading...</span>
+                    <!-- Duration -->
+                    <div class="col-md-2">
+                        <label class="form-label">Duration</label>
+                        <div class="form-floating-custom">
+                            <i class="bi bi-clock"></i>
+                            <select class="form-select" name="duration">
+                                <option value="" th:selected="${param.duration == null}">Any</option>
+                                <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
+                                <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
+                                <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
+                                <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
+                            </select>
                         </div>
-                        <p class="mt-3 text-muted">Searching for the best tours...</p>
                     </div>
 
-                    <!-- Dynamic tour cards will be inserted here -->
-                    <div id="tourResultsContainer" class="w-100"></div>
+                    <!-- Category -->
+                    <div class="col-md-3">
+                        <label class="form-label">Type</label>
+                        <div class="form-floating-custom">
+                            <i class="bi bi-globe-americas"></i>
+                            <select class="form-select" name="categoryName">
+                                <option value="" th:selected="${param.categoryName == null}">Any</option>
+                                <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
+                                <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
+                                <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
+                                <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
+                                <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- People -->
+                    <div class="col-md-2">
+                        <label class="form-label">People</label>
+                        <div class="form-floating-custom">
+                            <i class="bi bi-people-fill"></i>
+                            <input
+                                    type="number"
+                                    name="touristNumberAssigned"
+                                    class="form-control"
+                                    placeholder="Enter number"
+                                    th:value="${param.touristNumberAssigned}"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="col-md-2 d-grid">
+                        <button type="submit" class="btn search-btn">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="row">
+                <!-- Filters -->
+                <div class="col-md-3">
+                    <div class="filter-box mb-4">
+                        <h5>Filters</h5>
+
+                        <!-- Price Filter -->
+                        <div class="mb-3">
+                            <label for="priceRange">
+                                Price: <span id="priceValue" class="fw-bold text-success">$1000</span>
+                            </label>
+                            <input type="range" class="form-range" id="priceRange" min="1000" max="8000000" step="10" />
+                        </div>
+
+                        <!-- Duration Filter -->
+                        <div class="mb-3">
+                            <label for="durationRange">
+                                Duration: <span id="durationValue" class="fw-bold text-success">1 day(s)</span>
+                            </label>
+                            <input type="range" class="form-range" id="durationRange" min="1" max="30" step="1" value="1" />
+                        </div>
+
+                        <!-- Rating Filter -->
+                        <label class="mt-2">Rating</label>
+                        <div class="d-flex gap-1 mb-2">
+                            <button class="btn btn-sm rating-btn" data-value="1">1★</button>
+                            <button class="btn btn-sm rating-btn" data-value="2">2★</button>
+                            <button class="btn btn-sm rating-btn" data-value="3">3★</button>
+                            <button class="btn btn-sm rating-btn" data-value="4">4★</button>
+                            <button class="btn btn-sm rating-btn" data-value="5">5★</button>
+                        </div>
+
+                        <!-- Company Filter -->
+                        <label class="mt-2">Company</label>
+                        <div id="companyFilterContainer" class="mb-3">
+                            <!-- Checkbox của Company sẽ được tạo tự động bằng JavaScript -->
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Pagination luôn nằm trong vùng cuộn -->
-                <div class="text-center mt-4">
-                    <nav>
-                        <ul id="pagination" class="pagination justify-content-center"></ul>
-                    </nav>
+
+                <!-- Tour Results -->
+                <div class="col-md-9 d-flex flex-column">
+                    <!-- Vùng cuộn riêng biệt cho danh sách tour -->
+                    <div id="tourListScrollable" class="tour-list-scrollable flex-grow-1">
+                        <div id="tourResultsWrapper" class="row g-3">
+
+                            <!-- No tours message -->
+                            <div id="noTourMsg" class="no-tour-message w-100 d-none">
+                                <div
+                                    class="p-4 rounded-4 shadow-sm bg-light d-flex flex-column align-items-center justify-content-center">
+                                    <i class="fas fa-search-minus fa-3x text-secondary mb-3"></i>
+                                    <h5 class="text-secondary fw-semibold mb-1">No Tours Found</h5>
+                                    <p class="text-muted mb-0">We couldn't find any tours matching your search. Please try
+                                        different keywords.</p>
+                                </div>
+                            </div>
+
+                            <!-- Loading Spinner -->
+                            <div id="loadingSpinner" class="w-100 text-center py-5 d-none">
+                                <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3 text-muted">Searching for the best tours...</p>
+                            </div>
+
+                            <!-- Dynamic tour cards will be inserted here -->
+                            <div id="tourResultsContainer" class="w-100"></div>
+                        </div>
+
+                        <!-- Pagination luôn nằm trong vùng cuộn -->
+                        <div class="text-center mt-4">
+                            <nav>
+                                <ul id="pagination" class="pagination justify-content-center"></ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <!-- Newsletter Section -->
+            <div class="newsletter-section mt-5">
+                <div class="newsletter-content">
+                    <h3 class="newsletter-title">Subscribe Newsletter</h3>
+                    <p class="newsletter-subtitle">
+                        The Travel<br />Get inspired! Receive travel discounts, tips and behind the scenes stories.
+                    </p>
+                    <div class="newsletter-form">
+                        <input type="email" class="newsletter-input" placeholder="Your email address" />
+                        <button class="newsletter-btn">Subscribe</button>
+                    </div>
+                </div>
+                <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                    alt="Newsletter" class="newsletter-image" />
+            </div>
+        </div>
+
+
+        <!-- Footer -->
+        <footer class="footer mt-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h5 class="footer-title">g-lobe</h5>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon facebook"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+                            <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="footer-title">Our Destinations</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Canada</a></li>
+                            <li><a href="#">Alaska</a></li>
+                            <li><a href="#">France</a></li>
+                            <li><a href="#">Iceland</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="footer-title">Our Activities</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Northern Lights</a></li>
+                            <li><a href="#">Cruising & sailing</a></li>
+                            <li><a href="#">Multi-activities</a></li>
+                            <li><a href="#">Kayaking</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-2">
+                        <h5 class="footer-title">Travel Blogs</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Bali Travel Guide</a></li>
+                            <li><a href="#">Sri Lanka Travel Guide</a></li>
+                            <li><a href="#">Peru Travel Guide</a></li>
+                            <li><a href="#">Bali Travel Guide</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="footer-title">About Us</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Our Story</a></li>
+                            <li><a href="#">Work with us</a></li>
+                        </ul>
+                        <h5 class="footer-title mt-3">Contact Us</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Our Story</a></li>
+                            <li><a href="#">Work with us</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Compare Modal -->
+        <div
+                class="modal fade modal-backdrop-blur"
+                id="compareModal"
+                data-bs-backdrop="static"
+                data-bs-keyboard="false"
+                tabindex="-1"
+                aria-labelledby="compareModalLabel"
+                aria-hidden="true"
+        >
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content rounded-4 shadow-2xl animate-scale-fade">
+                    <!-- Header -->
+                    <div class="modal-header border-0 header-gradient px-4 py-3">
+                        <h5
+                                class="modal-title text-white fw-bold d-flex align-items-center"
+                                id="compareModalLabel"
+                        >
+                            <i class="fas fa-exchange-alt me-2 icon-pulse"></i>
+                            Compare Tours
+                        </h5>
+                        <button
+                                type="button"
+                                class="btn-close btn-close-white"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                        ></button>
+                    </div>
+                    <!-- Body -->
+                    <div class="modal-body p-4">
+                        <!-- Compare table -->
+                        <div class="table-responsive" style="max-height: 60vh;">
+                            <table class="table table-striped align-middle" id="compareTable">
+                                <thead class="table-light sticky-top">
+                                <tr id="compareHeader"></tr>
+                                </thead>
+                                <tbody id="compareBody"></tbody>
+                            </table>
+                        </div>
+                        <!-- Show differences only - chỉ để ở đây! -->
+                        <div class="mt-3 d-flex align-items-center gap-2">
+                            <input type="checkbox" id="showDifferencesOnly" />
+                            <label for="showDifferencesOnly" class="mb-0 fw-semibold" style="user-select: none; cursor: pointer;">
+                                Show only differences
+                            </label>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="modal-footer border-0 justify-content-center py-3">
+                        <button
+                                id="doCompareBtn"
+                                type="button"
+                                class="btn btn-gradient-success btn-lg rounded-pill px-5"
+                                disabled
+                        >
+                            <i class="fas fa-check-circle me-2"></i>
+                            Compare
+                        </button>
+                    </div>
+                    <!-- Dropdown tour select (hidden by default, JS toggles this) -->
+                    <div class="position-absolute"
+                         style="z-index: 1055; right: 2rem; top: 8rem; display:none;"
+                         id="compareDropdownWrap">
+                        <div class="card shadow">
+                            <div class="card-body p-2">
+                                <select class="form-select" id="compareDropdownSelect">
+                                    <!-- Render option by JS -->
+                                </select>
+                                <button class="btn btn-success mt-2 w-100" id="addDropdownTourBtn">
+                                    <i class="fas fa-plus"></i> Add to compare
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
 
-    </div>
 
 
-    <!-- Newsletter Section -->
-    <div class="newsletter-section mt-5">
-        <div class="newsletter-content">
-            <h3 class="newsletter-title">Subscribe Newsletter</h3>
-            <p class="newsletter-subtitle">
-                The Travel<br />Get inspired! Receive travel discounts, tips and behind the scenes stories.
-            </p>
-            <div class="newsletter-form">
-                <input type="email" class="newsletter-input" placeholder="Your email address" />
-                <button class="newsletter-btn">Subscribe</button>
-            </div>
-        </div>
-        <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Newsletter" class="newsletter-image" />
-    </div>
-</div>
 
 
-<!-- Footer -->
-<footer class="footer mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <h5 class="footer-title">g-lobe</h5>
-                <div class="social-icons">
-                    <a href="#" class="social-icon facebook"
-                    ><i class="fab fa-facebook"></i
-                    ></a>
-                    <a href="#" class="social-icon twitter"
-                    ><i class="fab fa-twitter"></i
-                    ></a>
-                    <a href="#" class="social-icon youtube"
-                    ><i class="fab fa-youtube"></i
-                    ></a>
-                    <a href="#" class="social-icon instagram"
-                    ><i class="fab fa-instagram"></i
-                    ></a>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Destinations</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Canada</a></li>
-                    <li><a href="#">Alaska</a></li>
-                    <li><a href="#">France</a></li>
-                    <li><a href="#">Iceland</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Our Activities</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Northern Lights</a></li>
-                    <li><a href="#">Cruising & sailing</a></li>
-                    <li><a href="#">Multi-activities</a></li>
-                    <li><a href="#">Kayaking</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h5 class="footer-title">Travel Blogs</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Bali Travel Guide</a></li>
-                    <li><a href="#">Sri Lanka Travel Guide</a></li>
-                    <li><a href="#">Peru Travel Guide</a></li>
-                    <li><a href="#">Bali Travel Guide</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5 class="footer-title">About Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
-                <h5 class="footer-title mt-3">Contact Us</h5>
-                <ul class="footer-links">
-                    <li><a href="#">Our Story</a></li>
-                    <li><a href="#">Work with us</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</footer>
-
-<!-- Bootstrap JS Bundle (includes Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="./js/tour_list.js"></script>
-<script src="./js/index.js"></script>
-<script src="js/landing.js"></script>
-<script src="js/logout.js"></script>
 
 
-</body>
-</html>
+
+        <!-- Bootstrap JS Bundle (includes Popper) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="./js/tour_list.js"></script>
+        <script src="./js/index.js"></script>
+        <script src="js/logout.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+        <script>
+            function bookingNow(tourId) {
+                // Chuyển trang với query param id
+                window.location.href = `tour/booking?id=${tourId}`;
+            }
+        </script>
+
+    </body>
+
+    </html>
