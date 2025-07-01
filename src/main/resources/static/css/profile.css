@@ -468,3 +468,113 @@ body {
         gap: 10px;
     }
 }
+
+.credit-card-ui {
+    background: linear-gradient(135deg, #6be7c5 15%, #4ecdc4 45%, #556270 100%);
+    color: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(60, 60, 130, 0.22);
+    width: 370px;
+    max-width: 100%;
+    padding: 2rem 1.7rem 1.5rem 1.7rem;
+    position: relative;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+
+.credit-card-ui::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    pointer-events: none;
+    background: rgba(255,255,255,0.11);
+}
+
+.credit-card-ui .chip {
+    width: 46px;
+    height: 32px;
+    background: linear-gradient(120deg, #fff9 80%, #ebf4ff 100%);
+    border-radius: 9px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px #0002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.credit-card-ui .chip svg {
+    width: 36px;
+    height: 24px;
+}
+
+.credit-card-ui .wave {
+    font-size: 1.35rem;
+    color: #fffc;
+    margin-left: 12px;
+    margin-bottom: 10px;
+}
+
+.credit-card-ui .cc-type {
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.credit-card-ui .cc-type i {
+    font-size: 1.5rem;
+    margin-right: 8px;
+    color: #ffd700;
+    filter: drop-shadow(0 0 2px #fff7);
+}
+
+.credit-card-ui .cc-label {
+    font-size: 0.81rem;
+    opacity: 0.8;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.credit-card-ui .cc-number {
+    letter-spacing: 0.12em;
+    font-size: 1.38rem;
+    font-family: 'SF Mono', 'Consolas', 'monospace';
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.credit-card-ui .row {
+    margin-top: 0.7rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.credit-card-ui .cc-holder, .credit-card-ui .cc-expiry {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-size: 1.03rem;
+    text-shadow: 0 1px 2px #0001;
+}
+
+.credit-card-ui .cc-icon {
+    position: absolute;
+    bottom: 18px;
+    right: 24px;
+    font-size: 2rem;
+    color: #fff7;
+    filter: drop-shadow(0 0 4px #46ebc8cc);
+}
+
+.credit-card-ui .logo {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    width: 48px;
+    height: 48px;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png') center/contain no-repeat;
+    opacity: 0.87;
+}

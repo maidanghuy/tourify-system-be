@@ -500,23 +500,34 @@ async function loadCreditCards() {
         if (data.result && data.result.length > 0) {
             listDiv.innerHTML = data.result.map(card => `
                 <div class="credit-card-ui">
-                    <div class="cc-type">
-                        <i class="bi bi-credit-card"></i> ${card.cardType || "Khác"}
-                    </div>
-                    <div class="cc-label">Số thẻ</div>
-                    <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
-                    <div class="row" style="margin-top: 35px">
-                        <div class="col-7">
-                            <div class="cc-label">Chủ thẻ</div>
-                            <div class="cc-holder">${card.cardHolderName}</div>
-                        </div>
-                        <div class="col-5 text-start">
-                            <div class="cc-label">Hết hạn</div>
-                            <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
-                        </div>
-                    </div>
-                    <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
-                </div>
+  <div class="logo"></div>
+  <div class="chip">
+    <!-- Chip SVG -->
+    <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="40" height="26" rx="6" fill="#eee9" />
+      <rect x="7" y="7" width="26" height="12" rx="3" fill="#ccc9" />
+      <rect x="13" y="11" width="14" height="4" rx="1" fill="#bbb7" />
+    </svg>
+  </div>
+  <div class="cc-type">
+    <i class="bi bi-credit-card"></i>
+    ${card.cardType || "Khác"}
+    <span class="wave ms-1"><i class="bi bi-wifi"></i></span>
+  </div>
+  <div class="cc-label">Số thẻ</div>
+  <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
+  <div class="row" style="margin-top: 10px;">
+    <div>
+      <div class="cc-label">Chủ thẻ</div>
+      <div class="cc-holder">${card.cardHolderName}</div>
+    </div>
+    <div class="text-start">
+      <div class="cc-label">Hết hạn</div>
+      <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
+    </div>
+  </div>
+  <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
+</div>
             `).join("");
 
             listDiv.innerHTML += `
