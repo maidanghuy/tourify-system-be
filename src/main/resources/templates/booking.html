@@ -685,12 +685,8 @@
                 </div>
 
 
-                <button
-                        class="btn btn-checkout mt-4 w-100"
-                        disabled
-                        id="checkoutBtn"
-                        onclick="handleCheckout(this)"
-                >
+                <button class="btn btn-checkout mt-4 w-100" disabled id="checkoutBtn"
+                        onclick="handleCheckout(this)">
                     <i class="fas fa-credit-card me-2"></i>Check Out
                 </button>
             </div>
@@ -790,59 +786,48 @@
 
 
 <!-- QR Code Modal -->
-<div
-        aria-hidden="true"
-        aria-labelledby="qrModalLabel"
-        class="modal fade"
-        id="qrModal"
-        tabindex="-1"
->
+<div aria-hidden="true" aria-labelledby="qrModalLabel" class="modal fade" id="qrModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content p-4 text-center position-relative">
             <!-- Nút đóng modal (X) -->
-            <button
-                    aria-label="Close"
-                    class="btn-close position-absolute top-0 end-0 m-3"
-                    data-bs-dismiss="modal"
-                    type="button"
-            ></button>
+            <button aria-label="Close" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"
+                    type="button"></button>
 
 
-            <h5
-                    class="modal-title fw-bold mb-3 text-success"
-                    id="qrModalLabel"
-                    style="font-size: 1.75rem"
-            >
+
+
+            <h5 class="modal-title fw-bold mb-3 text-success" id="qrModalLabel" style="font-size: 1.75rem">
                 TOURIFY
             </h5>
 
 
+
+
             <div class="form-check d-flex align-items-center gap-2 mb-3">
-                <input
-                        class="form-check-input custom-checkbox"
-                        id="saveInfoCheck"
-                        type="checkbox"
-                />
+                <input class="form-check-input custom-checkbox" id="saveInfoCheck" type="checkbox" />
                 <label class="form-check-label small" for="saveInfoCheck">
                     Securely save my information for 1-click checkout
                 </label>
             </div>
 
 
-            <img
-                    alt="QR Code"
-                    class="img-fluid rounded shadow-sm"
-                    src="./image/54d55b282234956acc25.jpg"
-                    style="max-width: 260px"
-            />
 
 
-            <button
-                    class="btn btn-outline-success mt-4 px-4 py-2 rounded-pill fw-semibold"
-                    onclick="reloadQRCode()"
-            >
+            <div class="px-4 py-2 lg:basis-1/2" id="showQRCode">
+                <div class="flex items-center justify-center w-full text-center">
+                    <canvas id="qr"></canvas>
+                </div>
+            </div>
+
+
+
+
+            <button class="btn btn-outline-success mt-4 px-4 py-2 rounded-pill fw-semibold"
+                    onclick="reloadQRCode()">
                 Reload QA Code
             </button>
+
+
 
 
             <p class="text-muted small mt-3 mb-0 px-3" style="font-size: 0.75rem">
@@ -859,6 +844,7 @@
 <!-- Bootstrap JS Bundle (includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="../js/booking.js"></script>
 
 </body>
