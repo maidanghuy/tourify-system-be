@@ -31,7 +31,7 @@ public class PayOSService {
                 String userId = jwtUtil.extractUserId(token);
 
                 if (userId == null) {
-                    throw new AppException(ErrorCode.USER_NOT_FOUND);
+                    throw new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
                 }
 
                 long orderCode = System.currentTimeMillis();

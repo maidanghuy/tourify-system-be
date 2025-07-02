@@ -19,35 +19,39 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
+    /**
+     * Lấy danh sách feedback cho 1 tour.
+     * User chỉ xem feedback đã duyệt, sub-company & admin xem tất cả.
+     */
     @GetMapping("/{tourId}")
-    public List<FeedbackResponse> getByTour(
-            @RequestHeader("Authorization") String token,
-            @PathVariable String tourId) {
-        return feedbackService.getFeedbacksByTour(token, tourId);
+    public ResponseEntity<List<FeedbackResponse>> getByTour(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable String tourId
+    ) {
+        List<FeedbackResponse> responses = feedbackService.getFeedbacksByTour(authorization, tourId);
+        return ResponseEntity.ok(responses);
     }
 
-
     /**
-     * Khách hàng gửi feedback (status sẽ là pending, chờ admin duyệt)
+     * Khách hàng gửi feedback (tự động duyệt nếu hợp lệ, reject và xóa nếu không hợp lệ).
      */
     @PostMapping
     public ResponseEntity<FeedbackResponse> add(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
-            @RequestBody @Validated FeedbackRequest request) {
-
-        var resp = feedbackService.addFeedback(authorization, request);
+            @RequestBody @Validated FeedbackRequest request
+    ) {
+        FeedbackResponse resp = feedbackService.addFeedback(authorization, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     /**
-     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho một tour
+     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho một tour.
      */
     @GetMapping("/{tourId}/latest-approved")
     public ResponseEntity<FeedbackResponse> getLatestApproved(
-            @PathVariable String tourId) {
-
+            @PathVariable String tourId
+    ) {
         FeedbackResponse latest = feedbackService.getLatestApprovedFeedback(tourId);
         return ResponseEntity.ok(latest);
     }
 }
-

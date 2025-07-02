@@ -86,17 +86,17 @@ public class AuthController {
     public APIResponse<?> register(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
             throw new AppException(ErrorCode.
-                    EMAIL_EXISTED);
+                    EMAIL_EXISTED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         if (userService.userNameExists(userDTO.getUserName())) {
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         try {
             boolean result = userService.sendRegistrationToken(userDTO);
             if (!result) {
-                throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN);
+                throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
             }
             return APIResponse.<Void>builder()
                     .message("Registration email sent successfully")
@@ -104,7 +104,7 @@ public class AuthController {
                     .build();
         } catch (Exception e) {
             logger.error("Lỗi trong quá trình gửi email xác nhận đăng ký: {}", e.getMessage(), e);
-            throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN);
+            throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
     }
     /*
@@ -120,7 +120,7 @@ public class AuthController {
     public APIResponse<?> logout(@RequestHeader("Authorization") String authHeader) {
         // Thông thường header Authorization: "Bearer eyJhbGciOi..."
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
         String token = authHeader.substring(7);
         boolean result = authService.logout(token);
@@ -131,7 +131,7 @@ public class AuthController {
                             .result(null)
                             .build();
         } else {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
     }
 
@@ -177,14 +177,14 @@ public class AuthController {
     @GetMapping("/me")
     public APIResponse<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         String token = authHeader.substring(7); // loại bỏ "Bearer "
         UserResponse user = authService.getUserFromToken(token);
 
         if (user == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         return APIResponse.<UserResponse>builder()
