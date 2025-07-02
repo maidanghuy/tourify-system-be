@@ -51,7 +51,7 @@
                 <div class="form-section-title">Pricing</div>
                 <div class="mb-3 input-group">
                 <span class="input-group-text">$</span>
-                <input type="number" id="basePrice" class="form-control" placeholder="Type base price here..." min="0">
+                <input type="number" id="basePrice" class="form-control" placeholder="Type base price here..." min="0" step="1">
                 </div>
             </div>
 
@@ -61,11 +61,11 @@
                 <div class="row g-2">
                 <div class="col-md-6">
                     <label class="form-label">Min people</label>
-                    <input class="form-control" id="minPeople" placeholder="Min people" type="number" min="1">
+                    <input class="form-control" id="minPeople" placeholder="Min people" type="number" min="1" step="1">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Max people</label>
-                    <input class="form-control" id="maxPeople" placeholder="Max people" type="number" min="1">
+                    <input class="form-control" id="maxPeople" placeholder="Max people" type="number" min="1" step="1">
                 </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 <div class="row g-2">
                 <div class="col-md-6">
                     <label class="form-label">Duration</label>
-                    <input class="form-control" id="duration" placeholder="Duration (days)" type="number" min="1">
+                    <input class="form-control" id="duration" placeholder="Duration (days)" type="number" min="1" step="1">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Place</label>
@@ -638,6 +638,32 @@ function changePage(newPage) {
     document.getElementById("usernameDisplay").textContent = username;
   });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("accessToken");
+    const loginBtn = document.getElementById("login-link");
+    const logoutBtn = document.getElementById("logout-link");
+
+    if (token) {
+        // Đã đăng nhập: Hiện Logout, ẩn Login
+        if (logoutBtn) logoutBtn.style.display = "";
+        if (loginBtn) loginBtn.style.display = "none";
+    } else {
+        // Chưa đăng nhập: Hiện Login, ẩn Logout
+        if (logoutBtn) logoutBtn.style.display = "none";
+        if (loginBtn) loginBtn.style.display = "";
+    }
+
+    // Gắn event login nếu muốn
+    if (loginBtn) {
+        loginBtn.onclick = function() {
+            window.location.href = "/tourify/login"; // Đổi thành đường dẫn login của bạn
+        }
+    }
+});
+document.getElementById("logout-link")?.addEventListener("click", function() {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/tourify/login"; // hoặc reload lại trang
+});
 
 
 
