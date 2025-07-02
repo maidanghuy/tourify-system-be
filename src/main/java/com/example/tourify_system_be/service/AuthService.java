@@ -46,7 +46,7 @@ public class AuthService {
         User user = userRepository.findAll().stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .findFirst()
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
 //        System.out.println(user);
         String token = UUID.randomUUID().toString();
@@ -72,26 +72,26 @@ public class AuthService {
             helper.setText("Click the link to reset your password: " + resetLink);
             mailSender.send(message);
         } catch (Exception e) {
-            throw new AppException(ErrorCode.FAIL_TO_SEEN_EMAIL);
+            throw new AppException(ErrorCode.FAIL_TO_SEEN_EMAIL, "Feedback không hợp lệ và đã bị xoá!");
         }
     }
 
     public void resetPassword(String token, String newPassword, String confirmPassword) {
         TokenAuthentication tokenAuth = tokenRepo.findByTokenValue(token);
         if (tokenAuth == null) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         if (tokenAuth.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+            throw new AppException(ErrorCode.TOKEN_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         if (Boolean.TRUE.equals(tokenAuth.getIsUsed())) {
-            throw new AppException(ErrorCode.TOKEN_ALREADY_USED);
+            throw new AppException(ErrorCode.TOKEN_ALREADY_USED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            throw new AppException(ErrorCode.PASSWORD_CONFIRMATION_MISMATCH);
+            throw new AppException(ErrorCode.PASSWORD_CONFIRMATION_MISMATCH, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         User user = tokenAuth.getUser();
@@ -131,7 +131,7 @@ public class AuthService {
 
                     return new LoginResponse("Login successful!", token);
                 })
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, "Feedback không hợp lệ và đã bị xoá!"));
     }
 
     public boolean logout(String tokenValue) {
@@ -147,14 +147,14 @@ public class AuthService {
     public UserResponse getUserFromToken(String token) {
         String username = jwtUtil.extractUsername(token);
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         return userMapper.toUserResponse(user);
     }
 
     @Transactional
     public APIResponse<Map<String, Object>> loginWithGoogle(OAuth2User oAuth2User) {
         if (oAuth2User == null) {
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         String email = oAuth2User.getAttribute("email");

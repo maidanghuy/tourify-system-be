@@ -36,22 +36,22 @@ public class PromotionService {
 
     public void createPromotion(CreatePromotionRequest request, String token) {
         String jwt = token.replace("Bearer ", "");
-        if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED);
+        if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
 
         String userId = jwtUtil.extractUserId(jwt);
         User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(jwt);
         if (session == null || !session.getIsUsed())
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
 
         if (!creator.getRole().toUpperCase().equals("ADMIN") &&
                 !creator.getRole().toUpperCase().equals("SUB_COMPANY"))
-            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED);
+            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
 
         if (promotionRepository.findByCode(request.getCode()).isPresent())
-            throw new AppException(ErrorCode.DUPLICATE_PROMOTION_CODE);
+            throw new AppException(ErrorCode.DUPLICATE_PROMOTION_CODE, "Feedback không hợp lệ và đã bị xoá!");
 
         String status = request.getStartTime().isAfter(LocalDateTime.now()) ? "inactive" : "active";
 
@@ -75,7 +75,7 @@ public class PromotionService {
         if (request.getTourIds() != null && !request.getTourIds().isEmpty()) {
             for (UUID tourId : request.getTourIds()) {
                 Tour tour = tourRepository.findById(tourId.toString())
-                        .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+                        .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
                 // Tour-company chỉ được liên kết tour của công ty họ
                 if (creator.getRole().equals("SUB_COMPANY") &&

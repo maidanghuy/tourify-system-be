@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -33,54 +32,77 @@ public class FeedbackService {
     private final ITourRepository tourRepo;
     private final IUserRepository userRepo;
 
+    // ----- BAD WORDS: mở rộng tùy nghiệp vụ -----
+    private static final List<String> BAD_WORDS = List.of(
+            // Tiếng Anh
+            "fuck", "shit", "bitch", "asshole", "bastard", "dick", "cunt", "fag", "slut", "whore", "motherfucker",
+            "son of a bitch", "cock", "pussy", "douche", "douchebag", "bollocks", "bugger", "bloody", "damn", "crap",
+            "wanker", "twat", "prick", "nigger", "nigga", "retard", "moron", "idiot", "stupid", "jackass",
+            "fucking", "fucked", "fucks", "shitty", "shithead", "bullshit", "dickhead", "arsehole",
+            "xxx", "badword",
+            // Tiếng Việt
+            "địt", "cặc", "lồn", "đụ", "vcl", "clm", "vãi", "bố mày", "con mẹ mày", "đéo", "cmm", "má mày",
+            "thằng chó", "ngu", "óc chó", "đần", "con chó", "chó má", "con đĩ", "con cặc"
+    );
+
+
+    private boolean isFeedbackValid(FeedbackRequest req) {
+        if (req.getTitle() == null || req.getTitle().trim().length() < 5) return false;
+        if (req.getContent() == null || req.getContent().trim().length() < 10) return false;
+        if (req.getRating() == null || req.getRating() < 1.0 || req.getRating() > 5.0) return false;
+
+        // Gom cả title và content, chuyển về thường, loại dấu thừa
+        String all = (req.getTitle() + " " + req.getContent()).toLowerCase().replaceAll("[^a-zA-Z0-9\\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]", " ");
+        String[] words = all.split("\\s+"); // tách theo khoảng trắng
+
+        for (String bad : BAD_WORDS) {
+            for (String word : words) {
+                // So sánh cứng và cả khi word bắt đầu bằng từ cấm (để bắt biến thể)
+                if (word.equals(bad) || word.startsWith(bad)) {
+                    return false;
+                }
+            }
+        }
+        // Nếu muốn dùng Perspective API, chèn thêm check ở đây:
+        // if (PerspectiveChecker.isToxic(all)) return false;
+        return true;
+    }
+
+
     /**
-     * Lấy feedbacks cho tour, chỉ ADMIN hoặc SUB_COMPANY mới được phép.
-     * @param bearerToken header "Bearer xxx"
+     * Lấy feedbacks cho tour.
+     * User chỉ xem feedback đã duyệt, sub_company & admin xem tất cả.
      */
     @Transactional(readOnly = true)
     public List<FeedbackResponse> getFeedbacksByTour(String bearerToken, String tourId) {
-        // 1) Xác thực token
         if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Bạn không có quyền truy cập feedback.");
         }
         String jwt = bearerToken.substring(7);
         jwtUtil.validateToken(jwt);
 
-        // 2) Lấy user và chuẩn hoá role (không phụ thuộc hoa/thường)
         CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
-        String role = Optional.ofNullable(user.getRole())
-                .map(String::trim)
-                .orElse("")
-                .toUpperCase(Locale.ROOT);
-        boolean isUser       = "USER".equals(role);
+        String role = Optional.ofNullable(user.getRole()).map(String::trim).orElse("").toUpperCase(Locale.ROOT);
+        boolean isUser = "USER".equals(role);
         boolean isSubCompany = "SUB_COMPANY".equals(role);
-        boolean isAdmin      = "ADMIN".equals(role);
+        boolean isAdmin = "ADMIN".equals(role);
 
-        // 3) Kiểm tra tour tồn tại
         if (!tourRepo.existsById(tourId)) {
-            throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour.");
         }
 
-        // 4) Lấy feedback tuỳ role
         List<Feedback> feedbacks;
         if (isUser) {
-            // USER: chỉ xem feedback có status != "rejected" và != "deleted"
-            List<String> excludedStatuses = List.of("REJECTED", "DELETED", "PENDING");
-            feedbacks = feedbackRepository
-                    .findByTour_TourIdAndStatusNotIn(
-                            tourId, excludedStatuses
-                    );
+            // USER chỉ xem feedback đã APPROVED
+            feedbacks = feedbackRepository.findByTour_TourIdAndStatusNotIn(
+                    tourId, List.of("REJECTED", "DELETED", "PENDING")
+            );
         } else {
-            // ADMIN & SUB_COMPANY: xem tất cả feedback
+            // ADMIN & SUB_COMPANY xem tất cả feedback
             feedbacks = feedbackRepository.findByTour_TourId(tourId);
         }
 
-        // 5) Nếu không có feedback phù hợp
-        if (feedbacks.isEmpty()) {
-            throw new AppException(ErrorCode.FEEDBACK_NOT_FOUND);
-        }
-
-        // 6) Map entity → DTO
+        // Chuẩn REST: Trả về empty list nếu không có feedback (không ném lỗi)
         return feedbacks.stream()
                 .map(fb -> FeedbackResponse.builder()
                         .feedbackId(fb.getFeedbackId())
@@ -94,46 +116,50 @@ public class FeedbackService {
                 .toList();
     }
 
-
-
+    /**
+     * Gửi feedback: Tự động duyệt nếu hợp lệ, reject và xoá nếu không hợp lệ.
+     */
     @Transactional
     public FeedbackResponse addFeedback(String bearerToken, FeedbackRequest req) {
-        // 1) xác thực token
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Bạn chưa đăng nhập hoặc phiên đăng nhập hết hạn.");
         }
         String jwt = bearerToken.substring(7);
         jwtUtil.validateToken(jwt);
         CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(jwt);
 
-        // 2) chỉ cho role = USER
-        String role = userDetails.getRole();
-        if (!"USER".equalsIgnoreCase(role) && !role.equals("ADMIN")) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED);
+        // Chỉ USER được gửi feedback
+        String role = Optional.ofNullable(userDetails.getRole()).orElse("");
+        if (!"USER".equalsIgnoreCase(role)) {
+            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Chỉ người dùng mới có thể gửi feedback.");
         }
 
-        // 3) load user & tour
         User user = userRepo.findById(userDetails.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy người dùng."));
         Tour tour = tourRepo.findById(req.getTourId())
-                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour."));
 
-        // 4) xây feedback
+        boolean valid = isFeedbackValid(req);
+        String status = valid ? "APPROVED" : "REJECTED";
+
         Feedback fb = Feedback.builder()
                 .user(user)
                 .tour(tour)
                 .title(req.getTitle())
                 .content(req.getContent())
                 .rating(BigDecimal.valueOf(req.getRating()))
-                .status("pending")
+                .status(status)
                 .createAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         feedbackRepository.save(fb);
 
-        // 5) trả về DTO
+        if (!valid) {
+            feedbackRepository.delete(fb);
+            throw new AppException(ErrorCode.INVALID_FEEDBACK, "Feedback không hợp lệ (quá ngắn, không đúng nội dung hoặc chứa từ cấm) và đã bị xoá!");
+        }
+
         return FeedbackResponse.builder()
                 .feedbackId(fb.getFeedbackId())
                 .userFullName(user.getFullName())
@@ -145,19 +171,19 @@ public class FeedbackService {
                 .build();
     }
 
+    /**
+     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho 1 tour.
+     */
     @Transactional(readOnly = true)
     public FeedbackResponse getLatestApprovedFeedback(String tourId) {
-        // 1) Kiểm tra tour tồn tại
         if (!tourRepo.existsById(tourId)) {
-            throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour.");
         }
 
-        // 2) Lấy feedback mới nhất với status = "APPROVED"
         Feedback fb = feedbackRepository
                 .findTopByTour_TourIdAndStatusOrderByCreateAtDesc(tourId, "APPROVED")
-                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND, "Chưa có feedback được duyệt cho tour này."));
 
-        // 3) Map entity → DTO
         return FeedbackResponse.builder()
                 .feedbackId(fb.getFeedbackId())
                 .userFullName(fb.getUser().getFullName())
@@ -168,5 +194,4 @@ public class FeedbackService {
                 .status(fb.getStatus())
                 .build();
     }
-
 }

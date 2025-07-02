@@ -2,7 +2,6 @@ package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
 import com.example.tourify_system_be.dto.response.TourResponse;
-import com.example.tourify_system_be.dto.response.UserResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
@@ -42,7 +41,7 @@ public class TourController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION); // hoặc trả về 401
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!"); // hoặc trả về 401
         }
 
         CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
