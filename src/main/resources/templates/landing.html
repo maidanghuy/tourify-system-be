@@ -121,8 +121,10 @@
 
 
     <!-- Modern Tour Search Form -->
-    <div class="booking-form">
-        <form class="row g-3 align-items-end" method="get" action="/tourify/tour">
+    <div class="booking-form mb-4">
+        <form class="row g-3 align-items-end"
+              th:action="@{/tour}" method="get">
+
             <!-- Where -->
             <div class="col-md-3">
                 <label class="form-label">Where</label>
@@ -133,8 +135,7 @@
                             name="placeName"
                             class="form-control"
                             placeholder="Enter destination"
-                            th:value="${param.placeName}"
-                    />
+                            th:value="${placeName}" />
                 </div>
             </div>
 
@@ -144,27 +145,53 @@
                 <div class="form-floating-custom">
                     <i class="bi bi-clock"></i>
                     <select class="form-select" name="duration">
-                        <option value="" th:selected="${param.duration == null}">Any</option>
-                        <option value="1" th:selected="${param.duration?.get(0) == '1'}">01 Day</option>
-                        <option value="3" th:selected="${param.duration?.get(0) == '3'}">03 Day</option>
-                        <option value="5" th:selected="${param.duration?.get(0) == '5'}">05 Day</option>
-                        <option value="7" th:selected="${param.duration?.get(0) == '7'}">07 Day</option>
+                        <option
+                                value=""
+                                th:selected="${duration == null}">
+                            Any
+                        </option>
+                        <option
+                                value="1"
+                                th:selected="${duration == 1}">
+                            01 Day
+                        </option>
+                        <option
+                                value="3"
+                                th:selected="${duration == 3}">
+                            03 Day
+                        </option>
+                        <option
+                                value="5"
+                                th:selected="${duration == 5}">
+                            05 Day
+                        </option>
+                        <option
+                                value="7"
+                                th:selected="${duration == 7}">
+                            07 Day
+                        </option>
                     </select>
                 </div>
             </div>
 
-            <!-- Category -->
+            <!-- Category / Type -->
             <div class="col-md-3">
                 <label class="form-label">Type</label>
                 <div class="form-floating-custom">
                     <i class="bi bi-globe-americas"></i>
                     <select class="form-select" name="categoryName">
-                        <option value="" th:selected="${param.categoryName == null}">Any</option>
-                        <option value="Adventure" th:selected="${param.categoryName?.get(0) == 'Adventure'}">Adventure</option>
-                        <option value="Culture" th:selected="${param.categoryName?.get(0) == 'Culture'}">Culture</option>
-                        <option value="Relaxation" th:selected="${param.categoryName?.get(0) == 'Relaxation'}">Relaxation</option>
-                        <option value="Nature" th:selected="${param.categoryName?.get(0) == 'Nature'}">Nature</option>
-                        <!-- Bạn có thể thêm các category khác tùy theo hệ thống -->
+                        <option
+                                value=""
+                                th:selected="${categoryName == null}">
+                            Any
+                        </option>
+                        <th:block th:each="cat : ${categories}">
+                            <option
+                                    th:value="${cat.categoryName}"
+                                    th:text="${cat.categoryName}"
+                                    th:selected="${cat.categoryName == categoryName}">
+                            </option>
+                        </th:block>
                     </select>
                 </div>
             </div>
@@ -179,8 +206,7 @@
                             name="touristNumberAssigned"
                             class="form-control"
                             placeholder="Enter number"
-                            th:value="${param.touristNumberAssigned}"
-                    />
+                            th:value="${touristNumberAssigned}" />
                 </div>
             </div>
 
@@ -190,8 +216,13 @@
                     <i class="bi bi-search"></i> Search
                 </button>
             </div>
+
         </form>
     </div>
+
+
+
+
 
 
     <!-- Tour Cards by Place -->
