@@ -100,19 +100,19 @@ public class TourService {
 
         // Lấy thông tin người dùng từ userId lấy từ token
         User creator = iUserRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         // Chỉ cho phép role SUB_COMPANY tạo tour
         if (!"SUB_COMPANY".equalsIgnoreCase(creator.getRole())) {
-            throw new AppException(ErrorCode.NOT_SUBCOMPANY);
+            throw new AppException(ErrorCode.NOT_SUBCOMPANY, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // Tìm place và category
         Place place = iPlaceRepository.findById(request.getPlace())
-                .orElseThrow(() -> new AppException(ErrorCode.PLACE_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.PLACE_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         Category category = iCategoryRepository.findById(request.getCategory())
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         // Gán entity cho tour
         tour.setManageBy(creator);
@@ -165,13 +165,13 @@ public class TourService {
                 || tourIds.size() < 2
                 || tourIds.size() > 4
                 || tourIds.stream().distinct().count() != tourIds.size()) {
-            throw new AppException(ErrorCode.INVALID_REQUEST);
+            throw new AppException(ErrorCode.INVALID_REQUEST, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // 2) Lấy danh sách Tour từ DB
         List<Tour> tours = tourRepository.findAllByTourIdIn(tourIds);
         if (tours.size() != tourIds.size()) {
-            throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // 3) Map Tour → DTO và giữ nguyên thứ tự theo list tourIds
@@ -183,7 +183,7 @@ public class TourService {
                     Tour tour = tourMap.get(id);
                     // (chỉ phòng trường hợp, thực tế sẽ luôn có vì đã kiểm size phía trên)
                     if (tour == null) {
-                        throw new AppException(ErrorCode.TOUR_NOT_FOUND);
+                        throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
                     }
                     return tourMapper.toResponse(tour);
                 })
@@ -192,7 +192,7 @@ public class TourService {
   
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
-                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         return tourMapper.toResponse(tour);
     }
 }

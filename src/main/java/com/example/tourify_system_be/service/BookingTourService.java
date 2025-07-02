@@ -38,16 +38,16 @@ public class BookingTourService {
         // Tìm token trong DB
         TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
         if (tokenAuth == null) {
-            throw new AppException(ErrorCode.INVALID_TOKEN);
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
         TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
         if (session == null || !session.getIsUsed()) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
         if (!session.getIsUsed()) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // Trích xuất thông tin user
@@ -55,19 +55,19 @@ public class BookingTourService {
 
         // Kiểm tra trạng thái tài khoản
         if (!"active".equalsIgnoreCase(user.getStatus())) {
-            throw new AppException(ErrorCode.USER_DISABLED);
+            throw new AppException(ErrorCode.USER_DISABLED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // Chỉ user mới được book tour
         if (!"user".equalsIgnoreCase(user.getRole())) {
-            throw new AppException(ErrorCode.BOOKING_FORBIDDEN_ROLE);
+            throw new AppException(ErrorCode.BOOKING_FORBIDDEN_ROLE, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         Tour tour = iTourRepository.findById(request.getTourId())
-                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         // Trạng thái tour phải là "active" thì mới đặt tour được
         if (!"active".equalsIgnoreCase(tour.getStatus())) {
-            throw new AppException(ErrorCode.TOUR_NOT_ACTIVE);
+            throw new AppException(ErrorCode.TOUR_NOT_ACTIVE, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // Ngày kết thúc = ngày bắt đầu + duration
@@ -75,21 +75,21 @@ public class BookingTourService {
         // Validate ngày, phải đặt tour sau 4 ngày so với hiện tại thì mới đặt được
         LocalDateTime now = LocalDateTime.now();
         if (request.getDayStart().isBefore(now.plusDays(4))) {
-            throw new AppException(ErrorCode.INVALID_BOOKING_DATE);
+            throw new AppException(ErrorCode.INVALID_BOOKING_DATE, "Feedback không hợp lệ và đã bị xoá!");
         }
 
 
         // Validate số người
         if (request.getAdultNumber() == null || request.getChildNumber() == null
                 || request.getAdultNumber() < 0 || request.getChildNumber() < 0) {
-            throw new AppException(ErrorCode.INVALID_PEOPLE_COUNT);
+            throw new AppException(ErrorCode.INVALID_PEOPLE_COUNT, "Feedback không hợp lệ và đã bị xoá!");
         }
         int totalPeople = request.getAdultNumber() + request.getChildNumber();
         if (totalPeople > tour.getMaxPeople()) {
-            throw new AppException(ErrorCode.EXCEED_MAX_PEOPLE);
+            throw new AppException(ErrorCode.EXCEED_MAX_PEOPLE, "Feedback không hợp lệ và đã bị xoá!");
         }
         if (totalPeople < tour.getMinPeople()) {
-            throw new AppException(ErrorCode.BELOW_MIN_PEOPLE);
+            throw new AppException(ErrorCode.BELOW_MIN_PEOPLE, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // ✅ Cập nhật số người đã được đặt cho tour
@@ -149,35 +149,35 @@ public class BookingTourService {
         // 1. Kiểm tra JWT token hợp lệ và lấy userId
         String jwt = token.replace("Bearer ", "");
         if (!jwtUtil.validateToken(jwt)) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         String userId = jwtUtil.extractUserId(jwt);
         User user = iUserRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         // 2. Kiểm tra phiên đăng nhập có còn hợp lệ không
         TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(jwt);
         if (session == null) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
         if (!session.getIsUsed()) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
 
         // 3. Tìm booking cần huỷ
         BookingTour booking = bookingTourRepository.findById(request.getBookingId())
-                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         if (!booking.getUser().getUserId().equals(user.getUserId())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // 4. Chỉ huỷ nếu trạng thái là "pending" hoặc "confirmed"
         if (!booking.getStatus().equalsIgnoreCase("pending") &&
                 !booking.getStatus().equalsIgnoreCase("confirmed")) {
-            throw new AppException(ErrorCode.INVALID_BOOKING_STATUS);
+            throw new AppException(ErrorCode.INVALID_BOOKING_STATUS, "Feedback không hợp lệ và đã bị xoá!");
         }
 
         // 5. Cập nhật trạng thái
