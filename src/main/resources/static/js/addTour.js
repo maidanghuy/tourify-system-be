@@ -17,9 +17,10 @@ const statusMap = {
 async function handleAddTour(e) {
   e && e.preventDefault && e.preventDefault();
 
-    const minPeople = parseInt(document.getElementById("minPeople").value);
-      const maxPeople = parseInt(document.getElementById("maxPeople").value);
-      const duration = parseInt(document.getElementById("duration").value);
+      const minPeople = parseFloat(document.getElementById("minPeople").value);
+      const maxPeople = parseFloat(document.getElementById("maxPeople").value);
+      const duration = parseFloat(document.getElementById("duration").value);
+      const price = parseFloat(document.getElementById("basePrice").value);
 
       if (isNaN(minPeople) || isNaN(maxPeople)) {
         Swal.fire({ icon: 'warning', title: 'Please enter min and max people!' });
@@ -38,10 +39,45 @@ async function handleAddTour(e) {
         return;
       }
 
+        if (!Number.isInteger(price) || price < 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Base Price phải là số nguyên ≥ 0!'
+            });
+            return;
+        }
+        if (!Number.isInteger(duration) || duration < 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Duration phải là số nguyên ≥ 1!'
+            });
+            return;
+        }
+        if (!Number.isInteger(minPeople) || minPeople < 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Min People phải là số nguyên ≥ 1!'
+            });
+            return;
+        }
+        if (!Number.isInteger(maxPeople) || maxPeople < 1) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Max People phải là số nguyên ≥ 1!'
+            });
+            return;
+        }
+        if (minPeople > maxPeople) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Min People không được lớn hơn Max People!'
+            });
+            return;
+        }
   const tourData = {
     tourName: document.getElementById("productName").value.trim(),
     description: document.getElementById("productDescription").value.trim(),
-    price: parseFloat(document.getElementById("basePrice").value),
+    price,
     duration,
     minPeople,
     maxPeople,
