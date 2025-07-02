@@ -1,12 +1,21 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.entity.Category;
+import com.example.tourify_system_be.repository.ICategoryRepository;
+import com.example.tourify_system_be.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
+
 @Controller
 public class PageController {
+    @Autowired
+    private CategoryService categoryService;
 
     @GetMapping("/")
     public String homePage() {
@@ -23,10 +32,30 @@ public class PageController {
         return "login";
     }
 
-    @GetMapping("/landing")
-    public String landingPage() {
+    /**
+     * Landing page và home ("/").
+     */
+    @GetMapping({"/", "/landing"})
+    public String landingPage(
+            @RequestParam(required = false) String placeName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) Integer duration,
+            @RequestParam(required = false) Integer touristNumberAssigned,
+            Model model
+    ) {
+        // Truyền lại giá trị filter để giữ trạng thái form
+        model.addAttribute("placeName", placeName);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("duration", duration);
+        model.addAttribute("touristNumberAssigned", touristNumberAssigned);
+
+        // Lấy danh sách categories active đã sắp xếp
+        List<Category> categories = categoryService.getCategoriesByStatus("active");
+        model.addAttribute("categories", categories);
+
         return "landing";
     }
+
 
     @GetMapping("/forgot_password")
     public String forgotPasswordPage() {
@@ -42,17 +71,26 @@ public class PageController {
     public String profilePage() {
         return "profile";
     }
-  
+
+    /**
+     * Trang danh sách tour.
+     */
     @GetMapping("/tour")
-    public String tourListPage(@RequestParam(required = false) String placeName,
-                               @RequestParam(required = false) String categoryName,
-                               @RequestParam(required = false) Integer duration,
-                               @RequestParam(required = false) Integer touristNumberAssigned,
-                               Model model) {
+    public String tourListPage(
+            @RequestParam(required = false) String placeName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) Integer duration,
+            @RequestParam(required = false) Integer touristNumberAssigned,
+            Model model
+    ) {
         model.addAttribute("placeName", placeName);
         model.addAttribute("categoryName", categoryName);
         model.addAttribute("duration", duration);
         model.addAttribute("touristNumberAssigned", touristNumberAssigned);
+
+        List<Category> categories = categoryService.getCategoriesByStatus("active");
+        model.addAttribute("categories", categories);
+
         return "tour_list";
     }
   
