@@ -54,7 +54,7 @@ public class JwtUtil {
             return true;
         } catch (JwtException ex) {
             System.out.println("❌ Token validation failed: " + ex.getMessage());
-            throw new AppException(ErrorCode.SESSION_EXPIRED);
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
     }
 
