@@ -94,6 +94,7 @@ public class TourController {
     public APIResponse<TourResponse> getTourById(@PathVariable("id") String id) {
         TourResponse response = tourService.getTourById(id);
         return APIResponse.<TourResponse>builder()
+                .code(1000)
                 .result(response)
                 .build();
     }
