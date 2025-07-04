@@ -1,786 +1,635 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tourify - Da Nang City Discovery Tour</title>
-  <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
 
-  <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-          rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
 
-  <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" th:href="@{/css/index.css}" />
   <link rel="stylesheet" th:href="@{/css/tour_detail.css}">
 
 </head>
+
 <body>
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
-  <div class="container">
-    <a class="navbar-brand" th:href="@{/landing}">
-      <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-           height="40" alt="Tourify" />
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-            aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="mainNavbar">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
-        <li class="nav-item">
-          <a class="nav-link nav-custom active" th:href="@{/landing}">
-            <i class="fas fa-house me-2"></i>Home
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link nav-custom" th:href="@{/user/favorites}">
-            <i class="fas fa-heart me-2"></i>Favorites
-          </a>
-        </li>
-      </ul>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" th:href="@{/landing}">
+        <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          height="40" alt="Tourify" />
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
+          <li class="nav-item">
+            <a class="nav-link nav-custom active" th:href="@{/landing}">
+              <i class="fas fa-house me-2"></i>Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link nav-custom" th:href="@{/user/favorites}">
+              <i class="fas fa-heart me-2"></i>Favorites
+            </a>
+          </li>
+        </ul>
 
-      <div class="d-flex align-items-center gap-3">
-        <div class="dropdown">
-          <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
-                  type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                 alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
-            <span>Hello,
-                                <span>User</span></span>
+        <div class="d-flex align-items-center gap-3">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom" type="button"
+              id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+              <img
+                src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
+              <span>Hello,
+                <span>User</span></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+              <li>
+                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
+                    class="fas fa-user-circle me-2"></i>View Profile</a>
+              </li>
+              <li>
+                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
+                    class="fas fa-edit me-2"></i>Edit Account</a>
+              </li>
+            </ul>
+
+          </div>
+          <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
           </button>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-            <li>
-              <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
-            </li>
-            <li>
-              <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
-            </li>
-          </ul>
-
         </div>
-        <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
-          <i class="fas fa-sign-out-alt me-1"></i>Logout
-        </button>
       </div>
     </div>
-  </div>
-</nav>
-
-
-<div class="container mt-4">
-  <!-- Breadcrumb + Title + Price -->
-  <nav aria-label="breadcrumb" class="custom-breadcrumb mt-3 mb-4">
-    <ol class="breadcrumb bg-white rounded shadow-sm px-3 py-2">
-      <!-- Home -->
-      <li class="breadcrumb-item">
-        <a th:href="@{/landing}">
-          <i class="fas fa-home me-1"></i>Home
-        </a>
-      </li>
-
-
-      <!-- Da Nang -->
-      <li class="breadcrumb-item">
-        <a href="#">
-          <i class="fas fa-map-marker-alt me-1"></i>
-          <span id="breadcrumbPlace"></span>
-        </a>
-      </li>
-
-
-      <!-- Tour Detail (current) -->
-      <li class="breadcrumb-item active" aria-current="page">
-        <i class="fas fa-route me-1 tourTitle"></i>
-        <span id="breadcrumbTourTitle"></span>
-      </li>
-    </ol>
   </nav>
 
 
-  <div class="d-flex justify-content-between align-items-center tour-header mb-2">
-    <div>
-      <div id="tourTitle" class="tour-title"></div>
-    </div>
-    <div class="tour-price"></div>
-  </div>
+  <div class="container mt-4">
+    <!-- Breadcrumb + Title + Price -->
+    <nav aria-label="breadcrumb" class="custom-breadcrumb mt-3 mb-4">
+      <ol class="breadcrumb bg-white rounded shadow-sm px-3 py-2">
+        <!-- Home -->
+        <li class="breadcrumb-item">
+          <a th:href="@{/landing}">
+            <i class="fas fa-home me-1"></i>Home
+          </a>
+        </li>
 
 
+        <!-- Da Nang -->
+        <li class="breadcrumb-item">
+          <a href="#">
+            <i class="fas fa-map-marker-alt me-1"></i>
+            <span id="breadcrumbPlace"></span>
+          </a>
+        </li>
 
-  <div
-          class="d-flex justify-content-between align-items-center flex-wrap mt-3"
-  >
-    <!-- Tour Flow Section -->
-    <div
-            class="tour-flow-container d-flex flex-wrap justify-content-center align-items-center gap-3 gap-md-4"
-    >
-      <div class="tour-step active">
-        <i class="fas fa-info-circle me-2"></i>
-        <span>Information</span>
+
+        <!-- Tour Detail (current) -->
+        <li class="breadcrumb-item active" aria-current="page">
+          <i class="fas fa-route me-1 tourTitle"></i>
+          <span id="breadcrumbTourTitle"></span>
+        </li>
+      </ol>
+    </nav>
+
+
+    <div class="d-flex justify-content-between align-items-center tour-header mb-2">
+      <div>
+        <div id="tourTitle" class="tour-title"></div>
       </div>
-
-
-      <div class="tour-step-separator"></div>
-
-
-      <div class="tour-step">
-        <i class="fas fa-route me-2"></i>
-        <span>Tour Plan</span>
-      </div>
-
-
-      <div class="tour-step-separator"></div>
-
-
-      <div class="tour-step">
-        <i class="fas fa-map-location-dot me-2"></i>
-        <span>Location</span>
-      </div>
+      <div class="tour-price"></div>
     </div>
 
 
-    <!-- Favorite + Book Now bên phải -->
-    <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
-      <button class="btn btn-favorite">
-        <i class="fa-regular fa-heart"></i>
-      </button>
-      <a
-              href="./booktour.html"
-              class="btn btn-book-now text-decoration-none"
-      >Book now</a
-      >
-    </div>
-  </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap mt-3">
+      <!-- Tour Flow Section -->
+      <div class="tour-flow-container d-flex flex-wrap justify-content-center align-items-center gap-3 gap-md-4">
+        <div class="tour-step active">
+          <i class="fas fa-info-circle me-2"></i>
+          <span>Information</span>
+        </div>
 
 
-  <!-- Main Image Grid with Equal Height -->
-  <div class="row mt-3 g-2 tour-images align-items-stretch">
-    <div class="col-md-8">
-      <div class="h-100">
-        <img
-                src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                class="img-fluid rounded w-100 h-100 object-fit-cover thumbnail"
-                style="object-fit: cover"
-        />
+        <div class="tour-step-separator"></div>
+
+
+        <div class="tour-step">
+          <i class="fas fa-route me-2"></i>
+          <span>Tour Plan</span>
+        </div>
+
+
+        <div class="tour-step-separator"></div>
+
+
+        <div class="tour-step">
+          <i class="fas fa-map-location-dot me-2"></i>
+          <span>Location</span>
+        </div>
+      </div>
+
+
+      <!-- Favorite + Book Now bên phải -->
+      <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+        <button class="btn btn-favorite">
+          <i class="bi bi-heart"></i>
+        </button>
+        <a href="./booktour.html" class="btn btn-book-now text-decoration-none">Book now</a>
       </div>
     </div>
-    <div class="col-md-4">
-      <div class="h-100 d-flex flex-wrap gap-2">
-        <img
-                src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
-                class="img-fluid rounded thumbnail"
-                style="
+
+
+    <!-- Main Image Grid with Equal Height -->
+    <div class="row mt-3 g-2 tour-images align-items-stretch">
+      <div class="col-md-8">
+        <div class="h-100">
+          <img
+            src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            class="img-fluid rounded w-100 h-100 object-fit-cover thumbnail" style="object-fit: cover" />
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="h-100 d-flex flex-wrap gap-2">
+          <img
+            src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
+            class="img-fluid rounded thumbnail" style="
                 width: calc(50% - 0.5rem);
                 height: calc(50% - 0.5rem);
                 object-fit: cover;
-              "
-        />
-        <img
-                src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
-                class="img-fluid rounded thumbnail"
-                style="
+              " />
+          <img
+            src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
+            class="img-fluid rounded thumbnail" style="
                 width: calc(50% - 0.5rem);
                 height: calc(50% - 0.5rem);
                 object-fit: cover;
-              "
-        />
-        <img
-                src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
-                class="img-fluid rounded thumbnail"
-                style="
+              " />
+          <img
+            src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
+            class="img-fluid rounded thumbnail" style="
                 width: calc(50% - 0.5rem);
                 height: calc(50% - 0.5rem);
                 object-fit: cover;
-              "
-        />
-        <img
-                src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
-                class="img-fluid rounded thumbnail"
-                style="
+              " />
+          <img
+            src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg?auto=compress&cs=tinysrgb&w=600"
+            class="img-fluid rounded thumbnail" style="
                 width: calc(50% - 0.5rem);
                 height: calc(50% - 0.5rem);
                 object-fit: cover;
-              "
-        />
+              " />
+        </div>
       </div>
     </div>
-  </div>
 
 
-  <!-- Thumbnail strip extended with more images and full-width alignment -->
-  <div class="container px-0 mt-4">
-    <div
-            class="d-flex align-items-center justify-content-between w-100"
-            style="position: relative"
-    >
-      <div class="position-relative w-100" style="height: 90px">
-        <!-- 12 stacked thumbnails -->
-        <div
-                class="position-absolute"
-                style="
+    <!-- Thumbnail strip extended with more images and full-width alignment -->
+    <div class="container px-0 mt-4">
+      <div class="d-flex align-items-center justify-content-between w-100" style="position: relative">
+        <div class="position-relative w-100" style="height: 90px">
+          <!-- 12 stacked thumbnails -->
+          <div class="position-absolute" style="
                 left: 0;
                 z-index: 12;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
 
 
-        <div
-                class="position-absolute"
-                style="
+          <div class="position-absolute" style="
                 left: 70px;
                 z-index: 11;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
 
 
-        <div
-                class="position-absolute"
-                style="
+          <div class="position-absolute" style="
                 left: 140px;
                 z-index: 10;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 210px;
                 z-index: 9;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 280px;
                 z-index: 8;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 350px;
                 z-index: 7;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 420px;
                 z-index: 6;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 490px;
                 z-index: 5;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 560px;
                 z-index: 4;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 630px;
                 z-index: 3;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 700px;
                 z-index: 2;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
-        </div>
-        <div
-                class="position-absolute"
-                style="
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+          <div class="position-absolute" style="
                 left: 770px;
                 z-index: 1;
                 transform: translateX(0);
                 transition: transform 0.5s ease;
-              "
-        >
-          <img
-                  src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
-                  class="rounded shadow thumbnail"
-                  style="width: 120px; height: 80px; object-fit: cover"
-          />
+              ">
+            <img src="https://images.pexels.com/photos/33545/sunrise-phu-quoc-island-ocean.jpg"
+              class="rounded shadow thumbnail" style="width: 120px; height: 80px; object-fit: cover" />
+          </div>
+        </div>
+
+
+        <!-- Arrow icon -->
+        <div class="arrow-next d-flex align-items-center justify-content-center mx-2">
+          <i class="fas fa-arrow-right-long fa-xl animate-arrow"></i>
+        </div>
+        <div class="ms-4 me-4 flex-shrink-0">
+          <button class="btn btn-view-photos">View all photos</button>
         </div>
       </div>
-
-
-      <!-- Arrow icon -->
-      <div
-              class="arrow-next d-flex align-items-center justify-content-center mx-2"
-      >
-        <i class="fas fa-arrow-right-long fa-xl animate-arrow"></i>
-      </div>
-      <div class="ms-4 me-4 flex-shrink-0">
-        <button class="btn btn-view-photos">View all photos</button>
-      </div>
     </div>
-  </div>
 
 
-  <!-- Tour Info + Description Section -->
-  <section class="tour-info-modern mt-5">
-    <div class="text-center mb-4">
-      <h2 class="fw-bold text-dark-emphasis">Tour Overview</h2>
+    <!-- Tour Info + Description Section -->
+    <section class="tour-info-modern mt-5">
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark-emphasis">Tour Overview</h2>
+        <div class="divider mx-auto mb-2"></div>
+        <p class="text-muted col-md-8 mx-auto">
+          Discover unforgettable moments through our curated tour journey –
+          where nature meets culture and every step is a story.
+        </p>
+      </div>
+
+
+      <div class="row g-4 align-items-start">
+        <!-- Left: Description -->
+        <div class="col-lg-6">
+          <div class="description-box p-4 rounded-4 shadow-sm">
+            <p class="text-body-secondary fs-6 lh-lg mb-0 tour-desc">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit.
+              Mollitia eaque a quidem ipsa porro aliquam. Fugit eveniet,
+              magnam facilis fuga cum voluptatum, odio ducimus voluptas
+              excepturi iure harum dolores aliquam repellat ipsam tempore non
+              quos similique numquam blanditiis quod? Assumenda facere
+              tempore, officiis consectetur at aliquid facilis aspernatur
+              tempora voluptas expedita molestiae adipisci in autem magni, qui
+              non aliquam, rem odit. Quis totam iste dolore sunt tenetur
+              nostrum, ad id?
+            </p>
+          </div>
+        </div>
+
+
+        <!-- Right: Info Cards -->
+        <div class="col-lg-6">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="info-card border-start border-4 border-success bg-white rounded-4 p-3 shadow-sm h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-map-marker-alt text-success fs-5 me-2"></i>
+                  <h6 class="mb-0 text-dark-emphasis">Location</h6>
+                </div>
+                <p class="mb-0 small text-muted tour-place">Da Nang, Viet Nam</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-card border-start border-4 border-warning bg-white rounded-4 p-3 shadow-sm h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-clock text-warning fs-5 me-2"></i>
+                  <h6 class="mb-0 text-dark-emphasis">Duration</h6>
+                </div>
+                <p class="mb-0 small text-muted tour-duration">3 Days</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-card border-start border-4 border-primary bg-white rounded-4 p-3 shadow-sm h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-calendar-day text-primary fs-5 me-2"></i>
+                  <h6 class="mb-0 text-dark-emphasis">Start Day</h6>
+                </div>
+                <p class="mb-0 small text-muted">Monday, July 15</p>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="info-card border-start border-4 border-danger bg-white rounded-4 p-3 shadow-sm h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-calendar-check text-danger fs-5 me-2"></i>
+                  <h6 class="mb-0 text-dark-emphasis">End Day</h6>
+                </div>
+                <p class="mb-0 small text-muted">Wednesday, July 17</p>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-card border-start border-4 border-info bg-white rounded-4 p-3 shadow-sm h-100">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-suitcase-rolling text-info fs-5 me-2"></i>
+                  <h6 class="mb-0 text-dark-emphasis">Tour Type</h6>
+                </div>
+                <p class="mb-0 small text-muted tour-category">
+                  Casual, Comfortable & Light
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Activities Section -->
+    <div class="text-center mt-5 mb-4">
+      <h2 class="fw-bold text-dark-emphasis">Activities & Locations</h2>
       <div class="divider mx-auto mb-2"></div>
       <p class="text-muted col-md-8 mx-auto">
-        Discover unforgettable moments through our curated tour journey –
-        where nature meets culture and every step is a story.
+        Discover the highlights of your journey — from breathtaking
+        attractions to must-see local destinations.
       </p>
     </div>
 
 
-    <div class="row g-4 align-items-start">
-      <!-- Left: Description -->
-      <div class="col-lg-6">
-        <div class="description-box p-4 rounded-4 shadow-sm">
-          <p class="text-body-secondary fs-6 lh-lg mb-0 tour-desc">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Mollitia eaque a quidem ipsa porro aliquam. Fugit eveniet,
-            magnam facilis fuga cum voluptatum, odio ducimus voluptas
-            excepturi iure harum dolores aliquam repellat ipsam tempore non
-            quos similique numquam blanditiis quod? Assumenda facere
-            tempore, officiis consectetur at aliquid facilis aspernatur
-            tempora voluptas expedita molestiae adipisci in autem magni, qui
-            non aliquam, rem odit. Quis totam iste dolore sunt tenetur
-            nostrum, ad id?
-          </p>
-        </div>
-      </div>
-
-
-      <!-- Right: Info Cards -->
-      <div class="col-lg-6">
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <div
-                    class="info-card border-start border-4 border-success bg-white rounded-4 p-3 shadow-sm h-100"
-            >
-              <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-map-marker-alt text-success fs-5 me-2"></i>
-                <h6 class="mb-0 text-dark-emphasis">Location</h6>
-              </div>
-              <p class="mb-0 small text-muted tour-place">Da Nang, Viet Nam</p>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div
-                    class="info-card border-start border-4 border-warning bg-white rounded-4 p-3 shadow-sm h-100"
-            >
-              <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-clock text-warning fs-5 me-2"></i>
-                <h6 class="mb-0 text-dark-emphasis">Duration</h6>
-              </div>
-              <p class="mb-0 small text-muted tour-duration">3 Days</p>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div
-                    class="info-card border-start border-4 border-primary bg-white rounded-4 p-3 shadow-sm h-100"
-            >
-              <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-calendar-day text-primary fs-5 me-2"></i>
-                <h6 class="mb-0 text-dark-emphasis">Start Day</h6>
-              </div>
-              <p class="mb-0 small text-muted">Monday, July 15</p>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div
-                    class="info-card border-start border-4 border-danger bg-white rounded-4 p-3 shadow-sm h-100"
-            >
-              <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-calendar-check text-danger fs-5 me-2"></i>
-                <h6 class="mb-0 text-dark-emphasis">End Day</h6>
-              </div>
-              <p class="mb-0 small text-muted">Wednesday, July 17</p>
-            </div>
-          </div>
-          <div class="col-12">
-            <div
-                    class="info-card border-start border-4 border-info bg-white rounded-4 p-3 shadow-sm h-100"
-            >
-              <div class="d-flex align-items-center mb-2">
-                <i class="fas fa-suitcase-rolling text-info fs-5 me-2"></i>
-                <h6 class="mb-0 text-dark-emphasis">Tour Type</h6>
-              </div>
-              <p class="mb-0 small text-muted tour-category">
-                Casual, Comfortable & Light
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- Activities Section -->
-  <div class="text-center mt-5 mb-4">
-    <h2 class="fw-bold text-dark-emphasis">Activities & Locations</h2>
-    <div class="divider mx-auto mb-2"></div>
-    <p class="text-muted col-md-8 mx-auto">
-      Discover the highlights of your journey — from breathtaking
-      attractions to must-see local destinations.
-    </p>
-  </div>
-
-
-  <div class="container mt-5">
-    <div class="row g-4 activity-section p-4 rounded shadow-sm">
-      <div class="col-md-6">
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-circle-check icon-check me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Activity 1</h6>
-            <p class="text-muted mb-0">Explore Marble Mountains</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-circle-check icon-check me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Activity 2</h6>
-            <p class="text-muted mb-0">Visit Dragon Bridge</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-circle-check icon-check me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Activity 3</h6>
-            <p class="text-muted mb-0">Boat Ride on Han River</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-circle-check icon-check me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Activity 4</h6>
-            <p class="text-muted mb-0">Enjoy Local Street Food</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-map-pin icon-pin me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Location 1</h6>
-            <p class="text-muted mb-0">Marble Mountains</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-map-pin icon-pin me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Location 2</h6>
-            <p class="text-muted mb-0">Dragon Bridge</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-map-pin icon-pin me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Location 3</h6>
-            <p class="text-muted mb-0">Han River</p>
-          </div>
-        </div>
-        <div class="activity-box d-flex align-items-start">
-          <i class="fa-solid fa-map-pin icon-pin me-3"></i>
-          <div>
-            <h6 class="mb-1 fw-semibold">Location 4</h6>
-            <p class="text-muted mb-0">Con Market</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Review & Map Section -->
-  <div class="row mt-5 g-4 align-items-stretch">
-    <!-- Review Box -->
-    <div class="col-md-6 position-relative">
-      <div
-              class="review-card shadow-lg p-4 h-100 rounded-4 text-white position-relative"
-              style="background-color: #247f74"
-      >
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <!-- Avatar + Info -->
-          <div class="d-flex align-items-center">
-            <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    class="rounded-circle me-3"
-                    width="52"
-                    height="52"
-                    alt="User Avatar"
-            />
+    <div class="container mt-5">
+      <div class="row g-4 activity-section p-4 rounded shadow-sm">
+        <div class="col-md-6">
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-circle-check icon-check me-3"></i>
             <div>
-              <h6 class="mb-0 fw-bold">Angelina Rose</h6>
-              <small class="text-white-50"
-              >Traveller · 21 minutes ago</small
-              >
+              <h6 class="mb-1 fw-semibold">Activity 1</h6>
+              <p class="text-muted mb-0">Explore Marble Mountains</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-circle-check icon-check me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Activity 2</h6>
+              <p class="text-muted mb-0">Visit Dragon Bridge</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-circle-check icon-check me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Activity 3</h6>
+              <p class="text-muted mb-0">Boat Ride on Han River</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-circle-check icon-check me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Activity 4</h6>
+              <p class="text-muted mb-0">Enjoy Local Street Food</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-map-pin icon-pin me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Location 1</h6>
+              <p class="text-muted mb-0">Marble Mountains</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-map-pin icon-pin me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Location 2</h6>
+              <p class="text-muted mb-0">Dragon Bridge</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-map-pin icon-pin me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Location 3</h6>
+              <p class="text-muted mb-0">Han River</p>
+            </div>
+          </div>
+          <div class="activity-box d-flex align-items-start">
+            <i class="fa-solid fa-map-pin icon-pin me-3"></i>
+            <div>
+              <h6 class="mb-1 fw-semibold">Location 4</h6>
+              <p class="text-muted mb-0">Con Market</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Review & Map Section -->
+    <div class="row mt-5 g-4 align-items-stretch">
+      <!-- Review Box -->
+      <div class="col-md-6 position-relative">
+        <div class="review-card shadow-lg p-4 h-100 rounded-4 text-white position-relative"
+          style="background-color: #247f74">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <!-- Avatar + Info -->
+            <div class="d-flex align-items-center">
+              <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-3" width="52"
+                height="52" alt="User Avatar" />
+              <div>
+                <h6 class="mb-0 fw-bold">Angelina Rose</h6>
+                <small class="text-white-50">Traveller · 21 minutes ago</small>
+              </div>
+            </div>
+
+
+            <!-- Icons -->
+            <div class="d-flex gap-3 text-white-50 fs-6">
+              <i class="far fa-clock"></i>
+              <i class="fas fa-ellipsis-v"></i>
             </div>
           </div>
 
 
-          <!-- Icons -->
-          <div class="d-flex gap-3 text-white-50 fs-6">
-            <i class="far fa-clock"></i>
-            <i class="fas fa-ellipsis-v"></i>
+          <!-- Rating -->
+          <div class="mb-2">
+            <span class="text-warning fs-5">★★★★★</span>
+          </div>
+
+
+          <!-- Review Text -->
+          <p class="mb-0 text-white-75 fst-italic">
+            "Solar panels adorn the roof, harnessing renewable energy to power
+            the home and even feed excess electricity back into the grid.
+            High-performance insulation and triple-glazed."
+          </p>
+
+
+          <!-- Floating Badge -->
+          <div class="position-absolute bottom-0 start-50 translate-middle-y" style="transform: translate(-50%, 50%)">
+            <span class="badge bg-white text-success shadow rounded-pill px-3 py-2">99+</span>
           </div>
         </div>
+      </div>
 
 
-        <!-- Rating -->
-        <div class="mb-2">
-          <span class="text-warning fs-5">★★★★★</span>
+      <!-- Map -->
+      <div class="col-md-6">
+        <div class="map-card shadow-sm rounded-4 overflow-hidden h-100">
+          <iframe src="https://maps.google.com/maps?q=Los+Angeles+Technical+College&t=&z=13&ie=UTF8&iwloc=&output=embed"
+            width="100%" height="100%" style="border: 0" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
+      </div>
+    </div>
 
 
-        <!-- Review Text -->
-        <p class="mb-0 text-white-75 fst-italic">
-          “Solar panels adorn the roof, harnessing renewable energy to power
-          the home and even feed excess electricity back into the grid.
-          High-performance insulation and triple-glazed.”
+    <!-- Newsletter Section -->
+    <div class="newsletter-section">
+      <div class="newsletter-content">
+        <h3 class="newsletter-title">Subscribe Newsletter</h3>
+        <p class="newsletter-subtitle">
+          The Travel<br />Get inspired! Receive travel discounts, tips and
+          behind the scenes stories.
         </p>
+        <div class="newsletter-form">
+          <input type="email" class="newsletter-input" placeholder="Your email address" />
+          <button class="newsletter-btn">Subscribe</button>
+        </div>
+      </div>
+      <img src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
+        alt="Newsletter" class="newsletter-image" />
+    </div>
+  </div>
 
 
-        <!-- Floating Badge -->
-        <div
-                class="position-absolute bottom-0 start-50 translate-middle-y"
-                style="transform: translate(-50%, 50%)"
-        >
-              <span
-                      class="badge bg-white text-success shadow rounded-pill px-3 py-2"
-              >99+</span
-              >
+  <!-- Footer -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3">
+          <h5 class="footer-title">g-lobe</h5>
+          <div class="social-icons">
+            <a href="#" class="social-icon facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon youtube"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <h5 class="footer-title">Our Destinations</h5>
+          <ul class="footer-links">
+            <li><a href="#">Canada</a></li>
+            <li><a href="#">Alaska</a></li>
+            <li><a href="#">France</a></li>
+            <li><a href="#">Iceland</a></li>
+          </ul>
+        </div>
+        <div class="col-md-2">
+          <h5 class="footer-title">Our Activities</h5>
+          <ul class="footer-links">
+            <li><a href="#">Northern Lights</a></li>
+            <li><a href="#">Cruising & sailing</a></li>
+            <li><a href="#">Multi-activities</a></li>
+            <li><a href="#">Kayaking</a></li>
+          </ul>
+        </div>
+        <div class="col-md-2">
+          <h5 class="footer-title">Travel Blogs</h5>
+          <ul class="footer-links">
+            <li><a href="#">Bali Travel Guide</a></li>
+            <li><a href="#">Sri Lanka Travel Guide</a></li>
+            <li><a href="#">Peru Travel Guide</a></li>
+            <li><a href="#">Bali Travel Guide</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h5 class="footer-title">About Us</h5>
+          <ul class="footer-links">
+            <li><a href="#">Our Story</a></li>
+            <li><a href="#">Work with us</a></li>
+          </ul>
+          <h5 class="footer-title mt-3">Contact Us</h5>
+          <ul class="footer-links">
+            <li><a href="#">Our Story</a></li>
+            <li><a href="#">Work with us</a></li>
+          </ul>
         </div>
       </div>
     </div>
-
-
-    <!-- Map -->
-    <div class="col-md-6">
-      <div class="map-card shadow-sm rounded-4 overflow-hidden h-100">
-        <iframe
-                src="https://maps.google.com/maps?q=Los+Angeles+Technical+College&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style="border: 0"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- Newsletter Section -->
-  <div class="newsletter-section">
-    <div class="newsletter-content">
-      <h3 class="newsletter-title">Subscribe Newsletter</h3>
-      <p class="newsletter-subtitle">
-        The Travel<br />Get inspired! Receive travel discounts, tips and
-        behind the scenes stories.
-      </p>
-      <div class="newsletter-form">
-        <input
-                type="email"
-                class="newsletter-input"
-                placeholder="Your email address"
-        />
-        <button class="newsletter-btn">Subscribe</button>
-      </div>
-    </div>
-    <img
-            src="https://images.pexels.com/photos/1435752/pexels-photo-1435752.jpeg?auto=compress&cs=tinysrgb&w=1600"
-            alt="Newsletter"
-            class="newsletter-image"
-    />
-  </div>
-</div>
-
-
-<!-- Footer -->
-<footer class="footer mt-5">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-3">
-        <h5 class="footer-title">g-lobe</h5>
-        <div class="social-icons">
-          <a href="#" class="social-icon facebook"
-          ><i class="fab fa-facebook"></i
-          ></a>
-          <a href="#" class="social-icon twitter"
-          ><i class="fab fa-twitter"></i
-          ></a>
-          <a href="#" class="social-icon youtube"
-          ><i class="fab fa-youtube"></i
-          ></a>
-          <a href="#" class="social-icon instagram"
-          ><i class="fab fa-instagram"></i
-          ></a>
-        </div>
-      </div>
-      <div class="col-md-2">
-        <h5 class="footer-title">Our Destinations</h5>
-        <ul class="footer-links">
-          <li><a href="#">Canada</a></li>
-          <li><a href="#">Alaska</a></li>
-          <li><a href="#">France</a></li>
-          <li><a href="#">Iceland</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h5 class="footer-title">Our Activities</h5>
-        <ul class="footer-links">
-          <li><a href="#">Northern Lights</a></li>
-          <li><a href="#">Cruising & sailing</a></li>
-          <li><a href="#">Multi-activities</a></li>
-          <li><a href="#">Kayaking</a></li>
-        </ul>
-      </div>
-      <div class="col-md-2">
-        <h5 class="footer-title">Travel Blogs</h5>
-        <ul class="footer-links">
-          <li><a href="#">Bali Travel Guide</a></li>
-          <li><a href="#">Sri Lanka Travel Guide</a></li>
-          <li><a href="#">Peru Travel Guide</a></li>
-          <li><a href="#">Bali Travel Guide</a></li>
-        </ul>
-      </div>
-      <div class="col-md-3">
-        <h5 class="footer-title">About Us</h5>
-        <ul class="footer-links">
-          <li><a href="#">Our Story</a></li>
-          <li><a href="#">Work with us</a></li>
-        </ul>
-        <h5 class="footer-title mt-3">Contact Us</h5>
-        <ul class="footer-links">
-          <li><a href="#">Our Story</a></li>
-          <li><a href="#">Work with us</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</footer>
+  </footer>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script th:src="@{/js/index.js}"></script>
-<script th:src="@{/js/tour_detail.js}"></script>
-<script th:src="@{/js/logout.js}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:src="@{/js/index.js}"></script>
+  <script th:src="@{/js/tour_detail.js}"></script>
+  <script th:src="@{/js/logout.js}"></script>
 </body>
+
 </html>
-
-
-
-
-

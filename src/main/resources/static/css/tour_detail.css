@@ -1,15 +1,16 @@
-
       #tourTitle {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #004d40; /* đậm hơn màu nền */
+        color: #004d40;
+        /* đậm hơn màu nền */
       }
 
 
       .tour-price {
         font-size: 1.6rem;
         font-weight: bold;
-        color: #ff6f61; /* đỏ san hô nhẹ */
+        color: #ff6f61;
+        /* đỏ san hô nhẹ */
       }
 
 
@@ -25,6 +26,11 @@
       .btn-favorite:hover {
         background-color: red;
         color: white;
+      }
+
+
+      .btn-favorite .fa-heart {
+        transition: color 0.2s;
       }
 
 
@@ -51,18 +57,22 @@
         padding-left: 0.5rem;
         padding-right: 0.5rem;
       }
+
       .activity-icon i {
         color: #1abc9c;
         margin-right: 10px;
       }
+
       .tour-images img {
         border-radius: 12px;
       }
+
       .tour-images img {
         border-radius: 12px;
         transition: transform 0.4s ease, box-shadow 0.3s ease;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
+
       .thumbnail-row img {
         width: 120px;
         height: 80px;
@@ -93,9 +103,11 @@
         0% {
           transform: translateX(0);
         }
+
         50% {
           transform: translateX(6px);
         }
+
         100% {
           transform: translateX(0);
         }
@@ -191,6 +203,7 @@
 
 
       @media (max-width: 768px) {
+
         .review-card,
         .map-card {
           height: auto;
@@ -256,6 +269,7 @@
           font-size: 0.85rem;
           padding: 8px 14px;
         }
+
         .tour-step-separator {
           width: 20px;
         }
@@ -324,11 +338,9 @@
         left: -40%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(
-          circle at center,
-          rgba(0, 191, 165, 0.05),
-          transparent 70%
-        );
+        background: radial-gradient(circle at center,
+            rgba(0, 191, 165, 0.05),
+            transparent 70%);
         transform: rotate(45deg);
         z-index: 0;
       }
@@ -346,4 +358,3 @@
         position: relative;
         z-index: 1;
       }
-
