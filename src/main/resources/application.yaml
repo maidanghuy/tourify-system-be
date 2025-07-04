@@ -39,6 +39,14 @@ spring:
   application:
     name: tourify-system-be
 
+  ai:
+    openai:
+      api-key: ${GEMINI_KEY}
+      chat:
+        base-url: https://generativelanguage.googleapis.com
+        completions-path: /v1beta/openai/chat/completions
+        options:
+          model: gemini-2.0-flash
   jackson:
     time-zone: Asia/Ho_Chi_Minh
 
