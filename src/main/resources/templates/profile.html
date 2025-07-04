@@ -284,7 +284,7 @@
     <div class="container">
         <!-- User Info -->
         <div class="user-info">
-            <h1 class="user-name">John Doe.</h1>
+            <h1 id="fullName-display" class="user-name">John Doe.</h1>
         </div>
 
         <!-- Profile Tabs -->
@@ -636,6 +636,7 @@
                 .then(resp => {
                     if (resp.code === 1000) {
                         // Cập nhật lại UI
+                        document.getElementById('fullName-display').textContent = `${data.firstName} ${data.lastName}`.trim();
                         document.getElementById('firstName-display').textContent = data.firstName;
                         document.getElementById('lastName-display').textContent = data.lastName;
                         document.getElementById('email-display').textContent = data.email;
