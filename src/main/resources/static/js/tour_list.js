@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                    title="View details">
                   <i class="fa fa-eye"></i>
                 </a>
-                <a href="/tourify/tourBooking?id=${tour.tourId}"
+                <a href="/tourify/tour/booking?id=${tour.tourId}"
                    class="action-btn"
                    title="Book this tour">
                   <i class="fa fa-plane-departure"></i>
