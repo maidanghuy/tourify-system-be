@@ -53,7 +53,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return true;
         } catch (JwtException ex) {
-            System.out.println("❌ Token validation failed: " + ex.getMessage());
+            System.out.println();
             throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
         }
     }
