@@ -1,23 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elements ---
-    const priceInput            = document.getElementById('priceRange');
-    const priceValue            = document.getElementById('priceValue');
-    const durationInput         = document.getElementById('durationRange');
-    const durationValue         = document.getElementById('durationValue');
-    const ratingButtons         = document.querySelectorAll('.rating-btn');
+    const priceInput = document.getElementById('priceRange');
+    const priceValue = document.getElementById('priceValue');
+    const durationInput = document.getElementById('durationRange');
+    const durationValue = document.getElementById('durationValue');
+    const ratingButtons = document.querySelectorAll('.rating-btn');
     const companyFilterContainer = document.getElementById('companyFilterContainer');
-    const container             = document.getElementById('tourResultsContainer');
-    const noTourMsg             = document.getElementById('noTourMsg');
-    const loadingSpinner        = document.getElementById('loadingSpinner');
-    const pagination            = document.getElementById('pagination');
-    const paginationWrapper     = pagination.closest('.text-center');
-    const scrollTarget          = document.getElementById('tourListScrollable');
+    const container = document.getElementById('tourResultsContainer');
+    const noTourMsg = document.getElementById('noTourMsg');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const pagination = document.getElementById('pagination');
+    const paginationWrapper = pagination.closest('.text-center');
+    const scrollTarget = document.getElementById('tourListScrollable');
     // Compare modal elements
-    const compareHeader   = document.getElementById('compareHeader');
-    const compareBody     = document.getElementById('compareBody');
-    const doCompareBtn    = document.getElementById('doCompareBtn');
-    const compareModalEl  = document.getElementById('compareModal');
-    const compareModal    = new bootstrap.Modal(compareModalEl);
+    const compareHeader = document.getElementById('compareHeader');
+    const compareBody = document.getElementById('compareBody');
+    const doCompareBtn = document.getElementById('doCompareBtn');
+    const compareModalEl = document.getElementById('compareModal');
+    const compareModal = new bootstrap.Modal(compareModalEl);
     // Dropdown
     const compareDropdownWrap = document.getElementById('compareDropdownWrap');
     const compareDropdownSelect = document.getElementById('compareDropdownSelect');
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let filteredTours = [];
     let compareArray = [];
     let compareMainTour = null;
+    let favoriteTourIds = [];
 
     const selectedFilters = {
         price: null,
@@ -41,23 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const compareFields = [
-        ['Tour Name',           'tourName'],
-        ['Description',         'description'],
-        ['Duration (days)',     'duration'],
-        ['Price (VND)',         'price'],
-        ['Min People',          'minPeople'],
-        ['Max People',          'maxPeople'],
-        ['Assigned',            'touristNumberAssigned'],
-        ['Place',               'placeName'],
-        ['Category',            'categoryName'],
-        ['Rating',              'rating'],
-        ['Created By',          'createdByUserName'],
-        ['Booked Count',        'bookedCustomerCount']
+        ['Tour Name', 'tourName'],
+        ['Description', 'description'],
+        ['Duration (days)', 'duration'],
+        ['Price (VND)', 'price'],
+        ['Min People', 'minPeople'],
+        ['Max People', 'maxPeople'],
+        ['Assigned', 'touristNumberAssigned'],
+        ['Place', 'placeName'],
+        ['Category', 'categoryName'],
+        ['Rating', 'rating'],
+        ['Created By', 'createdByUserName'],
+        ['Booked Count', 'bookedCustomerCount']
     ];
 
     // --- Helpers ---
     function updateDisplayCount() {
-        priceValue.textContent    = `${parseInt(priceInput.value, 10).toLocaleString()} VND`;
+        priceValue.textContent = `${parseInt(priceInput.value, 10).toLocaleString()} VND`;
         durationValue.textContent = `${parseInt(durationInput.value, 10)} day(s)`;
     }
 
@@ -66,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<span class="text-muted small fst-italic">Unrated</span>`;
         }
         rating = Math.min(Math.round(rating * 2) / 2, 5);
-        const full  = Math.floor(rating);
-        const half  = rating % 1 !== 0;
+        const full = Math.floor(rating);
+        const half = rating % 1 !== 0;
         const empty = 5 - full - (half ? 1 : 0);
         return (
             '<i class="fas fa-star text-warning"></i>'.repeat(full) +
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Rendering tours & pagination ---
     function renderToursPage(pageIndex) {
         container.innerHTML = '';
-        const start    = pageIndex * chunkSize;
+        const start = pageIndex * chunkSize;
         const pageData = filteredTours.slice(start, start + chunkSize);
 
         pageData.forEach(tour => {
@@ -147,10 +148,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         title="Compare tours">
                   <i class="fas fa-exchange-alt"></i>
                 </button>
-                <button class="action-btn btn-favorite"
+                <button class="action-btn btn-favorite ${favoriteTourIds.includes(tour.tourId) ? 'active' : ''}"
                         data-tour-id="${tour.tourId}"
-                        title="Add to favorites">
-                  <i class="fa fa-heart"></i>
+                        title="${favoriteTourIds.includes(tour.tourId) ? 'Remove from favorites' : 'Add to favorites'}">
+                  <i class="fa fa-heart ${favoriteTourIds.includes(tour.tourId) ? 'text-danger' : ''}"></i>
                 </button>
                 <a href="/tourify/tourDetail?id=${tour.tourId}"
                    class="action-btn"
@@ -192,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pagination.appendChild(mkBtn('←', currentPage - 1, { disabled: currentPage === 0 }));
         // Pages window
         const start = Math.max(0, currentPage - 1);
-        const end   = Math.min(totalPages, start + 3);
+        const end = Math.min(totalPages, start + 3);
 
         if (start > 0) {
             pagination.appendChild(mkBtn('1', 0));
@@ -235,9 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyFilters() {
         const { price, duration, rating, companies } = selectedFilters;
         filteredTours = allTours.filter(tour =>
-            (!price   || tour.price <= price) &&
-            (!duration|| tour.duration >= duration) &&
-            (!rating  || Math.floor(tour.rating) === rating) &&
+            (!price || tour.price <= price) &&
+            (!duration || tour.duration >= duration) &&
+            (!rating || Math.floor(tour.rating) === rating) &&
             (companies.length === 0 || companies.includes(tour.createdByUserName))
         );
         if (filteredTours.length === 0) {
@@ -281,35 +282,67 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!favBtn) return;
 
         const tourId = favBtn.dataset.tourId;
-        const token  = localStorage.getItem('accessToken');
+        const token = localStorage.getItem('accessToken');
         if (!token) {
             Toastify({ text: "Please login first", className: "bg-danger" }).showToast();
             return;
         }
 
         favBtn.disabled = true;
-        fetch(`/tourify/api/user/favorites/${tourId}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type':  'application/json'
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                favBtn.disabled = false;
-                if (data.code === 1000) {
-                    favBtn.classList.add('active');
-                    favBtn.querySelector('i').classList.add('text-danger');
-                    Toastify({ text: "Added to favorites", className: "bg-success" }).showToast();
-                } else {
-                    Toastify({ text: "Failed to add favorite", className: "bg-danger" }).showToast();
+        const isFavorite = favoriteTourIds.includes(tourId);
+
+        if (isFavorite) {
+            // Xóa khỏi favorites
+            fetch(`/tourify/api/user/favorites/${tourId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
                 }
             })
-            .catch(() => {
-                favBtn.disabled = false;
-                Toastify({ text: "Network error", className: "bg-danger" }).showToast();
-            });
+                .then(res => res.json())
+                .then(data => {
+                    favBtn.disabled = false;
+                    if (data.code === 1000) {
+                        // Xóa khỏi mảng
+                        favoriteTourIds = favoriteTourIds.filter(id => id !== tourId);
+                        favBtn.classList.remove('active');
+                        favBtn.querySelector('i').classList.remove('text-danger');
+                        Toastify({ text: "Removed from favorites", className: "bg-success" }).showToast();
+                    } else {
+                        Toastify({ text: "Failed to remove favorite", className: "bg-danger" }).showToast();
+                    }
+                })
+                .catch(() => {
+                    favBtn.disabled = false;
+                    Toastify({ text: "Network error", className: "bg-danger" }).showToast();
+                });
+        } else {
+            // Thêm vào favorites
+            fetch(`/tourify/api/user/favorites/${tourId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    favBtn.disabled = false;
+                    if (data.code === 1000) {
+                        favoriteTourIds.push(tourId);
+                        favBtn.classList.add('active');
+                        favBtn.querySelector('i').classList.add('text-danger');
+                        Toastify({ text: "Added to favorites", className: "bg-success" }).showToast();
+                    } else {
+                        Toastify({ text: "Failed to add favorite", className: "bg-danger" }).showToast();
+                    }
+                })
+                .catch(() => {
+                    favBtn.disabled = false;
+                    Toastify({ text: "Network error", className: "bg-danger" }).showToast();
+                });
+        }
     });
 
     // --- Compare modal logic ---
@@ -359,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideCompareDropdown();
         };
     }
-    document.addEventListener('mousedown', function(e) {
+    document.addEventListener('mousedown', function (e) {
         if (
             compareDropdownWrap &&
             compareDropdownWrap.style.display === 'block' &&
@@ -418,18 +451,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (showDiffCheckbox) {
-        showDiffCheckbox.onchange = function() {
+        showDiffCheckbox.onchange = function () {
             highlightDifferences();
             filterShowDiffRows();
         };
     }
 
     compareModalEl.addEventListener('hidden.bs.modal', () => {
-        compareArray     = [];
-        compareMainTour  = null;
+        compareArray = [];
+        compareMainTour = null;
         compareHeader.innerHTML = '';
-        compareBody.innerHTML   = '';
-        doCompareBtn.disabled   = true;
+        compareBody.innerHTML = '';
+        doCompareBtn.disabled = true;
         hideCompareDropdown();
         if (showDiffCheckbox) showDiffCheckbox.checked = false;
     });
@@ -494,9 +527,9 @@ document.addEventListener('DOMContentLoaded', () => {
     (function fetchTours() {
         const params = new URLSearchParams(window.location.search);
         const requestBody = {
-            placeName:          params.get('placeName'),
-            categoryName:       params.get('categoryName'),
-            duration:           params.get('duration')
+            placeName: params.get('placeName'),
+            categoryName: params.get('categoryName'),
+            duration: params.get('duration')
                 ? parseInt(params.get('duration'), 10)
                 : null,
             touristNumberAssigned: params.get('touristNumberAssigned')
@@ -512,16 +545,38 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(res => res.json())
             .then(data => {
-                allTours               = data || [];
-                const maxPrice         = Math.max(0, ...allTours.map(t => t.price || 0));
-                priceInput.max         = maxPrice;
-                priceInput.value       = maxPrice;
-                selectedFilters.price  = maxPrice;
+                allTours = data || [];
+                const maxPrice = Math.max(0, ...allTours.map(t => t.price || 0));
+                priceInput.max = maxPrice;
+                priceInput.value = maxPrice;
+                selectedFilters.price = maxPrice;
                 updateDisplayCount();
 
                 loadingSpinner.classList.add('d-none');
-                renderCompanyFilters(allTours);
-                applyFilters();
+                const token = localStorage.getItem('accessToken');
+                if (token) {
+                    fetch('/tourify/api/user/favorites', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.code === 1000 && Array.isArray(data.result)) {
+                                favoriteTourIds = data.result.map(t => t.tourId);
+                            } else {
+                                favoriteTourIds = [];
+                            }
+                            renderCompanyFilters(allTours);
+                            applyFilters();
+                        });
+                } else {
+                    favoriteTourIds = [];
+                    renderCompanyFilters(allTours);
+                    applyFilters();
+                }
             })
             .catch(err => {
                 console.error('Failed to load tours', err);
