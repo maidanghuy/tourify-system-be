@@ -196,3 +196,184 @@ document.querySelectorAll(".tour-step").forEach((step) => {
         // Thêm logic scroll/hiện section tương ứng
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get("id");
+    const token = localStorage.getItem('accessToken');
+    const BASE_URL = "/tourify/api/feedbacks";
+
+    const pageSize = 2;  // Mỗi trang 1 feedback
+    let currentPage = 1;
+    let totalPages = 1;
+    let feedbackList = []; // Lưu toàn bộ feedback
+
+    // Helpers
+    function renderStars(rating) {
+        rating = Math.round(rating || 5);
+        return "★".repeat(rating) + "<span class='text-muted'>" + "★".repeat(5 - rating) + "</span>";
+    }
+
+    function timeAgo(isoDate) {
+        if (!isoDate) return "";
+        const date = new Date(isoDate);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 60000);
+        if (diff < 1) return "just now";
+        if (diff < 60) return `${diff} minutes ago`;
+        const diffH = Math.floor(diff / 60);
+        if (diffH < 24) return `${diffH} hours ago`;
+        const diffD = Math.floor(diffH / 24);
+        return `${diffD} days ago`;
+    }
+
+    function roleBadge(role) {
+        if (!role) return `<span class="badge bg-secondary ms-2 role-badge">User</span>`;
+        const r = role.toUpperCase();
+        if (r === "ADMIN") return `<span class="badge bg-danger ms-2 role-badge">Admin</span>`;
+        if (r === "SUB_COMPANY") return `<span class="badge bg-info ms-2 role-badge">Tour-Company</span>`;
+        return `<span class="badge bg-secondary ms-2 role-badge">User</span>`;
+    }
+
+    // 1. Phần feedback mới nhất (giữ nguyên)
+    fetch(`${BASE_URL}/${tourId}/latest`, {
+        headers: token && token.trim() !== '' ? { 'Authorization': 'Bearer ' + token } : {}
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("No feedback");
+            return res.json();
+        })
+        .then(feedback => {
+            document.getElementById('feedbackUserName').textContent = feedback.userFullName ?? 'User';
+            document.getElementById('feedbackAvatar').src = feedback.avatar || "/img/default-avatar.png";
+            document.getElementById('feedbackUserInfo').innerHTML =
+                `${roleBadge(feedback.role)} · ${timeAgo(feedback.createdAt)}`;
+            document.getElementById('feedbackContent').textContent = `"${feedback.content}"`;
+            document.getElementById('feedbackRating').innerHTML = renderStars(feedback.rating || 5);
+        })
+        .catch(() => {
+            document.getElementById('feedbackUserName').textContent = "No feedback available";
+            document.getElementById('feedbackAvatar').src = "/img/default-avatar.png";
+            document.getElementById('feedbackUserInfo').innerHTML = "";
+            document.getElementById('feedbackContent').textContent = "";
+            document.getElementById('feedbackRating').innerHTML = "";
+        });
+
+    // 2. Phân trang & render modal feedback list
+    function renderPagination() {
+        const pageNumbersContainer = document.getElementById('pageNumbersContainer');
+        pageNumbersContainer.innerHTML = "";
+
+        const maxButtons = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        let endPage = startPage + maxButtons - 1;
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxButtons + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-success btn-sm';
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add('active');
+            btn.addEventListener('click', () => loadFeedbackPage(i));
+            pageNumbersContainer.appendChild(btn);
+        }
+
+        document.getElementById('prevPageBtn').disabled = currentPage === 1;
+        document.getElementById('nextPageBtn').disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    function loadFeedbackPage(page) {
+        if (!feedbackList || feedbackList.length === 0) {
+            document.getElementById('feedbackListBody').innerHTML = "<div class='text-center text-muted'>This tour has no feedback.</div>";
+            document.getElementById('feedbackCount').textContent = "0";
+            renderPagination();
+            return;
+        }
+
+        totalPages = Math.ceil(feedbackList.length / pageSize);
+        currentPage = page;
+
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, feedbackList.length);
+        const currentPageFeedbacks = feedbackList.slice(startIndex, endIndex);
+
+        document.getElementById('feedbackCount').textContent = feedbackList.length > 99 ? "99+" : feedbackList.length;
+
+        document.getElementById('feedbackListBody').innerHTML = currentPageFeedbacks.map(fb => `
+            <div class="feedback-item mb-4 p-3 rounded shadow-sm border bg-white">
+                <div class="d-flex align-items-center mb-2 gap-3">
+                    <img src="${fb.avatar || '/img/default-avatar.png'}" alt="Avatar" width="48" height="48" class="rounded-circle shadow-sm" />
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <strong class="text-dark">${fb.userFullName}</strong>
+                            ${roleBadge(fb.role)}
+                        </div>
+                        <small class="text-muted">${timeAgo(fb.createdAt)}</small>
+                        <div class="mt-1 text-warning fs-6">${renderStars(fb.rating)}</div>
+                    </div>
+                </div>
+                <p class="mt-3 fst-italic text-secondary mb-0" style="font-size: 1rem;">"${fb.content}"</p>
+            </div>
+        `).join('');
+
+        renderPagination();
+    }
+
+    // Lấy toàn bộ feedback 1 lần duy nhất rồi phân trang client
+    const headers = {};
+    if (token && token.trim() !== '') {
+        headers['Authorization'] = 'Bearer ' + token;
+    }
+
+    fetch(`${BASE_URL}/${tourId}`, { headers })
+        .then(res => {
+            if (!res.ok) throw new Error('Not authorized');
+            return res.json();
+        })
+        .then(data => {
+            feedbackList = data.feedbacks || data;
+
+            // Lấy feedback mới nhất riêng biệt
+            fetch(`${BASE_URL}/${tourId}/latest`, { headers })
+                .then(res => {
+                    if (!res.ok) throw new Error('No latest feedback');
+                    return res.json();
+                })
+                .then(latestFeedback => {
+                    // Nếu feedback mới nhất chưa có trong list thì thêm vào đầu
+                    const exists = feedbackList.some(fb => fb.feedbackId === latestFeedback.feedbackId);
+                    if (!exists && latestFeedback.feedbackId) {
+                        feedbackList.unshift(latestFeedback);
+                    }
+                })
+                .catch(() => {
+                    // Không có feedback mới nhất, bỏ qua
+                })
+                .finally(() => {
+                    totalPages = Math.ceil(feedbackList.length / pageSize);
+                    currentPage = 1;
+                    loadFeedbackPage(currentPage);
+                });
+        })
+        .catch(() => {
+            feedbackList = [];
+            totalPages = 1;
+            currentPage = 1;
+
+            document.getElementById('feedbackListBody').innerHTML = "<div class='text-center text-muted'>This tour has no feedback.</div>";
+            document.getElementById('feedbackCount').textContent = "0";
+            renderPagination();
+        });
+
+    // Sự kiện Prev / Next
+    document.getElementById('prevPageBtn').addEventListener('click', () => {
+        if (currentPage > 1) loadFeedbackPage(currentPage - 1);
+    });
+
+    document.getElementById('nextPageBtn').addEventListener('click', () => {
+        if (currentPage < totalPages) loadFeedbackPage(currentPage + 1);
+    });
+});

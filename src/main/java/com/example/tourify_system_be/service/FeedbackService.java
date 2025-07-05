@@ -32,9 +32,8 @@ public class FeedbackService {
     private final ITourRepository tourRepo;
     private final IUserRepository userRepo;
 
-    // ----- BAD WORDS: mở rộng tùy nghiệp vụ -----
     private static final List<String> BAD_WORDS = List.of(
-            // Tiếng Anh
+            // ... danh sách từ cấm ...
             "fuck", "shit", "bitch", "asshole", "bastard", "dick", "cunt", "fag", "slut", "whore", "motherfucker",
             "son of a bitch", "cock", "pussy", "douche", "douchebag", "bollocks", "bugger", "bloody", "damn", "crap",
             "wanker", "twat", "prick", "nigger", "nigga", "retard", "moron", "idiot", "stupid", "jackass",
@@ -45,80 +44,63 @@ public class FeedbackService {
             "thằng chó", "ngu", "óc chó", "đần", "con chó", "chó má", "con đĩ", "con cặc"
     );
 
-
     private boolean isFeedbackValid(FeedbackRequest req) {
         if (req.getTitle() == null || req.getTitle().trim().length() < 5) return false;
         if (req.getContent() == null || req.getContent().trim().length() < 10) return false;
         if (req.getRating() == null || req.getRating() < 1.0 || req.getRating() > 5.0) return false;
 
-        // Gom cả title và content, chuyển về thường, loại dấu thừa
-        String all = (req.getTitle() + " " + req.getContent()).toLowerCase().replaceAll("[^a-zA-Z0-9\\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]", " ");
-        String[] words = all.split("\\s+"); // tách theo khoảng trắng
+        String all = (req.getTitle() + " " + req.getContent()).toLowerCase()
+                .replaceAll("[^a-zA-Z0-9\\sàáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ]", " ");
+        String[] words = all.split("\\s+");
 
         for (String bad : BAD_WORDS) {
             for (String word : words) {
-                // So sánh cứng và cả khi word bắt đầu bằng từ cấm (để bắt biến thể)
                 if (word.equals(bad) || word.startsWith(bad)) {
                     return false;
                 }
             }
         }
-        // Nếu muốn dùng Perspective API, chèn thêm check ở đây:
-        // if (PerspectiveChecker.isToxic(all)) return false;
         return true;
     }
 
-
-    /**
-     * Lấy feedbacks cho tour.
-     * User chỉ xem feedback đã duyệt, sub_company & admin xem tất cả.
-     */
     @Transactional(readOnly = true)
     public List<FeedbackResponse> getFeedbacksByTour(String bearerToken, String tourId) {
-        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Bạn không có quyền truy cập feedback.");
-        }
-        String jwt = bearerToken.substring(7);
-        jwtUtil.validateToken(jwt);
-
-        CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
-        String role = Optional.ofNullable(user.getRole()).map(String::trim).orElse("").toUpperCase(Locale.ROOT);
-        boolean isUser = "USER".equals(role);
-        boolean isSubCompany = "SUB_COMPANY".equals(role);
-        boolean isAdmin = "ADMIN".equals(role);
-
         if (!tourRepo.existsById(tourId)) {
             throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour.");
         }
 
-        List<Feedback> feedbacks;
-        if (isUser) {
-            // USER chỉ xem feedback đã APPROVED
-            feedbacks = feedbackRepository.findByTour_TourIdAndStatusNotIn(
-                    tourId, List.of("REJECTED", "DELETED", "PENDING")
-            );
-        } else {
-            // ADMIN & SUB_COMPANY xem tất cả feedback
-            feedbacks = feedbackRepository.findByTour_TourId(tourId);
+        boolean isAdminOrSubCompany = false;
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            try {
+                String jwt = bearerToken.substring(7);
+                jwtUtil.validateToken(jwt); // có thể throw exception nếu token không hợp lệ
+                CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
+                String role = Optional.ofNullable(user.getRole())
+                        .map(String::trim)
+                        .orElse("")
+                        .toUpperCase(Locale.ROOT);
+                isAdminOrSubCompany = "ADMIN".equals(role) || "SUB_COMPANY".equals(role);
+            } catch (Exception e) {
+                // Token không hợp lệ, coi như là khách (không phải admin/sub-company)
+                isAdminOrSubCompany = false;
+            }
         }
 
-        // Chuẩn REST: Trả về empty list nếu không có feedback (không ném lỗi)
+        List<Feedback> feedbacks;
+        if (isAdminOrSubCompany) {
+            // Admin hoặc Sub-company được xem tất cả feedback (không lọc status)
+            feedbacks = feedbackRepository.findByTour_TourId(tourId);
+        } else {
+            // Khách và các vai trò khác chỉ xem feedback hợp lệ (đã duyệt)
+            feedbacks = feedbackRepository.findByTour_TourIdAndStatus(tourId, "APPROVED");
+        }
+
         return feedbacks.stream()
-                .map(fb -> FeedbackResponse.builder()
-                        .feedbackId(fb.getFeedbackId())
-                        .userFullName(fb.getUser().getFullName())
-                        .title(fb.getTitle())
-                        .content(fb.getContent())
-                        .rating(fb.getRating().doubleValue())
-                        .createdAt(fb.getCreateAt())
-                        .status(fb.getStatus())
-                        .build())
+                .map(this::mapFeedbackToResponse)
                 .toList();
     }
 
-    /**
-     * Gửi feedback: Tự động duyệt nếu hợp lệ, reject và xoá nếu không hợp lệ.
-     */
     @Transactional
     public FeedbackResponse addFeedback(String bearerToken, FeedbackRequest req) {
         if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
@@ -128,7 +110,6 @@ public class FeedbackService {
         jwtUtil.validateToken(jwt);
         CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(jwt);
 
-        // Chỉ USER được gửi feedback
         String role = Optional.ofNullable(userDetails.getRole()).orElse("");
         if (!"USER".equalsIgnoreCase(role)) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Chỉ người dùng mới có thể gửi feedback.");
@@ -160,33 +141,57 @@ public class FeedbackService {
             throw new AppException(ErrorCode.INVALID_FEEDBACK, "Feedback không hợp lệ (quá ngắn, không đúng nội dung hoặc chứa từ cấm) và đã bị xoá!");
         }
 
-        return FeedbackResponse.builder()
-                .feedbackId(fb.getFeedbackId())
-                .userFullName(user.getFullName())
-                .title(fb.getTitle())
-                .content(fb.getContent())
-                .rating(fb.getRating().doubleValue())
-                .createdAt(fb.getCreateAt())
-                .status(fb.getStatus())
-                .build();
+        return mapFeedbackToResponse(fb);
     }
 
-    /**
-     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho 1 tour.
-     */
     @Transactional(readOnly = true)
-    public FeedbackResponse getLatestApprovedFeedback(String tourId) {
+    public FeedbackResponse getLatestApprovedFeedback(String bearerToken, String tourId) {
         if (!tourRepo.existsById(tourId)) {
             throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour.");
         }
 
-        Feedback fb = feedbackRepository
-                .findTopByTour_TourIdAndStatusOrderByCreateAtDesc(tourId, "APPROVED")
-                .orElseThrow(() -> new AppException(ErrorCode.FEEDBACK_NOT_FOUND, "Chưa có feedback được duyệt cho tour này."));
+        boolean isAdminOrSubCompany = false;
 
+        // Kiểm tra token và role nếu có, xử lý ngoại lệ khi validate thất bại
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            try {
+                String jwt = bearerToken.substring(7);
+                jwtUtil.validateToken(jwt);
+                CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
+                String role = Optional.ofNullable(user.getRole()).map(String::trim).orElse("").toUpperCase(Locale.ROOT);
+                isAdminOrSubCompany = "ADMIN".equals(role) || "SUB_COMPANY".equals(role);
+            } catch (Exception e) {
+                // Token không hợp lệ, coi như không phải admin/sub-company
+                isAdminOrSubCompany = false;
+            }
+        }
+
+        Optional<Feedback> fbOptional;
+
+        if (isAdminOrSubCompany) {
+            // Trả về feedback mới nhất bất kể trạng thái
+            fbOptional = feedbackRepository.findTopByTour_TourIdOrderByCreateAtDesc(tourId);
+        } else {
+            // Chỉ trả về feedback mới nhất có trạng thái APPROVED
+            fbOptional = feedbackRepository.findTopByTour_TourIdAndStatusOrderByCreateAtDesc(tourId, "APPROVED");
+        }
+
+        if (fbOptional.isEmpty()) {
+            return null;
+        }
+
+        return mapFeedbackToResponse(fbOptional.get());
+    }
+
+
+    // Helper: mapping entity Feedback -> FeedbackResponse
+    private FeedbackResponse mapFeedbackToResponse(Feedback fb) {
+        User user = fb.getUser();
         return FeedbackResponse.builder()
                 .feedbackId(fb.getFeedbackId())
-                .userFullName(fb.getUser().getFullName())
+                .userFullName(user.getFullName())
+                .avatar(user.getAvatar())
+                .role(user.getRole())
                 .title(fb.getTitle())
                 .content(fb.getContent())
                 .rating(fb.getRating().doubleValue())

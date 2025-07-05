@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 public class FeedbackResponse {
     private String feedbackId;
     private String userFullName;
+    private String avatar;     // đường dẫn ảnh user
+    private String role;       // đúng tên trường trong User entity
     private String title;
     private String content;
     private Double rating;
     private LocalDateTime createdAt;
-    private String status;  // pending/approved/rejected
+    private String status;
 }

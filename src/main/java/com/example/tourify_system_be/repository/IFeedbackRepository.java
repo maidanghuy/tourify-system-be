@@ -17,8 +17,7 @@ public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
     /** Lấy tất cả feedback theo tour */
     List<Feedback> findByTour_TourId(String tourId);
 
-    /** Lấy feedback mà status NOT IN (ví dụ rejected, deleted) */
-    List<Feedback> findByTour_TourIdAndStatusNotIn(String tourId, Collection<String> statusesToExclude);
+    List<Feedback> findByTour_TourIdAndStatus(String tourId, String status);
 
     /**
      * Tính trung bình rating (tối ưu)
@@ -27,4 +26,5 @@ public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
     BigDecimal findAverageRatingByTourId(@Param("tourId") String tourId);
 
     Optional<Feedback> findTopByTour_TourIdAndStatusOrderByCreateAtDesc(String tourId, String status);
+    Optional<Feedback> findTopByTour_TourIdOrderByCreateAtDesc(String tourId);
 }

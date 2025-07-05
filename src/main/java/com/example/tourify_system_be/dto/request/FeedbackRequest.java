@@ -5,19 +5,19 @@ import lombok.Data;
 
 @Data
 public class FeedbackRequest {
-    @NotBlank
+    @NotBlank(message = "Tour ID must not be blank")
     private String tourId;
 
-    @NotBlank
-    @Size(max = 100)
+    @NotBlank(message = "Title must not be blank")
+    @Size(min = 5, max = 100, message = "Title must be from 5 to 100 characters")
     private String title;
 
-    @NotBlank
-    @Size(max = 1000)
+    @NotBlank(message = "Content must not be blank")
+    @Size(min = 10, max = 1000, message = "Content must be from 10 to 1000 characters")
     private String content;
 
-    @NotNull
-    @DecimalMin("0.0")
-    @DecimalMax("5.0")
+    @NotNull(message = "Rating is required")
+    @DecimalMin(value = "1.0", message = "Rating must be at least 1.0")
+    @DecimalMax(value = "5.0", message = "Rating must be at most 5.0")
     private Double rating;
 }

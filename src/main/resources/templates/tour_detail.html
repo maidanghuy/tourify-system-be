@@ -12,6 +12,8 @@
 
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" th:href="@{/css/index.css}" />
   <link rel="stylesheet" th:href="@{/css/tour_detail.css}">
 
@@ -495,48 +497,70 @@
       <!-- Review Box -->
       <div class="col-md-6 position-relative">
         <div class="review-card shadow-lg p-4 h-100 rounded-4 text-white position-relative"
-          style="background-color: #247f74">
+             style="background-color: #247f74">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <!-- Avatar + Info -->
             <div class="d-flex align-items-center">
-              <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-3" width="52"
-                height="52" alt="User Avatar" />
+              <img id="feedbackAvatar" src="/img/default-avatar.png"
+                   class="rounded-circle me-3" width="52" height="52" alt="User Avatar" />
               <div>
-                <h6 class="mb-0 fw-bold">Angelina Rose</h6>
-                <small class="text-white-50">Traveller · 21 minutes ago</small>
+                <h6 class="mb-0 fw-bold" id="feedbackUserName">User Name</h6>
+                <small class="text-white-50">
+                  <span id="feedbackUserInfo">0 minutes ago</span>
+                </small>
               </div>
             </div>
-
-
-            <!-- Icons -->
-            <div class="d-flex gap-3 text-white-50 fs-6">
-              <i class="far fa-clock"></i>
-              <i class="fas fa-ellipsis-v"></i>
-            </div>
           </div>
-
-
           <!-- Rating -->
           <div class="mb-2">
-            <span class="text-warning fs-5">★★★★★</span>
+            <span class="text-warning fs-5" id="feedbackRating"></span>
           </div>
-
-
           <!-- Review Text -->
-          <p class="mb-0 text-white-75 fst-italic">
-            "Solar panels adorn the roof, harnessing renewable energy to power
-            the home and even feed excess electricity back into the grid.
-            High-performance insulation and triple-glazed."
-          </p>
-
-
-          <!-- Floating Badge -->
-          <div class="position-absolute bottom-0 start-50 translate-middle-y" style="transform: translate(-50%, 50%)">
-            <span class="badge bg-white text-success shadow rounded-pill px-3 py-2">99+</span>
+          <p class="mb-0 text-white-75 fst-italic" id="feedbackContent">No feedback yet.</p>
+          <!-- Floating Badge: Feedback count + button -->
+          <div class="position-absolute start-50 translate-middle-x"
+               style="bottom: -24px; z-index: 10;">
+            <button
+                    id="feedbackCountBadge"
+                    class="btn btn-light rounded-circle shadow d-flex align-items-center justify-content-center"
+                    style="width: 52px; height: 52px; font-weight: 700; font-size: 1.35rem; color: #247f74;"
+                    data-bs-toggle="modal"
+                    data-bs-target="#feedbackListModal"
+            >
+              <span id="feedbackCount" style="color: #27ae60;">3</span>
+            </button>
           </div>
         </div>
       </div>
 
+
+
+      <!-- Feedback List Modal -->
+      <div class="modal fade" id="feedbackListModal" tabindex="-1" aria-labelledby="feedbackListModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="feedbackListModalLabel">All Feedback</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="feedbackListBody">
+              <!-- Feedbacks sẽ được render bởi JS -->
+            </div>
+            <div class="modal-footer justify-content-center gap-2 flex-wrap" id="paginationContainer">
+              <!-- Nút Prev -->
+              <button id="prevPageBtn" class="btn btn-outline-success" disabled>
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <!-- Nút số trang sẽ render ở đây -->
+              <div id="pageNumbersContainer" class="d-flex gap-1 pagination"></div>
+              <!-- Nút Next -->
+              <button id="nextPageBtn" class="btn btn-outline-success">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Map -->
       <div class="col-md-6">
