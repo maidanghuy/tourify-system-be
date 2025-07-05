@@ -22,10 +22,11 @@ public class FeedbackController {
     /**
      * Lấy danh sách feedback cho 1 tour.
      * User chỉ xem feedback đã duyệt, sub-company & admin xem tất cả.
+     * Header Authorization không bắt buộc để khách cũng xem được feedback hợp lệ.
      */
     @GetMapping("/{tourId}")
     public ResponseEntity<List<FeedbackResponse>> getByTour(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @PathVariable String tourId
     ) {
         List<FeedbackResponse> responses = feedbackService.getFeedbacksByTour(authorization, tourId);
@@ -44,14 +45,16 @@ public class FeedbackController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
-    /**
-     * Lấy feedback mới nhất đã được duyệt (APPROVED) cho một tour.
-     */
-    @GetMapping("/{tourId}/latest-approved")
+    @GetMapping("/{tourId}/latest")
     public ResponseEntity<FeedbackResponse> getLatestApproved(
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
             @PathVariable String tourId
     ) {
-        FeedbackResponse latest = feedbackService.getLatestApprovedFeedback(tourId);
+        FeedbackResponse latest = feedbackService.getLatestApprovedFeedback(authorization, tourId);
+        if (latest == null) {
+            // Có thể trả 204 No Content hoặc 404 tùy ý
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(latest);
     }
 }
