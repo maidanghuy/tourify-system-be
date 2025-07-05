@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = getJwtFromRequest(request);
-            System.out.println("Token extracted: " + token);
+
             if (StringUtils.hasText(token) && jwtUtil.validateToken(token)) {
                 CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(token);
 
@@ -38,15 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("✅ Authentication set for user: " + userDetails.getUsername());
+                    System.out.println();
                 } else {
-                    System.out.println("❌ Failed to extract userDetails from token.");
+                    System.out.println();
                 }
             } else {
-                System.out.println("❌ Invalid or missing token.");
+                System.out.println();
             }
         } catch (Exception e) {
-            System.out.println("❌ Exception in JwtAuthenticationFilter: " + e.getMessage());
+            System.out.println();
             e.printStackTrace(); // In đầy đủ trace
         }
 
