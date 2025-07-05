@@ -33,6 +33,9 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.Optional;
 
+import static com.example.tourify_system_be.exception.ErrorCode.OPERATION_NOT_ALLOWED;
+import static com.example.tourify_system_be.exception.ErrorCode.USER_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -78,7 +81,7 @@ public class UserService {
 
     public UserResponse updateUser(String id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         userMapper.updateUser(user, request);
         user.setUpdatedAt(LocalDateTime.now());
@@ -88,7 +91,7 @@ public class UserService {
 
     public UserResponse getUserById(String id) {
         return userMapper.toUserResponse(
-                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!")));
+                userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!")));
     }
 
     public Iterable<User> getAllUsers() {
@@ -233,7 +236,7 @@ public class UserService {
 
     public void updateName(String username, String firstName, String lastName) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         if (firstName != null) {
             user.setFirstName(firstName);
@@ -247,7 +250,7 @@ public class UserService {
 
     public void updateEmail(String username, String email) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         // Kiểm tra email đã được dùng bởi người khác chưa
         boolean emailUsedByAnotherUser = userRepository.existsByEmail(email) &&
@@ -264,7 +267,7 @@ public class UserService {
 
     public void updatePhone(String username, String phone) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         // Kiểm tra phonenumber đã được dùng bởi người khác chưa
         boolean phoneUsedByAnotherUser = userRepository.existsByPhoneNumber(phone)
                 || phone.equalsIgnoreCase(user.getPhoneNumber());
@@ -279,7 +282,7 @@ public class UserService {
 
     public void updateAddress(String username, String address) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         user.setAddress(address);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
@@ -287,7 +290,7 @@ public class UserService {
 
     public void updateDob(String username, String dob) {
         User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         LocalDate parsedDate = LocalDate.parse(dob, DateTimeFormatter.ISO_LOCAL_DATE);
 
@@ -341,7 +344,7 @@ public class UserService {
         String jwt = token.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         CreditCard creditCard = creditCardMapper.toCreditCard(request);
         creditCard.setCreatedAt(LocalDateTime.now());
         creditCard.setUpdatedAt(LocalDateTime.now());
@@ -350,39 +353,19 @@ public class UserService {
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
 
-    /**
-     * Khoá tài khoản (chỉ ADMIN có quyền khóa, và chỉ khóa được tài khoản của USER
-     * hoặc SUB_COMPANY).
-     */
     @Transactional
     public void lockAccount(String bearerToken, String userId) {
-        // 1) Xác thực token và chỉ cho ADMIN
-        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
-        }
-        String jwt = bearerToken.substring("Bearer ".length()).trim();
-        jwtUtil.validateToken(jwt);
-        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
-        if (currentUser == null ||
-                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
-        }
+        ensureAdmin(bearerToken);
 
-        // 2) Lấy user cần khóa
         User u = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Người dùng không tìm thấy"));
 
-        // 3) Chỉ khóa được các account có role USER hoặc SUB_COMPANY
-        String targetRole = Optional.ofNullable(u.getRole())
-                .map(String::trim)
-                .orElse("");
-        boolean canBeLocked = "USER".equalsIgnoreCase(targetRole)
-                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
-        if (!canBeLocked) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
+        String role = Optional.ofNullable(u.getRole()).map(String::trim).orElse("");
+        if (!"USER".equalsIgnoreCase(role) && !"SUB_COMPANY".equalsIgnoreCase(role)) {
+            throw new AppException(OPERATION_NOT_ALLOWED,
+                    "Chỉ được phép khóa tài khoản có vai trò USER hoặc SUB_COMPANY");
         }
 
-        // 4) Nếu chưa ở trạng thái LOCKED, thì cập nhật
         if (!"LOCKED".equalsIgnoreCase(u.getStatus())) {
             u.setStatus("LOCKED");
             u.setUpdatedAt(LocalDateTime.now());
@@ -390,45 +373,39 @@ public class UserService {
         }
     }
 
-    /**
-     * Mở khoá tài khoản (chỉ ADMIN có quyền và chỉ cho phép mở khóa tài khoản USER
-     * hoặc SUB_COMPANY).
-     */
     @Transactional
     public void unlockAccount(String bearerToken, String userId) {
-        // 1) Xác thực token và chỉ cho ADMIN
-        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
-        }
-        String jwt = bearerToken.substring("Bearer ".length()).trim();
-        jwtUtil.validateToken(jwt);
-        CustomUserDetails currentUser = jwtUtil.getUserDetailsFromToken(jwt);
-        if (currentUser == null ||
-                !"ADMIN".equalsIgnoreCase(currentUser.getRole())) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
-        }
+        ensureAdmin(bearerToken);
 
-        // 2) Lấy user cần mở khóa
         User u = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Người dùng không tìm thấy"));
 
-        // 3) Chỉ mở khóa các account có role USER hoặc SUB_COMPANY
-        String targetRole = Optional.ofNullable(u.getRole())
-                .map(String::trim)
-                .orElse("");
-        boolean canBeUnlocked = "USER".equalsIgnoreCase(targetRole)
-                || "SUB_COMPANY".equalsIgnoreCase(targetRole);
-        if (!canBeUnlocked) {
-            throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
+        String role = Optional.ofNullable(u.getRole()).map(String::trim).orElse("");
+        if (!"USER".equalsIgnoreCase(role) && !"SUB_COMPANY".equalsIgnoreCase(role)) {
+            throw new AppException(OPERATION_NOT_ALLOWED,
+                    "Chỉ được phép mở khóa tài khoản có vai trò USER hoặc SUB_COMPANY");
         }
 
-        // 4) Nếu chưa ở trạng thái ACTIVE thì cập nhật
         if (!"ACTIVE".equalsIgnoreCase(u.getStatus())) {
             u.setStatus("ACTIVE");
             u.setUpdatedAt(LocalDateTime.now());
             userRepository.save(u);
         }
     }
+
+    // Helper chung
+    private void ensureAdmin(String bearerToken) {
+        if (!StringUtils.hasText(bearerToken) || !bearerToken.startsWith("Bearer ")) {
+            throw new AppException(OPERATION_NOT_ALLOWED, "Token không hợp lệ");
+        }
+        String jwt = bearerToken.substring(7).trim();
+        jwtUtil.validateToken(jwt);
+        CustomUserDetails user = jwtUtil.getUserDetailsFromToken(jwt);
+        if (user == null || !"ADMIN".equalsIgnoreCase(user.getRole())) {
+            throw new AppException(OPERATION_NOT_ALLOWED, "Chỉ ADMIN mới có quyền này");
+        }
+    }
+
 
     public List<TourResponse> getFavoritesByToken(String bearerToken) {
         String jwt = bearerToken.replace("Bearer ", "");
@@ -486,7 +463,7 @@ public class UserService {
         String jwt = bearerToken.replace("Bearer ", "");
         String userId = jwtUtil.extractUserId(jwt);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         if (req.getEmail() != null) {
             // Kiểm tra email đã được dùng bởi người khác chưa

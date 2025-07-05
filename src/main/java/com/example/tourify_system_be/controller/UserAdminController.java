@@ -3,6 +3,8 @@ package com.example.tourify_system_be.controller;
 import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,21 +14,39 @@ public class UserAdminController {
 
     private final UserService userService;
 
-    @PostMapping("/{id}/lock")
-    public APIResponse<Void> lock(@RequestHeader("Authorization") String token, @PathVariable("id") String id) {
-        userService.lockAccount(token,id);
-        return APIResponse.<Void>builder()
+    /**
+     * Khoá tài khoản (chỉ ADMIN).
+     */
+    @PutMapping("/{id}/lock")
+    public ResponseEntity<APIResponse<Void>> lockAccount(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable("id") String userId) {
+
+        userService.lockAccount(authorization, userId);
+
+        APIResponse<Void> body = APIResponse.<Void>builder()
                 .code(0)
-                .message("User locked")
+                .message("User has been locked successfully")
                 .build();
+
+        return ResponseEntity.ok(body);
     }
 
-    @PostMapping("/{id}/unlock")
-    public APIResponse<Void> unlock(@RequestHeader("Authorization") String token, @PathVariable("id") String id) {
-        userService.unlockAccount(token,id);
-        return APIResponse.<Void>builder()
+    /**
+     * Mở khoá tài khoản (chỉ ADMIN).
+     */
+    @PutMapping("/{id}/unlock")
+    public ResponseEntity<APIResponse<Void>> unlockAccount(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable("id") String userId) {
+
+        userService.unlockAccount(authorization, userId);
+
+        APIResponse<Void> body = APIResponse.<Void>builder()
                 .code(0)
-                .message("User unlocked")
+                .message("User has been unlocked successfully")
                 .build();
+
+        return ResponseEntity.ok(body);
     }
 }
