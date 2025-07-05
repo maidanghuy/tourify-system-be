@@ -17,37 +17,49 @@ async function sendMessage() {
   const chatBox = document.getElementById("chatBox");
   chatBox.insertAdjacentHTML(
     "beforeend",
-    `<div class="message-container user-message"><div class="message">Bạn: ${userInput}</div></div>`
+    `<div class="message-container user-message">
+       <div class="message"><strong>Bạn:</strong> ${userInput}</div>
+     </div>`
   );
   chatBox.scrollTop = chatBox.scrollHeight;
 
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyAC1nL5pcvvkrFpuZSkrsSixD5El4qr7yY",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: userInput }] }],
-        }),
-      }
-    );
-    const data = await response.json();
-
-    let botText = "Không thể trả lời câu hỏi của bạn. Vui lòng thử lại sau.";
-    if (data.candidates && data.candidates.length) {
-      botText = data.candidates[0].content.parts[0].text;
+    // LẤY token từ localStorage (chắc bạn đã lưu sau khi login)
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      throw new Error("Chưa đăng nhập hoặc không tìm thấy token");
     }
+
+    // GỌI đến đúng URL có context-path /tourify
+    const response = await fetch("/tourify/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ message: userInput })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const botText = await response.text();
     chatBox.insertAdjacentHTML(
       "beforeend",
-      `<div class="message-container bot-message"><div class="message">Chatbot: ${botText}</div></div>`
+      `<div class="message-container bot-message">
+         <div class="message"><strong>Chatbot:</strong> ${botText}</div>
+       </div>`
     );
     chatBox.scrollTop = chatBox.scrollHeight;
+
   } catch (err) {
-    console.error(err);
+    console.error("Chat error:", err);
     chatBox.insertAdjacentHTML(
       "beforeend",
-      `<div class="message-container bot-message"><div class="message">Đã xảy ra lỗi khi kết nối tới API. Vui lòng thử lại sau.</div></div>`
+      `<div class="message-container bot-message">
+         <div class="message">Đã xảy ra lỗi: ${err.message}</div>
+       </div>`
     );
     chatBox.scrollTop = chatBox.scrollHeight;
   }
