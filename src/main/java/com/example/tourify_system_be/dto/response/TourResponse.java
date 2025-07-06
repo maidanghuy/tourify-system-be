@@ -10,6 +10,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -29,6 +30,7 @@ public class TourResponse {
     String status;
     String placeName;
     String categoryName;
+    LocalDateTime createdAt;
 
     /**
      * Trung bình đánh giá của tour (tính từ feedbacks).

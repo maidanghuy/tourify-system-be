@@ -72,5 +72,5 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
             "ORDER BY FUNCTION('YEAR', b.dayStart) ASC")
     List<Object[]> getTotalRevenueByYear(@Param("start") LocalDateTime start,
                                          @Param("end") LocalDateTime end);
-
+    long countByTour_TourId(String tourId);
 }
