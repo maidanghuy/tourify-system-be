@@ -631,3 +631,645 @@ body {
 #tourSubmenu.show {
   margin-bottom: 8px;
 }
+
+/* ======================================================
+   1.  Biến màu dùng chung – đồng bộ với palette gốc
+   ======================================================*/
+:root{
+    --accent          : #198754;   /* xanh lá chủ đạo */
+    --accent-dark     : #146c43;   /* hover/active */
+    --accent-light    : #daf5e9;   /* nền nhạt */
+    --accent-pale     : #f0fdf4;   /* nền rất nhạt */
+
+    /* KPI icon colors (cùng tone xanh, chỉ khác độ đậm) */
+    --kpi-1:#198754;  /* Revenue  */
+    --kpi-2:#1d8e63;  /* Booking  */
+    --kpi-3:#22a06f;  /* Tours    */
+    --kpi-4:#26b57d;  /* Balance  */
+}
+
+/* ======================================================
+   2.  DASHBOARD ADD-ON (KPI card, badge, bảng, …)
+   ======================================================*/
+
+/* KPI CARD ------------------------------------------------*/
+.card-kpi{
+    display:flex;align-items:center;gap:1rem;
+    background:#fff;                     /* đồng màu .card của bạn */
+    border:2px solid var(--accent-light);
+    border-radius:1rem;
+    box-shadow:0 10px 30px rgba(0,0,0,.06);
+    padding:1.25rem 1.5rem;
+}
+.icon-wrap{
+    width:48px;height:48px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:1.4rem;border-radius:50%;
+}
+/* gán màu cho từng KPI (thay “bg-…” bằng class này) */
+.bg-revenue{background:var(--kpi-1);}
+.bg-booking{background:var(--kpi-2);}
+.bg-tour   {background:var(--kpi-3);}
+.bg-balance{background:var(--kpi-4);}
+
+.kpi-title{
+    font-size:.8125rem;
+    color:#6c757d;                  /* giống placeholder gốc */
+    letter-spacing:.2px;
+}
+
+/* Badge phần trăm tăng/giảm */
+.badge-growth{
+    font-size:.75rem;
+    padding:.35em .7em;
+    border-radius:1rem;
+    font-weight:500;
+}
+.badge-growth.text-success{
+    background:rgba(25,135,84,.1);  /* nhạt hơn – đồng chủ đề */
+}
+.badge-growth.text-danger{
+    background:rgba(220,53,69,.12);
+}
+
+/* RANGE FILTER (pill) ------------------------------------*/
+#rangeFilter .btn{
+    border-radius:1.5rem;
+    font-weight:500;
+    padding:.35rem .9rem;
+    background:var(--accent-light);
+    border-color:var(--accent-light);
+    color:var(--accent-dark);
+}
+#rangeFilter .btn.active,
+#rangeFilter .btn:hover{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+}
+
+/* TABLE MODERN (top tour / recent booking) ---------------*/
+.table-modern thead{
+    background:var(--accent);
+    color:#fff;
+}
+.table-modern tbody tr:hover{
+    background:var(--accent-pale);
+}
+
+/* PAGINATION khớp palette --------------------------------*/
+.pagination .page-link{
+    border-radius:.35rem;
+    border-color:var(--accent-light);
+    color:var(--accent-dark);
+}
+.pagination .page-item.active .page-link,
+.pagination .page-link:hover{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+}
+
+/* SALES-BY-COMPANY LIST ----------------------------------*/
+#salesCompanyList li{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:.6rem 0;
+    border-bottom:1px dashed var(--accent-light);
+}
+#salesCompanyList li:last-child{border-bottom:none;}
+
+
+/* Breadcrumb */
+.breadcrumb-mint {
+    font-size: 1rem;
+    color: #94bfa1;
+    margin-top: 4px;
+    font-weight: 500;
+}
+.breadcrumb-mint .text-success { color: #29a073 !important; font-weight: 600; }
+
+/* Search Box */
+.form-control-mint {
+    border: 1.7px solid #d7efe3;
+    border-radius: 12px;
+    background: #f6fcfa;
+    font-size: 1.09rem;
+    padding: 12px 16px;
+    color: #1a2f22;
+    font-weight: 500;
+    transition: border 0.16s, background 0.12s;
+    box-shadow: 0 2px 12px 0 rgba(37,207,120,0.04);
+    outline: none;
+}
+.form-control-mint:focus {
+    border-color: #52d7a2;
+    background: #eafbf1;
+}
+.form-control-mint::placeholder {
+    color: #90aa9a;
+    font-weight: 400;
+    opacity: 1;
+}
+
+/* Mint Table */
+.table-responsive-mint {
+    border-radius: 14px;
+    overflow-x: auto;
+    background: #fff;
+}
+.mint-table {
+    border-radius: 12px;
+    background: #fff;
+    font-size: 1.07rem;
+    min-width: 100%;
+}
+.mint-table th, .mint-table td {
+    padding: 13px 12px;
+    background: #fff;
+    vertical-align: middle;
+    border: none;
+}
+.mint-table th {
+    color: #3c6652;
+    font-weight: 700;
+    background: #f4faf8;
+    border-bottom: 2px solid #d1ede1;
+}
+.mint-table tbody tr {
+    border-bottom: 1.5px solid #f0f7f4;
+    transition: background 0.14s;
+}
+.mint-table tbody tr:hover {
+    background: #eafbf1;
+}
+.mint-table input[type="checkbox"] {
+    width: 17px; height: 17px;
+    accent-color: #29a073;
+    border-radius: 5px;
+}
+
+/* Description (subtitle) */
+.desc-mint {
+    font-size: 0.97em;
+    color: #95b8a7;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* Badge (Status) */
+.badge-mint {
+    display: inline-block;
+    border-radius: 7px;
+    padding: 4px 15px;
+    font-size: 0.98em;
+    font-weight: 600;
+    background: #e6f8ef;
+    color: #1fa776;
+}
+.badge-active {
+    background: #e6f8ef;
+    color: #26be81;
+}
+.badge-inactive {
+    background: #fce6e7;
+    color: #e9525e;
+}
+
+/* Action icon */
+.action-mint {
+    font-size: 1.23em;
+    color: #29a073;
+    margin: 0 4px;
+    cursor: pointer;
+    opacity: 0.86;
+    transition: opacity 0.14s, color 0.13s;
+}
+.action-mint:hover {
+    opacity: 1;
+    color: #23ba6a;
+}
+
+/* Mint Buttons */
+.btn-mint-accent,
+.btn-mint-filter {
+    border-radius: 9px;
+    border: none;
+    font-size: 1.03rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background 0.16s, color 0.16s, border 0.12s;
+    box-shadow: 0 2px 8px 0 rgba(37,207,120,0.06);
+}
+.btn-mint-accent {
+    background: #e6f8ef;
+    color: #29a073;
+    padding: 10px 26px 10px 18px;
+}
+.btn-mint-accent:hover, .btn-mint-accent:focus {
+    background: #29a073;
+    color: #fff;
+}
+.btn-mint-filter {
+    background: #f2f8f6;
+    color: #29a073;
+    border: 1.3px solid #e0f3e9;
+    padding: 10px 18px 10px 14px;
+    margin-right: 6px;
+}
+.btn-mint-filter:hover, .btn-mint-filter:focus {
+    background: #d4fae4;
+    color: #22924e;
+    border-color: #a2e4c6;
+}
+
+/* Pagination */
+.pagination-mint {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.page-item-mint {
+    display: inline-block;
+}
+.page-item-mint span {
+    display: inline-block;
+    min-width: 33px;
+    height: 34px;
+    line-height: 33px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.08rem;
+    background: #f7faf7;
+    color: #2dc26b;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.13s, color 0.12s, border 0.14s;
+}
+.page-item-mint.active span {
+    background: #29a073;
+    color: #fff;
+    border: 1px solid #29a073;
+}
+.page-item-mint.disabled span {
+    color: #b1d3bf;
+    background: #f7faf7;
+    cursor: not-allowed;
+    border: 1px solid #e2f6e8;
+}
+.page-item-mint span:hover:not(.active):not(.disabled) {
+    background: #e2fbe7;
+    color: #22924e;
+}
+
+/* Responsive Row-Column for controls */
+@media (max-width: 900px) {
+    .cat-card { padding: 1.1rem; }
+}
+@media (max-width: 700px) {
+    .d-flex.justify-content-between.flex-wrap,
+    .d-flex.flex-wrap {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 13px;
+    }
+    .cat-card { padding: 0.6rem; }
+}
+
+
+
+
+
+/* Container flex - đảm bảo gap đẹp khi wrap, responsive */
+.d-flex.gap-3.flex-wrap {
+    row-gap: 12px;
+    column-gap: 16px;
+}
+.d-flex.justify-content-between.flex-wrap {
+    row-gap: 12px;
+    column-gap: 16px;
+}
+@media (max-width: 700px) {
+    .d-flex.justify-content-between.flex-wrap,
+    .d-flex.flex-wrap {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px;
+    }
+    .d-flex.gap-3.flex-shrink-0 {
+        justify-content: flex-start;
+    }
+}
+
+/* Filter Button */
+.btn-mint-filter {
+    background: #f6fcfa;
+    color: #27b489;
+    font-weight: 600;
+    border: 1.5px solid #c7ecd6;
+    border-radius: 13px;
+    padding: 10px 18px 10px 18px;
+    font-size: 1.08rem;
+    box-shadow: 0 2px 12px 0 rgba(37,207,120,0.06);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: background 0.16s, color 0.16s, border 0.13s;
+}
+.btn-mint-filter i { font-size: 1.17em; }
+.btn-mint-filter:hover, .btn-mint-filter:focus {
+    background: #e3fbee;
+    color: #19985d;
+    border-color: #93e5c1;
+}
+
+/* Add Product Button */
+.btn-mint-accent {
+    background: #e6f8ef;
+    color: #22a86a;
+    font-weight: 700;
+    border: none;
+    border-radius: 13px;
+    padding: 10px 18px 10px 18px;
+    font-size: 1.13rem;
+    box-shadow: 0 2px 12px 0 rgba(37,207,120,0.07);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: background 0.14s, color 0.14s;
+}
+.btn-mint-accent i { font-size: 1.20em; }
+.btn-mint-accent:hover, .btn-mint-accent:focus {
+    background: #29a073;
+    color: #fff;
+}
+
+/* Search Box */
+.form-control-mint {
+    border: 1.8px solid #c9eee0;
+    border-radius: 14px;
+    background: #f6fcfa;
+    font-size: 1.12rem;
+    padding: 10px 18px;
+    color: #5d7366;
+    outline: none;
+    transition: border 0.16s, background 0.12s;
+    box-shadow: 0 2px 12px 0 rgba(51,202,127,0.06);
+    font-weight: 500;
+    width: 100%;
+    min-width: 200px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.form-control-mint::placeholder {
+    color: #90aa9a;
+    opacity: 1;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+.form-control-mint:focus {
+    border-color: #63ddaa;
+    background: #eefcf5;
+    color: #17955c;
+}
+
+/* Responsive search input trong flex */
+.search-min-width {
+    min-width: 240px;
+    max-width: 340px;
+    flex: 1 1 260px;
+    margin-left: 8px;
+}
+@media (max-width: 650px) {
+    .search-min-width {
+        min-width: 120px;
+        max-width: 100%;
+        flex: 1 1 120px;
+        margin-left: 0;
+        margin-top: 8px;
+    }
+}
+
+
+
+
+.admin-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 32px 0 rgba(37, 207, 120, 0.07);
+    border: 1px solid #e6f4ed;
+    padding: 2rem;
+    margin-bottom: 20px;
+}
+
+.btn-group-mint {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+.btn-mint-time {
+    border: none;
+    background: #f4faf8;
+    color: #29a073;
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 9px 20px;
+    font-size: 1.01rem;
+    transition: background 0.14s, color 0.13s;
+}
+.btn-mint-time.active,
+.btn-mint-time:focus {
+    background: #29a073;
+    color: #fff;
+}
+.btn-mint-time:hover:not(.active) {
+    background: #e6f8ef;
+    color: #1fa776;
+}
+
+
+
+
+:root {
+    /* Theme colors */
+    --mint-light: #eafff7;
+    --mint-lighter: #f2fcf9;
+    --mint-base: #20b876;
+    --mint-dark: #1a5c3f;
+    --mint-border: #e1f7ec;
+    --table-head-bg: #f7faf7;
+    --table-row-hover: #f0f8f6;
+    --text-muted: #6c757d;
+}
+
+.revenue-summary-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(90deg, var(--mint-light) 0%, var(--mint-lighter) 100%);
+    border-radius: 1.5rem;
+    border: 1px solid var(--mint-border);
+    box-shadow: 0 4px 16px rgba(23, 189, 119, 0.08);
+}
+
+.summary-label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--mint-dark);
+    letter-spacing: 0.02em;
+}
+
+.summary-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--mint-base);
+    letter-spacing: 0.5px;
+}
+
+.company-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e7f7f0;
+    box-shadow: 0 2px 8px rgba(23, 189, 119, 0.1);
+}
+
+.modern-table {
+    width: 100%;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #fff;
+    font-size: 1rem;
+    min-width: 600px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.modern-table thead {
+    background: var(--table-head-bg);
+}
+
+.modern-table th,
+.modern-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--mint-border);
+}
+
+.modern-table th {
+    color: var(--mint-dark);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.modern-table tbody tr {
+    transition: background 0.2s ease;
+    cursor: default;
+}
+
+.modern-table tbody tr:hover {
+    background: var(--table-row-hover);
+}
+
+.modern-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.bar-percent {
+    display: inline-block;
+    width: 60px;
+    height: 8px;
+    background: #eceff1;
+    border-radius: 4px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.bar-percent > div {
+    height: 100%;
+    background: linear-gradient(90deg, #3be59a 0%, #25c070 100%);
+    transition: width 0.5s ease;
+}
+
+.badge.bg-success-soft {
+    background: #e6f8ef !important;
+    color: var(--mint-base) !important;
+}
+
+.badge.bg-info-soft {
+    background: #e6f6fa !important;
+    color: #2d99c1 !important;
+}
+
+.badge.bg-secondary-soft {
+    background: #f3f3f7 !important;
+    color: #8596b3 !important;
+}
+
+.btn-success-soft {
+    background: #e6f8ef;
+    color: var(--mint-base);
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-success-soft:hover {
+    background: var(--mint-base);
+    color: #fff;
+}
+
+@media (max-width: 900px) {
+    .modern-table {
+        min-width: 100%;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 700px) {
+    .revenue-summary-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .revenue-summary-card .summary-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Time-range pills */
+#revenue-range-tabs .nav-link {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--mint-base);
+    background: transparent;
+    border: 1px solid var(--mint-border);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+#revenue-range-tabs .nav-link:hover {
+    background: var(--mint-light);
+}
+
+#revenue-range-tabs .nav-link.active {
+    color: #fff;
+    background: var(--mint-base);
+    border-color: var(--mint-base);
+}
+
+/* Remove the default Bootstrap focus outline */
+#revenue-range-tabs .nav-link:focus {
+    box-shadow: none;
+}

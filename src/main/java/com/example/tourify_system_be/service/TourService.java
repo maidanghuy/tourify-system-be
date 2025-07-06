@@ -33,6 +33,7 @@ public class TourService {
 
     private final ITourRepository itourRepository;
     private final IFeedbackRepository IFeedbackRepository;
+    private final IBookingTourRepository IBookingRepository;
     private final TourMapper tourMapper;
     private final IUserRepository iUserRepository;
     private final IPlaceRepository iPlaceRepository;
@@ -87,12 +88,35 @@ public class TourService {
                     .toList();
         }
 
-    public List<TourResponse> getMyTours(String bearerToken) {
-        String token = bearerToken.replace("Bearer ", "");
-        String userId = jwtUtil.extractUserId(token);
+    public List<TourResponse> getAllToursWithDetails(String bearerToken) {
+        // 1. (Tùy mục đích) Lấy userId từ token nếu cần
+        String userId = null;
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            userId = jwtUtil.extractUserId(token);
+            // Nếu không dùng userId thì bỏ dòng này cũng được!
+        }
 
-        List<Tour> tours = itourRepository.findAllByManageBy_UserId(userId);
-        return tours.stream().map(this::convertToResponse).toList();
+        // 2. Lấy tất cả tour
+        List<Tour> tours = itourRepository.findAll();
+
+        // 3. Mapping và bổ sung các trường động
+        return tours.stream().map(tour -> {
+            TourResponse resp = tourMapper.toResponse(tour);
+
+            resp.setCreatedAt(tour.getCreatedAt());
+
+            BigDecimal avg = IFeedbackRepository.findAverageRatingByTourId(tour.getTourId());
+            resp.setRating(avg != null ? avg.setScale(1, RoundingMode.HALF_UP) : BigDecimal.valueOf(5.0));
+
+            long count = IBookingRepository.countByTour_TourId(tour.getTourId());
+            resp.setBookedCustomerCount((int) count);
+
+            // Nếu muốn đánh dấu tour này là của user đang đăng nhập:
+            // resp.setIsMyTour(userId != null && tour.getManageBy().getUserId().equals(userId));
+
+            return resp;
+        }).toList();
     }
 
     public Tour createTour(TourCreateRequest request, String userId) {

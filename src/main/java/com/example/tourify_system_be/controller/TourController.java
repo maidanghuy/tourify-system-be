@@ -64,7 +64,7 @@ public class TourController {
 
     @GetMapping("/my-tours")
     public ResponseEntity<?> getMyTours(@RequestHeader("Authorization") String token) {
-        List<TourResponse> myTours = tourService.getMyTours(token);
+        List<TourResponse> myTours = tourService.getAllToursWithDetails(token);
         return ResponseEntity.ok(
                 APIResponse.<List<TourResponse>>builder()
                         .code(1000)
