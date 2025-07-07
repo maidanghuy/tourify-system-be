@@ -17,7 +17,7 @@ public class PageController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/")
+    @GetMapping({"/", "/landing", "/home"})
     public String homePage() {
         return "landing";
     }
@@ -55,7 +55,6 @@ public class PageController {
 
         return "landing";
     }
-
 
     @GetMapping("/forgot_password")
     public String forgotPasswordPage() {
