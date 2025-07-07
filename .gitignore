@@ -34,3 +34,4 @@ build/
 
 ### Custom ###
 /config/application-secrets.yml
+/src/main/resources/credentials.json

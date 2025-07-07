@@ -193,22 +193,21 @@
                 <div class="d-flex align-items-center gap-3">
                     <div class="dropdown">
                         <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
-                            type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                                alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
+                                 alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
                             <span>Hello,
                                 <span>User</span></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li>
-                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
-                                        class="fas fa-user-circle me-2"></i>View Profile</a>
+                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
-                                        class="fas fa-edit me-2"></i>Edit Account</a>
+                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
                             </li>
                         </ul>
+
                     </div>
                     <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout
@@ -585,6 +584,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="../js/index.js"></script>
     <script src="../js/logout.js"></script>
 </body>
 
