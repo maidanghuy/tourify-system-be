@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 public class ChatService {
     private final ChatClient chatClient;
     private final TourService tourService;
+    private final GoogleDocsService gdocs;
 
     private static final Pattern MAX_PRICE_PATTERN = Pattern.compile(
             "(tour|chuyến đi)\\s+([\\p{L} ]+?)?\\s*(nào)?\\s*(đắt nhất|cao nhất|max|nhiều tiền nhất)"
@@ -66,13 +68,21 @@ public class ChatService {
     );
 
 
-    public ChatService(ChatClient.Builder builder, TourService tourService) {
+    public ChatService(ChatClient.Builder builder, TourService tourService, GoogleDocsService gdocs) {
         this.chatClient  = builder.build();
         this.tourService = tourService;
+        this.gdocs       = gdocs;
     }
 
     public String chat(ChatRequest request) {
         String text = request.message().trim().toLowerCase();
+
+        try {
+            gdocs.appendText(String.format("[%s] USER: %s", LocalDateTime.now(), text));
+        } catch (Exception e) {
+            // log error
+            e.printStackTrace();
+        }
 
         // Xác định địa điểm (nếu có) và chỉ lấy khi có tour thật
         String placeName = extractPlaceName(text);
@@ -146,6 +156,13 @@ public class ChatService {
 
 
     public String chatWithImage(MultipartFile file, String message){
+        // Log user image message
+        try {
+            gdocs.appendText(String.format("[%s] USER[IMG]: %s", LocalDateTime.now(), message));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Media media = Media.builder()
                 .mimeType(MimeTypeUtils.parseMimeType(file.getContentType()))
                 .data(file.getResource())
