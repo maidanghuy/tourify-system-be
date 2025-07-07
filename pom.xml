@@ -86,12 +86,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
-<!--		<dependency>-->
-<!--			<groupId>com.auth0</groupId>-->
-<!--			<artifactId>java-jwt</artifactId>-->
-<!--			<version>4.4.0</version>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -145,13 +139,29 @@
 			<artifactId>payos-java</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-
-<!--		<dependency>-->
-<!--			<groupId>vn.payos</groupId>-->
-<!--			<artifactId>payos-java</artifactId>-->
-<!--			<version>1.0.3</version>-->
-<!--		</dependency>-->
-
+		<!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-docs -->
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-docs</artifactId>
+			<version>v1-rev61-1.25.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-oauth2-http</artifactId>
+			<version>1.20.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.35.2</version>
+		</dependency>
+		<!-- JSON support for the HTTP client (bắt buộc) -->
+		<dependency>
+			<groupId>com.google.http-client</groupId>
+			<artifactId>google-http-client-jackson2</artifactId>
+			<version>1.43.3</version>
+		</dependency>
 	</dependencies>
 
 
