@@ -327,19 +327,36 @@
         <i class="fas fa-comment-dots"></i>
     </button>
 
+    <button class="chat-button" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
     <div class="chat-container" id="chatContainer">
         <div class="chat-header">
-            <h3>Chatbot</h3>
+            <h3>Tourify Chat Bot AI</h3>
             <button class="close-btn" onclick="toggleChat()">&times;</button>
         </div>
+
         <div id="chatBox" class="chat-box"></div>
+
+        <!-- Preview ảnh -->
+        <div id="imagePreviewContainer" class="preview-container" style="display:none;">
+            <img id="imagePreview" src="" alt="Ảnh chọn…"/>
+            <button id="removeImageBtn" class="remove-image-btn">&times;</button>
+        </div>
+
         <div class="chat-input-container">
+            <label for="imageInput" class="image-upload-btn">
+                <i class="fas fa-image"></i>
+            </label>
+            <input type="file" id="imageInput" accept="image/*"/>
+
             <textarea id="userInput" class="input-box" placeholder="Nhập tin nhắn…"></textarea>
-            <button onclick="sendMessage()" class="send-btn">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            <button id="sendBtn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
+
+
 
 
 
