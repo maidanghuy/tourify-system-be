@@ -2,10 +2,12 @@ package com.example.tourify_system_be;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.ZoneId;
 import java.util.TimeZone;
 
+@EnableScheduling
 @SpringBootApplication
 public class TourifySystemBeApplication {
 
