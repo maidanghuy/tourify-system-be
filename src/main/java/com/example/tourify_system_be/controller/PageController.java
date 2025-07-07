@@ -17,10 +17,9 @@ public class PageController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping({"/", "/landing", "/home"})
-    public String homePage() {
-        return "landing";
-    }
+//    public String homePage() {
+//        return "landing";
+//    }
 
     @GetMapping("/register")
     public String registerPage() {
@@ -35,7 +34,7 @@ public class PageController {
     /**
      * Landing page và home ("/").
      */
-    @GetMapping({"/", "/landing"})
+    @GetMapping({"/","/home", "/landing"})
     public String landingPage(
             @RequestParam(required = false) String placeName,
             @RequestParam(required = false) String categoryName,
