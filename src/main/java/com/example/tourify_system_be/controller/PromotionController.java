@@ -3,6 +3,7 @@ package com.example.tourify_system_be.controller;
 import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.CreatePromotionRequest;
 
+import com.example.tourify_system_be.dto.response.PromotionResponse;
 import com.example.tourify_system_be.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +22,9 @@ public class PromotionController {
     public APIResponse<?> createPromotion(@RequestBody CreatePromotionRequest request,
                                           @RequestHeader("Authorization") String token) {
         promotionService.createPromotion(request, token);
-        return APIResponse.<Void>builder()
+        return APIResponse.<PromotionResponse>builder()
                 .message("Create promotion successfully")
-                .result(null)
+                .result(promotionService.createPromotion(request, token))
                 .build();
     }
 
