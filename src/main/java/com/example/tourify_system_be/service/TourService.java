@@ -1,4 +1,3 @@
-
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.request.TourCreateRequest;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -57,37 +55,36 @@ public class TourService {
         }).toList();
     }
 
-
     public List<TourResponse> filterTours(TourFilterRequest filter) {
-            return filter.getBaseTours().stream()
-                    .filter(tour -> {
-                        boolean matches = true;
+        return filter.getBaseTours().stream()
+                .filter(tour -> {
+                    boolean matches = true;
 
-                        if (filter.getMinPrice() != null)
-                            matches &= tour.getPrice() != null &&
-                                    tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
+                    if (filter.getMinPrice() != null)
+                        matches &= tour.getPrice() != null &&
+                                tour.getPrice().compareTo(filter.getMinPrice()) >= 0;
 
-                        if (filter.getMaxPrice() != null)
-                            matches &= tour.getPrice() != null &&
-                                    tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
+                    if (filter.getMaxPrice() != null)
+                        matches &= tour.getPrice() != null &&
+                                tour.getPrice().compareTo(filter.getMaxPrice()) <= 0;
 
-                        if (filter.getMinRating() != null)
-                            matches &= tour.getRating() != null &&
-                                    tour.getRating().compareTo(filter.getMinRating()) >= 0;
+                    if (filter.getMinRating() != null)
+                        matches &= tour.getRating() != null &&
+                                tour.getRating().compareTo(filter.getMinRating()) >= 0;
 
-                        if (filter.getMaxRating() != null)
-                            matches &= tour.getRating() != null &&
-                                    tour.getRating().compareTo(filter.getMaxRating()) <= 0;
+                    if (filter.getMaxRating() != null)
+                        matches &= tour.getRating() != null &&
+                                tour.getRating().compareTo(filter.getMaxRating()) <= 0;
 
-                        if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
-                            matches &= tour.getCreatedByUserName() != null &&
-                                    tour.getCreatedByUserName().toLowerCase()
-                                            .contains(filter.getCreatedByUserName().toLowerCase());
+                    if (filter.getCreatedByUserName() != null && !filter.getCreatedByUserName().isEmpty())
+                        matches &= tour.getCreatedByUserName() != null &&
+                                tour.getCreatedByUserName().toLowerCase()
+                                        .contains(filter.getCreatedByUserName().toLowerCase());
 
-                        return matches;
-                    })
-                    .toList();
-        }
+                    return matches;
+                })
+                .toList();
+    }
 
     public List<TourResponse> getAllToursWithDetails(String bearerToken) {
         // 1. Extract userId từ token
@@ -120,7 +117,6 @@ public class TourService {
             long count = IBookingRepository.countByTour_TourId(tour.getTourId());
             resp.setBookedCustomerCount((int) count);
 
-            // Đánh dấu đây là tour của user đang login
             resp.setMyTour(true);
 
             return resp;
@@ -144,7 +140,8 @@ public class TourService {
                 .orElseThrow(() -> new AppException(ErrorCode.PLACE_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         Category category = iCategoryRepository.findById(request.getCategory())
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(
+                        () -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
 
         // Gán entity cho tour
         tour.setManageBy(creator);
@@ -188,6 +185,7 @@ public class TourService {
                 .map(this::convertToResponse)
                 .toList();
     }
+
     /**
      * So sánh tour: trả về tối đa 4 tour cùng lúc.
      */
@@ -221,10 +219,20 @@ public class TourService {
                 })
                 .toList();
     }
-  
+
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
                 .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
         return tourMapper.toResponse(tour);
+    }
+
+    /**
+     * Lấy danh sách TourResponse theo list id
+     */
+    public List<TourResponse> getToursByIds(List<String> ids) {
+        if (ids == null || ids.isEmpty())
+            return List.of();
+        List<Tour> tours = tourRepository.findAllByTourIdIn(ids);
+        return tours.stream().map(tourMapper::toResponse).toList();
     }
 }

@@ -17,6 +17,7 @@ public class PageController {
     @Autowired
     private CategoryService categoryService;
 
+//    @GetMapping({"/", "/landing", "/home"})
 //    public String homePage() {
 //        return "landing";
 //    }
@@ -34,7 +35,7 @@ public class PageController {
     /**
      * Landing page và home ("/").
      */
-    @GetMapping({"/","/home", "/landing"})
+    @GetMapping({"/", "/landing", "/home"})
     public String landingPage(
             @RequestParam(required = false) String placeName,
             @RequestParam(required = false) String categoryName,
@@ -117,6 +118,11 @@ public class PageController {
     @GetMapping("/user/edit-account")
     public String editAccountPage() {
         return "edit_account";
+    }
+
+    @GetMapping("/user/viewed")
+    public String chatPage() {
+        return "list-viewed";
     }
 }
 
