@@ -31,6 +31,12 @@ public class ChatService {
             "(tour|chuyến đi)\\s+([\\p{L} ]+?)?\\s*(nào)?\\s*(rẻ nhất|thấp nhất|min|ít tiền nhất)"
     );
 
+    private static final Pattern ALL_TOURS_PATTERN = Pattern.compile(
+            "(tất cả tour|danh sách tour|list all tours|show all tours)",
+            Pattern.CASE_INSENSITIVE
+    );
+
+
     private static final Pattern PLACE_PATTERN = Pattern.compile(
             "(?:(?:tour|ở|tại|đến|tới|du lịch|đi(?: du lịch)?))?\\s*"
                     + "([\\p{L} ]+?)"
@@ -52,6 +58,13 @@ public class ChatService {
     private static final Pattern PRICE_ABOVE = Pattern.compile(
             "(?:giá\\s*)?trên\\s*([\\d.,]+)\\s*(triệu|tr|nghìn|nghìn đồng)?"
     );
+
+
+    private static final Pattern ALL_BY_PLACE_PATTERN = Pattern.compile(
+            "(?:danh sách|list|xem) (?:tất cả )?tour(?: ở| tại)?\\s*([\\p{L} ]+)",
+            Pattern.CASE_INSENSITIVE
+    );
+
 
     public ChatService(ChatClient.Builder builder, TourService tourService) {
         this.chatClient  = builder.build();
@@ -100,6 +113,25 @@ public class ChatService {
             }
             return handleTourMinPrice(base, place);
         }
+
+        Matcher mAll = ALL_TOURS_PATTERN.matcher(text);
+        if (mAll.find()) {
+            List<TourResponse> all = tourService.getAllTours();
+            return formatAllTours(all);
+        }
+
+        // 5. Check “list all tours at <place>”
+        Matcher mList = ALL_BY_PLACE_PATTERN.matcher(text);
+        if (mList.find()) {
+            String place = mList.group(1).trim();
+            List<TourResponse> list = tourService.getToursByPlaceName(place);
+            if (list == null || list.isEmpty()) {
+                return String.format("Hiện tại không có tour nào ở %s.", place);
+            }
+            // Ta đã có helper formatToursByPlace(baseline, place)
+            return formatToursByPlace(list, place);
+        }
+
 
         // Ưu tiên từng dạng câu hỏi
         if (isPriceAround(text)) return handlePriceAround(text, source, placeName);
@@ -343,6 +375,26 @@ public class ChatService {
         }
         return sb.toString();
     }
+
+    private String formatAllTours(List<TourResponse> tours) {
+        if (tours == null || tours.isEmpty()) {
+            return "Hiện tại không có tour nào trên hệ thống.";
+        }
+        StringBuilder sb = new StringBuilder("Danh sách tất cả tour:\n\n");
+        Locale vn = new Locale("vi", "VN");
+        NumberFormat fmt = NumberFormat.getNumberInstance(vn);
+
+        for (TourResponse t : tours) {
+            sb.append("• ")
+                    .append(t.getTourName())
+                    .append(" — ")
+                    .append(fmt.format(t.getPrice()))
+                    .append(" ₫")
+                    .append("\n");
+        }
+        return sb.toString();
+    }
+
 
     // Viết hoa chữ cái đầu mỗi từ (cho đẹp)
     private String capitalize(String text) {
