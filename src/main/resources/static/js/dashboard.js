@@ -580,174 +580,141 @@
         analytics: {
           title: "Analytics",
           breadcrumbs: ["dashboard"],
-          content: `
-          <div class="container-fluid py-4">
-  <!-- Total Revenue -->
-              <div class="revenue-summary-card p-4 mb-4 d-flex align-items-center gap-4 shadow-sm flex-wrap">
-                <div>
-                  <div class="summary-label mb-1">Total Platform Revenue</div>
-                  <div class="summary-value" id="totalRevenue">₫0</div>
-                </div>
-                <div class="ms-auto text-muted small">
-                  Last updated: <span id="revUpdateTime">--</span>
-                </div>
-              </div>
-            
-              <!-- Time-Range Tabs -->
-              <ul class="nav nav-pills mb-3" id="revenue-range-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="day-tab" data-bs-toggle="pill" data-bs-target="#revenue-day" type="button" role="tab">
-                    Day
-                  </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="month-tab" data-bs-toggle="pill" data-bs-target="#revenue-month" type="button" role="tab">
-                    Month
-                  </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="year-tab" data-bs-toggle="pill" data-bs-target="#revenue-year" type="button" role="tab">
-                    Year
-                  </button>
-                </li>
-              </ul>
-            
-              <!-- Tab Content -->
-              <div class="tab-content mb-4" id="revenue-range-tabs-content">
-                <!-- Day View -->
-                <div class="tab-pane fade show active" id="revenue-day" role="tabpanel">
-                  <div class="card-glass p-4 shadow-sm">
-                    <h5 class="fw-semibold mb-3">Revenue by Day</h5>
-                    <div class="table-responsive">
-                      <table class="modern-table w-100" id="companyRevenueDayTable">
-                        <thead>
-                          <tr>
-                            <th style="min-width:120px">Date</th>
-                            <th style="min-width:180px">Company</th>
-                            <th style="min-width:120px">Revenue (VND)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- JS will render daily rows -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-            
-                <!-- Month View -->
-                <div class="tab-pane fade" id="revenue-month" role="tabpanel">
-                  <div class="card-glass p-4 shadow-sm">
-                    <h5 class="fw-semibold mb-3">Revenue by Month</h5>
-                    <div class="table-responsive">
-                      <table class="modern-table w-100" id="companyRevenueMonthTable">
-                        <thead>
-                          <tr>
-                            <th style="min-width:120px">Month</th>
-                            <th style="min-width:180px">Company</th>
-                            <th style="min-width:120px">Revenue (VND)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- JS will render monthly rows -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-            
-                <!-- Year View -->
-                <div class="tab-pane fade" id="revenue-year" role="tabpanel">
-                  <div class="card-glass p-4 shadow-sm">
-                    <h5 class="fw-semibold mb-3">Revenue by Year</h5>
-                    <div class="table-responsive">
-                      <table class="modern-table w-100" id="companyRevenueYearTable">
-                        <thead>
-                          <tr>
-                            <th style="min-width:120px">Year</th>
-                            <th style="min-width:180px">Company</th>
-                            <th style="min-width:120px">Revenue (VND)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <!-- JS will render yearly rows -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            
-              <!-- Overall Company Revenue (unchanged) -->
-              <div class="card-glass p-4 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-                  <h5 class="fw-bold mb-0">Company Revenue Statistics</h5>
-                  <button class="btn-success-soft export-btn" onclick="exportTableToCSV('company-revenue.csv')">
-                    <i class="bi bi-download me-2"></i>Export
-                  </button>
-                </div>
-                <div class="table-responsive">
-                  <table class="modern-table w-100" id="companyRevenueTable">
-                    <thead>
-                      <tr>
-                        <th style="width:42px">#</th>
-                        <th>Company Name</th>
-                        <th>Bookings</th>
-                        <th>Revenue (VND)</th>
-                        <th>% of Platform</th>
-                        <th>Ranking</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- JS render rows -->
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+          content: `<div class="container-fluid py-4">
+
+  <!-- Bộ lọc Khoảng Thời Gian -->
+  <div class="d-flex align-items-end gap-3 mb-4 flex-wrap">
+    <div class="form-group">
+      <label for="startDate" class="form-label">Start Date</label>
+      <input type="date" id="startDate" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label for="endDate" class="form-label">End Date</label>
+      <input type="date" id="endDate" class="form-control" />
+    </div>
+    <button id="btnFilter" class="btn btn-primary mb-2">Apply</button>
+  </div>
+
+  <!-- Tabs Filter: Day / Month / Year -->
+  <ul class="nav nav-pills mb-3" id="revenue-range-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="day-tab" data-bs-toggle="pill" data-bs-target="#revenue-day" type="button" role="tab">
+        Day
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="month-tab" data-bs-toggle="pill" data-bs-target="#revenue-month" type="button" role="tab">
+        Month
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="year-tab" data-bs-toggle="pill" data-bs-target="#revenue-year" type="button" role="tab">
+        Year
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content mb-4" id="revenue-range-tabs-content">
+    <!-- Day View -->
+    <div class="tab-pane fade show active" id="revenue-day" role="tabpanel">
+      <div class="card-glass p-4 shadow-sm">
+        <h5 class="fw-semibold mb-3">Revenue by Day</h5>
+        <div class="table-responsive">
+          <table class="modern-table w-100" id="companyRevenueDayTable">
+            <thead>
+              <tr>
+                <th style="min-width:120px">Date</th>
+                <th style="min-width:180px">Company</th>
+                <th style="min-width:120px">Revenue (VND)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyDay">
+              <!-- JS sẽ render daily rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Month View -->
+    <div class="tab-pane fade" id="revenue-month" role="tabpanel">
+      <div class="card-glass p-4 shadow-sm">
+        <h5 class="fw-semibold mb-3">Revenue by Month</h5>
+        <div class="table-responsive">
+          <table class="modern-table w-100" id="companyRevenueMonthTable">
+            <thead>
+              <tr>
+                <th style="min-width:120px">Month</th>
+                <th style="min-width:180px">Company</th>
+                <th style="min-width:120px">Revenue (VND)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyMonth">
+              <!-- JS sẽ render monthly rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year View -->
+    <div class="tab-pane fade" id="revenue-year" role="tabpanel">
+      <div class="card-glass p-4 shadow-sm">
+        <h5 class="fw-semibold mb-3">Revenue by Year</h5>
+        <div class="table-responsive">
+          <table class="modern-table w-100" id="companyRevenueYearTable">
+            <thead>
+              <tr>
+                <th style="min-width:120px">Year</th>
+                <th style="min-width:180px">Company</th>
+                <th style="min-width:120px">Revenue (VND)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyYear">
+              <!-- JS sẽ render yearly rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
           `,
         },
       };
 
       function loadPage(pageKey) {
-      const page = pages[pageKey];
-      if (!page) {
-        document.getElementById("mainContent").innerHTML = "<h2>Page not found</h2>";
-        return;
-      }
+          const page = pages[pageKey];
+          if (!page) {
+              document.getElementById("mainContent").innerHTML = "<h2>Page not found</h2>";
+              return;
+          }
 
-      // --- ACTIVE NAV-LINK ---
-      // Bỏ active ở mọi nav-link
-      document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+          // --- ACTIVE NAV-LINK ---
+          document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+          const linkId = pageKey + "Link";
+          const activeLink = document.getElementById(linkId);
+          if (activeLink) activeLink.classList.add('active');
 
-      // Đặt active cho link hiện tại
-      const linkId = pageKey + "Link";
-      const activeLink = document.getElementById(linkId);
-      if (activeLink) activeLink.classList.add('active');
+          // Nếu là trang con của "Tour", mở submenu và active luôn menu cha
+          const tourPages = ['tourList', 'addTour'];
+          if (tourPages.includes(pageKey)) {
+              document.getElementById('tourMenuLink')?.classList.add('active');
+              const submenu = document.getElementById("tourSubmenu");
+              if (submenu && !submenu.classList.contains('show')) {
+                  new bootstrap.Collapse(submenu, { toggle: true });
+              }
+          } else {
+              const submenu = document.getElementById("tourSubmenu");
+              if (submenu && submenu.classList.contains('show')) {
+                  new bootstrap.Collapse(submenu, { toggle: true });
+              }
+              document.getElementById('tourMenuLink')?.classList.remove('active');
+          }
 
-      // Nếu là trang con của "Tour", mở submenu và active luôn menu cha
-      const tourPages = ['tourList', 'addTour'];
-      if (tourPages.includes(pageKey)) {
-        // Active menu cha "Tour"
-        document.getElementById('tourMenuLink')?.classList.add('active');
-
-        // Mở submenu (nếu chưa mở)
-        const submenu = document.getElementById("tourSubmenu");
-        if (submenu && !submenu.classList.contains('show')) {
-          new bootstrap.Collapse(submenu, { toggle: true });
-        }
-      } else {
-        // Nếu sang trang khác, đóng submenu nếu đang mở
-        const submenu = document.getElementById("tourSubmenu");
-        if (submenu && submenu.classList.contains('show')) {
-          new bootstrap.Collapse(submenu, { toggle: true });
-        }
-        // Bỏ active menu cha
-        document.getElementById('tourMenuLink')?.classList.remove('active');
-      }
-
-  // --- HIỂN THỊ NỘI DUNG ---
-  const breadcrumbHtml = `
+          // --- HIỂN THỊ NỘI DUNG ---
+          const breadcrumbHtml = `
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="fw-bold text-success mb-1">${page.title}</h2>
@@ -764,15 +731,17 @@
       </div>
     </div>`;
 
-  document.getElementById("mainContent").innerHTML = breadcrumbHtml + page.content;
+          document.getElementById("mainContent").innerHTML = breadcrumbHtml + page.content;
 
-  // Load các trang đặc biệt
-  if (pageKey === "addTour") {
-    setTimeout(() => initAddTourPage(), 0);
-  } else if (pageKey === "tourList") {
-    loadTourList();
-  }
-}
+          // Load các trang đặc biệt
+          if (pageKey === "addTour") {
+              setTimeout(() => initAddTourPage(), 0);
+          } else if (pageKey === "tourList") {
+              loadTourList();
+          } else if (pageKey === "analytics") {
+              setTimeout(() => initAnalyticsPage(), 0); // ✅ THÊM DÒNG NÀY
+          }
+      }
 
       document.addEventListener("DOMContentLoaded", function () {
         loadPage("addTour");
@@ -1249,16 +1218,142 @@
     window.location.href = "/tourify/login"; // hoặc reload lại trang
 });
 
-      function exportTableToCSV(filename) {
-          let csv = [];
-          const rows = document.querySelectorAll("#companyRevenueTable tr");
-          for (let row of rows) {
-              let cols = Array.from(row.querySelectorAll("th,td"));
-              csv.push(cols.map(x => `"${x.innerText.replace(/"/g, '""')}"`).join(","));
+      function initAnalyticsPage() {
+          const btnFilter = document.getElementById("btnFilter");
+          const inpStart = document.getElementById("startDate");
+          const inpEnd = document.getElementById("endDate");
+          const tableDay = document.getElementById("tbodyDay");
+          const tableMonth = document.getElementById("tbodyMonth");
+          const tableYear = document.getElementById("tbodyYear");
+          const revenueData = { day: [], month: [], year: [] };
+          const accessToken = localStorage.getItem("accessToken");
+
+          // ===== 1. Giải mã JWT để lấy userId =====
+          function getUserIdFromToken(token) {
+              if (!token) return null;
+              try {
+                  const base64Url = token.split('.')[1];
+                  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+                      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                  ).join(''));
+                  const payload = JSON.parse(jsonPayload);
+                  // Thường là "userId", có thể backend custom, nhưng với Spring Security phổ biến là userId
+                  return payload.userId || payload.subCompanyId || null;
+              } catch (e) {
+                  console.error("Decode token error:", e);
+                  return null;
+              }
           }
-          const blob = new Blob([csv.join("\n")], {type:'text/csv'});
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = filename;
-          link.click();
+
+          // ===== 2. Format tiền tệ =====
+          function formatVND(amount) {
+              // Nếu null/undefined hoặc không phải số thì về 0
+              return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
+          }
+
+          // ===== 3. Render bảng =====
+          function renderTable(type) {
+              let data = revenueData[type] || [];
+              let tbody = type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+              tbody.innerHTML = "";
+
+              if (!Array.isArray(data) || !data.length) {
+                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+                  return;
+              }
+
+              for (const row of data) {
+                  // CHÚ Ý: Đảm bảo lấy đúng totalRevenue dạng số
+                  let revenueVal = 0;
+                  if (row && row.totalRevenue !== undefined && row.totalRevenue !== null) {
+                      revenueVal = Number(row.totalRevenue);
+                      if (isNaN(revenueVal)) revenueVal = 0;
+                  }
+                  // DEBUG LOG: Log từng row cho dev check
+                  // console.log("Row:", row, "Parsed totalRevenue:", revenueVal);
+
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                <td>${row.time || "-"}</td>
+                <td>${row.companyName || "-"}</td>
+                <td>${formatVND(revenueVal)}</td>
+            `;
+                  tbody.appendChild(tr);
+              }
+          }
+
+          // ===== 4. Gọi API và render =====
+          async function fetchAndRenderAll() {
+              const start = inpStart.value;
+              const end = inpEnd.value;
+              if (!start || !end) return;
+
+              [tableDay, tableMonth, tableYear].forEach(tbody =>
+                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
+              );
+
+              // Lấy userId từ token (chính là subCompanyId)
+              const subCompanyId = getUserIdFromToken(accessToken);
+              if (!subCompanyId) {
+                  [tableDay, tableMonth, tableYear].forEach(tbody =>
+                      tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`
+                  );
+                  console.error("Không tìm thấy subCompanyId trong token!");
+                  return;
+              }
+
+              try {
+                  const headers = { "Authorization": "Bearer " + accessToken };
+                  // API backend yêu cầu: subCompanyId = userId lấy từ token!
+                  const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+                  const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+                  const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+
+                  // Đợi dữ liệu về cùng lúc
+                  const [d, m, y] = await Promise.all([
+                      fetch(dayUrl, { headers }).then(r => r.json()),
+                      fetch(monthUrl, { headers }).then(r => r.json()),
+                      fetch(yearUrl, { headers }).then(r => r.json()),
+                  ]);
+
+                  // Lưu lại
+                  revenueData.day = Array.isArray(d) ? d : [];
+                  revenueData.month = Array.isArray(m) ? m : [];
+                  revenueData.year = Array.isArray(y) ? y : [];
+
+                  // Render tab đang active
+                  const activeTab = document.querySelector('.tab-pane.active').id;
+                  if (activeTab === "revenue-day") renderTable("day");
+                  if (activeTab === "revenue-month") renderTable("month");
+                  if (activeTab === "revenue-year") renderTable("year");
+              } catch (err) {
+                  [tableDay, tableMonth, tableYear].forEach(tbody =>
+                      tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+                  );
+                  console.error(err);
+              }
+          }
+
+          // ===== 5. Sự kiện UI =====
+          btnFilter.onclick = fetchAndRenderAll;
+          document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
+              if (e.target.classList.contains('nav-link')) {
+                  setTimeout(() => {
+                      if (e.target.id === 'day-tab') renderTable("day");
+                      if (e.target.id === 'month-tab') renderTable("month");
+                      if (e.target.id === 'year-tab') renderTable("year");
+                  }, 50);
+              }
+          });
+
+          // Set ngày mặc định
+          const today = new Date();
+          inpEnd.value = today.toISOString().slice(0, 10);
+          const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+          inpStart.value = lastMonth.toISOString().slice(0, 10);
+          fetchAndRenderAll();
       }
+
+      // Gọi sau khi HTML đã render xong:
+      setTimeout(initAnalyticsPage, 0);
