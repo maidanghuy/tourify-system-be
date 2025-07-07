@@ -17,10 +17,10 @@ public class PageController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping({"/", "/landing", "/home"})
-    public String homePage() {
-        return "landing";
-    }
+//    @GetMapping({"/", "/landing", "/home"})
+//    public String homePage() {
+//        return "landing";
+//    }
 
     @GetMapping("/register")
     public String registerPage() {
@@ -35,26 +35,26 @@ public class PageController {
     /**
      * Landing page và home ("/").
      */
-//    @GetMapping({"/", "/landing"})
-//    public String landingPage(
-//            @RequestParam(required = false) String placeName,
-//            @RequestParam(required = false) String categoryName,
-//            @RequestParam(required = false) Integer duration,
-//            @RequestParam(required = false) Integer touristNumberAssigned,
-//            Model model
-//    ) {
-//        // Truyền lại giá trị filter để giữ trạng thái form
-//        model.addAttribute("placeName", placeName);
-//        model.addAttribute("categoryName", categoryName);
-//        model.addAttribute("duration", duration);
-//        model.addAttribute("touristNumberAssigned", touristNumberAssigned);
-//
-//        // Lấy danh sách categories active đã sắp xếp
-//        List<Category> categories = categoryService.getCategoriesByStatus("active");
-//        model.addAttribute("categories", categories);
-//
-//        return "landing";
-//    }
+    @GetMapping({"/", "/landing", "/home"})
+    public String landingPage(
+            @RequestParam(required = false) String placeName,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) Integer duration,
+            @RequestParam(required = false) Integer touristNumberAssigned,
+            Model model
+    ) {
+        // Truyền lại giá trị filter để giữ trạng thái form
+        model.addAttribute("placeName", placeName);
+        model.addAttribute("categoryName", categoryName);
+        model.addAttribute("duration", duration);
+        model.addAttribute("touristNumberAssigned", touristNumberAssigned);
+
+        // Lấy danh sách categories active đã sắp xếp
+        List<Category> categories = categoryService.getCategoriesByStatus("active");
+        model.addAttribute("categories", categories);
+
+        return "landing";
+    }
 
     @GetMapping("/forgot_password")
     public String forgotPasswordPage() {
@@ -118,6 +118,11 @@ public class PageController {
     @GetMapping("/user/edit-account")
     public String editAccountPage() {
         return "edit_account";
+    }
+
+    @GetMapping("/user/viewed")
+    public String chatPage() {
+        return "list-viewed";
     }
 }
 

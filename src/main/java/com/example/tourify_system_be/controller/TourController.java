@@ -41,7 +41,9 @@ public class TourController {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
-            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!"); // hoặc trả về 401
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!"); // hoặc
+                                                                                                              // trả về
+                                                                                                              // 401
         }
 
         CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
@@ -56,7 +58,6 @@ public class TourController {
                 .build());
     }
 
-
     @GetMapping("/by-place-name")
     public List<TourResponse> getToursByPlaceName(@RequestParam String placeName) {
         return tourService.getToursByPlaceName(placeName);
@@ -70,18 +71,13 @@ public class TourController {
                         .code(1000)
                         .message("Success")
                         .result(myTours)
-                        .build()
-        );
+                        .build());
     }
 
     /**
      * So sánh tour: gửi body ["id1","id2",...], nhận về List<TourResponse]
      */
-    @PostMapping(
-            value = "/compare",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+    @PostMapping(value = "/compare", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TourResponse>> compareTours(
             @RequestBody List<String> tourIds) {
 
@@ -103,6 +99,17 @@ public class TourController {
         List<TourResponse> response = tourService.getAllTours();
         return APIResponse.<List<TourResponse>>builder()
                 .result(response)
+                .build();
+    }
+
+    /**
+     * Lấy danh sách tour theo list id
+     */
+    @PostMapping("/by-ids")
+    public APIResponse<List<TourResponse>> getToursByIds(@RequestBody TourIdsRequest request) {
+        List<TourResponse> tours = tourService.getToursByIds(request.getIds());
+        return APIResponse.<List<TourResponse>>builder()
+                .result(tours)
                 .build();
     }
 }
