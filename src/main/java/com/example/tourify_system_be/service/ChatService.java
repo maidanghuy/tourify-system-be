@@ -5,8 +5,12 @@ import com.example.tourify_system_be.dto.response.TourResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.content.Media;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -106,6 +110,29 @@ public class ChatService {
 
         // Nếu không match pattern nào: fallback AI
         return handleAI(request.message());
+    }
+
+
+    public String chatWithImage(MultipartFile file, String message){
+        Media media = Media.builder()
+                .mimeType(MimeTypeUtils.parseMimeType(file.getContentType()))
+                .data(file.getResource())
+                .build();
+
+
+        ChatOptions chatOptions = ChatOptions.builder()
+                .temperature(0D)
+                .build();
+
+
+        return chatClient.prompt()
+                .options(chatOptions)
+                .system("You are Tourify.AI")
+                .user(promptUserSpec
+                        -> promptUserSpec.media(media)
+                        .text(message))
+                .call()
+                .content();
     }
 
     // ------------------ Các hàm phụ ----------------------
