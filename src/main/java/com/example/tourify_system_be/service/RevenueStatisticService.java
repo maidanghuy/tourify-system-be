@@ -1,87 +1,190 @@
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.response.RevenueStatisticResponse;
+import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.repository.IBookingTourRepository;
+import com.example.tourify_system_be.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class RevenueStatisticService {
 
     private final IBookingTourRepository bookingTourRepository;
+    private final IUserRepository userRepository;
 
-    // ==== Theo từng sub_company ====
+    private static final DateTimeFormatter DAY_FMT   = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
 
-    /** Thống kê doanh thu theo ngày cho 1 sub_company */
-    public List<RevenueStatisticResponse> getRevenueByDay(String subCompanyId, LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getRevenueByDay(subCompanyId, start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+    public List<RevenueStatisticResponse> getRevenueByDay(String subCompanyId, LocalDate start, LocalDate end) {
+        // Lấy dữ liệu DB (time là yyyy-MM-dd)
+        List<Object[]> raw = bookingTourRepository.getRevenueByDay(
+                subCompanyId, start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
+
+        String name = userRepository.findById(subCompanyId)
+                .map(User::getUserName)
+                .orElse("");
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        LocalDate cur = start;
+        while (!cur.isAfter(end)) {
+            String key = cur.format(DAY_FMT);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L),
+                    subCompanyId, name));
+            cur = cur.plusDays(1);
+        }
+        return out;
     }
 
-    /** Thống kê doanh thu theo tháng cho 1 sub_company */
-    public List<RevenueStatisticResponse> getRevenueByMonth(String subCompanyId, LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getRevenueByMonth(subCompanyId, start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+    public List<RevenueStatisticResponse> getRevenueByMonth(String subCompanyId, LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingTourRepository.getRevenueByMonth(
+                subCompanyId, start.withDayOfMonth(1).atStartOfDay(),
+                end.withDayOfMonth(end.lengthOfMonth()).plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
+
+        String name = userRepository.findById(subCompanyId)
+                .map(User::getUserName)
+                .orElse("");
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        LocalDate cur = start.withDayOfMonth(1);
+        while (!cur.isAfter(end)) {
+            String key = cur.format(MONTH_FMT);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L),
+                    subCompanyId, name));
+            cur = cur.plusMonths(1);
+        }
+        return out;
     }
 
-    /** Thống kê doanh thu theo năm cho 1 sub_company */
-    public List<RevenueStatisticResponse> getRevenueByYear(String subCompanyId, LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getRevenueByYear(subCompanyId, start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+    public List<RevenueStatisticResponse> getRevenueByYear(String subCompanyId, LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingTourRepository.getRevenueByYear(
+                subCompanyId, start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
+
+        String name = userRepository.findById(subCompanyId)
+                .map(User::getUserName)
+                .orElse("");
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        for (int y = start.getYear(); y <= end.getYear(); y++) {
+            String key = String.valueOf(y);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L),
+                    subCompanyId, name));
+        }
+        return out;
     }
 
-    // ==== Tổng doanh thu toàn hệ thống ====
+    public List<RevenueStatisticResponse> getTotalRevenueByDay(LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingTourRepository.getTotalRevenueByDay(
+                start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
 
-    /** Tổng doanh thu hệ thống theo ngày */
-    public List<RevenueStatisticResponse> getTotalRevenueByDay(LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getTotalRevenueByDay(start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        LocalDate cur = start;
+        while (!cur.isAfter(end)) {
+            String key = cur.format(DAY_FMT);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L), null, null));
+            cur = cur.plusDays(1);
+        }
+        return out;
     }
 
-    /** Tổng doanh thu hệ thống theo tháng */
-    public List<RevenueStatisticResponse> getTotalRevenueByMonth(LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getTotalRevenueByMonth(start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+    public List<RevenueStatisticResponse> getTotalRevenueByMonth(LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingTourRepository.getTotalRevenueByMonth(
+                start.withDayOfMonth(1).atStartOfDay(),
+                end.withDayOfMonth(end.lengthOfMonth()).plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        LocalDate cur = start.withDayOfMonth(1);
+        while (!cur.isAfter(end)) {
+            String key = cur.format(MONTH_FMT);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L), null, null));
+            cur = cur.plusMonths(1);
+        }
+        return out;
     }
 
-    /** Tổng doanh thu hệ thống theo năm */
-    public List<RevenueStatisticResponse> getTotalRevenueByYear(LocalDateTime start, LocalDateTime end) {
-        return bookingTourRepository.getTotalRevenueByYear(start, end)
-                .stream()
-                .map(obj -> new RevenueStatisticResponse(
-                        String.valueOf(obj[0]),
-                        obj[1] == null ? 0L : ((Number) obj[1]).longValue()
-                ))
-                .collect(Collectors.toList());
+    public List<RevenueStatisticResponse> getTotalRevenueByYear(LocalDate start, LocalDate end) {
+        List<Object[]> raw = bookingTourRepository.getTotalRevenueByYear(
+                start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+        Map<String, Long> map = toMap(raw);
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        for (int y = start.getYear(); y <= end.getYear(); y++) {
+            String key = String.valueOf(y);
+            out.add(new RevenueStatisticResponse(key, map.getOrDefault(key, 0L), null, null));
+        }
+        return out;
+    }
+
+    public List<RevenueStatisticResponse> getAllCompaniesRevenueByDay(LocalDate start, LocalDate end) {
+        return allCompanies(start, end, "day");
+    }
+    public List<RevenueStatisticResponse> getAllCompaniesRevenueByMonth(LocalDate start, LocalDate end) {
+        return allCompanies(start, end, "month");
+    }
+    public List<RevenueStatisticResponse> getAllCompaniesRevenueByYear(LocalDate start, LocalDate end) {
+        return allCompanies(start, end, "year");
+    }
+
+    // chung giải thuật cho tất cả sub-company
+    private List<RevenueStatisticResponse> allCompanies(LocalDate start, LocalDate end, String period) {
+        List<User> subs = userRepository.findAllByRole("SUB_COMPANY");
+        List<Object[]> raw;
+        Set<String> keys = new LinkedHashSet<>();
+
+        if (period.equals("day")) {
+            raw = bookingTourRepository.getAllCompaniesRevenueByDay(
+                    start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+            LocalDate cur = start;
+            while (!cur.isAfter(end)) { keys.add(cur.format(DAY_FMT)); cur = cur.plusDays(1); }
+        } else if (period.equals("month")) {
+            raw = bookingTourRepository.getAllCompaniesRevenueByMonth(
+                    start.withDayOfMonth(1).atStartOfDay(),
+                    end.withDayOfMonth(end.lengthOfMonth()).plusDays(1).atStartOfDay().minusNanos(1));
+            LocalDate cur = start.withDayOfMonth(1);
+            while (!cur.isAfter(end)) { keys.add(cur.format(MONTH_FMT)); cur = cur.plusMonths(1); }
+        } else {
+            raw = bookingTourRepository.getAllCompaniesRevenueByYear(
+                    start.atStartOfDay(), end.plusDays(1).atStartOfDay().minusNanos(1));
+            for (int y = start.getYear(); y <= end.getYear(); y++) { keys.add(String.valueOf(y)); }
+        }
+
+        Map<String, RevenueStatisticResponse> map = new HashMap<>();
+        for (Object[] r : raw) {
+            String cid  = String.valueOf(r[0]);
+            String name = String.valueOf(r[1]);
+            String t    = String.valueOf(r[2]);
+            Long rev    = r[3]==null?0L:((Number)r[3]).longValue();
+            map.put(cid+"_"+t, new RevenueStatisticResponse(t, rev, cid, name));
+        }
+
+        List<RevenueStatisticResponse> out = new ArrayList<>();
+        for (User u : subs) {
+            for (String k : keys) {
+                out.add(map.getOrDefault(u.getUserId()+"_"+k,
+                        new RevenueStatisticResponse(k, 0L, u.getUserId(), u.getUserName())));
+            }
+        }
+        return out;
+    }
+
+    // helper
+    private Map<String, Long> toMap(List<Object[]> raw) {
+        Map<String, Long> m = new HashMap<>();
+        for (Object[] r : raw) {
+            String t = String.valueOf(r[0]);
+            Long v    = r[1] == null ? 0L : ((Number) r[1]).longValue();
+            if (!"null".equals(t)) m.put(t, v);
+        }
+        return m;
     }
 }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -14,82 +14,80 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RevenueStatisticController {
 
-    private final RevenueStatisticService revenueStatisticService;
+    private final RevenueStatisticService service;
 
-    /**
-     * API: Thống kê doanh thu theo ngày cho 1 sub_company
-     * GET /api/revenue/by-day?subCompanyId=...&start=...&end=...
-     */
     @GetMapping("/by-day")
-    public List<RevenueStatisticResponse> getRevenueByDay(
+    public List<RevenueStatisticResponse> byDay(
             @RequestParam String subCompanyId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getRevenueByDay(subCompanyId, start, end);
+        return service.getRevenueByDay(subCompanyId, start, end);
     }
 
-    /**
-     * API: Thống kê doanh thu theo tháng cho 1 sub_company
-     * GET /api/revenue/by-month?subCompanyId=...&start=...&end=...
-     */
     @GetMapping("/by-month")
-    public List<RevenueStatisticResponse> getRevenueByMonth(
+    public List<RevenueStatisticResponse> byMonth(
             @RequestParam String subCompanyId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getRevenueByMonth(subCompanyId, start, end);
+        return service.getRevenueByMonth(subCompanyId, start, end);
     }
 
-    /**
-     * API: Thống kê doanh thu theo năm cho 1 sub_company
-     * GET /api/revenue/by-year?subCompanyId=...&start=...&end=...
-     */
     @GetMapping("/by-year")
-    public List<RevenueStatisticResponse> getRevenueByYear(
+    public List<RevenueStatisticResponse> byYear(
             @RequestParam String subCompanyId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getRevenueByYear(subCompanyId, start, end);
+        return service.getRevenueByYear(subCompanyId, start, end);
     }
 
-    // ============= THỐNG KÊ DOANH THU TOÀN HỆ THỐNG =============
-
-    /**
-     * API: Tổng doanh thu toàn hệ thống theo ngày
-     * GET /api/revenue/system/by-day?start=...&end=...
-     */
     @GetMapping("/system/by-day")
-    public List<RevenueStatisticResponse> getTotalRevenueByDay(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    public List<RevenueStatisticResponse> sysByDay(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getTotalRevenueByDay(start, end);
+        return service.getTotalRevenueByDay(start, end);
     }
 
-    /**
-     * API: Tổng doanh thu toàn hệ thống theo tháng
-     * GET /api/revenue/system/by-month?start=...&end=...
-     */
     @GetMapping("/system/by-month")
-    public List<RevenueStatisticResponse> getTotalRevenueByMonth(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    public List<RevenueStatisticResponse> sysByMonth(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getTotalRevenueByMonth(start, end);
+        return service.getTotalRevenueByMonth(start, end);
     }
 
-    /**
-     * API: Tổng doanh thu toàn hệ thống theo năm
-     * GET /api/revenue/system/by-year?start=...&end=...
-     */
     @GetMapping("/system/by-year")
-    public List<RevenueStatisticResponse> getTotalRevenueByYear(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    public List<RevenueStatisticResponse> sysByYear(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        return revenueStatisticService.getTotalRevenueByYear(start, end);
+        return service.getTotalRevenueByYear(start, end);
+    }
+
+    @GetMapping("/company/by-day")
+    public List<RevenueStatisticResponse> allByDay(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        return service.getAllCompaniesRevenueByDay(start, end);
+    }
+
+    @GetMapping("/company/by-month")
+    public List<RevenueStatisticResponse> allByMonth(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        return service.getAllCompaniesRevenueByMonth(start, end);
+    }
+
+    @GetMapping("/company/by-year")
+    public List<RevenueStatisticResponse> allByYear(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        return service.getAllCompaniesRevenueByYear(start, end);
     }
 }
