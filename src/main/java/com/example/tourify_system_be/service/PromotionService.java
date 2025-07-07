@@ -2,9 +2,11 @@ package com.example.tourify_system_be.service;
 
 
 import com.example.tourify_system_be.dto.request.CreatePromotionRequest;
+import com.example.tourify_system_be.dto.response.PromotionResponse;
 import com.example.tourify_system_be.entity.Promotion;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.mapper.PromotionMapper;
 import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.security.JwtUtil;
 import com.example.tourify_system_be.entity.TokenAuthentication;
@@ -14,6 +16,8 @@ import com.example.tourify_system_be.entity.TourPromotion;
 import com.example.tourify_system_be.entity.TourPromotionId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+
 public class PromotionService {
 
     private final IPromotionRepository promotionRepository;
@@ -33,8 +38,8 @@ public class PromotionService {
     private final ITourPromotionRepository tourPromotionRepository;
     private final JwtUtil jwtUtil;
     private final ITokenAuthenticationRepository tokenAuthenticationRepository;
-
-    public void createPromotion(CreatePromotionRequest request, String token) {
+    private final PromotionMapper promotionMapper;
+    public PromotionResponse createPromotion(CreatePromotionRequest request, String token) {
         String jwt = token.replace("Bearer ", "");
         if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
 
@@ -44,14 +49,28 @@ public class PromotionService {
 
         TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(jwt);
         if (session == null || !session.getIsUsed())
-            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập hết hạn");
 
         if (!creator.getRole().toUpperCase().equals("ADMIN") &&
                 !creator.getRole().toUpperCase().equals("SUB_COMPANY"))
-            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Không có quyền sử dụng cức năng này!");
 
         if (promotionRepository.findByCode(request.getCode()).isPresent())
-            throw new AppException(ErrorCode.DUPLICATE_PROMOTION_CODE, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.DUPLICATE_PROMOTION_CODE, "Mã code không được trùng");
+
+        if (request.getEndTime().isBefore(request.getStartTime())) {
+            throw new AppException(ErrorCode.INVALID_PROMOTION_TIME, "Ngày kết thúc không được trước ngày bắt đầu");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (request.getStartTime().isBefore(now)) {
+            throw new AppException(ErrorCode.INVALID_TIME, "Ngày bắt đầu phải lớn hơn thời gian hiện tại");
+        }
+
+        if (request.getEndTime().isBefore(now)) {
+            throw new AppException(ErrorCode.INVALID_TIME, "Ngày kết thúc phải lớn hơn thời gian hiện tại");
+        }
 
         String status = request.getStartTime().isAfter(LocalDateTime.now()) ? "inactive" : "active";
 
@@ -68,7 +87,7 @@ public class PromotionService {
                 .createBy(creator)
                 .build();
 
-        promotionRepository.save(promotion);
+        Promotion t = promotionRepository.save(promotion);
 
         List<String> invalidTourIds = new ArrayList<>();
 
@@ -100,14 +119,30 @@ public class PromotionService {
                         "You do not have permission to apply the promotion to the following tours: " + invalidTourIds);
             }
         }
+        return promotionMapper.toPromotionResponse(t);
+    }
+
+    // Scheduler tích hợp: tự động chuyển promotion sang inactive khi promotion đc tạo từ trc đến thời gian bắt đầu hoạt động
+    @Scheduled(cron = "0 * * * * *") // chạy mỗi phút
+    public void activatePromotionsAtStartTime() {
+        List<Promotion> upcomingPromos = promotionRepository.findAllByStatus("inactive");
+        for (Promotion promo : upcomingPromos) {
+            LocalDateTime now = LocalDateTime.now();
+            // Kiểm tra: bây giờ nằm trong khoảng thời gian hiệu lực
+            if (!promo.getStartTime().isAfter(now) && promo.getEndTime().isAfter(now)) {
+                promo.setStatus("active");
+                promotionRepository.save(promo);
+                log.info("✅ Promotion '{}' đã được kích hoạt", promo.getCode());
+            }
+        }
     }
 
     // Scheduler tích hợp: tự động chuyển promotion hết hạn sang inactive
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 * * * * *") // chạy mỗi phút
     public void updateExpiredPromotions() {
         List<Promotion> activePromotions = promotionRepository.findAllByStatus("active");
         for (Promotion promo : activePromotions) {
-            if (promo.getEndTime().isBefore(LocalDateTime.now())) {
+            if (!promo.getEndTime().isAfter(LocalDateTime.now())) {
                 promo.setStatus("inactive");
                 promotionRepository.save(promo);
                 log.info("Promotion '{}' has expired and has been set to inactive", promo.getCode());
@@ -115,16 +150,6 @@ public class PromotionService {
         }
     }
 
-    // Scheduler tích hợp: tự động chuyển promotion sang inactive khi promotion đc tạo từ trc đến thời gian bắt đầu hoạt động
-    @Scheduled(cron = "0 0 * * * *") // Mỗi giờ
-    public void activatePromotionsAtStartTime() {
-        List<Promotion> upcomingPromos = promotionRepository.findAllByStatus("inactive");
-        for (Promotion promo : upcomingPromos) {
-            if (promo.getStartTime().isBefore(LocalDateTime.now())) {
-                promo.setStatus("active");
-                promotionRepository.save(promo);
-            }
-        }
-    }
+
 }
 

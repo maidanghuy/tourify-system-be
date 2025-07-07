@@ -64,14 +64,18 @@ public class TourController {
     }
 
     @GetMapping("/my-tours")
-    public ResponseEntity<?> getMyTours(@RequestHeader("Authorization") String token) {
-        List<TourResponse> myTours = tourService.getAllToursWithDetails(token);
-        return ResponseEntity.ok(
-                APIResponse.<List<TourResponse>>builder()
-                        .code(1000)
-                        .message("Success")
-                        .result(myTours)
-                        .build());
+    public ResponseEntity<APIResponse<List<TourResponse>>> getMyTours(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+
+        List<TourResponse> myTours = tourService.getAllToursWithDetails(authorizationHeader);
+
+        APIResponse<List<TourResponse>> body = APIResponse.<List<TourResponse>>builder()
+                .code(1000)
+                .message("Success")
+                .result(myTours)
+                .build();
+
+        return ResponseEntity.ok(body);
     }
 
     /**

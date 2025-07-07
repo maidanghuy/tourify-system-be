@@ -102,7 +102,7 @@
         .fav-btn-view:hover {
             background: #18ad8d;
             color: #fff;
-        }
+}
 
         .fav-btn-book {
             background: linear-gradient(110deg, #2fdba8 60%, #e2fff3 100%);
@@ -191,7 +191,7 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <div class="dropdown">
+<div class="dropdown">
                         <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
                                 type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
@@ -251,7 +251,7 @@
                     <h5 class="footer-title">Our Destinations</h5>
                     <ul class="footer-links">
                         <li><a href="#">Canada</a></li>
-                        <li><a href="#">Alaska</a></li>
+<li><a href="#">Alaska</a></li>
                         <li><a href="#">France</a></li>
                         <li><a href="#">Iceland</a></li>
                     </ul>
@@ -323,8 +323,7 @@
                 renderPagination(page - 1);
                 return;
             }
-
-            pageData.forEach((tour) => {
+pageData.forEach((tour) => {
                 favGrid.insertAdjacentHTML(
                     "beforeend",
                     `
@@ -366,7 +365,7 @@
 
         function renderPagination(page = 0) {
             const totalPages = Math.ceil(tours.length / PER_PAGE);
-            const pagin = document.getElementById("pagination");
+const pagin = document.getElementById("pagination");
             pagin.innerHTML = "";
 
             const mkBtn = (label, idx, active = false, disabled = false) => {
@@ -434,7 +433,7 @@
                         if (idx !== -1) {
                             tours.splice(idx, 1);
                             // Nếu trang hiện tại hết tour thì lùi về trang trước
-                            const maxPage = Math.ceil(tours.length / PER_PAGE) - 1;
+const maxPage = Math.ceil(tours.length / PER_PAGE) - 1;
                             if (currentPage > maxPage) currentPage = maxPage;
                             renderTours(currentPage);
                             showDeleteToast();
@@ -500,7 +499,7 @@
                     background: "#fff",
                     color: "#16b686",
                     border: "1.5px solid #b8ead2",
-                    borderRadius: "0.7rem",
+borderRadius: "0.7rem",
                     fontSize: "1rem",
                     fontWeight: 500,
                     boxShadow: "0 2px 8px rgba(34,197,94,0.07)",
@@ -576,7 +575,7 @@
                             borderRadius: "0.7rem",
                             fontSize: "1rem",
                             fontWeight: 500,
-                            boxShadow: "0 2px 8px #ffeeba77",
+boxShadow: "0 2px 8px #ffeeba77",
                             padding: "0.7rem 1.2rem"
                         },
                         escapeMarkup: false,

@@ -20,6 +20,7 @@ import com.example.tourify_system_be.security.JwtUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -86,32 +87,37 @@ public class TourService {
     }
 
     public List<TourResponse> getAllToursWithDetails(String bearerToken) {
-        // 1. (Tùy mục đích) Lấy userId từ token nếu cần
+        // 1. Extract userId từ token
         String userId = null;
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             String token = bearerToken.substring(7);
             userId = jwtUtil.extractUserId(token);
-            // Nếu không dùng userId thì bỏ dòng này cũng được!
         }
 
-        // 2. Lấy tất cả tour
-        List<Tour> tours = itourRepository.findAll();
+        // 2. Nếu không có userId => không có tour nào
+        if (userId == null) {
+            return Collections.emptyList();
+            // hoặc: throw new UnauthorizedException("Invalid token");
+        }
 
-        // 3. Mapping và bổ sung các trường động
+        // 3. Chỉ lấy tour do chính sub-company đó quản lý
+        List<Tour> tours = tourRepository.findAllByManageBy_UserId(userId);
+
+        // 4. Mapping và bổ sung các trường động
         return tours.stream().map(tour -> {
             TourResponse resp = tourMapper.toResponse(tour);
 
             resp.setCreatedAt(tour.getCreatedAt());
 
             BigDecimal avg = IFeedbackRepository.findAverageRatingByTourId(tour.getTourId());
-            resp.setRating(avg != null ? avg.setScale(1, RoundingMode.HALF_UP) : BigDecimal.valueOf(5.0));
+            resp.setRating(avg != null
+                    ? avg.setScale(1, RoundingMode.HALF_UP)
+                    : BigDecimal.valueOf(5.0));
 
             long count = IBookingRepository.countByTour_TourId(tour.getTourId());
             resp.setBookedCustomerCount((int) count);
 
-            // Nếu muốn đánh dấu tour này là của user đang đăng nhập:
-            // resp.setIsMyTour(userId != null &&
-            // tour.getManageBy().getUserId().equals(userId));
+            resp.setMyTour(true);
 
             return resp;
         }).toList();

@@ -43,4 +43,6 @@ public class TourResponse {
     // ✅ Mới thêm: số lượng khách đã đăng ký tour
     Integer bookedCustomerCount;
     UserResponse managementBy;
+    @Builder.Default
+    boolean myTour = false;
 }
