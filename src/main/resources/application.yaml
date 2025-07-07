@@ -69,6 +69,11 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: sub
 
+google:
+  docs:
+    documentId: "1OGuIQujkIbECjPBNslNZYCndSIpuq3ctVyOjSGcfubs"
+    credentialsLocation: classpath:credentials.json
+
 payos:
   client-id: ${PAYOS_CLIENT_ID}
   api-key: ${PAYOS_API_KEY}
