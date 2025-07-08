@@ -116,4 +116,20 @@ public class TourController {
                 .result(tours)
                 .build();
     }
+
+    /**
+     * Xóa 1 tour theo ID
+     * DELETE /api/tours/{tourId}
+     */
+    @DeleteMapping("/{tourId}")
+    public ResponseEntity<APIResponse<Void>> deleteTour(
+            @PathVariable String tourId) {
+        tourService.deleteTour(tourId);
+        return ResponseEntity.ok(
+                APIResponse.<Void>builder()
+                        .code(1000)
+                        .message("Xóa tour thành công")
+                        .build()
+        );
+    }
 }

@@ -13,6 +13,8 @@ import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.specification.TourSpecification;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.example.tourify_system_be.security.JwtUtil;
@@ -38,6 +40,7 @@ public class TourService {
     private final IPlaceRepository iPlaceRepository;
     private final ICategoryRepository iCategoryRepository;
     private final ITourRepository tourRepository;
+    private final IFeedbackRepository iFeedbackRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -235,4 +238,18 @@ public class TourService {
         List<Tour> tours = tourRepository.findAllByTourIdIn(ids);
         return tours.stream().map(tourMapper::toResponse).toList();
     }
+
+    @Transactional
+    public void deleteTour(String tourId) {
+        // 1️⃣ Kiểm tra tour có tồn tại?
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new EntityNotFoundException("Tour not found: " + tourId));
+
+        // 2️⃣ Xóa tất cả feedback liên quan
+        iFeedbackRepository.deleteByTour_TourId(tourId);
+
+        // 3️⃣ Xóa tour
+        tourRepository.delete(tour);
+    }
+
 }
