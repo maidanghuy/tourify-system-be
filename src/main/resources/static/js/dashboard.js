@@ -1279,11 +1279,7 @@
       }
 
       function viewTour(tourId) {
-        // cách đơn giản: chuyển hẳn sang URL detail
-        window.location.href = `/tourify/tourDetail?id=${tourId}`;
-        // hoặc nếu bạn dùng SPA:
-        // loadPage('tourDetail');
-        // initTourDetailPage(tourId);
+        window.location.href = `/tourify/tourDetailDashboard?id=${tourId}`;
       }
 
       async function deleteTour(tourId) {

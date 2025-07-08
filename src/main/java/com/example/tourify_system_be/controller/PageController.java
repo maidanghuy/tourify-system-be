@@ -124,5 +124,8 @@ public class PageController {
     public String chatPage() {
         return "list-viewed";
     }
+
+    @GetMapping("/tourDetailDashboard")
+    public  String tourDetailDashboardPage(){return "tour-detail-dashboard";}
 }
 
