@@ -4,9 +4,16 @@ server:
     context-path: /tourify
   forward-headers-strategy: framework
 
+
 spring:
   config:
     import: optional:file:./config/application-secrets.yml
+
+  #  Maximum upload size
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
   datasource:
     url: ${DB_URL}
@@ -80,6 +87,11 @@ payos:
   checksum-key: ${PAYOS_CHECKSUM_KEY}
   return-url: http://localhost:8080/tourify/${RETURN_URL}
   cancel-url: http://localhost:8080/tourify/${CANCEL_URL}
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_SECRET_KEY}
 
 app:
   backend:

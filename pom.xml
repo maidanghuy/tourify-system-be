@@ -162,6 +162,14 @@
 			<artifactId>google-http-client-jackson2</artifactId>
 			<version>1.43.3</version>
 		</dependency>
+
+		<!--Cloudinary -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.37.0</version>
+		</dependency>
+
 	</dependencies>
 
 
