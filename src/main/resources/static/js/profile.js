@@ -403,10 +403,10 @@ function loadAvatarFromFile(event) {
         const reader = new FileReader();
         reader.onload = function (e) {
             const img = e.target.result;
-            console.log(img);
+            // console.log(img);
             document.getElementById("avatarPreview").src = img;
             document.getElementById("avatarPreview").style.display = "block";
-            // document.getElementById("profile-pic").src = img;
+            document.getElementById("profile-pic").src = img;
         };
         reader.readAsDataURL(file);
     }
@@ -453,8 +453,8 @@ function updateAvatar() {
         })
             .then(res => res.json())
             .then(data => {
-                if (data && data.url) {
-                    setAvatarAndClose(data.url);
+                if (data && data.result && data.result.url) {
+                    setAvatarAndClose(data.result.url);
                 }
             });
     } else if (url) {
