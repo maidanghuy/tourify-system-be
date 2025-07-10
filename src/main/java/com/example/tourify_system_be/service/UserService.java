@@ -91,7 +91,8 @@ public class UserService {
 
     public UserResponse getUserById(String id) {
         return userMapper.toUserResponse(
-                userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!")));
+                userRepository.findById(id)
+                        .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!")));
     }
 
     public Iterable<User> getAllUsers() {
@@ -101,6 +102,16 @@ public class UserService {
 
     public boolean updateAvatar(String userName, String avatarUrl) {
         return userRepository.findByUserName(userName).map(user -> {
+            user.setAvatar(avatarUrl);
+            userRepository.save(user);
+            return true;
+        }).orElse(false);
+    }
+
+    public boolean updateAvatarByToken(String token, String avatarUrl) {
+        String jwt = token.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+        return userRepository.findById(userId).map(user -> {
             user.setAvatar(avatarUrl);
             userRepository.save(user);
             return true;
@@ -405,7 +416,6 @@ public class UserService {
             throw new AppException(OPERATION_NOT_ALLOWED, "Chỉ ADMIN mới có quyền này");
         }
     }
-
 
     public List<TourResponse> getFavoritesByToken(String bearerToken) {
         String jwt = bearerToken.replace("Bearer ", "");
