@@ -1,5 +1,6 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class UploadController {
     private final CloudinaryService cloudinaryService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) {
+    public APIResponse<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) {
         try {
             String imageUrl = cloudinaryService.uploadFile(file);
 
@@ -29,11 +30,17 @@ public class UploadController {
             response.put("url", imageUrl);
             response.put("fileName", file.getOriginalFilename());
             response.put("status", "success");
-
-            return ResponseEntity.ok(response);
+            return APIResponse.<Map<String, Object>>builder()
+                    .code(1000)
+                    .message("Upload successful")
+                    .result(response)
+                    .build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", e.getMessage()));
+            return APIResponse.<Map<String, Object>>builder()
+                    .code(400)
+                    .message("Upload failed")
+                    .result(null)
+                    .build();
         }
     }
 }
