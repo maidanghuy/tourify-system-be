@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,16 +39,16 @@ public class BookingTourService {
         // Tìm token trong DB
         TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
         if (tokenAuth == null) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Không tim thấy token trong DB!");
         }
 
         // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
         TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
         if (session == null || !session.getIsUsed()) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Token này không tồn tại trong hệ thống!");
         }
         if (!session.getIsUsed()) {
-            throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên đăng nhập!");
         }
 
         // Trích xuất thông tin user
@@ -55,19 +56,19 @@ public class BookingTourService {
 
         // Kiểm tra trạng thái tài khoản
         if (!"active".equalsIgnoreCase(user.getStatus())) {
-            throw new AppException(ErrorCode.USER_DISABLED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.USER_DISABLED, "Tài khoản đã bị khóa!");
         }
 
-        // Chỉ user mới được book tour
-        if (!"user".equalsIgnoreCase(user.getRole())) {
-            throw new AppException(ErrorCode.BOOKING_FORBIDDEN_ROLE, "Feedback không hợp lệ và đã bị xoá!");
+        // Chỉ user và admin mới được book tour
+        if (!List.of("user", "admin").contains(user.getRole().toLowerCase())) {
+            throw new AppException(ErrorCode.BOOKING_FORBIDDEN_ROLE, "Bạn không có quyền đặt tour!");
         }
 
         Tour tour = iTourRepository.findById(request.getTourId())
-                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Không thể tìm thấy tour!"));
         // Trạng thái tour phải là "active" thì mới đặt tour được
         if (!"active".equalsIgnoreCase(tour.getStatus())) {
-            throw new AppException(ErrorCode.TOUR_NOT_ACTIVE, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.TOUR_NOT_ACTIVE, "Tour đang bị khóa!");
         }
 
         // Ngày kết thúc = ngày bắt đầu + duration
@@ -75,21 +76,21 @@ public class BookingTourService {
         // Validate ngày, phải đặt tour sau 4 ngày so với hiện tại thì mới đặt được
         LocalDateTime now = LocalDateTime.now();
         if (request.getDayStart().isBefore(now.plusDays(4))) {
-            throw new AppException(ErrorCode.INVALID_BOOKING_DATE, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.INVALID_BOOKING_DATE, "Phải sau 4 ngày so với hiện tại thì mới được đặt tour");
         }
 
 
         // Validate số người
         if (request.getAdultNumber() == null || request.getChildNumber() == null
                 || request.getAdultNumber() < 0 || request.getChildNumber() < 0) {
-            throw new AppException(ErrorCode.INVALID_PEOPLE_COUNT, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.INVALID_PEOPLE_COUNT, "Số người lớn khng được bé hơn 1!");
         }
         int totalPeople = request.getAdultNumber() + request.getChildNumber();
         if (totalPeople > tour.getMaxPeople()) {
-            throw new AppException(ErrorCode.EXCEED_MAX_PEOPLE, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.EXCEED_MAX_PEOPLE, "Đã vượt quá số người cho phép!");
         }
         if (totalPeople < tour.getMinPeople()) {
-            throw new AppException(ErrorCode.BELOW_MIN_PEOPLE, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.BELOW_MIN_PEOPLE, "Không được ít hơn số người tối thiểu!");
         }
 
         // ✅ Cập nhật số người đã được đặt cho tour
@@ -126,8 +127,8 @@ public class BookingTourService {
         );
 
         // ✅ Gửi email (giả lập)
-        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
-                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
+//        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
+//                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
         return BookingTourResponse.builder()
                 .bookingId(booking.getBookingId())
                 .userId(user.getUserId())
