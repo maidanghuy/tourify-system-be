@@ -337,308 +337,6 @@
                 </div>
             </div>
 
-
-            <div class="section-box p-4 bg-white rounded-4 shadow-sm">
-                <!-- Avatar & Card -->
-                <div
-                        class="d-flex align-items-center rounded-4 p-3 mb-4 shadow position-relative"
-                        id="cardHeader"
-                        onclick="toggleReveal(this)"
-                        style="
-                cursor: pointer;
-                background: rgba(240, 255, 250, 0.7);
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-              "
-                >
-                    <!-- Avatar -->
-                    <img
-                            alt="User Avatar"
-                            class="rounded-circle border border-success shadow-sm me-3"
-                            height="50"
-                            src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                            width="50"
-                    />
-
-
-                    <!-- Info -->
-                    <div
-                            class="d-flex justify-content-between align-items-center w-100"
-                    >
-                        <div
-                                class="fw-semibold text-dark d-flex align-items-center gap-3"
-                        >
-                            <i class="fa-solid fa-credit-card text-success fs-5"></i>
-
-
-                            <!-- Card number -->
-                            <span id="cardNumber"
-                            >**** <span class="fw-bold">4321</span></span
-                            >
-
-
-                            <!-- Toggle visibility -->
-                            <button
-                                    aria-label="Toggle card number"
-                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
-                                    onclick="toggleCardNumber(event)"
-                                    style="width: 34px; height: 34px"
-                                    title="Toggle card number"
-                            >
-                                <i class="fas fa-eye" id="eyeIcon"></i>
-                            </button>
-                        </div>
-
-
-                        <!-- Check icon -->
-                        <i
-                                class="fas fa-check-circle fs-4 text-muted"
-                                id="checkIcon"
-                                style="transition: color 0.25s ease"
-                        ></i>
-                    </div>
-                </div>
-
-
-                <!-- Editable Fields -->
-                <div class="d-none" id="accountFields">
-                    <!-- Name -->
-                    <div class="mb-3" id="nameField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="nameView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-id-badge me-2"></i>Name
-                                </div>
-                                <div class="fw-bold" id="nameDisplay">John Doe</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('name')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="nameEdit">
-                            <label class="text-muted small mb-1">Name</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="nameInput"
-                                        style="max-width: 300px"
-                                        type="text"
-                                        value="John Doe"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('name')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('name')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Email -->
-                    <div class="mb-3" id="emailField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="emailView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-envelope me-2"></i>Email
-                                </div>
-                                <div class="fw-bold" id="emailDisplay">
-                                    john.doe@gmail.com
-                                </div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('email')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="emailEdit">
-                            <label class="text-muted small mb-1">Email</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="emailInput"
-                                        style="max-width: 300px"
-                                        type="email"
-                                        value="john.doe@gmail.com"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('email')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('email')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Phone -->
-                    <div class="mb-3" id="phoneField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="phoneView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-phone me-2"></i>Phone
-                                </div>
-                                <div class="fw-bold" id="phoneDisplay">+1 000-000-0000</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('phone')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="phoneEdit">
-                            <label class="text-muted small mb-1">Phone</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="phoneInput"
-                                        style="max-width: 300px"
-                                        type="text"
-                                        value="+1 000-000-0000"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('phone')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('phone')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Address -->
-                    <div class="mb-3" id="addressField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="addressView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-map-marker-alt me-2"></i>Address
-                                </div>
-                                <div class="fw-bold" id="addressDisplay">
-                                    St 32 main downtown, Los Angeles, California, USA
-                                </div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('address')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="addressEdit">
-                            <label class="text-muted small mb-1">Address</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="addressInput"
-                                        style="max-width: 500px"
-                                        type="text"
-                                        value="St 32 main downtown, Los Angeles, California, USA"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('address')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('address')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Date of Birth -->
-                    <div class="mb-3" id="dobField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="dobView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-calendar-alt me-2"></i>Date of Birth
-                                </div>
-                                <div class="fw-bold" id="dobDisplay">01-01-1992</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('dob')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="dobEdit">
-                            <label class="text-muted small mb-1">Date of Birth</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="dobInput"
-                                        style="max-width: 200px"
-                                        type="date"
-                                        value="01-01-1992"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('dob')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('dob')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
         <!-- Right Column -->
         <div class="col-lg-4">
             <div class="card-summary">
@@ -677,19 +375,19 @@
                     </div>
                     <div class="price-row">
                         <span>Discount</span>
-                        <span class="text-success">- 100 VND</span>
+                        <span class="text-success" id="discount-amount" >- 0 VND</span>
                     </div>
-                    <div class="price-row">
-                        <span>Taxes</span>
-                        <span>20 VND</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Service Fee</span>
-                        <span>10 VND</span>
-                    </div>
+<!--                    <div class="price-row">-->
+<!--                        <span>Taxes</span>-->
+<!--                        <span>20 VND</span>-->
+<!--                    </div>-->
+<!--                    <div class="price-row">-->
+<!--                        <span>Service Fee</span>-->
+<!--                        <span>10 VND</span>-->
+<!--                    </div>-->
                     <div class="total-row">
                         <span>Total</span>
-                        <span>330 VND</span>
+                        <span id="total-amount">0 VND</span>
                     </div>
                 </div>
 
@@ -698,6 +396,306 @@
                         onclick="handleCheckout(this)">
                     <i class="fas fa-credit-card me-2"></i>Check Out
                 </button>
+            </div>
+        </div>
+
+        <!-- User Information Column -->
+        <div class="section-box p-4 bg-white rounded-4 shadow-sm">
+            <!-- Avatar & Card -->
+            <div
+                    class="d-flex align-items-center rounded-4 p-3 mb-4 shadow position-relative"
+                    id="cardHeader"
+                    onclick="toggleReveal(this)"
+                    style="
+                cursor: pointer;
+                background: rgba(240, 255, 250, 0.7);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+              "
+            >
+                <!-- Avatar -->
+                <img
+                        alt="User Avatar"
+                        class="rounded-circle border border-success shadow-sm me-3"
+                        height="50"
+                        src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                        width="50"
+                />
+
+
+                <!-- Info -->
+                <div
+                        class="d-flex justify-content-between align-items-center w-100"
+                >
+                    <div
+                            class="fw-semibold text-dark d-flex align-items-center gap-3"
+                    >
+                        <i class="fa-solid fa-credit-card text-success fs-5"></i>
+
+
+                        <!-- Card number -->
+                        <span id="cardNumber"
+                        >**** <span class="fw-bold">4321</span></span
+                        >
+
+
+                        <!-- Toggle visibility -->
+                        <button
+                                aria-label="Toggle card number"
+                                class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
+                                onclick="toggleCardNumber(event)"
+                                style="width: 34px; height: 34px"
+                                title="Toggle card number"
+                        >
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+
+
+                    <!-- Check icon -->
+                    <i
+                            class="fas fa-check-circle fs-4 text-muted"
+                            id="checkIcon"
+                            style="transition: color 0.25s ease"
+                    ></i>
+                </div>
+            </div>
+
+
+            <!-- Editable Fields -->
+            <div class="d-none" id="accountFields">
+                <!-- Name -->
+                <div class="mb-3" id="nameField">
+                    <div
+                            class="d-flex justify-content-between align-items-center flex-wrap"
+                            id="nameView"
+                    >
+                        <div>
+                            <div class="text-muted small">
+                                <i class="fas fa-id-badge me-2"></i>Name
+                            </div>
+                            <div class="fw-bold" id="nameDisplay">John Doe</div>
+                        </div>
+                        <button
+                                class="btn btn-outline-success btn-sm"
+                                onclick="editField('name')"
+                        >
+                            <i class="fas fa-pen me-1"></i> Change
+                        </button>
+                    </div>
+                    <div class="d-none" id="nameEdit">
+                        <label class="text-muted small mb-1">Name</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input
+                                    class="form-control"
+                                    id="nameInput"
+                                    style="max-width: 300px"
+                                    type="text"
+                                    value="John Doe"
+                            />
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="confirmField('name')"
+                            >
+                                <i class="fas fa-check text-success me-1"></i> Confirm
+                            </button>
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="cancelField('name')"
+                            >
+                                <i class="fas fa-times text-danger me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Email -->
+                <div class="mb-3" id="emailField">
+                    <div
+                            class="d-flex justify-content-between align-items-center flex-wrap"
+                            id="emailView"
+                    >
+                        <div>
+                            <div class="text-muted small">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </div>
+                            <div class="fw-bold" id="emailDisplay">
+                                john.doe@gmail.com
+                            </div>
+                        </div>
+                        <button
+                                class="btn btn-outline-success btn-sm"
+                                onclick="editField('email')"
+                        >
+                            <i class="fas fa-pen me-1"></i> Change
+                        </button>
+                    </div>
+                    <div class="d-none" id="emailEdit">
+                        <label class="text-muted small mb-1">Email</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input
+                                    class="form-control"
+                                    id="emailInput"
+                                    style="max-width: 300px"
+                                    type="email"
+                                    value="john.doe@gmail.com"
+                            />
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="confirmField('email')"
+                            >
+                                <i class="fas fa-check text-success me-1"></i> Confirm
+                            </button>
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="cancelField('email')"
+                            >
+                                <i class="fas fa-times text-danger me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Phone -->
+                <div class="mb-3" id="phoneField">
+                    <div
+                            class="d-flex justify-content-between align-items-center flex-wrap"
+                            id="phoneView"
+                    >
+                        <div>
+                            <div class="text-muted small">
+                                <i class="fas fa-phone me-2"></i>Phone
+                            </div>
+                            <div class="fw-bold" id="phoneDisplay">+1 000-000-0000</div>
+                        </div>
+                        <button
+                                class="btn btn-outline-success btn-sm"
+                                onclick="editField('phone')"
+                        >
+                            <i class="fas fa-pen me-1"></i> Change
+                        </button>
+                    </div>
+                    <div class="d-none" id="phoneEdit">
+                        <label class="text-muted small mb-1">Phone</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input
+                                    class="form-control"
+                                    id="phoneInput"
+                                    style="max-width: 300px"
+                                    type="text"
+                                    value="+1 000-000-0000"
+                            />
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="confirmField('phone')"
+                            >
+                                <i class="fas fa-check text-success me-1"></i> Confirm
+                            </button>
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="cancelField('phone')"
+                            >
+                                <i class="fas fa-times text-danger me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Address -->
+                <div class="mb-3" id="addressField">
+                    <div
+                            class="d-flex justify-content-between align-items-center flex-wrap"
+                            id="addressView"
+                    >
+                        <div>
+                            <div class="text-muted small">
+                                <i class="fas fa-map-marker-alt me-2"></i>Address
+                            </div>
+                            <div class="fw-bold" id="addressDisplay">
+                                St 32 main downtown, Los Angeles, California, USA
+                            </div>
+                        </div>
+                        <button
+                                class="btn btn-outline-success btn-sm"
+                                onclick="editField('address')"
+                        >
+                            <i class="fas fa-pen me-1"></i> Change
+                        </button>
+                    </div>
+                    <div class="d-none" id="addressEdit">
+                        <label class="text-muted small mb-1">Address</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input
+                                    class="form-control"
+                                    id="addressInput"
+                                    style="max-width: 500px"
+                                    type="text"
+                                    value="St 32 main downtown, Los Angeles, California, USA"
+                            />
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="confirmField('address')"
+                            >
+                                <i class="fas fa-check text-success me-1"></i> Confirm
+                            </button>
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="cancelField('address')"
+                            >
+                                <i class="fas fa-times text-danger me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Date of Birth -->
+                <div class="mb-3" id="dobField">
+                    <div
+                            class="d-flex justify-content-between align-items-center flex-wrap"
+                            id="dobView"
+                    >
+                        <div>
+                            <div class="text-muted small">
+                                <i class="fas fa-calendar-alt me-2"></i>Date of Birth
+                            </div>
+                            <div class="fw-bold" id="dobDisplay">01-01-1992</div>
+                        </div>
+                        <button
+                                class="btn btn-outline-success btn-sm"
+                                onclick="editField('dob')"
+                        >
+                            <i class="fas fa-pen me-1"></i> Change
+                        </button>
+                    </div>
+                    <div class="d-none" id="dobEdit">
+                        <label class="text-muted small mb-1">Date of Birth</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input
+                                    class="form-control"
+                                    id="dobInput"
+                                    style="max-width: 200px"
+                                    type="date"
+                                    value="01-01-1992"
+                            />
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="confirmField('dob')"
+                            >
+                                <i class="fas fa-check text-success me-1"></i> Confirm
+                            </button>
+                            <button
+                                    class="btn btn-light shadow-sm"
+                                    onclick="cancelField('dob')"
+                            >
+                                <i class="fas fa-times text-danger me-1"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -884,6 +882,6 @@
 <script src="../js/booking.js"></script>
 <script src="../js/logout.js"></script>
 <script src="../js/index.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

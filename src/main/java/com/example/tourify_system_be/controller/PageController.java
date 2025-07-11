@@ -127,5 +127,8 @@ public class PageController {
 
     @GetMapping("/tourDetailDashboard")
     public  String tourDetailDashboardPage(){return "tour-detail-dashboard";}
+
+    @GetMapping("user/message")
+    public String messagePage(){return "messages";}
 }
 

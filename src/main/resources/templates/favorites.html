@@ -175,36 +175,38 @@
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
                 aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNavbar">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
-                <li class="nav-item">
-                    <a class="nav-link nav-custom active" th:href="@{/landing}">
-                        <i class="fas fa-house me-2"></i>Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link nav-custom" th:href="@{/user/favorites}">
-                        <i class="fas fa-heart me-2"></i>Favorites
-                    </a>
-                </li>
-                <!-- Dashboard chỉ dành cho ADMIN -->
-                <li class="nav-item" id="dashboard-link" style="display:none;">
-                    <a class="nav-link nav-custom" th:href="@{/dashboard}">
-                        <i class="fas fa-chart-line me-2"></i>Dashboard
-                    </a>
-                </li>
-            </ul>
-
-
-            <div class="d-flex align-items-center gap-3">
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
-                            type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                             alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
-                        <span>Hello,
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom" th:href="@{/landing}">
+                            <i class="fas fa-house me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-custom active" th:href="@{/user/favorites}">
+                            <i class="fas fa-heart me-2"></i>Favorites
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Message Icon (Realtime Chat) -->
+                    <li class="nav-item position-relative list-unstyled me-2">
+                        <a th:href="@{/user/message}" class="nav-link nav-custom" id="message-link">
+                            <i class="fas fa-comment-dots fa-lg"></i>
+                            <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                  style="font-size: 11px; min-width:18px; display: none;">
+            0
+        </span>
+                        </a>
+                    </li>
+<div class="dropdown">
+                        <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
+                                type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                                 alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
+                            <span>Hello,
                                 <span>User</span></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
