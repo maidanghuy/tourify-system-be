@@ -1,5 +1,13 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.entity.BookingTour;
+import com.example.tourify_system_be.entity.Payment;
+import com.example.tourify_system_be.entity.PaymentMethod;
+import com.example.tourify_system_be.entity.PaymentOrderRef;
+import com.example.tourify_system_be.repository.IBookingTourRepository;
+import com.example.tourify_system_be.repository.IPaymentMethodRepository;
+import com.example.tourify_system_be.repository.IPaymentOrderRefRepository;
+import com.example.tourify_system_be.repository.IPaymentRepository;
 import com.example.tourify_system_be.service.BookingTourService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -11,6 +19,10 @@ import vn.payos.PayOS;
 import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
@@ -20,28 +32,63 @@ public class WebhookController {
     private final PayOS payOS;
     private final BookingTourService bookingTourService;
 
+    private final IPaymentOrderRefRepository orderRefRepository;
+    private final IPaymentRepository paymentRepository;
+    private final IPaymentMethodRepository paymentMethodRepository;
+    private final IBookingTourRepository bookingTourRepository;
+
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String rawBody) {
-        // NO DELETING THIS CODE
-        /*
-            System.out.println("rawBody: " + rawBody);
-            return ResponseEntity.ok("Webhook xử lý thành công");
-        */
-        try {
+//        NO DELETING THIS CODE
+//        System.out.println("rawBody: " + rawBody);
+//        return ResponseEntity.ok("Webhook xử lý thành công");
 
-            System.out.println(rawBody);
-            ObjectNode webhook = (ObjectNode) new ObjectMapper().readTree(rawBody);
+        try {
+            // Parse JSON
             ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode webhook = (ObjectNode) objectMapper.readTree(rawBody);
             Webhook webhookObj = objectMapper.treeToValue(webhook, Webhook.class);
 
+            // Xác minh chữ ký PayOS
             WebhookData data = payOS.verifyPaymentWebhookData(webhookObj);
 
-            // check orderCode
-            System.out.println("Webhook hợp lệ cho orderCode: " + data.getOrderCode());
+            Long orderCode = data.getOrderCode();
 
-            if ("success".equalsIgnoreCase(data.getDesc())) {
-//                bookingTourService.markAsPaid(data.getOrderCode());
-            }
+            // Truy mapping từ orderCode
+            PaymentOrderRef ref = orderRefRepository.findById(orderCode)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy orderCode trong hệ thống"));
+
+            String userId = ref.getUserId();
+            String bookingId = ref.getBookingId();
+            System.out.println("Webhook hợp lệ: orderCode=" + orderCode + ", userId=" + userId + ", bookingId=" + bookingId);
+
+            // Lấy BookingTour tương ứng (giả định bạn có bảng này)
+            BookingTour booking = bookingTourRepository
+                    .findByBookingId(bookingId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy booking cho user và tour"));
+            booking.setStatus("PAID");
+            bookingTourRepository.save(booking);
+
+            // Lấy phương thức thanh toán mặc định
+            PaymentMethod defaultMethod = paymentMethodRepository
+                    .findByMethodName("PayOS")
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy phương thức thanh toán mặc định"));
+
+            // Lưu Payment
+            Payment payment = Payment.builder()
+                    .booking(booking)
+                    .paymentMethod(defaultMethod)
+                    .amount(BigDecimal.valueOf(data.getAmount()))
+                    .status("SUCCESS")
+                    .paymentReference(data.getReference())
+                    .payAt(LocalDateTime.parse(data.getTransactionDateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .orderCode(data.getOrderCode())
+                    .payerName(data.getCounterAccountName())
+                    .payerAccountNumber(data.getCounterAccountNumber())
+                    .currency(data.getCurrency())
+                    .build();
+
+            paymentRepository.save(payment);
 
             return ResponseEntity.ok("Webhook xử lý thành công");
         } catch (Exception e) {

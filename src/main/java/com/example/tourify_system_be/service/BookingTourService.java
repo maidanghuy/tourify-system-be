@@ -126,9 +126,9 @@ public class BookingTourService {
                 dayEnd.toLocalDate().toString()
         );
 
-        // ✅ Gửi email (giả lập)
-//        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
-//                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
+//         ✅ Gửi email (giả lập)
+        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
+                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
         return BookingTourResponse.builder()
                 .bookingId(booking.getBookingId())
                 .userId(user.getUserId())
