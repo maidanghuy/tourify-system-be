@@ -26,10 +26,10 @@ public class FeedbackController {
      */
     @GetMapping("/{tourId}")
     public ResponseEntity<List<FeedbackResponse>> getByTour(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorization,
-            @PathVariable String tourId
+            @PathVariable String tourId,
+            @RequestParam(required = false) String userId
     ) {
-        List<FeedbackResponse> responses = feedbackService.getFeedbacksByTour(authorization, tourId);
+        List<FeedbackResponse> responses = feedbackService.getFeedbacksByTourWithUserId(tourId, userId);
         return ResponseEntity.ok(responses);
     }
 
