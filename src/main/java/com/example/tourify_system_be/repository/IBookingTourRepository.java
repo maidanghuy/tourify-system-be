@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface IBookingTourRepository extends JpaRepository<BookingTour, String> {
 
@@ -160,4 +161,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
 
 
     long countByTour_TourId(String tourId);
+
+    Optional<BookingTour> findByBookingId(String bookingId);
+
 }
