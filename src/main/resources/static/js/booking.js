@@ -40,6 +40,7 @@ document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
     updateDiscountAmount();
+    updateTotalAmount();
 });
 
 
@@ -739,6 +740,7 @@ function renderPromotionDropdown(promos) {
 
                 checkMinPurchaseCondition();
                 updateDiscountAmount();
+                updateTotalAmount();
             } else {
                 dropdownBtn.innerHTML = "Chọn mã giảm giá";
                 hiddenInput.value = "";
@@ -746,6 +748,7 @@ function renderPromotionDropdown(promos) {
                 currentMinPurchase = 0;
                 checkMinPurchaseCondition();
                 updateDiscountAmount();
+                updateTotalAmount();
             }
         });
 
