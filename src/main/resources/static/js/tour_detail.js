@@ -203,17 +203,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const token = localStorage.getItem('accessToken');
     const BASE_URL = "/tourify/api/feedbacks";
 
-    const pageSize = 2;  // Mỗi trang 1 feedback
+    // Parse JWT lấy userId và role
+    function parseJwt(token) {
+        if (!token) return {};
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch {
+            return {};
+        }
+    }
+    const userInfo = parseJwt(token);
+    const userId = userInfo.userId || "";
+    const userRole = (userInfo.role || "").toUpperCase();
+
+    const pageSize = 2;
     let currentPage = 1;
     let totalPages = 1;
-    let feedbackList = []; // Lưu toàn bộ feedback
+    let feedbackList = [];
 
-    // Helpers
+    // Helper render
     function renderStars(rating) {
         rating = Math.round(rating || 5);
         return "★".repeat(rating) + "<span class='text-muted'>" + "★".repeat(5 - rating) + "</span>";
     }
-
     function timeAgo(isoDate) {
         if (!isoDate) return "";
         const date = new Date(isoDate);
@@ -226,7 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const diffD = Math.floor(diffH / 24);
         return `${diffD} days ago`;
     }
-
     function roleBadge(role) {
         if (!role) return `<span class="badge bg-secondary ms-2 role-badge">User</span>`;
         const r = role.toUpperCase();
@@ -234,20 +245,46 @@ document.addEventListener("DOMContentLoaded", function () {
         if (r === "SUB_COMPANY") return `<span class="badge bg-info ms-2 role-badge">Tour-Company</span>`;
         return `<span class="badge bg-secondary ms-2 role-badge">User</span>`;
     }
+    // Điều kiện hiển thị status:
+    // - ADMIN/SUB_COMPANY: thấy mọi status (hiện luôn badge)
+    // - USER: chỉ thấy Approved (và có thể hiện nhỏ hoặc không hiện badge)
+    function renderStatusBadge(status) {
+        if (!status) return '';
+        const st = status.toString().trim().toUpperCase();
+        if (userRole === "ADMIN" || userRole === "SUB_COMPANY") {
+            if (st === "APPROVED")
+                return `<span class="badge bg-success fw-bold rounded-pill d-inline-flex align-items-center px-3" style="font-size:1rem">
+                <i class="bi bi-check-circle me-1"></i> Approved
+            </span>`;
+            if (st === "PENDING")
+                return `<span class="badge bg-warning text-dark fw-bold rounded-pill d-inline-flex align-items-center px-3" style="font-size:1rem">
+                <i class="bi bi-hourglass-split me-1"></i> Pending
+            </span>`;
+            if (st === "REJECTED")
+                return `<span class="badge bg-danger fw-bold rounded-pill d-inline-flex align-items-center px-3" style="font-size:1rem">
+                <i class="bi bi-x-circle me-1"></i> Rejected
+            </span>`;
+            return `<span class="badge bg-secondary rounded-pill d-inline-flex align-items-center px-3">${st}</span>`;
+        } else {
+            // User thường: chỉ hiện Approved hoặc không hiện
+            if (st === "APPROVED")
+                return `<span class="badge bg-success fw-bold rounded-pill d-inline-flex align-items-center px-3" style="font-size:1rem">
+                <i class="bi bi-check-circle me-1"></i> Approved
+            </span>`;
+            return "";
+        }
+    }
 
-    // 1. Phần feedback mới nhất (giữ nguyên)
+    // 1. Feedback mới nhất
     fetch(`${BASE_URL}/${tourId}/latest`, {
-        headers: token && token.trim() !== '' ? { 'Authorization': 'Bearer ' + token } : {}
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
     })
-        .then(res => {
-            if (!res.ok) throw new Error("No feedback");
-            return res.json();
-        })
+        .then(res => res.ok ? res.json() : null)
         .then(feedback => {
+            if (!feedback) throw 0;
             document.getElementById('feedbackUserName').textContent = feedback.userFullName ?? 'User';
             document.getElementById('feedbackAvatar').src = feedback.avatar || "/img/default-avatar.png";
-            document.getElementById('feedbackUserInfo').innerHTML =
-                `${roleBadge(feedback.role)} · ${timeAgo(feedback.createdAt)}`;
+            document.getElementById('feedbackUserInfo').innerHTML = `${roleBadge(feedback.role)} · ${timeAgo(feedback.createdAt)}`;
             document.getElementById('feedbackContent').textContent = `"${feedback.content}"`;
             document.getElementById('feedbackRating').innerHTML = renderStars(feedback.rating || 5);
         })
@@ -259,11 +296,10 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById('feedbackRating').innerHTML = "";
         });
 
-    // 2. Phân trang & render modal feedback list
+    // 2. Phân trang & render feedback
     function renderPagination() {
         const pageNumbersContainer = document.getElementById('pageNumbersContainer');
         pageNumbersContainer.innerHTML = "";
-
         const maxButtons = 5;
         let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
         let endPage = startPage + maxButtons - 1;
@@ -271,7 +307,6 @@ document.addEventListener("DOMContentLoaded", function () {
             endPage = totalPages;
             startPage = Math.max(1, endPage - maxButtons + 1);
         }
-
         for (let i = startPage; i <= endPage; i++) {
             const btn = document.createElement('button');
             btn.className = 'btn btn-success btn-sm';
@@ -280,7 +315,6 @@ document.addEventListener("DOMContentLoaded", function () {
             btn.addEventListener('click', () => loadFeedbackPage(i));
             pageNumbersContainer.appendChild(btn);
         }
-
         document.getElementById('prevPageBtn').disabled = currentPage === 1;
         document.getElementById('nextPageBtn').disabled = currentPage === totalPages || totalPages === 0;
     }
@@ -292,10 +326,8 @@ document.addEventListener("DOMContentLoaded", function () {
             renderPagination();
             return;
         }
-
         totalPages = Math.ceil(feedbackList.length / pageSize);
         currentPage = page;
-
         const startIndex = (currentPage - 1) * pageSize;
         const endIndex = Math.min(startIndex + pageSize, feedbackList.length);
         const currentPageFeedbacks = feedbackList.slice(startIndex, endIndex);
@@ -310,6 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="d-flex align-items-center gap-2">
                             <strong class="text-dark">${fb.userFullName}</strong>
                             ${roleBadge(fb.role)}
+                            ${renderStatusBadge(fb.status)}
                         </div>
                         <small class="text-muted">${timeAgo(fb.createdAt)}</small>
                         <div class="mt-1 text-warning fs-6">${renderStars(fb.rating)}</div>
@@ -322,35 +355,27 @@ document.addEventListener("DOMContentLoaded", function () {
         renderPagination();
     }
 
-    // Lấy toàn bộ feedback 1 lần duy nhất rồi phân trang client
+    // Lấy feedbacks
     const headers = {};
     if (token && token.trim() !== '') {
         headers['Authorization'] = 'Bearer ' + token;
     }
+    let apiUrl = `${BASE_URL}/${tourId}`;
+    if ((userRole === "SUB_COMPANY" || userRole === "ADMIN") && userId) {
+        apiUrl += `?userId=${userId}`;
+    }
 
-    fetch(`${BASE_URL}/${tourId}`, { headers })
-        .then(res => {
-            if (!res.ok) throw new Error('Not authorized');
-            return res.json();
-        })
+    fetch(apiUrl, { headers })
+        .then(res => res.ok ? res.json() : [])
         .then(data => {
-            feedbackList = data.feedbacks || data;
-
+            feedbackList = Array.isArray(data) ? data : (data.feedbacks || []);
             // Lấy feedback mới nhất riêng biệt
             fetch(`${BASE_URL}/${tourId}/latest`, { headers })
-                .then(res => {
-                    if (!res.ok) throw new Error('No latest feedback');
-                    return res.json();
-                })
+                .then(res => res.ok ? res.json() : null)
                 .then(latestFeedback => {
-                    // Nếu feedback mới nhất chưa có trong list thì thêm vào đầu
-                    const exists = feedbackList.some(fb => fb.feedbackId === latestFeedback.feedbackId);
-                    if (!exists && latestFeedback.feedbackId) {
+                    if (latestFeedback && !feedbackList.some(fb => fb.feedbackId === latestFeedback.feedbackId)) {
                         feedbackList.unshift(latestFeedback);
                     }
-                })
-                .catch(() => {
-                    // Không có feedback mới nhất, bỏ qua
                 })
                 .finally(() => {
                     totalPages = Math.ceil(feedbackList.length / pageSize);
@@ -362,7 +387,6 @@ document.addEventListener("DOMContentLoaded", function () {
             feedbackList = [];
             totalPages = 1;
             currentPage = 1;
-
             document.getElementById('feedbackListBody').innerHTML = "<div class='text-center text-muted'>This tour has no feedback.</div>";
             document.getElementById('feedbackCount').textContent = "0";
             renderPagination();
@@ -372,8 +396,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('prevPageBtn').addEventListener('click', () => {
         if (currentPage > 1) loadFeedbackPage(currentPage - 1);
     });
-
     document.getElementById('nextPageBtn').addEventListener('click', () => {
         if (currentPage < totalPages) loadFeedbackPage(currentPage + 1);
     });
 });
+
+
