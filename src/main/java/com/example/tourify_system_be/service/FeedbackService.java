@@ -183,6 +183,30 @@ public class FeedbackService {
         return mapFeedbackToResponse(fbOptional.get());
     }
 
+    @Transactional(readOnly = true)
+    public List<FeedbackResponse> getFeedbacksByTourWithUserId(String tourId, String userId) {
+        if (!tourRepo.existsById(tourId)) {
+            throw new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour.");
+        }
+        boolean isPrivileged = false;
+        if (userId != null) {
+            // Tra role từ DB
+            Optional<User> userOpt = userRepo.findById(userId);
+            if (userOpt.isPresent()) {
+                String role = userOpt.get().getRole();
+                isPrivileged = "SUB_COMPANY".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role);
+            }
+        }
+        List<Feedback> feedbacks;
+        if (isPrivileged) {
+            feedbacks = feedbackRepository.findByTour_TourId(tourId);
+        } else {
+            feedbacks = feedbackRepository.findByTour_TourIdAndStatus(tourId, "APPROVED");
+        }
+        return feedbacks.stream()
+                .map(this::mapFeedbackToResponse)
+                .toList();
+    }
 
     // Helper: mapping entity Feedback -> FeedbackResponse
     private FeedbackResponse mapFeedbackToResponse(Feedback fb) {

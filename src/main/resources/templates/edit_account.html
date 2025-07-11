@@ -24,7 +24,7 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
                 <li class="nav-item">
-                    <a class="nav-link nav-custom" th:href="@{/landing}">
+                    <a class="nav-link nav-custom active" th:href="@{/landing}">
                         <i class="fas fa-house me-2"></i>Home
                     </a>
                 </li>
@@ -33,7 +33,14 @@
                         <i class="fas fa-heart me-2"></i>Favorites
                     </a>
                 </li>
+                <!-- Dashboard chỉ dành cho ADMIN -->
+                <li class="nav-item" id="dashboard-link" style="display:none;">
+                    <a class="nav-link nav-custom" th:href="@{/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                </li>
             </ul>
+
 
             <div class="d-flex align-items-center gap-3">
                 <!-- Message Icon (Realtime Chat) -->
@@ -51,16 +58,15 @@
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
                              alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
-                        <span>Hello, <span>User</span></span>
+                        <span>Hello,
+                                <span>User</span></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                         <li>
-                            <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
-                                    class="fas fa-user-circle me-2"></i>View Profile</a>
+                            <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
-                                    class="fas fa-edit me-2"></i>Edit Account</a>
+                            <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
                         </li>
                         <li>
                             <a class="dropdown-item" th:href="@{/user/viewed}" id="list-viewed">
@@ -68,7 +74,7 @@
                         </li>
                     </ul>
                 </div>
-                <button id="logout-link" type="button" class="btn btn-outline-light btn-sm px-3">
+                <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
                     <i class="fas fa-sign-out-alt me-1"></i>Logout
                 </button>
             </div>

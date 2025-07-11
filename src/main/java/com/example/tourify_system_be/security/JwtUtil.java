@@ -75,4 +75,14 @@ public class JwtUtil {
         return claims.get("userId", String.class);
     }
 
+    public String extractRole(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("role", String.class);
+    }
+
+
 }

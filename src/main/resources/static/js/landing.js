@@ -1,4 +1,3 @@
-// public/js/landing.js
 
 window.onload = function () {
     const token = getCookie("access_token");
