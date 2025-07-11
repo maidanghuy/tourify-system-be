@@ -36,6 +36,16 @@
             </ul>
 
             <div class="d-flex align-items-center gap-3">
+                <!-- Message Icon (Realtime Chat) -->
+                <li class="nav-item position-relative list-unstyled me-2">
+                    <a th:href="@{/user/message}" class="nav-link nav-custom" id="message-link">
+                        <i class="fas fa-comment-dots fa-lg"></i>
+                        <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 11px; min-width:18px; display: none;">
+            0
+        </span>
+                    </a>
+                </li>
                 <div class="dropdown">
                     <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
                             type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
