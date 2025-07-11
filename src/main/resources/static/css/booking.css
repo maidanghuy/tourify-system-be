@@ -643,3 +643,13 @@ body {
 @keyframes qr-spin {
     100% { transform: rotate(360deg); }
 }
+
+/* Xổ lịch */
+.flatpickr-day.enabled-day {
+    background-color: #4ade80;  /* xanh lá nhạt */
+    color: white;               /* chữ trắng */
+    font-weight: bold;
+}
+.flatpickr-day.enabled-day:hover {
+    background-color: #22c55e;  /* đậm hơn khi hover */
+}

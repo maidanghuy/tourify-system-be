@@ -58,6 +58,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Đảm bảo data.code và data.result tồn tại
             if (data.code === 1000 && data.result) {
                 const tour = data.result;
+                let link_booking = document.getElementById("link-booking");
+                if (link_booking) {
+                    link_booking.href = "/tourify/tour/booking?id=" + tourId;
+                }
                 if (titleEl) titleEl.textContent = tour.tourName || "No Name";
                 if (categoryEl) categoryEl.textContent = tour.categoryName || "";
                 if (priceEl) priceEl.textContent = tour.price ? tour.price.toLocaleString() + " VND" : "";

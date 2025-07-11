@@ -13,6 +13,7 @@ import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.specification.TourSpecification;
+import com.example.tourify_system_be.repository.IToursStartMappingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class TourService {
     private final ICategoryRepository iCategoryRepository;
     private final ITourRepository tourRepository;
     private final IFeedbackRepository iFeedbackRepository;
+    private final IToursStartMappingRepository iToursStartMappingRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -250,6 +252,23 @@ public class TourService {
 
         // 3️⃣ Xóa tour
         tourRepository.delete(tour);
+    }
+
+    public List<LocalDateTime> getAllStartDatesByTourId(String tourId) {
+        // 1. Lấy danh sách ngày từ repository
+        List<LocalDateTime> dates = iToursStartMappingRepository
+                .findAllActiveStartDatesByTourId(tourId);
+
+        // 2. Nếu rỗng thì ném exception với mã TOUR_START_DATE_NOT_FOUND
+        if (dates.isEmpty()) {
+            throw new AppException(
+                    ErrorCode.TOUR_START_DATE_NOT_FOUND,
+                    "Không có lịch khởi hành cho tourId=" + tourId
+            );
+        }
+
+        // 3. Ngược lại trả về danh sách
+        return dates;
     }
 
 }
