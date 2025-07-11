@@ -1,4 +1,3 @@
-// public/js/landing.js
 
 window.onload = function () {
     const token = getCookie("access_token");
@@ -56,19 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("logout-link")
                 .addEventListener("click", () => window.location.href = "/tourify/login");
         }
-    }
-
-    // Hiển thị Dashboard nếu role là ADMIN
-    function parseJwt(token) {
-        try { return JSON.parse(atob(token.split('.')[1])); }
-        catch { return {}; }
-    }
-    const user = parseJwt(accessToken);
-    const userRole = (user && user.role || '').toUpperCase();
-
-    if (userRole === "ADMIN") {
-        const dashboardLink = document.getElementById("dashboard-link");
-        if (dashboardLink) dashboardLink.style.display = "block";
     }
 });
 
