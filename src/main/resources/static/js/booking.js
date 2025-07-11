@@ -1,14 +1,19 @@
 var isCardRevealed = false;
 
 
-    // Xử lý áp dụng mã khuyến mãi khi nhấn nút "Áp dụng"
+// Xử lý áp dụng mã khuyến mãi khi nhấn nút "Áp dụng"
 document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     const code = document.getElementById("promo-code").textContent;
     const promo = loadedPromotions.find(p => p.code === code);
     const originalPrice = calculateOriginalPrice();
 
     if (originalPrice < promo.minPurchase) {
-        alert("Original Price không đủ để áp dụng mã khuyến mãi.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Không đủ điều kiện',
+            text: 'Original Price không đủ để áp dụng mã khuyến mãi.',
+            confirmButtonColor: '#d33'
+        });
         return;
     }
 
@@ -32,34 +37,33 @@ document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     modal.hide();
 
     // Cuộn đến phần thanh toán
-    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
+
+    updateDiscountAmount();
 });
 
 
-
-
-
-// Tăng/giảm số lượng người lớn và trẻ em
-document.querySelectorAll(".plus").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const input = document.getElementById(btn.dataset.target);
-        let value = parseInt(input.value);
-        input.value = value + 1;
-    });
-});
-
-
-const minusButtons = document.querySelectorAll(".minus");
-
-minusButtons.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-        const input = document.getElementById(btn.dataset.target);
-        let value = parseInt(input.value);
-        if ((index === 0 && value > 1) || (index !== 0 && value > 0)) {
-            input.value = value - 1;
-        }
-    });
-});
+// // Tăng/giảm số lượng người lớn và trẻ em - đang bị lặp
+// document.querySelectorAll(".plus").forEach((btn) => {
+//     btn.addEventListener("click", () => {
+//         const input = document.getElementById(btn.dataset.target);
+//         let value = parseInt(input.value);
+//         input.value = value + 1;
+//     });
+// });
+//
+//
+// const minusButtons = document.querySelectorAll(".minus");
+//
+// minusButtons.forEach((btn, index) => {
+//     btn.addEventListener("click", () => {
+//         const input = document.getElementById(btn.dataset.target);
+//         let value = parseInt(input.value);
+//         if ((index === 0 && value > 1) || (index !== 0 && value > 0)) {
+//             input.value = value - 1;
+//         }
+//     });
+// });
 
 
 //Chọn phương thức thanh toán
@@ -181,6 +185,31 @@ function showLoading(btn) {
 
 //Xử lý thanh toán (QR Code)
 function handleCheckout(btn) {
+    // Code
+    const adultCount = parseInt(document.getElementById("adultInput").value) || 0;
+    const childCount = parseInt(document.getElementById("childInput").value) || 0;
+    const totalPeople = adultCount + childCount;
+
+    if (totalPeople < window.minPeople) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Không đủ số người',
+            html: `Cần ít nhất <strong>${window.minPeople}</strong> người để đặt tour.`,
+            confirmButtonColor: '#f59e0b'
+        });
+        return;
+    }
+
+    if (totalPeople > window.maxPeople) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Vượt quá số người cho phép',
+            html: `Tối đa chỉ được <strong>${window.maxPeople}</strong> người trong 1 lượt đặt.`,
+            confirmButtonColor: '#d33'
+        });
+        return;
+    }
+
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
 
@@ -257,7 +286,7 @@ let tourPrice;
 let currentMinPurchase = 0;
 
 //Tải thông tin tour từ API
-document.addEventListener("DOMContentLoaded",  function () {
+document.addEventListener("DOMContentLoaded", function () {
     // 1. Lấy tourId từ URL
     const urlParams = new URLSearchParams(window.location.search);
     const tourId = urlParams.get("id");
@@ -288,85 +317,156 @@ document.addEventListener("DOMContentLoaded",  function () {
             // document.getElementById("tour-description").textContent = tour.description;
             //document.getElementById("tour-duration").textContent = tour.duration + " ngày";
             //document.getElementById("tour-image").src = tour.thumbnail;
-            document.getElementById("original-price").textContent = tour.price.toLocaleString() + " VND";
+            document.getElementById("original-price").textContent = Math.round(tour.price).toLocaleString("vi-VN") + " VND";
             document.getElementById("tour-sub-title").textContent = tour.tourName;
             document.getElementById("tour-title-short-link").textContent = tour.tourName;
             // Gắn thêm nếu cần
             document.getElementById("place-name").textContent = tour.placeName;
-            tourPrice = tour.price;
+            tourPrice = typeof tour.price === 'string'
+                ? parseInt(tour.price.replace(/[^\d]/g, ''))
+                : tour.price;
+            const minPeople = tour.minPeople || 1; // fallback nếu API trả về null
+            adultInput.value = minPeople;
+            updatePrice();
+            window.minPeople = minPeople;
+            window.maxPeople = tour.maxPeople || 50;
         })
         .catch(error => {
             console.error("Đã xảy ra lỗi:", error);
         });
 
 });
-    let adultCount = 0;
-    let childCount = 0;
 
-    const adultPlus = document.getElementById("adult-plus");
-    const adultMinus = document.getElementById("adult-minus");
-    const childPlus = document.getElementById("child-plus");
-    const childMinus = document.getElementById("child-minus");
-    const originalPriceElement = document.getElementById("original-price");
-    // console.log(originalPriceElement);
+// khai báo biến để + và - adult và child
+let adultCount = 0;
+let childCount = 0;
+
+const adultPlus = document.getElementById("adult-plus");
+const adultMinus = document.getElementById("adult-minus");
+const childPlus = document.getElementById("child-plus");
+const childMinus = document.getElementById("child-minus");
+const originalPriceElement = document.getElementById("original-price");
+const adultInput = document.getElementById("adultInput");
+const childInput = document.getElementById("childInput");
+// console.log(originalPriceElement);
 
 
-    //Tính toán giá tiền & điều kiện áp dụng khuyến mãi
-    function updatePrice() {
-        adultCount = Math.max(1, parseInt(adultCount));
-        childCount = Math.max(0, parseInt(childCount));
-        let price = tourPrice + (adultCount) * tourPrice * 0.2 + childCount * tourPrice * 0.15;
-        console.log(tourPrice);
-        originalPriceElement.innerText = price.toLocaleString() + " VND";
-        checkMinPurchaseCondition(); // 👉 Gọi hàm kiểm tra sau khi cập nhật giá
+//Tính toán giá tiền & điều kiện áp dụng khuyến mãi
+function updatePrice() {
+    adultCount = Math.max(1, parseInt(document.getElementById("adultInput").value));
+    childCount = Math.max(0, parseInt(document.getElementById("childInput").value));
+
+    const totalPeople = adultCount + childCount;
+
+    // ✅ Cảnh báo nếu tổng người < minPeople
+    if (totalPeople < window.minPeople) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Không đủ số người',
+            html: `Cần ít nhất <strong>${window.minPeople}</strong> người để đặt tour.`,
+            confirmButtonColor: '#f59e0b'
+        });
     }
 
-    function calculateOriginalPrice() {
-        adultCount = Math.max(1, parseInt(adultCount));
-        childCount = Math.max(0, parseInt(childCount));
-        return tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15);
+    // ✅ Cảnh báo nếu tổng người > maxPeople
+    if (totalPeople > window.maxPeople) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Vượt quá số người cho phép',
+            html: `Tối đa chỉ được <strong>${window.maxPeople}</strong> người trong 1 lượt đặt.`,
+            confirmButtonColor: '#d33'
+        });
     }
 
+    let price = Math.round(tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15));
+    originalPriceElement.textContent = price.toLocaleString("vi-VN") + " VND";
+
+    checkMinPurchaseCondition();
+    updateDiscountAmount();
+    updateTotalAmount();
+}
+
+// Tính original price
+function calculateOriginalPrice() {
+    const adultCount = Math.max(1, parseInt(document.getElementById("adultInput").value));
+    const childCount = Math.max(0, parseInt(document.getElementById("childInput").value));
+    return Math.round(tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15));
+}
+
+
+// Các sự kiện + và - people
+adultPlus.addEventListener("click", () => {
+    adultInput.value = parseInt(adultInput.value) + 1;
+    updatePrice();
+});
+
+adultMinus.addEventListener("click", () => {
+    if (parseInt(adultInput.value) > 1) {
+        adultInput.value = parseInt(adultInput.value) - 1;
+        updatePrice();
+    }
+});
+
+childPlus.addEventListener("click", () => {
+    childInput.value = parseInt(childInput.value) + 1;
+    updatePrice();
+});
+
+childMinus.addEventListener("click", () => {
+    if (parseInt(childInput.value) > 0) {
+        childInput.value = parseInt(childInput.value) - 1;
+        updatePrice();
+    }
+});
+
+// Bóa lỗi min_purchase xem chưa đủ dkien sử dụng promotion
 function checkMinPurchaseCondition() {
     const priceText = document.getElementById("original-price").textContent;
-    const price = parseInt(priceText.replace(/[^\d]/g, '')); // Bỏ dấu "." và "VND"
+    const price = parseInt(priceText.replace(/[^\d]/g, '')); // bỏ dấu . và VND
 
     const applyBtn = document.getElementById("applyPromotionBtn");
     if (!applyBtn) return;
 
-    if (price >= currentMinPurchase) {
-        applyBtn.disabled = false;
-        applyBtn.title = "";
-    } else {
-        applyBtn.disabled = true;
-        applyBtn.title = `Giá tối thiểu để áp dụng mã là ${currentMinPurchase.toLocaleString()} VND`;
+    // Nếu không có mã nào đang áp dụng → chỉ cần cập nhật nút
+    if (!selectedCode) {
+        applyBtn.disabled = price < currentMinPurchase;
+        return;
     }
+
+    // Tìm thông tin mã hiện tại
+    const promo = loadedPromotions.find(p => p.code === selectedCode);
+
+    if (!promo) return;
+
+    // Nếu không còn đủ điều kiện áp dụng mã
+    if (price < promo.minPurchase) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Không đủ điều kiện áp dụng mã',
+            html: `❌ <strong>Giá gốc (${price.toLocaleString()} VND)</strong> không đủ để sử dụng mã <strong>"${promo.code}"</strong>.<br>Yêu cầu tối thiểu: <strong>${promo.minPurchase.toLocaleString()} VND</strong>.`,
+            confirmButtonColor: '#d33'
+        });
+        // Gỡ mã giảm giá
+        const dropdownBtn = document.getElementById("promotionDropdownBtn");
+        const hiddenInput = document.getElementById("selectedPromotionCode");
+
+        dropdownBtn.innerHTML = "Chọn mã giảm giá";
+        hiddenInput.value = "";
+        selectedCode = null;
+        currentMinPurchase = 0;
+
+        // Bỏ tick tất cả checkbox trong dropdown
+        const checkboxes = document.querySelectorAll("#promotionDropdownList input[type='checkbox']");
+        checkboxes.forEach(cb => cb.checked = false);
+
+        updateDiscountAmount();
+    }
+
+    // Cập nhật lại trạng thái nút
+    applyBtn.disabled = price < currentMinPurchase;
 }
 
-    adultPlus.addEventListener("click", () => {
-        adultCount++;
-        updatePrice();
-    });
-
-    adultMinus.addEventListener("click", () => {
-        if (adultCount > 1) {
-            adultCount--;
-            updatePrice();
-        }
-    });
-
-    childPlus.addEventListener("click", () => {
-        childCount++;
-        updatePrice();
-    });
-
-    childMinus.addEventListener("click", () => {
-        if (childCount > 0) {
-            childCount--;
-            updatePrice();
-        }
-    });
-
+// QR của Huy
 function handlerevealQRCodeModal() {
     const token = localStorage.getItem('accessToken');
     const username = localStorage.getItem('username');
@@ -434,8 +534,7 @@ function formatDateTime(isoString) {
 }
 
 
-
-// ✅ Lỗi 3: Khai báo loadedPromotions bên ngoài DOMContentLoaded để toàn cục
+// Promotion
 let loadedPromotions = [];
 let selectedCode = null;
 
@@ -463,9 +562,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (btn) btn.textContent = "Không thể tải mã";
         });
 
-    // ✅ Lỗi 2: Kiểm tra nếu discountSelect tồn tại trước khi dùng
+    // Kiểm tra nếu discountSelect tồn tại trước khi dùng
     const discountSelect = document.getElementById("discountSelect");
-
     if (discountSelect) {
         discountSelect.addEventListener("change", function () {
             const selectedCode = this.value;
@@ -506,7 +604,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ Gán sự kiện cho nút "Áp dụng mã"
+    //  Gán sự kiện cho nút "Áp dụng mã"
     const applyBtn = document.getElementById("applyPromotionBtn");
     if (applyBtn) {
         applyBtn.addEventListener("click", () => {
@@ -524,7 +622,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     }
 
-                    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
+                    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById("promotionModal"));
                     modal?.hide();
@@ -618,7 +716,12 @@ function renderPromotionDropdown(promos) {
 
             // Nếu không đạt điều kiện min_purchase
             if (originalPrice < promo.minPurchase) {
-                alert(`Cần ít nhất ${promo.minPurchase.toLocaleString()} VND để áp dụng mã này.`);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không đủ điều kiện',
+                    html: `Cần ít nhất <strong>${promo.minPurchase.toLocaleString()} VND</strong> để áp dụng mã này.`,
+                    confirmButtonColor: '#f59e0b'
+                });
                 checkbox.checked = false;
                 return;
             }
@@ -635,12 +738,14 @@ function renderPromotionDropdown(promos) {
                 currentMinPurchase = promo.minPurchase || 0;
 
                 checkMinPurchaseCondition();
+                updateDiscountAmount();
             } else {
                 dropdownBtn.innerHTML = "Chọn mã giảm giá";
                 hiddenInput.value = "";
                 selectedCode = null;
                 currentMinPurchase = 0;
                 checkMinPurchaseCondition();
+                updateDiscountAmount();
             }
         });
 
@@ -648,3 +753,32 @@ function renderPromotionDropdown(promos) {
     });
 }
 
+//Cập nhật giá discount
+function updateDiscountAmount() {
+    const discountText = document.getElementById("promotionDropdownBtn")?.textContent;
+    const discountPercentMatch = discountText?.match(/Giảm\s+(\d+)%/);
+    const discountPercent = discountPercentMatch ? parseInt(discountPercentMatch[1]) : 0;
+
+    const originalPrice = calculateOriginalPrice();
+    const discountAmount = Math.round(originalPrice * discountPercent / 100);
+    document.getElementById("discount-amount").textContent = "-" + discountAmount.toLocaleString("vi-VN") + " VND";
+}
+
+//Cập nhật giá total
+function updateTotalAmount() {
+    const originalText = document.getElementById("original-price").textContent;
+    const discountText = document.getElementById("discount-amount").textContent;
+
+    const original = parseInt(originalText.replace(/[^\d]/g, '')) || 0;
+    const discount = parseInt(discountText.replace(/[^\d]/g, '')) || 0;
+
+    const total = Math.max(0, Math.round(original - discount));
+    document.getElementById("total-amount").textContent = total.toLocaleString("vi-VN") + " VND";
+
+    console.log("🔍 originalText:", originalText);
+    console.log("🔍 original:", original);
+    console.log("🔍 discount:", discount);
+    console.log("🔍 total:", total);
+
+
+}
