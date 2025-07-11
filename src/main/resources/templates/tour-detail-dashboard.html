@@ -33,7 +33,14 @@
                         <i class="fas fa-heart me-2"></i>Favorites
                     </a>
                 </li>
+                <!-- Dashboard chỉ dành cho ADMIN -->
+                <li class="nav-item" id="dashboard-link" style="display:none;">
+                    <a class="nav-link nav-custom" th:href="@{/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                </li>
             </ul>
+
 
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
