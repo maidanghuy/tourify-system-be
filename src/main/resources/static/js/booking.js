@@ -220,11 +220,11 @@ function handleCheckout(btn) {
     const urlParams = new URLSearchParams(window.location.search);
     const tourId = urlParams.get("id");
     // Lấy ngày bắt đầu
-    const startDateRaw = document.getElementById("startDateRaw").value; // yyyy-mm-dd
+    const startDateRaw = document.getElementById("startDateDisplay").value;
     let dayStart = null;
     if (startDateRaw) {
-        // Format về ISO 8601 với giờ mặc định 08:00:00
-        dayStart = `${startDateRaw}T08:00:00`;
+        const [d, m, y] = startDateRaw.split("-");        // tách "dd-mm-yyyy"
+        dayStart = `${y}-${m}-${d}T08:00:00`;             // thành "yyyy-MM-ddTHH:mm:ss"
     }
 
     // Gọi API booking
@@ -261,7 +261,7 @@ function handleCheckout(btn) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Đặt tour thất bại',
-                    text: data.message || 'Có lỗi xảy ra khi đặt tour.',
+                    text: 'Chưa nhập ngày bắt đầu',
                     confirmButtonColor: '#d33'
                 });
             }
