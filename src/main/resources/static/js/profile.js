@@ -15,10 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("avatar-input");
     const profilePic = document.getElementById("profile-pic");
 
-    editIcon.addEventListener("click", () => {
-        fileInput.click();
-    });
-
     fileInput.addEventListener("change", async () => {
         const file = fileInput.files[0];
         if (!file) return;
@@ -33,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const username = localStorage.getItem("username");
         if (!username) {
-            showToast("Username not found in localStorage","danger");
+            showToast("Username not found in localStorage", "danger");
             return;
         }
 
@@ -47,14 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (response.ok) {
-                showToast("Avatar updated successfully!","success");
+                showToast("Avatar updated successfully!", "success");
             } else {
                 const errorText = await response.text();
-                showToast("Failed to update avatar: " + errorText,"danger");
+                showToast("Failed to update avatar: " + errorText, "danger");
             }
         } catch (error) {
             console.error("Error updating avatar:", error);
-            showToast("An error occurred while updating avatar.","warning");
+            showToast("An error occurred while updating avatar.", "warning");
         }
     });
 });
@@ -123,15 +119,15 @@ async function changePasswordAPI() {
 
     // Validate input
     if (!oldPassword || !newPassword || !confirmPassword) {
-        showToast("Please fill in all password fields!","info");
+        showToast("Please fill in all password fields!", "info");
         return;
     }
     if (newPassword !== confirmPassword) {
-        showToast("New password and confirm password do not match!","warning");
+        showToast("New password and confirm password do not match!", "warning");
         return;
     }
     if (newPassword.length < 6) {
-        showToast("New password must be at least 6 characters.","warning");
+        showToast("New password must be at least 6 characters.", "warning");
         return;
     }
 
@@ -160,7 +156,7 @@ async function changePasswordAPI() {
             showToast(data.message || "Failed to change password.", "danger");
         }
     } catch (error) {
-        showToast("Error changing password. Try again!","danger");
+        showToast("Error changing password. Try again!", "danger");
         console.error(error);
     }
 }
@@ -171,7 +167,7 @@ async function updateNameViaAPI(field, newValue) {
     const username = localStorage.getItem("username");
 
     if (!accessToken || !username) {
-        showToast("Authentication required. Please login again.","warning");
+        showToast("Authentication required. Please login again.", "warning");
         return;
     }
 
@@ -210,17 +206,17 @@ async function updateNameViaAPI(field, newValue) {
                 const fullName = `${requestBody.firstName} ${requestBody.lastName}`.trim();
                 document.querySelector(".user-name").textContent = fullName;
 
-                showToast("Name updated successfully!","success");
+                showToast("Name updated successfully!", "success");
             } else {
-                showToast("Failed to update name: " + (data.message || "Unknown error"),"danger");
+                showToast("Failed to update name: " + (data.message || "Unknown error"), "danger");
             }
         } else {
             const errorText = await response.text();
-            showToast("Failed to update name: " + errorText,"danger");
+            showToast("Failed to update name: " + errorText, "danger");
         }
     } catch (error) {
         console.error("Error updating name:", error);
-        showToast("An error occurred while updating name.","danger");
+        showToast("An error occurred while updating name.", "danger");
     }
 }
 
@@ -230,7 +226,7 @@ async function updateFieldViaAPI(field, newValue) {
     const username = localStorage.getItem("username");
 
     if (!accessToken || !username) {
-        showToast("Authentication required. Please login again.","warning");
+        showToast("Authentication required. Please login again.", "warning");
         return;
     }
 
@@ -246,7 +242,7 @@ async function updateFieldViaAPI(field, newValue) {
 
         const apiEndpoint = fieldMapping[field];
         if (!apiEndpoint) {
-            showToast("Unknown field: " + field,"info");
+            showToast("Unknown field: " + field, "info");
             return;
         }
 
@@ -287,17 +283,17 @@ async function updateFieldViaAPI(field, newValue) {
                     document.getElementById(`${field}-input`).value = '';
                 }
 
-                showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`,"success");
+                showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`, "success");
             } else {
-                showToast(`Failed to update ${field}: ` + (data.message || "Unknown error"),"warning");
+                showToast(`Failed to update ${field}: ` + (data.message || "Unknown error"), "warning");
             }
         } else {
             const errorText = await response.text();
-            showToast(`Failed to update ${field}: ` + errorText,"danger");
+            showToast(`Failed to update ${field}: ` + errorText, "danger");
         }
     } catch (error) {
         console.error(`Error updating ${field}:`, error);
-        showToast(`An error occurred while updating ${field}.`,"warning");
+        showToast(`An error occurred while updating ${field}.`, "warning");
     }
 }
 
@@ -387,38 +383,30 @@ function triggerAvatarFileInput() {
     wrapper.innerHTML = ""; // Xóa input cũ nếu có
     wrapper.style.display = "block";
 
-
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.style.display = "none"; // không hiện, chỉ để gọi .click()
-
+    input.id = "avatarFileInput";           // <-- Gán id ở đây
+    input.style.display = "none";           // Ẩn input
 
     input.addEventListener("change", loadAvatarFromFile);
 
-
     wrapper.appendChild(input);
-    input.click(); // Tới đây mới mở dialog chọn file
+    input.click(); // Mở dialog chọn file
 }
-
 
 function loadAvatarFromFile(event) {
     const file = event.target.files[0];
+    // console.log(file);
     if (file && file.type.startsWith("image/")) {
         avatarFromFile = true;
         const reader = new FileReader();
         reader.onload = function (e) {
             const img = e.target.result;
+            // console.log(img);
             document.getElementById("avatarPreview").src = img;
             document.getElementById("avatarPreview").style.display = "block";
             document.getElementById("profile-pic").src = img;
-
-
-            // Tự động đóng modal sau khi chọn ảnh
-            const modal = bootstrap.Modal.getInstance(
-                document.getElementById("avatarModal")
-            );
-            modal.hide();
         };
         reader.readAsDataURL(file);
     }
@@ -426,23 +414,51 @@ function loadAvatarFromFile(event) {
 
 
 function updateAvatar() {
-    const url = document
-        .getElementById("avatarImageUrlInput")
-        .value.trim();
+    const url = document.getElementById("avatarImageUrlInput").value.trim();
     const preview = document.getElementById("avatarPreview");
+    const fileInput = document.getElementById("avatarFileInput");
+    const token = localStorage.getItem("accessToken");
 
-
-    if (url) {
-        document.getElementById("profile-pic").src = url;
-        preview.src = url;
+    function setAvatarAndClose(newUrl) {
+        // console.log(newUrl);
+        document.getElementById("profile-pic").src = newUrl;
+        preview.src = newUrl;
         preview.style.display = "block";
+        // Gọi API đổi avatar
+        fetch("/tourify/api/user/avatar", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ avatar: newUrl })
+        })
+            .then(res => res.json())
+            .then(() => {
+                // Đóng modal sau khi cập nhật
+                const modal = bootstrap.Modal.getInstance(document.getElementById("avatarModal"));
+                modal.hide();
+            });
+    }
 
-
-        // Đóng modal sau khi cập nhật từ URL
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("avatarModal")
-        );
-        modal.hide();
+    // console.log(fileInput.files[0]);
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        // Nếu có file, upload lên Cloudinary trước
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        // console.log(formData);
+        fetch("/tourify/api/upload", {
+            method: "POST",
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.result && data.result.url) {
+                    setAvatarAndClose(data.result.url);
+                }
+            });
+    } else if (url) {
+        setAvatarAndClose(url);
     }
 }
 
@@ -649,10 +665,10 @@ async function addCreditCard() {
             bootstrap.Modal.getInstance(document.getElementById("addCreditCardModal")).hide();
             await loadCreditCards();
         } else {
-            showToast("Thêm thẻ thất bại!","info");
+            showToast("Thêm thẻ thất bại!", "info");
         }
     } catch (err) {
-        showToast("Có lỗi khi thêm thẻ!","warning");
+        showToast("Có lỗi khi thêm thẻ!", "warning");
     }
 }
 

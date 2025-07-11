@@ -8,6 +8,8 @@ import com.example.tourify_system_be.service.PromotionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/promotions")
 @RequiredArgsConstructor
@@ -29,7 +31,17 @@ public class PromotionController {
     }
 
     // =============================
-    // 2. (Dự phòng) Sẽ thêm editPromotion sau
+    // 2. API: Lấy promotion active theo tour
     // =============================
+    @GetMapping("/{tourId}")
+    public APIResponse<?> getActivePromotionsByTour(@PathVariable String tourId) {
+        return APIResponse.<List<PromotionResponse>>builder()
+                .message("Danh sách promotion đang active của tour")
+                .result(promotionService.getActivePromotionsByTour(tourId))
+                .build();
+    }
 
+    // =============================
+    // 3. (Dự phòng) Sẽ thêm editPromotion sau
+    // =============================
 }

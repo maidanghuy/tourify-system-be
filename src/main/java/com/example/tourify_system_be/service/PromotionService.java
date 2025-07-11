@@ -16,8 +16,6 @@ import com.example.tourify_system_be.entity.TourPromotion;
 import com.example.tourify_system_be.entity.TourPromotionId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -150,6 +148,13 @@ public class PromotionService {
         }
     }
 
+
+public List<PromotionResponse> getActivePromotionsByTour(String tourId) {
+    List<Promotion> promotions = tourPromotionRepository.findActivePromotionsByTourId(tourId);
+    return promotions.stream()
+            .map(promotionMapper::toPromotionResponse)
+            .toList();
+}
 
 }
 

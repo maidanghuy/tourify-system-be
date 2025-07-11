@@ -179,8 +179,12 @@
                 <button class="btn-mint-filter" type="button">
                   <i class="bi bi-funnel"></i> Filters
                 </button>
-                <button class="btn-mint-accent">
+                <button class="btn-mint-accent" type="button"
+                        onclick="loadPage('addTour')">
                   <i class="bi bi-plus"></i> Add Tour
+                </button>
+                <button id="btnDeleteSelected" class="btn btn-danger" type="button">
+                    <i class="bi bi-trash me-1"></i> Delete Selected
                 </button>
               </div>
             </div>
@@ -737,8 +741,60 @@
           if (pageKey === "addTour") {
               setTimeout(() => initAddTourPage(), 0);
           } else if (pageKey === "tourList") {
-              loadTourList();
-          } else if (pageKey === "analytics") {
+                // 1️⃣ Load và render bảng
+                loadTourList();
+
+                // 2️⃣ Gắn listener cho nút Delete Selected
+                setTimeout(() => {
+                  const delBtn = document.getElementById('btnDeleteSelected');
+                  if (!delBtn) return;
+
+                  delBtn.addEventListener('click', async () => {
+                    const checked = document.querySelectorAll(
+                      '#tourListBody tbody input[type="checkbox"]:checked'
+                    );
+                    const ids = Array.from(checked).map(cb => cb.dataset.id);
+
+                    if (ids.length === 0) {
+                      showPopup('warning', 'Chú ý', 'Vui lòng chọn ít nhất 1 tour để xóa.');
+                      return;
+                    }
+                    if (!confirm(`Bạn có chắc muốn xóa ${ids.length} tour đã chọn?`)) return;
+
+                    const token = localStorage.getItem('accessToken');
+                    let success = 0, fail = 0;
+                    await Promise.all(ids.map(async id => {
+                      try {
+                        const res = await fetch(`/tourify/api/tours/${id}`, {
+                          method: 'DELETE',
+                          headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        res.ok ? success++ : fail++;
+                      } catch {
+                        fail++;
+                      }
+                    }));
+
+                    showPopup(
+                      fail === 0 ? 'success' : 'warning',
+                      'Kết quả',
+                      `Xóa thành công ${success} tour${fail ? `, thất bại ${fail}` : ''}.`
+                    );
+                    loadTourList();
+                  });
+                }, 0);
+
+                // 3️⃣ Gắn listener cho nút Add Tour
+                const btn = document.querySelector(".btn-mint-accent");
+                if (btn) {
+                  btn.addEventListener("click", () => loadPage("addTour"));
+                }
+
+              } else if (pageKey === "analytics") {
+                // Khởi tạo analytics
+                setTimeout(() => initAnalyticsPage(), 0);
+              }
+             else if (pageKey === "analytics") {
               setTimeout(() => initAnalyticsPage(), 0); // ✅ THÊM DÒNG NÀY
           }
       }
@@ -1040,6 +1096,37 @@
         }
       }
 
+      // thêm ngay trên đầu, trước khi loadPage() hoặc renderTourList()
+      let sortField = null;
+      let sortDir   = 'asc';  // 'asc' hoặc 'desc'
+
+      function sortBy(field) {
+        // toggle nếu click lại cùng field
+        if (sortField === field) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortField = field;
+          sortDir   = 'asc';
+        }
+        // sắp xếp toursData
+        toursData.sort((a, b) => {
+          let va = a[field], vb = b[field];
+          if (field === 'price') {
+            va = Number(a.price) || 0;
+            vb = Number(b.price) || 0;
+          } else {
+            va = (va||'').toString().toLowerCase();
+            vb = (vb||'').toString().toLowerCase();
+          }
+          if (va < vb) return sortDir==='asc' ? -1 : 1;
+          if (va > vb) return sortDir==='asc' ?  1 : -1;
+          return 0;
+        });
+        currentPage = 1;
+        renderTourList();
+      }
+
+
       function renderTourList() {
           const body = document.getElementById("tourListBody");
           if (!body) return;
@@ -1052,14 +1139,27 @@
           table.innerHTML = `
     <thead class="table-success text-nowrap">
       <tr>
-        <th style="width:36px"><input type="checkbox" id="chkAll"></th>
-        <th style="min-width:200px">Tour</th>
-        <th style="min-width:95px">ID</th>
-        <th style="min-width:120px">Category</th>
-        <th style="min-width:110px">Price</th>
+            <th style="width:36px"><input type="checkbox" id="chkAll"></th>
+
+            <th style="min-width:200px; cursor:pointer"
+                onclick="sortBy('tourName')">
+              Tour <i id="icon-tourName" class="bi"></i>
+            </th>
+
+            <th style="min-width:95px">ID</th>
+
+            <th style="min-width:120px; cursor:pointer"
+                onclick="sortBy('categoryName')">
+              Category <i id="icon-categoryName" class="bi"></i>
+            </th>
+
+            <th style="min-width:110px; cursor:pointer"
+                onclick="sortBy('price')">
+              Price <i id="icon-price" class="bi"></i>
+            </th>
         <th style="min-width:90px">Status</th>
         <th style="min-width:110px">Created By</th>
-        <th class="text-end" style="width:90px">Action</th>
+        <th class="text-center" style="width:90px">Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -1126,7 +1226,7 @@
       <td class="align-middle text-success fw-semibold">${price}</td>
       <td class="align-middle">${statusBadge(tour.status)}</td>
       <td class="align-middle">${creator}</td>
-      <td class="align-middle text-end">
+      <td class="align-middle text-center">
         <i
           class="bi bi-eye text-success me-2"
           title="View"
@@ -1148,8 +1248,65 @@
           }
 
           tbody.appendChild(frag);
+          // ⚙️ cập nhật icon mũi tên
+            ['tourName','categoryName','price'].forEach(field => {
+              const icon = document.getElementById(`icon-${field}`);
+              if (!icon) return;
+              icon.className = 'bi';  // reset classes
+              if (sortField === field) {
+                icon.classList.add(
+                  sortDir === 'asc'
+                    ? 'bi-caret-up-fill'
+                    : 'bi-caret-down-fill'
+                );
+              } else {
+                icon.classList.add('bi-caret-down');
+              }
+            });
+
+            // === Select All Checkbox ===
+            const chkAll = table.querySelector('#chkAll');
+            if (chkAll) {
+              chkAll.addEventListener('change', function() {
+                const isChecked = this.checked;
+                // đánh dấu hoặc bỏ đánh dấu tất cả các checkbox trong tbody
+                table
+                  .querySelectorAll('tbody input[type="checkbox"]')
+                  .forEach(cb => { cb.checked = isChecked; });
+              });
+            }
           renderPagination();
       }
+
+      function viewTour(tourId) {
+        window.location.href = `/tourify/tourDetailDashboard?id=${tourId}`;
+      }
+
+      async function deleteTour(tourId) {
+        if (!confirm('Bạn có chắc muốn xóa tour này?')) return;
+        const token = localStorage.getItem('accessToken');
+
+        try {
+          const res = await fetch(`/tourify/api/tours/${tourId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const result = await res.json();
+
+          if (res.ok && result.code === 1000) {
+            showPopup('success', 'Thành công', 'Xóa tour thành công');
+            // → Reload lại danh sách (SPA) hoặc reload toàn bộ trang
+            loadTourList();             // nếu bạn muốn refresh chỉ table
+            // window.location.reload(); // nếu bạn muốn reload hẳn trang
+          } else {
+            showPopup('danger', 'Thất bại', result.message || 'Xóa tour thất bại');
+          }
+        } catch (err) {
+          console.error(err);
+          showPopup('danger', 'Lỗi', 'Không thể kết nối máy chủ');
+        }
+      }
+
 
       function renderPagination() {
   const totalPages = Math.ceil(toursData.length / pageSize);
@@ -1357,3 +1514,21 @@
 
       // Gọi sau khi HTML đã render xong:
       setTimeout(initAnalyticsPage, 0);
+
+
+// khởi tạo toast
+const toastEl = document.getElementById('liveToast');
+const toast    = new bootstrap.Toast(toastEl);
+
+/**
+ * showPopup(type, title, message)
+ *  - type: 'success' | 'danger' (để bạn custom màu nếu muốn)
+ */
+function showPopup(type, title, message) {
+  // (tuỳ chọn) đổi tiêu đề cho khác màu:
+  const header = toastEl.querySelector('.toast-header');
+  header.className = `toast-header bg-${type} text-white`;
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastBody').textContent  = message;
+  toast.show();
+}

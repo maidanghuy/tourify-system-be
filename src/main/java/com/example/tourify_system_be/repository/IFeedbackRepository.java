@@ -27,4 +27,5 @@ public interface IFeedbackRepository extends JpaRepository<Feedback, String> {
 
     Optional<Feedback> findTopByTour_TourIdAndStatusOrderByCreateAtDesc(String tourId, String status);
     Optional<Feedback> findTopByTour_TourIdOrderByCreateAtDesc(String tourId);
+    void deleteByTour_TourId(String tourId);
 }

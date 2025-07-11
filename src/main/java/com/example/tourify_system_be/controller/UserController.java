@@ -49,10 +49,10 @@ public class UserController {
 
         @PutMapping("/avatar")
         public APIResponse<?> updateAvatar(
-                        @RequestParam String username,
+                        @RequestHeader("Authorization") String token,
                         @RequestBody UpdateAvatarRequest request) {
 
-                boolean updated = userService.updateAvatar(username, request.getAvatar());
+                boolean updated = userService.updateAvatarByToken(token, request.getAvatar());
                 if (updated) {
                         return APIResponse.<Void>builder()
                                         .message("Avatar updated successfully")
