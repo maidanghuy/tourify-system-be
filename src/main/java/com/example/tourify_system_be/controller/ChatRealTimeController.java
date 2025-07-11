@@ -1,7 +1,7 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.ChatMessage;
-import com.example.tourify_system_be.repository.UserRepository;
+import com.example.tourify_system_be.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,7 +16,7 @@ import java.security.Principal;
 public class ChatRealTimeController {
     private final SimpMessagingTemplate messagingTemplate;
     @Autowired
-    private UserRepository userRepository; // hoặc UserService
+    private IUserRepository userRepository; // hoặc UserService
 
     @MessageMapping("/chat.private.send")
     public void sendPrivateMessage(ChatMessage message, Principal principal) {
