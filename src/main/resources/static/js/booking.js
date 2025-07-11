@@ -186,7 +186,7 @@ function showLoading(btn) {
 
 //Xử lý thanh toán (QR Code)
 function handleCheckout(btn) {
-    // Code
+    // Code P thêm
     const adultCount = parseInt(document.getElementById("adultInput").value) || 0;
     const childCount = parseInt(document.getElementById("childInput").value) || 0;
     const totalPeople = adultCount + childCount;
@@ -210,7 +210,7 @@ function handleCheckout(btn) {
         });
         return;
     }
-
+    // Code của Huy
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
 
@@ -263,25 +263,6 @@ function toggleReveal(headerEl) {
         checkoutBtn.disabled = !isCardRevealed;
     }
 }
-
-//Tùy biến chọn ngày (ngày đi)
-document.querySelectorAll('.date-container').forEach(container => {
-    const raw = container.querySelector('.date-raw');
-    const disp = container.querySelector('.date-display');
-
-    // Khi click vào ô hiển thị, mở picker của input type=date
-    disp.addEventListener('click', () => {
-        raw.showPicker?.(); // Chrome/Edge
-        raw.click();       // fallback
-    });
-
-    // Khi chọn ngày xong, định dạng lại và gán vào ô hiển thị
-    raw.addEventListener('change', () => {
-        if (!raw.value) return;
-        const [year, month, day] = raw.value.split('-');
-        disp.value = `${day}-${month}-${year}`;
-    });
-});
 
 let tourPrice;
 let currentMinPurchase = 0;
@@ -777,11 +758,59 @@ function updateTotalAmount() {
 
     const total = Math.max(0, Math.round(original - discount));
     document.getElementById("total-amount").textContent = total.toLocaleString("vi-VN") + " VND";
-
-    console.log("🔍 originalText:", originalText);
-    console.log("🔍 original:", original);
-    console.log("🔍 discount:", discount);
-    console.log("🔍 total:", total);
-
-
 }
+
+// Xổ lịch chọn startDay
+document.addEventListener("DOMContentLoaded", () => {
+    const tourId = new URLSearchParams(location.search).get("id");
+    if (!tourId) return console.error("Thiếu tourId");
+
+    const display    = document.getElementById("startDateDisplay");
+    const iconBox    = document.querySelector(".calendar-icon-box");
+
+    fetch(`/tourify/api/tours/${tourId}/start-dates`)
+        .then(r => {
+            if (!r.ok) throw new Error(r.statusText);
+            return r.json();
+        })
+        .then(({ result }) => {
+            // 1) Lấy mảng ["YYYY-MM-DD", ...]
+            const rawDates = result.map(dt => dt.split("T")[0]);
+
+            // 2) Chuyển thành Set các chuỗi toDateString() để so sánh chính xác local-date
+            const enabledSet = new Set(
+                rawDates.map(str => {
+                    const [y,m,d] = str.split("-").map(Number);
+                    return new Date(y, m - 1, d).toDateString();
+                })
+            );
+
+            // 3) Khởi flatpickr
+            const fp = flatpickr(display, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d-m-Y",
+                enable: rawDates,      // chỉ bật các ngày API trả về
+                clickOpens: false,     // chúng ta tự open qua event listener bên dưới
+                onDayCreate(_,__,fp, dayElem) {
+                    // mỗi ô ngày mới render, dayElem.dateObj là Date Object local
+                    if (enabledSet.has(dayElem.dateObj.toDateString())) {
+                        dayElem.classList.add("enabled-day");
+                    }
+                },
+                onChange: (_, dateStr) => {
+                    // gán format hiển thị dd-mm-yyyy
+                    const [y,m,d] = dateStr.split("-");
+                    display.value = `${d}-${m}-${y}`;
+                }
+            });
+
+            // 4) Bật calendar khi click icon hoặc ô input
+            iconBox.addEventListener("click",  () => fp.open());
+            fp.altInput.addEventListener("click", () => fp.open());
+        })
+        .catch(err => {
+            console.error("Lỗi load start-dates:", err);
+            display.disabled = true;
+        });
+});
