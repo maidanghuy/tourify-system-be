@@ -151,6 +151,14 @@
 </div>
 
 
+<div id="chat-container" style="position:fixed; bottom:20px; right:20px; background:#fff; border:1px solid #ccc; padding:15px; width:320px; z-index:999; border-radius:14px; box-shadow:0 2px 12px #0001;">
+    <div style="font-weight:bold; margin-bottom:8px;">Chat riêng tư (1-1)</div>
+    <input type="text" id="receiverId" placeholder="ID người nhận" style="width:140px; margin-bottom:3px;">
+    <input type="text" id="messageContent" placeholder="Tin nhắn" style="width:110px; margin-bottom:3px;">
+    <button onclick="sendMsg()" style="margin-bottom:3px;">Gửi</button>
+    <div id="chatBox" style="height:180px; border:1px solid #eee; margin-top:10px; overflow:auto; font-size:15px; padding:5px; background:#f7fefb; border-radius:8px;"></div>
+</div>
+
 <!-- Notification and Message Modals Here -->
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -163,6 +171,72 @@
 <script th:src="@{/js/dashboard.js}"></script>
 <script th:src="@{/js/logout.js}"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script>
+    function parseJwt(token) {
+        try {
+            return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) { return null; }
+    }
+
+    const accessToken = localStorage.getItem('accessToken');
+    const user = parseJwt(accessToken);
+    const userId = user && user.userId;
+    const userName = user && user.userName; // Lấy userName từ JWT nếu có
+
+    let stompClient = null;
+
+    function connect() {
+        const socket = new SockJS('/tourify/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect(
+            { Authorization: 'Bearer ' + accessToken },
+            function (frame) {
+                // SUBSCRIBE về đúng đích danh userId (Websocket cá nhân)
+                stompClient.subscribe(`/user/queue/messages`, function (message) {
+                    const msg = JSON.parse(message.body);
+                    // Hiện tin nhắn đến
+                    showMessage(msg.senderId, msg.senderName, msg.content);
+                });
+            }
+        );
+    }
+
+    function sendMsg() {
+        const receiverId = document.getElementById('receiverId').value.trim();
+        const content = document.getElementById('messageContent').value.trim();
+        if (!receiverId || !content) return;
+        stompClient.send(
+            "/app/chat.private.send",
+            { Authorization: "Bearer " + accessToken },
+            JSON.stringify({
+                receiverId: receiverId,
+                content: content
+            })
+        );
+        // Hiện luôn tin nhắn mình vừa gửi
+        showMessage(userId, userName || "Bạn", content);
+        document.getElementById('messageContent').value = '';
+    }
+
+    function showMessage(senderId, senderName, content) {
+        const chatBox = document.getElementById('chatBox');
+        const isMine = senderId === userId;
+        chatBox.innerHTML += `
+            <div style="margin:5px 0; text-align:${isMine ? 'right' : 'left'}">
+                <span style="font-weight:bold; color:${isMine ? '#20b876' : '#222'}">${isMine ? "Bạn" : senderName}:</span>
+                <span style="background:${isMine ? '#e6f9f0' : '#f3f3f3'}; border-radius:7px; padding:4px 10px; margin-left:5px; display:inline-block; max-width:180px; word-break:break-word;">
+                  ${content}
+                </span>
+            </div>
+        `;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    connect();
+</script>
 
 </body>
 </html>
