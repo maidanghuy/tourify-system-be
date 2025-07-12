@@ -22,6 +22,11 @@ public class TourSpecification {
 
             List<Predicate> predicates = new ArrayList<>();
 
+            // ✅ Loại bỏ các tour có status = DRAFT (không phân biệt hoa thường)
+            predicates.add(
+                    cb.notEqual(cb.lower(root.get("status")), "draft")
+            );
+
             if (req.getPlaceName() != null && !req.getPlaceName().isEmpty()) {
                 predicates.add(cb.like(
                         cb.lower(root.get("place").get("placeName")),
