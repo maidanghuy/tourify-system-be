@@ -209,4 +209,13 @@ public class UserController {
                 }
         }
 
+        //lấy thông tin profiel  (Phong)
+        @GetMapping("/info")
+        public APIResponse<?> getUserProfileFromToken(@RequestHeader("Authorization") String token) {
+                return APIResponse.<UserResponse>builder()
+                        .result(userService.getUserFromToken(token))
+                        .build();
+        }
+
+
 }

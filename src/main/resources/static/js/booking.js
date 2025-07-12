@@ -924,3 +924,52 @@ document.addEventListener("DOMContentLoaded", () => {
             display.disabled = true;
         });
 });
+
+//Hiển thị thông tin người dùng ở cuối
+
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("accessToken"); // ✅ Đã sửa key
+
+    if (!token) {
+        console.warn("Không tìm thấy accessToken trong localStorage!");
+        return;
+    }
+
+    fetch("/tourify/api/user/info", {
+        headers: {
+            Authorization: "Bearer " + token
+        },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            const user = data.result;
+
+            // Hiển thị thông tin cơ bản
+            document.getElementById("nameDisplay").textContent =
+                (user.firstName || "") + " " + (user.lastName || "");
+            document.getElementById("emailDisplay").textContent = user.email || "";
+            document.getElementById("phoneDisplay").textContent = user.phoneNumber || "";
+            document.getElementById("addressDisplay").textContent = user.address || "";
+
+            // Định dạng ngày sinh nếu có
+            if (user.dob) {
+                const dob = new Date(user.dob);
+                const formatted = dob.toLocaleDateString("vi-VN");
+                document.getElementById("dobDisplay").textContent = formatted;
+            }
+
+            // Avatar
+            const avatarUrl = user.avatar || "https://i.imgur.com/u8pUXwF.png";
+            const avatarImg = document.getElementById("avatarImg");
+            if (avatarImg) {
+                avatarImg.src = avatarUrl;
+            }
+
+            // console.log("Thông tin user:", user);
+        })
+        .catch((err) => {
+            console.error("Lỗi khi lấy thông tin user:", err);
+        });
+
+});
+
