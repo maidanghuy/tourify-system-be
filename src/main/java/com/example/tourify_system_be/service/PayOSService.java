@@ -2,8 +2,10 @@ package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.config.PayOSProperties;
 import com.example.tourify_system_be.dto.request.CreatePaymentRequest;
+import com.example.tourify_system_be.entity.PaymentOrderRef;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
+import com.example.tourify_system_be.repository.IPaymentOrderRefRepository;
 import com.example.tourify_system_be.security.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,37 +27,49 @@ public class PayOSService {
         PayOS payOS;
         PayOSProperties properties;
         JwtUtil jwtUtil;
+        IPaymentOrderRefRepository orderRefRepository;
+
 
         public Map<String, String> createPaymentLink(CreatePaymentRequest req, String authHeader) throws Exception {
                 String token = authHeader.replace("Bearer ", "");
                 String userId = jwtUtil.extractUserId(token);
 
                 if (userId == null) {
-                    throw new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
+                        throw new AppException(ErrorCode.USER_NOT_FOUND, "User không hợp lệ.");
                 }
 
                 long orderCode = System.currentTimeMillis();
 
+                // Lưu mapping trước khi gọi PayOS
+                PaymentOrderRef ref = PaymentOrderRef.builder()
+                        .orderCode(orderCode)
+                        .userId(userId)
+                        .bookingId(req.getBookingId())
+                        .build();
+                orderRefRepository.save(ref);
+
                 ItemData item = ItemData.builder()
-                                .name("Tourify Tour Booking")
-                                .quantity(1)
-                                .price(req.getAmount())
-                                .build();
+                        .name("Tourify Tour Booking")
+                        .quantity(1)
+                        .price(req.getAmount())
+                        .build();
 
                 PaymentData paymentData = PaymentData.builder()
-                                .orderCode(orderCode)
-                                .amount(req.getAmount())
-                                .description(req.getDescription())
-                                .items(List.of(item))
-                                .cancelUrl(properties.getCancelUrl())
-                                .returnUrl(properties.getReturnUrl())
-                                .build();
+                        .orderCode(orderCode)
+                        .amount(req.getAmount())
+                        .description(req.getDescription())
+                        .items(List.of(item))
+                        .cancelUrl(properties.getCancelUrl())
+                        .returnUrl(properties.getReturnUrl())
+                        .build();
 
                 CheckoutResponseData resp = payOS.createPaymentLink(paymentData);
 
                 return Map.of(
-                                "orderCode", String.valueOf(orderCode),
-                                "checkoutUrl", resp.getCheckoutUrl(),
-                                "qrCode", resp.getQrCode());
+                        "orderCode", String.valueOf(orderCode),
+                        "checkoutUrl", resp.getCheckoutUrl(),
+                        "qrCode", resp.getQrCode()
+                );
         }
+
 }

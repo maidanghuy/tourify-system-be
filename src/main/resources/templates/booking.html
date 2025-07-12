@@ -21,9 +21,15 @@
             rel="stylesheet"
     />
 
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
 
     <link href="../css/index.css" rel="stylesheet"/>
     <link href="../css/booking.css" rel="stylesheet"/>
+
 
 
 </head>
@@ -237,45 +243,25 @@
 
 
                     <!-- Dates -->
-                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
-
-                        <!-- Start Date -->
+                    <div class="d-flex align-items-center justify-content-center mb-4">
                         <div class="date-container d-flex align-items-center gap-2">
-                            <div class="calendar-icon-box">
-                                <i class="fas fa-calendar-alt text-success"></i>
-                            </div>
-                            <!-- input ẩn để tận dụng picker gốc -->
-                            <input class="date-raw d-none" id="startDateRaw" type="date">
-                            <!-- input hiển thị DD-MM-YYYY -->
-                            <input class="form-control date-display"
-                                   id="startDateDisplay"
-                                   placeholder="dd-mm-yyyy"
-                                   readonly
-                                   type="text"
-                            />
-                        </div>
-
-                        <!-- Plane Icon -->
-                        <div class="d-flex align-items-center">
-                            <span class="mx-1">•──</span>
+                            <!-- Plane Icon -->
                             <i class="fas fa-plane fa-lg text-dark"></i>
-                            <span class="mx-1">──•</span>
-                        </div>
 
-                        <!-- End Date -->
-                        <div class="date-container d-flex align-items-center gap-2">
+                            <!-- Calendar Icon -->
                             <div class="calendar-icon-box">
                                 <i class="fas fa-calendar-alt text-success"></i>
                             </div>
-                            <input class="date-raw d-none" id="endDateRaw" type="date">
-                            <input class="form-control date-display"
-                                   id="endDateDisplay"
-                                   placeholder="dd-mm-yyyy"
-                                   readonly
-                                   type="text"
+
+                            <!-- chỉ 1 input text để hiển thị -->
+                            <input
+                                    id="startDateDisplay"
+                                    class="form-control"
+                                    type="text"
+                                    placeholder="dd-mm-yyyy"
+                                    readonly
                             />
                         </div>
-
                     </div>
 
                     <!-- Discount -->
@@ -679,7 +665,7 @@
                                     id="dobInput"
                                     style="max-width: 200px"
                                     type="date"
-                                    value="01-01-1992"
+                                    value="1992-01-01"
                             />
                             <button
                                     class="btn btn-light shadow-sm"
@@ -883,5 +869,6 @@
 <script src="../js/logout.js"></script>
 <script src="../js/index.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>

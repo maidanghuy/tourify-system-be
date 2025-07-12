@@ -93,16 +93,32 @@ public class BookingTourService {
             throw new AppException(ErrorCode.BELOW_MIN_PEOPLE, "Không được ít hơn số người tối thiểu!");
         }
 
+
         // ✅ Cập nhật số người đã được đặt cho tour
         tour.setTouristNumberAssigned(
-                tour.getTouristNumberAssigned() == null ? totalPeople : tour.getTouristNumberAssigned() + totalPeople
+                tour.getTouristNumberAssigned() == null
+                        ? totalPeople
+                        : tour.getTouristNumberAssigned() + totalPeople
         );
         iTourRepository.save(tour);
 
-        // ✅ Tính giá
-        BigDecimal totalPrice = tour.getPrice().multiply(BigDecimal.valueOf(totalPeople));
+// ✅ Tính giá mới
+        BigDecimal basePrice = tour.getPrice();
+        BigDecimal adultRate = new BigDecimal("0.2");
+        BigDecimal childRate = new BigDecimal("0.15");
 
-        // ✅ Tạo booking
+        BigDecimal adultSurcharge = basePrice
+                .multiply(BigDecimal.valueOf(request.getAdultNumber()))
+                .multiply(adultRate);
+        BigDecimal childSurcharge = basePrice
+                .multiply(BigDecimal.valueOf(request.getChildNumber()))
+                .multiply(childRate);
+
+        BigDecimal totalPrice = basePrice
+                .add(adultSurcharge)
+                .add(childSurcharge);
+
+// ✅ Tạo booking
         BookingTour booking = BookingTour.builder()
                 .user(user)
                 .tour(tour)
@@ -126,9 +142,9 @@ public class BookingTourService {
                 dayEnd.toLocalDate().toString()
         );
 
-        // ✅ Gửi email (giả lập)
-//        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
-//                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
+//         ✅ Gửi email (giả lập)
+        log.info("Gửi email đến {}: Xác nhận đặt tour {} cho {} người. Tổng giá: {} VND.",
+                user.getEmail(), tour.getTourName(), totalPeople, totalPrice);
         return BookingTourResponse.builder()
                 .bookingId(booking.getBookingId())
                 .userId(user.getUserId())

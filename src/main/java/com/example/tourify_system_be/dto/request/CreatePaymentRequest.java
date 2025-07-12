@@ -11,4 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class CreatePaymentRequest {
     int amount;
     String description;
+    String bookingId;
 }
+

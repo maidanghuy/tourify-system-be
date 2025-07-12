@@ -37,7 +37,7 @@ document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     modal.hide();
 
     // Cuộn đến phần thanh toán
-    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
+    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
 
     updateDiscountAmount();
     updateTotalAmount();
@@ -185,8 +185,10 @@ function showLoading(btn) {
 }
 
 //Xử lý thanh toán (QR Code)
+let lastBookingId = null; // Lưu bookingId để reload QR
+
 function handleCheckout(btn) {
-    // Code
+    // Code P thêm
     const adultCount = parseInt(document.getElementById("adultInput").value) || 0;
     const childCount = parseInt(document.getElementById("childInput").value) || 0;
     const totalPeople = adultCount + childCount;
@@ -210,26 +212,132 @@ function handleCheckout(btn) {
         });
         return;
     }
-
+    // Code của Huy
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
 
-    // Show QR code modal
-    handlerevealQRCodeModal();
+    // Lấy tourId từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get("id");
+    // Lấy ngày bắt đầu
+    const startDateRaw = document.getElementById("startDateDisplay").value;
+    let dayStart = null;
+    if (startDateRaw) {
+        const [d, m, y] = startDateRaw.split("-");        // tách "dd-mm-yyyy"
+        dayStart = `${y}-${m}-${d}T08:00:00`;             // thành "yyyy-MM-ddTHH:mm:ss"
+    }
 
-    setTimeout(() => {
-        btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
-        btn.disabled = false;
-
-
-        const qrModal = new bootstrap.Modal(document.getElementById("qrModal"));
-        qrModal.show();
-    }, 1500);
+    // Gọi API booking
+    fetch("/tourify/api/booking", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        },
+        body: JSON.stringify({
+            tourId: tourId,
+            adultNumber: adultCount,
+            childNumber: childCount,
+            dayStart: dayStart
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.code === 1000 && data.result && data.result.bookingId) {
+                lastBookingId = data.result.bookingId;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đặt tour thành công!',
+                    text: 'Thông tin đặt tour đã được lưu. Vui lòng thanh toán để hoàn tất.',
+                    confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    handlerevealQRCodeModal(lastBookingId);
+                    const qrModal = new bootstrap.Modal(document.getElementById("qrModal"));
+                    qrModal.show();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đặt tour thất bại',
+                    text: 'Chưa nhập ngày bắt đầu',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi kết nối',
+                text: 'Không thể kết nối tới máy chủ.',
+                confirmButtonColor: '#d33'
+            });
+        })
+        .finally(() => {
+            btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
+            btn.disabled = false;
+        });
 }
 
+function handlerevealQRCodeModal(bookingId) {
+    const token = localStorage.getItem('accessToken');
+    const qrCanvas = document.getElementById("qr");
+    if (!token) {
+        alert("Bạn chưa đăng nhập.");
+        return;
+    }
+    if (!bookingId) {
+        alert("Không tìm thấy bookingId để tạo QR code.");
+        return;
+    }
+    // Thêm hiệu ứng loading
+    qrCanvas.classList.add("qr-loading");
+
+    const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+    const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+
+    // Gọi API tạo QR code với bookingId
+    fetch('/tourify/api/payment/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            amount: amount,
+            description: `Dat tour 123`,
+            bookingId: bookingId
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            qrCanvas.classList.remove("qr-loading");
+            if (data.code === 1000 && data.result?.qrCode) {
+                const qrCode = data.result.qrCode;
+                // Tạo mã QR bằng QRious
+                const qr = new QRious({
+                    element: qrCanvas,
+                    value: qrCode,
+                    size: 256,
+                    level: 'H'
+                });
+            } else {
+                alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+            }
+        })
+        .catch(err => {
+            qrCanvas.classList.remove("qr-loading");
+            alert('Có lỗi xảy ra trong quá trình thanh toán.');
+        });
+}
 
 function reloadQRCode() {
-    handlerevealQRCodeModal();
+    if (lastBookingId) {
+        handlerevealQRCodeModal(lastBookingId);
+    } else {
+        alert("Không tìm thấy bookingId để reload QR code.");
+    }
 }
 
 
@@ -263,25 +371,6 @@ function toggleReveal(headerEl) {
         checkoutBtn.disabled = !isCardRevealed;
     }
 }
-
-//Tùy biến chọn ngày (ngày đi)
-document.querySelectorAll('.date-container').forEach(container => {
-    const raw = container.querySelector('.date-raw');
-    const disp = container.querySelector('.date-display');
-
-    // Khi click vào ô hiển thị, mở picker của input type=date
-    disp.addEventListener('click', () => {
-        raw.showPicker?.(); // Chrome/Edge
-        raw.click();       // fallback
-    });
-
-    // Khi chọn ngày xong, định dạng lại và gán vào ô hiển thị
-    raw.addEventListener('change', () => {
-        if (!raw.value) return;
-        const [year, month, day] = raw.value.split('-');
-        disp.value = `${day}-${month}-${year}`;
-    });
-});
 
 let tourPrice;
 let currentMinPurchase = 0;
@@ -468,66 +557,68 @@ function checkMinPurchaseCondition() {
 }
 
 // QR của Huy
-function handlerevealQRCodeModal() {
-    const token = localStorage.getItem('accessToken');
-    const username = localStorage.getItem('username');
-    const qrCanvas = document.getElementById("qr");
-
-
-    if (!token || !username) {
-        alert("Bạn chưa đăng nhập.");
-        return;
-    }
-
-
-    // Thêm hiệu ứng loading
-    qrCanvas.classList.add("qr-loading");
-
-
-    // Lấy các giá trị từ HTML
-    const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
-    const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
-    const amount = parseInt(totalText.replace(/[^\d]/g, ''));
-
-
-    const body = {
-        amount: amount,
-        description: `Dat tour`
-    };
-
-    console.log(body);
-
-    fetch('/tourify/api/payment/create', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(body)
-    })
-        .then(res => res.json())
-        .then(data => {
-            // Xóa hiệu ứng loading
-            qrCanvas.classList.remove("qr-loading");
-            if (data.code === 1000 && data.result?.qrCode) {
-                console.log(data);
-                const qrCode = data.result.qrCode;
-                // Tạo mã QR bằng QRious
-                const qr = new QRious({
-                    element: qrCanvas,
-                    value: qrCode,
-                    size: 256,
-                    level: 'H'
-                });
-            } else {
-                alert('Không thể tạo thanh toán. Vui lòng thử lại.');
-            }
-        })
-        .catch(err => {
-            qrCanvas.classList.remove("qr-loading");
-            alert('Có lỗi xảy ra trong quá trình thanh toán.');
-        });
-}
+// function handlerevealQRCodeModal() {
+//     const token = localStorage.getItem('accessToken');
+//     const username = localStorage.getItem('username');
+//     const qrCanvas = document.getElementById("qr");
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const idTour = urlParams.get("id");
+//
+//     if (!token || !username) {
+//         alert("Bạn chưa đăng nhập.");
+//         return;
+//     }
+//
+//
+//     // Thêm hiệu ứng loading
+//     qrCanvas.classList.add("qr-loading");
+//
+//
+//     // Lấy các giá trị từ HTML
+//     const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
+//     const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+//     const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+//
+//
+//     const body = {
+//         amount: amount,
+//         description: `Dat tour`,
+//         idTour: idTour
+//     };
+//
+//     console.log(body);
+//
+//     fetch('/tourify/api/payment/create', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': 'Bearer ' + token
+//         },
+//         body: JSON.stringify(body)
+//     })
+//         .then(res => res.json())
+//         .then(data => {
+//             // Xóa hiệu ứng loading
+//             qrCanvas.classList.remove("qr-loading");
+//             if (data.code === 1000 && data.result?.qrCode) {
+//                 console.log(data);
+//                 const qrCode = data.result.qrCode;
+//                 // Tạo mã QR bằng QRious
+//                 const qr = new QRious({
+//                     element: qrCanvas,
+//                     value: qrCode,
+//                     size: 256,
+//                     level: 'H'
+//                 });
+//             } else {
+//                 alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+//             }
+//         })
+//         .catch(err => {
+//             qrCanvas.classList.remove("qr-loading");
+//             alert('Có lỗi xảy ra trong quá trình thanh toán.');
+//         });
+// }
 
 function formatDateTime(isoString) {
     const date = new Date(isoString);
@@ -623,7 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     }
 
-                    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
+                    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById("promotionModal"));
                     modal?.hide();
@@ -777,11 +868,59 @@ function updateTotalAmount() {
 
     const total = Math.max(0, Math.round(original - discount));
     document.getElementById("total-amount").textContent = total.toLocaleString("vi-VN") + " VND";
-
-    console.log("🔍 originalText:", originalText);
-    console.log("🔍 original:", original);
-    console.log("🔍 discount:", discount);
-    console.log("🔍 total:", total);
-
-
 }
+
+// Xổ lịch chọn startDay
+document.addEventListener("DOMContentLoaded", () => {
+    const tourId = new URLSearchParams(location.search).get("id");
+    if (!tourId) return console.error("Thiếu tourId");
+
+    const display    = document.getElementById("startDateDisplay");
+    const iconBox    = document.querySelector(".calendar-icon-box");
+
+    fetch(`/tourify/api/tours/${tourId}/start-dates`)
+        .then(r => {
+            if (!r.ok) throw new Error(r.statusText);
+            return r.json();
+        })
+        .then(({ result }) => {
+            // 1) Lấy mảng ["YYYY-MM-DD", ...]
+            const rawDates = result.map(dt => dt.split("T")[0]);
+
+            // 2) Chuyển thành Set các chuỗi toDateString() để so sánh chính xác local-date
+            const enabledSet = new Set(
+                rawDates.map(str => {
+                    const [y,m,d] = str.split("-").map(Number);
+                    return new Date(y, m - 1, d).toDateString();
+                })
+            );
+
+            // 3) Khởi flatpickr
+            const fp = flatpickr(display, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d-m-Y",
+                enable: rawDates,      // chỉ bật các ngày API trả về
+                clickOpens: false,     // chúng ta tự open qua event listener bên dưới
+                onDayCreate(_,__,fp, dayElem) {
+                    // mỗi ô ngày mới render, dayElem.dateObj là Date Object local
+                    if (enabledSet.has(dayElem.dateObj.toDateString())) {
+                        dayElem.classList.add("enabled-day");
+                    }
+                },
+                onChange: (_, dateStr) => {
+                    // gán format hiển thị dd-mm-yyyy
+                    const [y,m,d] = dateStr.split("-");
+                    display.value = `${d}-${m}-${y}`;
+                }
+            });
+
+            // 4) Bật calendar khi click icon hoặc ô input
+            iconBox.addEventListener("click",  () => fp.open());
+            fp.altInput.addEventListener("click", () => fp.open());
+        })
+        .catch(err => {
+            console.error("Lỗi load start-dates:", err);
+            display.disabled = true;
+        });
+});
