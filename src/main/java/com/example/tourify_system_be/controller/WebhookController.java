@@ -1,14 +1,9 @@
 package com.example.tourify_system_be.controller;
 
-import com.example.tourify_system_be.entity.BookingTour;
-import com.example.tourify_system_be.entity.Payment;
-import com.example.tourify_system_be.entity.PaymentMethod;
-import com.example.tourify_system_be.entity.PaymentOrderRef;
-import com.example.tourify_system_be.repository.IBookingTourRepository;
-import com.example.tourify_system_be.repository.IPaymentMethodRepository;
-import com.example.tourify_system_be.repository.IPaymentOrderRefRepository;
-import com.example.tourify_system_be.repository.IPaymentRepository;
+import com.example.tourify_system_be.entity.*;
+import com.example.tourify_system_be.repository.*;
 import com.example.tourify_system_be.service.BookingTourService;
+import com.example.tourify_system_be.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +17,7 @@ import vn.payos.type.WebhookData;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -31,11 +27,14 @@ public class WebhookController {
 
     private final PayOS payOS;
     private final BookingTourService bookingTourService;
+    private final EmailService emailService;
 
     private final IPaymentOrderRefRepository orderRefRepository;
     private final IPaymentRepository paymentRepository;
     private final IPaymentMethodRepository paymentMethodRepository;
     private final IBookingTourRepository bookingTourRepository;
+    private final IUserRepository userRepository;
+    private final ITourRepository tourRepository;
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody String rawBody) {
@@ -89,6 +88,11 @@ public class WebhookController {
                     .build();
 
             paymentRepository.save(payment);
+
+            User user = userRepository.findByUserId(userId);
+            Tour tour = tourRepository.findByTourId(booking.getTour().getTourId());
+            emailService.sendBookingPAIDEmail(booking, tour, user);
+
 
             return ResponseEntity.ok("Webhook xử lý thành công");
         } catch (Exception e) {
