@@ -226,9 +226,12 @@
                             name="touristNumberAssigned"
                             class="form-control"
                             placeholder="Enter number"
-                            th:value="${touristNumberAssigned}" />
+                            min="0"
+                            step="1"
+                    th:value="${touristNumberAssigned}" />
                 </div>
             </div>
+
 
             <!-- Search Button -->
             <div class="col-md-2 d-grid">
