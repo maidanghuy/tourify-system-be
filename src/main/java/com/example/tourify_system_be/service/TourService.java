@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -243,8 +244,19 @@ public class TourService {
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
                 .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
-        return tourMapper.toResponse(tour);
+
+        // Chuyển entity sang DTO
+        TourResponse response = tourMapper.toResponse(tour);
+
+        // Lấy ngày startDate active gần nhất (nếu có)
+        Optional<LocalDateTime> startDateOpt = iToursStartMappingRepository.findFirstActiveStartDateByTourId(tourId);
+
+        // Set ngày startDate vào DTO
+        startDateOpt.ifPresent(response::setStartDate);
+
+        return response;
     }
+
 
     /**
      * Lấy danh sách TourResponse theo list id
