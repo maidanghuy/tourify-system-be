@@ -567,45 +567,47 @@ async function loadCreditCards() {
 
         if (data.result && data.result.length > 0) {
             listDiv.innerHTML = data.result.map(card => `
-                <div class="credit-card-ui">
-  <div class="logo"></div>
-  <div class="chip">
-    <!-- Chip SVG -->
-    <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="40" height="26" rx="6" fill="#eee9" />
-      <rect x="7" y="7" width="26" height="12" rx="3" fill="#ccc9" />
-      <rect x="13" y="11" width="14" height="4" rx="1" fill="#bbb7" />
-    </svg>
-  </div>
-  <div class="cc-type">
-    <i class="bi bi-credit-card"></i>
-    ${card.cardType || "Khác"}
-    <span class="wave ms-1"><i class="bi bi-wifi"></i></span>
-  </div>
-  <div class="cc-label">Số thẻ</div>
-  <div class="cc-number">${formatCardNumber(card.cardNumber)}</div>
-  <div class="row" style="margin-top: 10px;">
-    <div>
-      <div class="cc-label">Chủ thẻ</div>
-      <div class="cc-holder">${card.cardHolderName}</div>
-    </div>
-    <div class="text-start">
-      <div class="cc-label">Hết hạn</div>
-      <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
-</div>
-  </div>
-  <div class="cc-icon"><i class="bi bi-shield-lock"></i></div>
-</div>
+                <div class="credit-card-ui position-relative shadow rounded-4 mb-4 p-3" style="background: linear-gradient(135deg, #e0eafc 0% 0%, #2d7d6f 100%); min-width: 320px; max-width: 400px; margin: 0 auto;">
+                  <button class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 delete-card-btn" title="Xóa thẻ" onclick="deleteCreditCard('${card.cardID}')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <div class="logo"></div>
+                  <div class="chip">
+                    <svg viewBox="0 0 40 26" fill="none" xmlns="http://www.w3.org/2000/svg" width="40" height="26">
+                      <rect width="40" height="26" rx="6" fill="#eee9" />
+                      <rect x="7" y="7" width="26" height="12" rx="3" fill="#ccc9" />
+                      <rect x="13" y="11" width="14" height="4" rx="1" fill="#bbb7" />
+                    </svg>
+                  </div>
+                  <div class="cc-type mb-2">
+                    <i class="bi bi-credit-card"></i>
+                    ${card.cardType || "Khác"}
+                    <span class="wave ms-1"><i class="bi bi-wifi"></i></span>
+                  </div>
+                  <div class="cc-label">Số thẻ</div>
+                  <div class="cc-number fs-5 fw-bold">${formatCardNumber(card.cardNumber)}</div>
+                  <div class="row mt-2">
+                    <div class="col-7">
+                      <div class="cc-label">Chủ thẻ</div>
+                      <div class="cc-holder">${card.cardHolderName}</div>
+                    </div>
+                    <div class="col-5 text-start">
+                      <div class="cc-label">Hết hạn</div>
+                      <div class="cc-expiry">${card.expiryTime ? formatExpiry(card.expiryTime) : "Không có"}</div>
+                    </div>
+                  </div>
+                  <div class="cc-icon position-absolute bottom-0 end-0 m-2"><i class="bi bi-shield-lock"></i></div>
+                </div>
             `).join("");
 
             listDiv.innerHTML += `
-                            <div class="credit-card-ui add-credit-card-card" onclick="showAddCreditCardModal()" style="cursor: pointer; background: #aaa;">
-                    <div class="cc-type">
-                        <i class="bi bi-plus-circle"></i> Thêm thẻ mới
+                <div class="credit-card-ui add-credit-card-card shadow rounded-4 mb-4 p-3 d-flex flex-column align-items-center justify-content-center" onclick="showAddCreditCardModal()" style="cursor: pointer; background: #f8fafc; min-width: 320px; max-width: 400px; margin: 0 auto; border: 2px dashed #b6c2d1;">
+                    <div class="cc-type mb-2">
+                        <i class="bi bi-plus-circle"></i> <span class="fw-semibold">Thêm thẻ mới</span>
                     </div>
                     <div class="cc-label">Số thẻ</div>
                     <div class="cc-number text-muted">•••• •••• •••• ••••</div>
-                    <div class="row" style="margin-top: 35px">
+                    <div class="row mt-4 w-100">
                         <div class="col-7">
                             <div class="cc-label">Chủ thẻ</div>
                             <div class="cc-holder text-muted">Chưa có</div>
@@ -615,19 +617,18 @@ async function loadCreditCards() {
                             <div class="cc-expiry text-muted">__/__</div>
                         </div>
                     </div>
-                    <div class="cc-icon"><i class="bi bi-credit-card-2-front"></i></div>
+                    <div class="cc-icon position-absolute bottom-0 end-0 m-2"><i class="bi bi-credit-card-2-front"></i></div>
                 </div>
-
             `
         } else {
             listDiv.innerHTML = `
-                            <div class="credit-card-ui add-credit-card-card" onclick="showAddCreditCardModal()" style="cursor: pointer; background: #aaa;">
-                    <div class="cc-type">
-                        <i class="bi bi-plus-circle"></i> Thêm thẻ mới
+                <div class="credit-card-ui add-credit-card-card shadow rounded-4 mb-4 p-3 d-flex flex-column align-items-center justify-content-center" onclick="showAddCreditCardModal()" style="cursor: pointer; background: #f8fafc; min-width: 320px; max-width: 400px; margin: 0 auto; border: 2px dashed #b6c2d1;">
+                    <div class="cc-type mb-2">
+                        <i class="bi bi-plus-circle"></i> <span class="fw-semibold">Thêm thẻ mới</span>
                     </div>
                     <div class="cc-label">Số thẻ</div>
                     <div class="cc-number text-muted">•••• •••• •••• ••••</div>
-                    <div class="row" style="margin-top: 35px">
+                    <div class="row mt-4 w-100">
                         <div class="col-7">
                             <div class="cc-label">Chủ thẻ</div>
                             <div class="cc-holder text-muted">Chưa có</div>
@@ -637,9 +638,8 @@ async function loadCreditCards() {
                             <div class="cc-expiry text-muted">__/__</div>
                         </div>
                     </div>
-                    <div class="cc-icon"><i class="bi bi-credit-card-2-front"></i></div>
+                    <div class="cc-icon position-absolute bottom-0 end-0 m-2"><i class="bi bi-credit-card-2-front"></i></div>
                 </div>
-
             `
         }
     } catch (err) {
@@ -726,4 +726,36 @@ function logoutAndRedirect() {
     localStorage.removeItem("tourify_chat_history");
     // ...xóa các key khác nếu có
     window.location.href = "/tourify/login";
+}
+
+// Hàm xóa thẻ
+window.deleteCreditCard = async function (cardId) {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!cardId) return;
+    const confirm = await Swal.fire({
+        title: 'Xóa thẻ này?',
+        text: 'Bạn có chắc chắn muốn xóa thẻ này không?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    });
+    if (confirm.isConfirmed) {
+        try {
+            const res = await fetch(`/tourify/api/user/creditcard/${cardId}`, {
+                method: 'DELETE',
+                headers: { "Authorization": `Bearer ${accessToken}` }
+            });
+            if (res.ok) {
+                Swal.fire('Đã xóa!', 'Thẻ đã được xóa thành công.', 'success');
+                loadCreditCards();
+            } else {
+                Swal.fire('Lỗi', 'Không thể xóa thẻ. Vui lòng thử lại.', 'error');
+            }
+        } catch (err) {
+            Swal.fire('Lỗi', 'Không thể xóa thẻ. Vui lòng thử lại.', 'error');
+        }
+    }
 }
