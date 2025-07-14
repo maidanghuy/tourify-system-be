@@ -364,6 +364,18 @@ public class UserService {
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
 
+    public void deleteCreditCard(String token, String cardId) {
+        String jwt = token.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Tìm credit card theo cardId và userId để đảm bảo user chỉ xóa thẻ của mình
+        CreditCard creditCard = creditCardRepository.findByCardIDAndUser_UserId(cardId, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.OPERATION_NOT_ALLOWED,
+                        "Credit card not found or you don't have permission to delete it"));
+
+        creditCardRepository.delete(creditCard);
+    }
+
     @Transactional
     public void lockAccount(String bearerToken, String userId) {
         ensureAdmin(bearerToken);
@@ -512,7 +524,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    //Code của P để lấy userId
+    // Code của P để lấy userId
     public UserResponse getUserFromToken(String token) {
         // Tách "Bearer " nếu có
         String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
