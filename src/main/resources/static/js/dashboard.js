@@ -268,6 +268,25 @@
         
                         </div>
                         </div>
+                        <div class="form-section-title mt-4">Tour Start Date & Repeat</div>
+                        <div class="row g-2">
+                          <div class="col-md-6">
+                              <label class="form-label">Start Date</label>
+                              <input class="form-control" id="startDate" type="date" min="2025-07-15"/>
+                          </div>
+                          <div class="col-md-6">
+                              <label class="form-label">Repeat Times</label>
+                              <input class="form-control" id="repeatTimes" type="number" min="1" max="20" value="1" />
+                              <small class="text-muted">Tour sẽ tự cập nhật ngày bắt đầu sau mỗi x ngày, tối đa số lần bạn chọn.</small>
+                          </div>
+
+                          <div class="col-md-6">
+                              <label class="form-label">Repeat Cycle (days)</label>
+                              <input class="form-control" id="repeatCycle" type="number" min="1" max="30" value="7" />
+                              <small class="text-muted">Chu kỳ lặp ngày, ví dụ 1, 2, 7, ... (mặc định 7 ngày)</small>
+                          </div>
+                        </div>
+
                     </div>
                     </div>
         
@@ -892,6 +911,9 @@
         { selector: "#place", label: "Place" },
         { selector: "#categorySelect", label: "Category" },
         { selector: "#statusSelect", label: "Status" },
+        { selector: "#startDate", label: "Start Date" },
+        { selector: "#repeatTimes", label: "Repeat Times" },
+        { selector: "#repeatCycle", label: "Repeat Cycle" },
       ];
 
       function isMediaValid() {
@@ -1532,3 +1554,8 @@ function showPopup(type, title, message) {
   document.getElementById('toastBody').textContent  = message;
   toast.show();
 }
+document.addEventListener('DOMContentLoaded', function () {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('startDate').setAttribute('min', today);
+});
+
