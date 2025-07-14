@@ -2,6 +2,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const tourId = urlParams.get("id");
 
+    if (tourId) {
+        // Lấy danh sách ID đã xem từ localStorage (nếu có)
+        let viewedTourIds = JSON.parse(localStorage.getItem("viewedTourIds")) || [];
+
+        // Kiểm tra tourId chưa tồn tại trong danh sách
+        if (!viewedTourIds.includes(tourId)) {
+            viewedTourIds.push(tourId); // Thêm tourId mới vào cuối mảng
+            localStorage.setItem("viewedTourIds", JSON.stringify(viewedTourIds));
+        }
+    }
+
     // Sử dụng class hoặc id phù hợp, chỉ nên 1 thẻ tourTitle trên trang
     const titleEl = document.getElementById("tourTitle"); // hoặc getElementById("tourTitle")
     const priceEl = document.querySelector(".tour-price");
