@@ -52,4 +52,9 @@ public class TourCreateRequest {
 
 
     private String thumbnail;
+    private String startDate;
+    private int repeatTimes;
+    @Min(1)
+    private int repeatCycle = 7;  // default 7 nếu FE không gửi
+
 }

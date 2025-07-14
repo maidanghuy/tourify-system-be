@@ -4,10 +4,7 @@ import com.example.tourify_system_be.dto.request.TourCreateRequest;
 import com.example.tourify_system_be.dto.request.TourFilterRequest;
 import com.example.tourify_system_be.dto.request.TourSearchRequest;
 import com.example.tourify_system_be.dto.response.TourResponse;
-import com.example.tourify_system_be.entity.Category;
-import com.example.tourify_system_be.entity.Place;
-import com.example.tourify_system_be.entity.Tour;
-import com.example.tourify_system_be.entity.User;
+import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
@@ -23,6 +20,7 @@ import com.example.tourify_system_be.security.JwtUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +41,8 @@ public class TourService {
     private final ITourRepository tourRepository;
     private final IFeedbackRepository iFeedbackRepository;
     private final IToursStartMappingRepository iToursStartMappingRepository;
+    private final IToursStartRepository toursStartRepository;
+    private final IToursStartMappingRepository toursStartMappingRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -131,32 +131,47 @@ public class TourService {
     public Tour createTour(TourCreateRequest request, String userId) {
         Tour tour = tourMapper.toEntity(request);
 
-        // Lấy thông tin người dùng từ userId lấy từ token
         User creator = iUserRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "User not found!"));
 
-        // Chỉ cho phép role SUB_COMPANY tạo tour
         if (!"SUB_COMPANY".equalsIgnoreCase(creator.getRole())) {
-            throw new AppException(ErrorCode.NOT_SUBCOMPANY, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.NOT_SUBCOMPANY, "User is not a SUB_COMPANY!");
         }
 
-        // Tìm place và category
         Place place = iPlaceRepository.findById(request.getPlace())
-                .orElseThrow(() -> new AppException(ErrorCode.PLACE_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(ErrorCode.PLACE_NOT_FOUND, "Place not found!"));
 
         Category category = iCategoryRepository.findById(request.getCategory())
-                .orElseThrow(
-                        () -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Category not found!"));
 
-        // Gán entity cho tour
         tour.setManageBy(creator);
         tour.setPlace(place);
         tour.setCategory(category);
         tour.setCreatedAt(LocalDateTime.now());
         tour.setUpdatedAt(LocalDateTime.now());
 
-        return itourRepository.save(tour);
+        // 1. Lưu tour để có tourId
+        tour = itourRepository.save(tour);
+
+        // 2. Xử lý tạo ngày khởi hành (start dates) và mapping
+        String startDateStr = request.getStartDate(); // VD: "2025-07-14 08:00:00"
+        int repeatTimes = request.getRepeatTimes();
+        int repeatCycle = request.getRepeatCycle(); // số ngày chu kỳ lặp (mới thêm)
+
+        if (startDateStr != null && !startDateStr.isEmpty()
+                && repeatTimes > 0 && repeatCycle > 0) {
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(startDateStr, formatter);
+
+            createTourStarts(tour.getTourId(), startDate, repeatTimes, repeatCycle);
+        }
+
+        return tour;
     }
+
+
+
 
     public List<TourResponse> getToursByPlaceName(String placeName) {
         return tourRepository.findByPlace_PlaceNameIgnoreCase(placeName)
@@ -271,4 +286,28 @@ public class TourService {
         return dates;
     }
 
+    public void createTourStarts(String tourId, LocalDateTime startDate, int repeatTimes, int repeatCycle) {
+        Tour tour = itourRepository.findById(tourId)
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Tour not found!"));
+
+        for (int i = 0; i < repeatTimes; i++) {
+            LocalDateTime currentStart = startDate.plusDays(i * repeatCycle);
+
+            ToursStart start = new ToursStart();
+            start.setStartDate(currentStart);
+            start.setIsActive(true);
+            start = toursStartRepository.save(start);
+
+            ToursStartMappingId mappingId = new ToursStartMappingId();
+            mappingId.setTourId(tour.getTourId());
+            mappingId.setStartId(start.getStartId());
+
+            ToursStartMapping mapping = new ToursStartMapping();
+            mapping.setId(mappingId);
+            mapping.setTour(tour);
+            mapping.setStart(start);
+
+            toursStartMappingRepository.save(mapping);
+        }
+    }
 }
