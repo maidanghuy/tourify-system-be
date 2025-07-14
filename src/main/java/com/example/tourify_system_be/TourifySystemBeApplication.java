@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.time.ZoneId;
 import java.util.TimeZone;
 
-//@EnableScheduling
+@EnableScheduling
 @SpringBootApplication
 public class TourifySystemBeApplication {
 
