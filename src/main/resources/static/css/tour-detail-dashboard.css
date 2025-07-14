@@ -1,7 +1,106 @@
 body {
     background: #f4fdf8;
     font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    padding-top: 0 !important;
+    margin: 0;
 }
+
+/* NAVBAR / TOPBAR */
+.topbar {
+    background: #e7f9f4 !important;
+    border-radius: 0 0 22px 22px;
+    box-shadow: 0 6px 24px rgba(44,175,127,0.07);
+    min-height: 70px;
+    padding: 0 36px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    /* width: 100vw;  <--- XÓA DÒNG NÀY */
+}
+.topbar .icon-button {
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(44,175,127,0.11);
+    transition: background 0.19s, box-shadow 0.17s;
+    position: relative;
+    margin-right: 12px;
+}
+
+.topbar .icon-button:hover {
+    background: #e6faf1;
+    box-shadow: 0 6px 18px rgba(44,175,127,0.13);
+}
+
+.topbar .icon-button span {
+    position: absolute;
+    top: -6px;
+    right: -5px;
+    background: #e73838;
+    color: #fff;
+    font-size: 0.92rem;
+    border-radius: 10px;
+    padding: 0 7px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(120,30,30,0.12);
+    border: 1.5px solid #fff;
+}
+
+.topbar img.rounded-circle {
+    border: 2.2px solid #21b386;
+    box-shadow: 0 1px 4px rgba(44,175,127,0.08);
+    margin-right: 7px;
+}
+
+.topbar #usernameDisplay {
+    font-size: 1.08rem;
+    color: #249e74;
+    font-weight: 600;
+    margin-right: 16px;
+}
+
+.topbar .btn {
+    border-radius: 9px !important;
+    box-shadow: 0 1.5px 7px rgba(44,175,127,0.09);
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: background 0.18s, color 0.18s;
+}
+
+.topbar .btn-outline-success {
+    border: 1.5px solid #21b386;
+    color: #21b386;
+    background: #fff;
+}
+
+.topbar .btn-outline-success:hover {
+    background: #21b386;
+    color: #fff;
+}
+
+.topbar .btn-success {
+    background: linear-gradient(90deg,#2caf7f 70%,#35e3aa 100%);
+    color: #fff;
+    border: none;
+}
+
+.topbar .btn-success:hover {
+    background: linear-gradient(90deg,#22996c 60%,#2caf7f 100%);
+    color: #fff;
+}
+
+/* BREADCRUMB */
 .breadcrumb-modern {
     background: #fff;
     border-radius: 16px;

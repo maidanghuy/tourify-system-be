@@ -131,3 +131,15 @@ function parseJwt(token) {
     // ------ 7. Khởi tạo ------
     loadUserList();
     connect();
+
+// quay về trang chủ (đã phân quyền)
+document.getElementById("goHomeBtn").addEventListener("click", function(e) {
+    e.preventDefault();
+    // Lấy role từ localStorage (hoặc thay đổi cách lấy nếu bạn lưu ở nơi khác)
+    const role = localStorage.getItem('role'); // hoặc lấy từ JWT đã decode
+    if (role === 'SUB_COMPANY') {
+        window.location.href = "http://localhost:8080/tourify/dashboard";
+    } else {
+        window.location.href = "http://localhost:8080/tourify/landing";
+    }
+});
