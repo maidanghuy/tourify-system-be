@@ -364,6 +364,18 @@ public class UserService {
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
 
+    public void deleteCreditCard(String token, String cardId) {
+        String jwt = token.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Tìm credit card theo cardId và userId để đảm bảo user chỉ xóa thẻ của mình
+        CreditCard creditCard = creditCardRepository.findByCardIDAndUser_UserId(cardId, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.OPERATION_NOT_ALLOWED,
+                        "Credit card not found or you don't have permission to delete it"));
+
+        creditCardRepository.delete(creditCard);
+    }
+
     @Transactional
     public void lockAccount(String bearerToken, String userId) {
         ensureAdmin(bearerToken);
@@ -511,4 +523,27 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    // Code của P để lấy userId
+    public UserResponse getUserFromToken(String token) {
+        // Tách "Bearer " nếu có
+        String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        // 1. Kiểm tra phiên đăng nhập còn hợp lệ
+        TokenAuthentication session = tokenRepo.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
+        }
+
+        // 2. Giải mã token lấy userId
+        String userId = jwtUtil.extractUserId(tokenValue);
+
+        // 3. Lấy user từ DB
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND, "Không tìm thấy người dùng!"));
+
+        // 4. Trả về DTO response
+        return userMapper.toUserResponse(user);
+    }
+
 }

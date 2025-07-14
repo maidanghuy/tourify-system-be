@@ -100,3 +100,8 @@ app:
 logging:
   level:
     org.springframework.mail: DEBUG
+
+
+CLOUDINARY_NAME: djq3ddowy
+CLOUDINARY_API_KEY: 283596886186587
+CLOUDINARY_SECRET_KEY: gFmENVLlZ23VJ5Rt6393JDD-Lis

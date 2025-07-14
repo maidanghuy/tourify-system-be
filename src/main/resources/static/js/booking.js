@@ -1,14 +1,19 @@
 var isCardRevealed = false;
 
 
-    // Xử lý áp dụng mã khuyến mãi khi nhấn nút "Áp dụng"
+// Xử lý áp dụng mã khuyến mãi khi nhấn nút "Áp dụng"
 document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     const code = document.getElementById("promo-code").textContent;
     const promo = loadedPromotions.find(p => p.code === code);
     const originalPrice = calculateOriginalPrice();
 
     if (originalPrice < promo.minPurchase) {
-        alert("Original Price không đủ để áp dụng mã khuyến mãi.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Không đủ điều kiện',
+            text: 'Original Price không đủ để áp dụng mã khuyến mãi.',
+            confirmButtonColor: '#d33'
+        });
         return;
     }
 
@@ -32,33 +37,10 @@ document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     modal.hide();
 
     // Cuộn đến phần thanh toán
-    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
-});
+    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
-
-
-
-
-// Tăng/giảm số lượng người lớn và trẻ em
-document.querySelectorAll(".plus").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const input = document.getElementById(btn.dataset.target);
-        let value = parseInt(input.value);
-        input.value = value + 1;
-    });
-});
-
-
-const minusButtons = document.querySelectorAll(".minus");
-
-minusButtons.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-        const input = document.getElementById(btn.dataset.target);
-        let value = parseInt(input.value);
-        if ((index === 0 && value > 1) || (index !== 0 && value > 0)) {
-            input.value = value - 1;
-        }
-    });
+    updateDiscountAmount();
+    updateTotalAmount();
 });
 
 
@@ -85,86 +67,78 @@ document.querySelectorAll(".payment-card").forEach((card) => {
 let isCardNumberVisible = false;
 
 // Hiện/ẩn thông tin tài khoản (card info)
+
 function toggleReveal(headerEl) {
     const fields = document.getElementById("accountFields");
     const checkIcon = document.getElementById("checkIcon");
     const checkoutBtn = document.getElementById("checkoutBtn");
 
-
+    // Toggle state
     isCardRevealed = !isCardRevealed;
 
-
-    fields.classList.toggle("d-none", !isCardRevealed);
-    checkIcon.classList.toggle("text-muted", !isCardRevealed);
-    checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-    headerEl.classList.toggle("clicked", isCardRevealed);
-    headerEl.classList.toggle("bg-light", !isCardRevealed);
-    headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
-
-
-    // Enable checkout only when card is revealed
-    checkoutBtn.disabled = !isCardRevealed;
-}
-
-//Hiện/ẩn số thẻ (card number)
-function toggleCardNumber(event) {
-    event.stopPropagation();
-    const display = document.getElementById("cardNumber");
-    const eye = document.getElementById("eyeIcon");
-
-
-    if (isCardNumberVisible) {
-        display.innerHTML = "**** <span class='fw-bold'>4321</span>";
-        eye.classList.replace("fa-eye-slash", "fa-eye");
+    // Show/hide account info
+    if (isCardRevealed) {
+        fields.classList.remove("d-none");
+        headerEl.classList.remove("bg-light");
+        headerEl.classList.add("bg-success-subtle");
+        checkIcon.classList.remove("text-muted");
+        checkIcon.classList.add("text-success");
     } else {
-        display.innerHTML = "<span class='fw-bold'>1234 5678 9012 4321</span>";
-        eye.classList.replace("fa-eye", "fa-eye-slash");
+        fields.classList.add("d-none");
+        headerEl.classList.add("bg-light");
+        headerEl.classList.remove("bg-success-subtle");
+        checkIcon.classList.add("text-muted");
+        checkIcon.classList.remove("text-success");
     }
 
-
-    isCardNumberVisible = !isCardNumberVisible;
-}
-
-//Chỉnh sửa các trường thông tin người dùng
-function editField(field) {
-    document.getElementById(field + "View").classList.add("d-none");
-    document.getElementById(field + "Edit").classList.remove("d-none");
-}
-
-
-function cancelField(field) {
-    document.getElementById(field + "Edit").classList.add("d-none");
-    document.getElementById(field + "View").classList.remove("d-none");
-}
-
-
-function confirmField(field) {
-    const value = document.getElementById(field + "Input").value;
-    document.getElementById(field + "Display").textContent = value;
-    cancelField(field);
-}
-
-
-function toggleReveal(headerEl) {
-    const fields = document.getElementById("accountFields");
-    const checkIcon = document.getElementById("checkIcon");
-
-
-    isCardRevealed = !isCardRevealed;
-
-
-    fields.classList.toggle("d-none", !isCardRevealed);
-    checkIcon.classList.toggle("text-muted", !isCardRevealed);
-    checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-    // toggle glow
+    // Add visual cue for active card
     headerEl.classList.toggle("clicked", isCardRevealed);
-    headerEl.classList.toggle("bg-light", !isCardRevealed);
-    headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+
+    // Enable/disable checkout button
+    if (checkoutBtn) {
+        checkoutBtn.disabled = !isCardRevealed;
+    }
 }
+
+
+// //Chỉnh sửa các trường thông tin người dùng
+// function editField(field) {
+//     document.getElementById(field + "View").classList.add("d-none");
+//     document.getElementById(field + "Edit").classList.remove("d-none");
+// }
+//
+//
+// function cancelField(field) {
+//     document.getElementById(field + "Edit").classList.add("d-none");
+//     document.getElementById(field + "View").classList.remove("d-none");
+// }
+//
+//
+// function confirmField(field) {
+//     const value = document.getElementById(field + "Input").value;
+//     document.getElementById(field + "Display").textContent = value;
+//     cancelField(field);
+// }
+
+
+// function toggleReveal(headerEl) {
+//     const fields = document.getElementById("accountFields");
+//     const checkIcon = document.getElementById("checkIcon");
+//
+//
+//     isCardRevealed = !isCardRevealed;
+//
+//
+//     fields.classList.toggle("d-none", !isCardRevealed);
+//     checkIcon.classList.toggle("text-muted", !isCardRevealed);
+//     checkIcon.classList.toggle("text-success", isCardRevealed);
+//
+//
+//     // toggle glow
+//     headerEl.classList.toggle("clicked", isCardRevealed);
+//     headerEl.classList.toggle("bg-light", !isCardRevealed);
+//     headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+// }
 
 //Hiệu ứng loading khi thanh toán
 function showLoading(btn) {
@@ -180,26 +154,159 @@ function showLoading(btn) {
 }
 
 //Xử lý thanh toán (QR Code)
+let lastBookingId = null; // Lưu bookingId để reload QR
+
 function handleCheckout(btn) {
+    // Code P thêm
+    const adultCount = parseInt(document.getElementById("adultInput").value) || 0;
+    const childCount = parseInt(document.getElementById("childInput").value) || 0;
+    const totalPeople = adultCount + childCount;
+
+    if (totalPeople < window.minPeople) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Không đủ số người',
+            html: `Cần ít nhất <strong>${window.minPeople}</strong> người để đặt tour.`,
+            confirmButtonColor: '#f59e0b'
+        });
+        return;
+    }
+
+    if (totalPeople > window.maxPeople) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Vượt quá số người cho phép',
+            html: `Tối đa chỉ được <strong>${window.maxPeople}</strong> người trong 1 lượt đặt.`,
+            confirmButtonColor: '#d33'
+        });
+        return;
+    }
+    // Code của Huy
     btn.disabled = true;
     btn.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Processing...`;
 
-    // Show QR code modal
-    handlerevealQRCodeModal();
+    // Lấy tourId từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get("id");
+    // Lấy ngày bắt đầu
+    const startDateRaw = document.getElementById("startDateDisplay").value;
+    let dayStart = null;
+    if (startDateRaw) {
+        const [d, m, y] = startDateRaw.split("-");        // tách "dd-mm-yyyy"
+        dayStart = `${y}-${m}-${d}T08:00:00`;             // thành "yyyy-MM-ddTHH:mm:ss"
+    }
 
-    setTimeout(() => {
-        btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
-        btn.disabled = false;
-
-
-        const qrModal = new bootstrap.Modal(document.getElementById("qrModal"));
-        qrModal.show();
-    }, 1500);
+    // Gọi API booking
+    fetch("/tourify/api/booking", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        },
+        body: JSON.stringify({
+            tourId: tourId,
+            adultNumber: adultCount,
+            childNumber: childCount,
+            dayStart: dayStart
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.code === 1000 && data.result && data.result.bookingId) {
+                lastBookingId = data.result.bookingId;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đặt tour thành công!',
+                    text: 'Thông tin đặt tour đã được lưu. Vui lòng thanh toán để hoàn tất.',
+                    confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    handlerevealQRCodeModal(lastBookingId);
+                    const qrModal = new bootstrap.Modal(document.getElementById("qrModal"));
+                    qrModal.show();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Đặt tour thất bại',
+                    text: 'Chưa nhập ngày bắt đầu',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi kết nối',
+                text: 'Không thể kết nối tới máy chủ.',
+                confirmButtonColor: '#d33'
+            });
+        })
+        .finally(() => {
+            btn.innerHTML = `<i class="fas fa-credit-card me-2"></i>Check Out`;
+            btn.disabled = false;
+        });
 }
 
+function handlerevealQRCodeModal(bookingId) {
+    const token = localStorage.getItem('accessToken');
+    const qrCanvas = document.getElementById("qr");
+    if (!token) {
+        alert("Bạn chưa đăng nhập.");
+        return;
+    }
+    if (!bookingId) {
+        alert("Không tìm thấy bookingId để tạo QR code.");
+        return;
+    }
+    // Thêm hiệu ứng loading
+    qrCanvas.classList.add("qr-loading");
+
+    const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+    const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+
+    // Gọi API tạo QR code với bookingId
+    fetch('/tourify/api/payment/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+            amount: amount,
+            description: `Dat tour 123`,
+            bookingId: bookingId
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            qrCanvas.classList.remove("qr-loading");
+            if (data.code === 1000 && data.result?.qrCode) {
+                const qrCode = data.result.qrCode;
+                // Tạo mã QR bằng QRious
+                const qr = new QRious({
+                    element: qrCanvas,
+                    value: qrCode,
+                    size: 256,
+                    level: 'H'
+                });
+            } else {
+                alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+            }
+        })
+        .catch(err => {
+            qrCanvas.classList.remove("qr-loading");
+            alert('Có lỗi xảy ra trong quá trình thanh toán.');
+        });
+}
 
 function reloadQRCode() {
-    handlerevealQRCodeModal();
+    if (lastBookingId) {
+        handlerevealQRCodeModal(lastBookingId);
+    } else {
+        alert("Không tìm thấy bookingId để reload QR code.");
+    }
 }
 
 
@@ -234,30 +341,11 @@ function toggleReveal(headerEl) {
     }
 }
 
-//Tùy biến chọn ngày (ngày đi)
-document.querySelectorAll('.date-container').forEach(container => {
-    const raw = container.querySelector('.date-raw');
-    const disp = container.querySelector('.date-display');
-
-    // Khi click vào ô hiển thị, mở picker của input type=date
-    disp.addEventListener('click', () => {
-        raw.showPicker?.(); // Chrome/Edge
-        raw.click();       // fallback
-    });
-
-    // Khi chọn ngày xong, định dạng lại và gán vào ô hiển thị
-    raw.addEventListener('change', () => {
-        if (!raw.value) return;
-        const [year, month, day] = raw.value.split('-');
-        disp.value = `${day}-${month}-${year}`;
-    });
-});
-
 let tourPrice;
 let currentMinPurchase = 0;
 
 //Tải thông tin tour từ API
-document.addEventListener("DOMContentLoaded",  function () {
+document.addEventListener("DOMContentLoaded", function () {
     // 1. Lấy tourId từ URL
     const urlParams = new URLSearchParams(window.location.search);
     const tourId = urlParams.get("id");
@@ -288,145 +376,218 @@ document.addEventListener("DOMContentLoaded",  function () {
             // document.getElementById("tour-description").textContent = tour.description;
             //document.getElementById("tour-duration").textContent = tour.duration + " ngày";
             //document.getElementById("tour-image").src = tour.thumbnail;
-            document.getElementById("original-price").textContent = tour.price.toLocaleString() + " VND";
+            document.getElementById("original-price").textContent = Math.round(tour.price).toLocaleString("vi-VN") + " VND";
             document.getElementById("tour-sub-title").textContent = tour.tourName;
             document.getElementById("tour-title-short-link").textContent = tour.tourName;
             // Gắn thêm nếu cần
             document.getElementById("place-name").textContent = tour.placeName;
-            tourPrice = tour.price;
+            tourPrice = typeof tour.price === 'string'
+                ? parseInt(tour.price.replace(/[^\d]/g, ''))
+                : tour.price;
+            const minPeople = tour.minPeople || 1; // fallback nếu API trả về null
+            adultInput.value = minPeople;
+            updatePrice();
+            window.minPeople = minPeople;
+            window.maxPeople = tour.maxPeople || 50;
         })
         .catch(error => {
             console.error("Đã xảy ra lỗi:", error);
         });
 
 });
-    let adultCount = 0;
-    let childCount = 0;
 
-    const adultPlus = document.getElementById("adult-plus");
-    const adultMinus = document.getElementById("adult-minus");
-    const childPlus = document.getElementById("child-plus");
-    const childMinus = document.getElementById("child-minus");
-    const originalPriceElement = document.getElementById("original-price");
-    // console.log(originalPriceElement);
+// khai báo biến để + và - adult và child
+let adultCount = 0;
+let childCount = 0;
+
+const adultPlus = document.getElementById("adult-plus");
+const adultMinus = document.getElementById("adult-minus");
+const childPlus = document.getElementById("child-plus");
+const childMinus = document.getElementById("child-minus");
+const originalPriceElement = document.getElementById("original-price");
+const adultInput = document.getElementById("adultInput");
+const childInput = document.getElementById("childInput");
+// console.log(originalPriceElement);
 
 
-    //Tính toán giá tiền & điều kiện áp dụng khuyến mãi
-    function updatePrice() {
-        adultCount = Math.max(1, parseInt(adultCount));
-        childCount = Math.max(0, parseInt(childCount));
-        let price = tourPrice + (adultCount) * tourPrice * 0.2 + childCount * tourPrice * 0.15;
-        console.log(tourPrice);
-        originalPriceElement.innerText = price.toLocaleString() + " VND";
-        checkMinPurchaseCondition(); // 👉 Gọi hàm kiểm tra sau khi cập nhật giá
+//Tính toán giá tiền & điều kiện áp dụng khuyến mãi
+function updatePrice() {
+    adultCount = Math.max(1, parseInt(document.getElementById("adultInput").value));
+    childCount = Math.max(0, parseInt(document.getElementById("childInput").value));
+
+    const totalPeople = adultCount + childCount;
+
+    // ✅ Cảnh báo nếu tổng người < minPeople
+    if (totalPeople < window.minPeople) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Không đủ số người',
+            html: `Cần ít nhất <strong>${window.minPeople}</strong> người để đặt tour.`,
+            confirmButtonColor: '#f59e0b'
+        });
     }
 
-    function calculateOriginalPrice() {
-        adultCount = Math.max(1, parseInt(adultCount));
-        childCount = Math.max(0, parseInt(childCount));
-        return tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15);
+    // ✅ Cảnh báo nếu tổng người > maxPeople
+    if (totalPeople > window.maxPeople) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Vượt quá số người cho phép',
+            html: `Tối đa chỉ được <strong>${window.maxPeople}</strong> người trong 1 lượt đặt.`,
+            confirmButtonColor: '#d33'
+        });
     }
 
+    let price = Math.round(tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15));
+    originalPriceElement.textContent = price.toLocaleString("vi-VN") + " VND";
+
+    checkMinPurchaseCondition();
+    updateDiscountAmount();
+    updateTotalAmount();
+}
+
+// Tính original price
+function calculateOriginalPrice() {
+    const adultCount = Math.max(1, parseInt(document.getElementById("adultInput").value));
+    const childCount = Math.max(0, parseInt(document.getElementById("childInput").value));
+    return Math.round(tourPrice + (adultCount * tourPrice * 0.2) + (childCount * tourPrice * 0.15));
+}
+
+
+// Các sự kiện + và - people
+adultPlus.addEventListener("click", () => {
+    adultInput.value = parseInt(adultInput.value) + 1;
+    updatePrice();
+});
+
+adultMinus.addEventListener("click", () => {
+    if (parseInt(adultInput.value) > 1) {
+        adultInput.value = parseInt(adultInput.value) - 1;
+        updatePrice();
+    }
+});
+
+childPlus.addEventListener("click", () => {
+    childInput.value = parseInt(childInput.value) + 1;
+    updatePrice();
+});
+
+childMinus.addEventListener("click", () => {
+    if (parseInt(childInput.value) > 0) {
+        childInput.value = parseInt(childInput.value) - 1;
+        updatePrice();
+    }
+});
+
+// Bóa lỗi min_purchase xem chưa đủ dkien sử dụng promotion
 function checkMinPurchaseCondition() {
     const priceText = document.getElementById("original-price").textContent;
-    const price = parseInt(priceText.replace(/[^\d]/g, '')); // Bỏ dấu "." và "VND"
+    const price = parseInt(priceText.replace(/[^\d]/g, '')); // bỏ dấu . và VND
 
     const applyBtn = document.getElementById("applyPromotionBtn");
     if (!applyBtn) return;
 
-    if (price >= currentMinPurchase) {
-        applyBtn.disabled = false;
-        applyBtn.title = "";
-    } else {
-        applyBtn.disabled = true;
-        applyBtn.title = `Giá tối thiểu để áp dụng mã là ${currentMinPurchase.toLocaleString()} VND`;
-    }
-}
-
-    adultPlus.addEventListener("click", () => {
-        adultCount++;
-        updatePrice();
-    });
-
-    adultMinus.addEventListener("click", () => {
-        if (adultCount > 1) {
-            adultCount--;
-            updatePrice();
-        }
-    });
-
-    childPlus.addEventListener("click", () => {
-        childCount++;
-        updatePrice();
-    });
-
-    childMinus.addEventListener("click", () => {
-        if (childCount > 0) {
-            childCount--;
-            updatePrice();
-        }
-    });
-
-function handlerevealQRCodeModal() {
-    const token = localStorage.getItem('accessToken');
-    const username = localStorage.getItem('username');
-    const qrCanvas = document.getElementById("qr");
-
-
-    if (!token || !username) {
-        alert("Bạn chưa đăng nhập.");
+    // Nếu không có mã nào đang áp dụng → chỉ cần cập nhật nút
+    if (!selectedCode) {
+        applyBtn.disabled = price < currentMinPurchase;
         return;
     }
 
+    // Tìm thông tin mã hiện tại
+    const promo = loadedPromotions.find(p => p.code === selectedCode);
 
-    // Thêm hiệu ứng loading
-    qrCanvas.classList.add("qr-loading");
+    if (!promo) return;
 
-
-    // Lấy các giá trị từ HTML
-    const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
-    const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
-    const amount = parseInt(totalText.replace(/[^\d]/g, ''));
-
-
-    const body = {
-        amount: amount,
-        description: `Dat tour`
-    };
-
-    console.log(body);
-
-    fetch('/tourify/api/payment/create', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify(body)
-    })
-        .then(res => res.json())
-        .then(data => {
-            // Xóa hiệu ứng loading
-            qrCanvas.classList.remove("qr-loading");
-            if (data.code === 1000 && data.result?.qrCode) {
-                console.log(data);
-                const qrCode = data.result.qrCode;
-                // Tạo mã QR bằng QRious
-                const qr = new QRious({
-                    element: qrCanvas,
-                    value: qrCode,
-                    size: 256,
-                    level: 'H'
-                });
-            } else {
-                alert('Không thể tạo thanh toán. Vui lòng thử lại.');
-            }
-        })
-        .catch(err => {
-            qrCanvas.classList.remove("qr-loading");
-            alert('Có lỗi xảy ra trong quá trình thanh toán.');
+    // Nếu không còn đủ điều kiện áp dụng mã
+    if (price < promo.minPurchase) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Không đủ điều kiện áp dụng mã',
+            html: `❌ <strong>Giá gốc (${price.toLocaleString()} VND)</strong> không đủ để sử dụng mã <strong>"${promo.code}"</strong>.<br>Yêu cầu tối thiểu: <strong>${promo.minPurchase.toLocaleString()} VND</strong>.`,
+            confirmButtonColor: '#d33'
         });
+        // Gỡ mã giảm giá
+        const dropdownBtn = document.getElementById("promotionDropdownBtn");
+        const hiddenInput = document.getElementById("selectedPromotionCode");
+
+        dropdownBtn.innerHTML = "Chọn mã giảm giá";
+        hiddenInput.value = "";
+        selectedCode = null;
+        currentMinPurchase = 0;
+
+        // Bỏ tick tất cả checkbox trong dropdown
+        const checkboxes = document.querySelectorAll("#promotionDropdownList input[type='checkbox']");
+        checkboxes.forEach(cb => cb.checked = false);
+
+        updateDiscountAmount();
+    }
+
+    // Cập nhật lại trạng thái nút
+    applyBtn.disabled = price < currentMinPurchase;
 }
+
+// QR của Huy
+// function handlerevealQRCodeModal() {
+//     const token = localStorage.getItem('accessToken');
+//     const username = localStorage.getItem('username');
+//     const qrCanvas = document.getElementById("qr");
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const idTour = urlParams.get("id");
+//
+//     if (!token || !username) {
+//         alert("Bạn chưa đăng nhập.");
+//         return;
+//     }
+//
+//
+//     // Thêm hiệu ứng loading
+//     qrCanvas.classList.add("qr-loading");
+//
+//
+//     // Lấy các giá trị từ HTML
+//     const tourTitle = document.querySelector('.card-summary h6').textContent.trim();
+//     const totalText = document.querySelector('.total-row span:last-child').textContent.trim();
+//     const amount = parseInt(totalText.replace(/[^\d]/g, ''));
+//
+//
+//     const body = {
+//         amount: amount,
+//         description: `Dat tour`,
+//         idTour: idTour
+//     };
+//
+//     console.log(body);
+//
+//     fetch('/tourify/api/payment/create', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': 'Bearer ' + token
+//         },
+//         body: JSON.stringify(body)
+//     })
+//         .then(res => res.json())
+//         .then(data => {
+//             // Xóa hiệu ứng loading
+//             qrCanvas.classList.remove("qr-loading");
+//             if (data.code === 1000 && data.result?.qrCode) {
+//                 console.log(data);
+//                 const qrCode = data.result.qrCode;
+//                 // Tạo mã QR bằng QRious
+//                 const qr = new QRious({
+//                     element: qrCanvas,
+//                     value: qrCode,
+//                     size: 256,
+//                     level: 'H'
+//                 });
+//             } else {
+//                 alert('Không thể tạo thanh toán. Vui lòng thử lại.');
+//             }
+//         })
+//         .catch(err => {
+//             qrCanvas.classList.remove("qr-loading");
+//             alert('Có lỗi xảy ra trong quá trình thanh toán.');
+//         });
+// }
 
 function formatDateTime(isoString) {
     const date = new Date(isoString);
@@ -434,8 +595,7 @@ function formatDateTime(isoString) {
 }
 
 
-
-// ✅ Lỗi 3: Khai báo loadedPromotions bên ngoài DOMContentLoaded để toàn cục
+// Promotion
 let loadedPromotions = [];
 let selectedCode = null;
 
@@ -463,9 +623,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (btn) btn.textContent = "Không thể tải mã";
         });
 
-    // ✅ Lỗi 2: Kiểm tra nếu discountSelect tồn tại trước khi dùng
+    // Kiểm tra nếu discountSelect tồn tại trước khi dùng
     const discountSelect = document.getElementById("discountSelect");
-
     if (discountSelect) {
         discountSelect.addEventListener("change", function () {
             const selectedCode = this.value;
@@ -506,7 +665,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ Gán sự kiện cho nút "Áp dụng mã"
+    //  Gán sự kiện cho nút "Áp dụng mã"
     const applyBtn = document.getElementById("applyPromotionBtn");
     if (applyBtn) {
         applyBtn.addEventListener("click", () => {
@@ -524,7 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     }
 
-                    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
+                    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById("promotionModal"));
                     modal?.hide();
@@ -618,7 +777,12 @@ function renderPromotionDropdown(promos) {
 
             // Nếu không đạt điều kiện min_purchase
             if (originalPrice < promo.minPurchase) {
-                alert(`Cần ít nhất ${promo.minPurchase.toLocaleString()} VND để áp dụng mã này.`);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không đủ điều kiện',
+                    html: `Cần ít nhất <strong>${promo.minPurchase.toLocaleString()} VND</strong> để áp dụng mã này.`,
+                    confirmButtonColor: '#f59e0b'
+                });
                 checkbox.checked = false;
                 return;
             }
@@ -635,16 +799,205 @@ function renderPromotionDropdown(promos) {
                 currentMinPurchase = promo.minPurchase || 0;
 
                 checkMinPurchaseCondition();
+                updateDiscountAmount();
+                updateTotalAmount();
             } else {
                 dropdownBtn.innerHTML = "Chọn mã giảm giá";
                 hiddenInput.value = "";
                 selectedCode = null;
                 currentMinPurchase = 0;
                 checkMinPurchaseCondition();
+                updateDiscountAmount();
+                updateTotalAmount();
             }
         });
 
         dropdownList.appendChild(li);
     });
+}
+
+//Cập nhật giá discount
+function updateDiscountAmount() {
+    const discountText = document.getElementById("promotionDropdownBtn")?.textContent;
+    const discountPercentMatch = discountText?.match(/Giảm\s+(\d+)%/);
+    const discountPercent = discountPercentMatch ? parseInt(discountPercentMatch[1]) : 0;
+
+    const originalPrice = calculateOriginalPrice();
+    const discountAmount = Math.round(originalPrice * discountPercent / 100);
+    document.getElementById("discount-amount").textContent = "-" + discountAmount.toLocaleString("vi-VN") + " VND";
+}
+
+//Cập nhật giá total
+function updateTotalAmount() {
+    const originalText = document.getElementById("original-price").textContent;
+    const discountText = document.getElementById("discount-amount").textContent;
+
+    const original = parseInt(originalText.replace(/[^\d]/g, '')) || 0;
+    const discount = parseInt(discountText.replace(/[^\d]/g, '')) || 0;
+
+    const total = Math.max(0, Math.round(original - discount));
+    document.getElementById("total-amount").textContent = total.toLocaleString("vi-VN") + " VND";
+}
+
+// Xổ lịch chọn startDay
+document.addEventListener("DOMContentLoaded", () => {
+    const tourId = new URLSearchParams(location.search).get("id");
+    if (!tourId) return console.error("Thiếu tourId");
+
+    const display = document.getElementById("startDateDisplay");
+    const iconBox = document.querySelector(".calendar-icon-box");
+
+    fetch(`/tourify/api/tours/${tourId}/start-dates`)
+        .then(r => {
+            if (!r.ok) throw new Error(r.statusText);
+            return r.json();
+        })
+        .then(({result}) => {
+            // 1) Lấy mảng ["YYYY-MM-DD", ...]
+            const rawDates = result.map(dt => dt.split("T")[0]);
+
+            // 2) Chuyển thành Set các chuỗi toDateString() để so sánh chính xác local-date
+            const enabledSet = new Set(
+                rawDates.map(str => {
+                    const [y, m, d] = str.split("-").map(Number);
+                    return new Date(y, m - 1, d).toDateString();
+                })
+            );
+
+            // 3) Khởi flatpickr
+            const fp = flatpickr(display, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d-m-Y",
+                enable: rawDates,      // chỉ bật các ngày API trả về
+                clickOpens: false,     // chúng ta tự open qua event listener bên dưới
+                onDayCreate(_, __, fp, dayElem) {
+                    // mỗi ô ngày mới render, dayElem.dateObj là Date Object local
+                    if (enabledSet.has(dayElem.dateObj.toDateString())) {
+                        dayElem.classList.add("enabled-day");
+                    }
+                },
+                onChange: (_, dateStr) => {
+                    // gán format hiển thị dd-mm-yyyy
+                    const [y, m, d] = dateStr.split("-");
+                    display.value = `${d}-${m}-${y}`;
+                }
+            });
+
+            // 4) Bật calendar khi click icon hoặc ô input
+            iconBox.addEventListener("click", () => fp.open());
+            fp.altInput.addEventListener("click", () => fp.open());
+        })
+        .catch(err => {
+            console.error("Lỗi load start-dates:", err);
+            display.disabled = true;
+        });
+});
+
+
+//Hiển thị thông tin người dùng ở cuối
+
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("accessToken"); // ✅ Đã sửa key
+
+    if (!token) {
+        console.warn("Không tìm thấy accessToken trong localStorage!");
+        return;
+    }
+
+    fetch("/tourify/api/user/info", {
+        headers: {
+            Authorization: "Bearer " + token
+        },
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            const user = data.result;
+
+            // Hiển thị thông tin cơ bản
+            document.getElementById("nameDisplay").textContent =
+                (user.firstName || "") + " " + (user.lastName || "");
+            document.getElementById("emailDisplay").textContent = user.email || "";
+            document.getElementById("phoneDisplay").textContent = user.phoneNumber || "";
+            document.getElementById("addressDisplay").textContent = user.address || "";
+
+            // Định dạng ngày sinh nếu có
+            if (user.dob) {
+                const dob = new Date(user.dob);
+                const formatted = dob.toLocaleDateString("vi-VN");
+                document.getElementById("dobDisplay").textContent = formatted;
+            }
+
+            // Avatar
+            const avatarUrl = user.avatar || "https://i.imgur.com/u8pUXwF.png";
+            const avatarImg = document.getElementById("avatarImg");
+            if (avatarImg) {
+                avatarImg.src = avatarUrl;
+            }
+
+            // console.log("Thông tin user:", user);
+        })
+        .catch((err) => {
+            console.error("Lỗi khi lấy thông tin user:", err);
+        });
+
+});
+
+// Lấy credit card cuối cùng được thêm
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+        console.warn("Không tìm thấy accessToken!");
+        return;
+    }
+
+    fetch("/tourify/api/user/creditcard", {
+        headers: {
+            Authorization: "Bearer " + token
+        },
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result && data.result.length > 0) {
+                const lastCard = data.result[data.result.length - 1];
+                const rawNumber = lastCard.cardNumber || "";
+                const formattedNumber = rawNumber.match(/.{1,4}/g)?.join(" ") || rawNumber;
+                const lastFour = rawNumber.slice(-4);
+
+                const cardDisplay = document.getElementById("cardNumber");
+                if (cardDisplay) {
+                    cardDisplay.innerHTML = `**** <span class="fw-bold">${lastFour}</span>`;
+                    cardDisplay.setAttribute("data-full", formattedNumber);
+                }
+            } else {
+                console.warn("Không có thẻ tín dụng nào.");
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi khi gọi API creditcard:", err);
+        });
+});
+
+// Ẩn hiện số CreditCard
+function toggleCardNumber(event) {
+    event.stopPropagation();
+    const display = document.getElementById("cardNumber");
+    const eye = document.getElementById("eyeIcon");
+
+    const fullNumber = display.getAttribute("data-full") || "";
+    const lastFour = fullNumber.slice(-4);
+
+    if (isCardNumberVisible) {
+        // Hiện dạng ẩn
+        display.innerHTML = `**** <span class="fw-bold">${lastFour}</span>`;
+        eye.classList.replace("fa-eye-slash", "fa-eye");
+    } else {
+        // Hiện đầy đủ
+        display.innerHTML = `<span class="fw-bold">${fullNumber}</span>`;
+        eye.classList.replace("fa-eye", "fa-eye-slash");
+    }
+
+    isCardNumberVisible = !isCardNumberVisible;
 }
 

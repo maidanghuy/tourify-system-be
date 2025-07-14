@@ -154,6 +154,17 @@ public class UserController {
                                 .build();
         }
 
+        @DeleteMapping("/creditcard/{cardId}")
+        public APIResponse<?> deleteCreditCard(@RequestHeader("Authorization") String token,
+                        @PathVariable("cardId") String cardId) {
+                userService.deleteCreditCard(token, cardId);
+                return APIResponse.builder()
+                                .message("Credit card deleted successfully")
+                                .code(1000)
+                                .result(null)
+                                .build();
+        }
+
         // Sample JSON
         // {
         // "cardNumber": ,
@@ -207,6 +218,14 @@ public class UserController {
                                         .result(null)
                                         .build();
                 }
+        }
+
+        // lấy thông tin profiel (Phong)
+        @GetMapping("/info")
+        public APIResponse<?> getUserProfileFromToken(@RequestHeader("Authorization") String token) {
+                return APIResponse.<UserResponse>builder()
+                                .result(userService.getUserFromToken(token))
+                                .build();
         }
 
 }

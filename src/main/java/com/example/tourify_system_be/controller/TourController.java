@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -132,4 +133,19 @@ public class TourController {
                         .build()
         );
     }
+
+    /**
+     * GET /api/tours/{id}/start-date
+     * Trả về ngày khởi hành active (LocalDateTime)
+     */
+    @GetMapping("/{id}/start-dates")
+    public APIResponse<List<LocalDateTime>> getStartDates(@PathVariable("id") String tourId) {
+        List<LocalDateTime> dates = tourService.getAllStartDatesByTourId(tourId);
+        return APIResponse.<List<LocalDateTime>>builder()
+                .code(1000)
+                .message("Success")
+                .result(dates)
+                .build();
+    }
+
 }

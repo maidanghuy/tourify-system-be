@@ -21,63 +21,74 @@
             rel="stylesheet"
     />
 
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
 
     <link href="../css/index.css" rel="stylesheet"/>
     <link href="../css/booking.css" rel="stylesheet"/>
 
 
+
 </head>
 <body>
-<!-- Navbar (reuse from landing.html) -->
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
     <div class="container">
         <a class="navbar-brand" th:href="@{/landing}">
-            <img alt="Tourify"
-                 height="40" src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"/>
+            <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                 height="40" alt="Tourify" />
         </a>
-        <button aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
-                data-bs-target="#mainNavbar" data-bs-toggle="collapse" type="button">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navMenu">
                 <li class="nav-item">
-                    <a class="nav-link nav-custom" th:href="@{/landing}">
+                    <a class="nav-link nav-custom active" th:href="@{/landing}">
                         <i class="fas fa-house me-2"></i>Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link nav-custom active" th:href="@{/user/favorites}">
+                    <a class="nav-link nav-custom" th:href="@{/user/favorites}">
                         <i class="fas fa-heart me-2"></i>Favorites
                     </a>
                 </li>
+                <!-- Dashboard chỉ dành cho ADMIN -->
+                <li class="nav-item" id="dashboard-link" style="display:none;">
+                    <a class="nav-link nav-custom" th:href="@{/dashboard}">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                </li>
             </ul>
+
+
             <div class="d-flex align-items-center gap-3">
                 <div class="dropdown">
-                    <button aria-expanded="false"
-                            class="btn dropdown-toggle text-white d-flex align-items-center nav-custom" data-bs-toggle="dropdown" id="userMenu" type="button">
-                        <img alt="Avatar"
-                             class="rounded-circle me-2" height="32" src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600" width="32"/>
+                    <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
+                            type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                             alt="Avatar" class="rounded-circle me-2" width="32" height="32" />
                         <span>Hello,
-                                    <span>User</span></span>
+                                <span>User</span></span>
                     </button>
-                    <ul aria-labelledby="userMenu" class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                         <li>
-                            <a class="dropdown-item" id="profile-view" th:href="@{/user/profile}"><i
-                                    class="fas fa-user-circle me-2"></i>View Profile</a>
+                            <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" id="account-edit" th:href="@{/user/edit-account}"><i
-                                    class="fas fa-edit me-2"></i>Edit Account</a>
+                            <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" id="list-viewed" th:href="@{/user/viewed}">
+                            <a class="dropdown-item" th:href="@{/user/viewed}" id="list-viewed">
                                 <i class="fas fa-eye me-2"></i>List Viewed</a>
                         </li>
                     </ul>
-
                 </div>
-                <button class="btn btn-outline-light btn-sm px-3" id="logout-link" type="submit">
+                <button id="logout-link" type="submit" class="btn btn-outline-light btn-sm px-3">
                     <i class="fas fa-sign-out-alt me-1"></i>Logout
                 </button>
             </div>
@@ -232,45 +243,25 @@
 
 
                     <!-- Dates -->
-                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
-
-                        <!-- Start Date -->
+                    <div class="d-flex align-items-center justify-content-center mb-4">
                         <div class="date-container d-flex align-items-center gap-2">
-                            <div class="calendar-icon-box">
-                                <i class="fas fa-calendar-alt text-success"></i>
-                            </div>
-                            <!-- input ẩn để tận dụng picker gốc -->
-                            <input class="date-raw d-none" id="startDateRaw" type="date">
-                            <!-- input hiển thị DD-MM-YYYY -->
-                            <input class="form-control date-display"
-                                   id="startDateDisplay"
-                                   placeholder="dd-mm-yyyy"
-                                   readonly
-                                   type="text"
-                            />
-                        </div>
-
-                        <!-- Plane Icon -->
-                        <div class="d-flex align-items-center">
-                            <span class="mx-1">•──</span>
+                            <!-- Plane Icon -->
                             <i class="fas fa-plane fa-lg text-dark"></i>
-                            <span class="mx-1">──•</span>
-                        </div>
 
-                        <!-- End Date -->
-                        <div class="date-container d-flex align-items-center gap-2">
+                            <!-- Calendar Icon -->
                             <div class="calendar-icon-box">
                                 <i class="fas fa-calendar-alt text-success"></i>
                             </div>
-                            <input class="date-raw d-none" id="endDateRaw" type="date">
-                            <input class="form-control date-display"
-                                   id="endDateDisplay"
-                                   placeholder="dd-mm-yyyy"
-                                   readonly
-                                   type="text"
+
+                            <!-- chỉ 1 input text để hiển thị -->
+                            <input
+                                    id="startDateDisplay"
+                                    class="form-control"
+                                    type="text"
+                                    placeholder="dd-mm-yyyy"
+                                    readonly
                             />
                         </div>
-
                     </div>
 
                     <!-- Discount -->
@@ -332,308 +323,6 @@
                 </div>
             </div>
 
-
-            <div class="section-box p-4 bg-white rounded-4 shadow-sm">
-                <!-- Avatar & Card -->
-                <div
-                        class="d-flex align-items-center rounded-4 p-3 mb-4 shadow position-relative"
-                        id="cardHeader"
-                        onclick="toggleReveal(this)"
-                        style="
-                cursor: pointer;
-                background: rgba(240, 255, 250, 0.7);
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-              "
-                >
-                    <!-- Avatar -->
-                    <img
-                            alt="User Avatar"
-                            class="rounded-circle border border-success shadow-sm me-3"
-                            height="50"
-                            src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                            width="50"
-                    />
-
-
-                    <!-- Info -->
-                    <div
-                            class="d-flex justify-content-between align-items-center w-100"
-                    >
-                        <div
-                                class="fw-semibold text-dark d-flex align-items-center gap-3"
-                        >
-                            <i class="fa-solid fa-credit-card text-success fs-5"></i>
-
-
-                            <!-- Card number -->
-                            <span id="cardNumber"
-                            >**** <span class="fw-bold">4321</span></span
-                            >
-
-
-                            <!-- Toggle visibility -->
-                            <button
-                                    aria-label="Toggle card number"
-                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
-                                    onclick="toggleCardNumber(event)"
-                                    style="width: 34px; height: 34px"
-                                    title="Toggle card number"
-                            >
-                                <i class="fas fa-eye" id="eyeIcon"></i>
-                            </button>
-                        </div>
-
-
-                        <!-- Check icon -->
-                        <i
-                                class="fas fa-check-circle fs-4 text-muted"
-                                id="checkIcon"
-                                style="transition: color 0.25s ease"
-                        ></i>
-                    </div>
-                </div>
-
-
-                <!-- Editable Fields -->
-                <div class="d-none" id="accountFields">
-                    <!-- Name -->
-                    <div class="mb-3" id="nameField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="nameView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-id-badge me-2"></i>Name
-                                </div>
-                                <div class="fw-bold" id="nameDisplay">John Doe</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('name')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="nameEdit">
-                            <label class="text-muted small mb-1">Name</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="nameInput"
-                                        style="max-width: 300px"
-                                        type="text"
-                                        value="John Doe"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('name')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('name')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Email -->
-                    <div class="mb-3" id="emailField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="emailView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-envelope me-2"></i>Email
-                                </div>
-                                <div class="fw-bold" id="emailDisplay">
-                                    john.doe@gmail.com
-                                </div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('email')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="emailEdit">
-                            <label class="text-muted small mb-1">Email</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="emailInput"
-                                        style="max-width: 300px"
-                                        type="email"
-                                        value="john.doe@gmail.com"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('email')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('email')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Phone -->
-                    <div class="mb-3" id="phoneField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="phoneView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-phone me-2"></i>Phone
-                                </div>
-                                <div class="fw-bold" id="phoneDisplay">+1 000-000-0000</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('phone')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="phoneEdit">
-                            <label class="text-muted small mb-1">Phone</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="phoneInput"
-                                        style="max-width: 300px"
-                                        type="text"
-                                        value="+1 000-000-0000"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('phone')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('phone')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Address -->
-                    <div class="mb-3" id="addressField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="addressView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-map-marker-alt me-2"></i>Address
-                                </div>
-                                <div class="fw-bold" id="addressDisplay">
-                                    St 32 main downtown, Los Angeles, California, USA
-                                </div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('address')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="addressEdit">
-                            <label class="text-muted small mb-1">Address</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="addressInput"
-                                        style="max-width: 500px"
-                                        type="text"
-                                        value="St 32 main downtown, Los Angeles, California, USA"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('address')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('address')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- Date of Birth -->
-                    <div class="mb-3" id="dobField">
-                        <div
-                                class="d-flex justify-content-between align-items-center flex-wrap"
-                                id="dobView"
-                        >
-                            <div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-calendar-alt me-2"></i>Date of Birth
-                                </div>
-                                <div class="fw-bold" id="dobDisplay">01-01-1992</div>
-                            </div>
-                            <button
-                                    class="btn btn-outline-success btn-sm"
-                                    onclick="editField('dob')"
-                            >
-                                <i class="fas fa-pen me-1"></i> Change
-                            </button>
-                        </div>
-                        <div class="d-none" id="dobEdit">
-                            <label class="text-muted small mb-1">Date of Birth</label>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <input
-                                        class="form-control"
-                                        id="dobInput"
-                                        style="max-width: 200px"
-                                        type="date"
-                                        value="01-01-1992"
-                                />
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="confirmField('dob')"
-                                >
-                                    <i class="fas fa-check text-success me-1"></i> Confirm
-                                </button>
-                                <button
-                                        class="btn btn-light shadow-sm"
-                                        onclick="cancelField('dob')"
-                                >
-                                    <i class="fas fa-times text-danger me-1"></i> Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
         <!-- Right Column -->
         <div class="col-lg-4">
             <div class="card-summary">
@@ -672,19 +361,19 @@
                     </div>
                     <div class="price-row">
                         <span>Discount</span>
-                        <span class="text-success">- 100 VND</span>
+                        <span class="text-success" id="discount-amount" >- 0 VND</span>
                     </div>
-                    <div class="price-row">
-                        <span>Taxes</span>
-                        <span>20 VND</span>
-                    </div>
-                    <div class="price-row">
-                        <span>Service Fee</span>
-                        <span>10 VND</span>
-                    </div>
+<!--                    <div class="price-row">-->
+<!--                        <span>Taxes</span>-->
+<!--                        <span>20 VND</span>-->
+<!--                    </div>-->
+<!--                    <div class="price-row">-->
+<!--                        <span>Service Fee</span>-->
+<!--                        <span>10 VND</span>-->
+<!--                    </div>-->
                     <div class="total-row">
                         <span>Total</span>
-                        <span>330 VND</span>
+                        <span id="total-amount">0 VND</span>
                     </div>
                 </div>
 
@@ -693,6 +382,103 @@
                         onclick="handleCheckout(this)">
                     <i class="fas fa-credit-card me-2"></i>Check Out
                 </button>
+            </div>
+        </div>
+
+        <!-- User Information Column -->
+        <div class="section-box p-4 bg-white rounded-4 shadow-sm">
+            <!-- Avatar & Thông tin -->
+            <div
+                class="d-flex align-items-center rounded-4 p-3 mb-4 shadow position-relative"
+                id="cardHeader"
+                onclick="toggleReveal(this)"
+                style="
+                cursor: pointer;
+                background: rgba(240, 255, 250, 0.7);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+              "
+        >
+            <!-- Avatar -->
+            <img
+                    id="avatarImg"
+                    alt="User Avatar"
+                    class="rounded-circle border border-success shadow-sm me-3"
+                    height="50"
+                    src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                    width="50"
+            />
+
+
+            <!-- Info -->
+            <div
+                    class="d-flex justify-content-between align-items-center w-100"
+            >
+                <div
+                        class="fw-semibold text-dark d-flex align-items-center gap-3"
+                >
+                    <i class="fa-solid fa-credit-card text-success fs-5"></i>
+
+
+                    <!-- Card number -->
+                    <span id="cardNumber"
+                    >**** <span class="fw-bold">4321</span></span
+                    >
+
+
+                    <!-- Toggle visibility -->
+                    <button
+                            aria-label="Toggle card number"
+                            class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
+                            onclick="toggleCardNumber(event)"
+                            style="width: 34px; height: 34px"
+                            title="Toggle card number"
+                    >
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+
+
+                <!-- Check icon -->
+                <i
+                        class="fas fa-check-circle fs-4 text-muted"
+                        id="checkIcon"
+                        style="transition: color 0.25s ease"
+                ></i>
+            </div>
+        </div>
+
+            <!-- Thông tin người dùng -->
+            <div id="accountFields" class="d-none">
+                <!-- Họ tên -->
+                <div class="mb-3">
+                    <div class="text-muted small"><i class="fas fa-id-badge me-2"></i>Họ và tên</div>
+                    <div class="fw-bold" id="nameDisplay">Chưa có dữ liệu</div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <div class="text-muted small"><i class="fas fa-envelope me-2"></i>Email</div>
+                    <div class="fw-bold" id="emailDisplay">Chưa có dữ liệu</div>
+                </div>
+
+                <!-- Số điện thoại -->
+                <div class="mb-3">
+                    <div class="text-muted small"><i class="fas fa-phone me-2"></i>Số điện thoại</div>
+                    <div class="fw-bold" id="phoneDisplay">Chưa có dữ liệu</div>
+                </div>
+
+                <!-- Địa chỉ -->
+                <div class="mb-3">
+                    <div class="text-muted small"><i class="fas fa-map-marker-alt me-2"></i>Địa chỉ</div>
+                    <div class="fw-bold" id="addressDisplay">Chưa có dữ liệu</div>
+                </div>
+
+                <!-- Ngày sinh -->
+                <div class="mb-3">
+                    <div class="text-muted small"><i class="fas fa-calendar-alt me-2"></i>Ngày sinh</div>
+                    <div class="fw-bold" id="dobDisplay">Chưa có dữ liệu</div>
+                </div>
             </div>
         </div>
     </div>
@@ -879,6 +665,7 @@
 <script src="../js/booking.js"></script>
 <script src="../js/logout.js"></script>
 <script src="../js/index.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
 </html>
