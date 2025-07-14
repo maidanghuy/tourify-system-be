@@ -935,6 +935,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 avatarImg.src = avatarUrl;
             }
 
+            const avatarImage = document.getElementById("avatarImage");
+            if (avatarImage) {
+                avatarImage.src = avatarUrl;
+            }
+
             // console.log("Thông tin user:", user);
         })
         .catch((err) => {
