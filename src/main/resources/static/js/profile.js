@@ -759,3 +759,145 @@ window.deleteCreditCard = async function (cardId) {
         }
     }
 }
+
+// ========== BOOKING HISTORY FILTER =============
+let allBookings = [];
+let bookingFilter = 'upcoming'; // 'upcoming' hoặc 'past'
+
+document.addEventListener("DOMContentLoaded", () => {
+    const historyTab = document.querySelector('[data-tab="history"]');
+    if (historyTab) {
+        historyTab.addEventListener("shown.bs.tab", () => {
+            fetchAndRenderBookings();
+        });
+        historyTab.addEventListener("click", () => {
+            setTimeout(fetchAndRenderBookings, 100);
+        });
+    }
+    // Filter button group
+    const filterGroup = document.getElementById('bookingFilterGroup');
+    if (filterGroup) {
+        filterGroup.addEventListener('click', function (e) {
+            if (e.target.closest('button[data-filter]')) {
+                const btn = e.target.closest('button[data-filter]');
+                filterGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                bookingFilter = btn.getAttribute('data-filter');
+                renderFilteredBookings();
+            }
+        });
+    }
+});
+
+async function fetchAndRenderBookings() {
+    const accessToken = localStorage.getItem("accessToken");
+    const bookingListDiv = document.getElementById("booking-list");
+    const noBookingDiv = document.getElementById("no-booking-message");
+    bookingListDiv.innerHTML = '';
+    noBookingDiv.style.display = 'none';
+    allBookings = [];
+    try {
+        const response = await fetch("/tourify/api/user/booking", {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
+        const data = await response.json();
+        if (data.code === 1000 && Array.isArray(data.result)) {
+            allBookings = data.result;
+        }
+    } catch (err) {
+        // Nếu lỗi thì allBookings vẫn rỗng
+    }
+    bookingFilter = 'upcoming'; // reset về upcoming mỗi lần vào tab
+    // Set lại active cho filter
+    const filterGroup = document.getElementById('bookingFilterGroup');
+    if (filterGroup) {
+        filterGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        filterGroup.querySelector('button[data-filter="upcoming"]').classList.add('active');
+    }
+    renderFilteredBookings();
+}
+
+function renderFilteredBookings() {
+    const bookingListDiv = document.getElementById("booking-list");
+    const noBookingDiv = document.getElementById("no-booking-message");
+    bookingListDiv.innerHTML = '';
+    noBookingDiv.style.display = 'none';
+    const now = new Date();
+    let filtered = [];
+    if (bookingFilter === 'upcoming') {
+        filtered = allBookings.filter(b => {
+            const start = new Date(b.dayStart);
+            return start > now && b.status.toUpperCase() !== 'CANCELLED' && b.status.toUpperCase() !== 'SUCCESS';
+        });
+        // Sắp xếp tăng dần theo dayStart (gần nhất lên đầu)
+        filtered.sort((a, b) => new Date(a.dayStart) - new Date(b.dayStart));
+    } else {
+        filtered = allBookings.filter(b => {
+            const end = new Date(b.dayEnd);
+            const status = b.status.toUpperCase();
+            return status === 'CANCELLED' || status === 'SUCCESS' || end < now;
+        });
+        // Sắp xếp giảm dần theo dayEnd (gần nhất lên đầu)
+        filtered.sort((a, b) => new Date(b.dayEnd) - new Date(a.dayEnd));
+    }
+    if (filtered.length > 0) {
+        filtered.forEach(booking => {
+            const card = createBookingCard(booking);
+            bookingListDiv.appendChild(card);
+        });
+    } else {
+        // Render UI đẹp tuỳ filter
+        if (bookingFilter === 'upcoming') {
+            noBookingDiv.innerHTML = `
+                <i class="fas fa-suitcase-rolling fa-3x mb-3" style="color:var(--primary-color)"></i>
+                <h5 class="mb-2" style="color:var(--primary-color)">Bạn chưa có chuyến đi sắp tới</h5>
+                <p class="text-muted mb-3">Khám phá các tour hấp dẫn và lên kế hoạch cho chuyến đi tiếp theo của bạn!</p>
+                <a href="/tourify/tour-list" class="btn btn-success px-4 py-2" style="background: linear-gradient(90deg, #16b686 60%, #b8ead2 100%); border:none; font-weight:600;">Khám phá tour ngay</a>
+            `;
+        } else {
+            noBookingDiv.innerHTML = `
+                <i class="fas fa-history fa-3x mb-3" style="color:var(--secondary-color)"></i>
+                <h5 class="mb-2" style="color:var(--secondary-color)">Chưa có lịch sử chuyến đi</h5>
+                <p class="text-muted mb-3">Các chuyến đi đã hoàn thành hoặc bị huỷ sẽ hiển thị tại đây.</p>
+            `;
+        }
+        noBookingDiv.style.display = 'block';
+    }
+}
+
+function createBookingCard(booking) {
+    // Format dates
+    const start = new Date(booking.dayStart);
+    const end = new Date(booking.dayEnd);
+    const created = new Date(booking.createdAt);
+    const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+    const startStr = start.toLocaleDateString(undefined, dateOptions);
+    const endStr = end.toLocaleDateString(undefined, dateOptions);
+    const createdStr = created.toLocaleDateString(undefined, dateOptions);
+    // Status color
+    let statusColor = 'secondary';
+    if (booking.status.toUpperCase() === 'PAID') statusColor = 'success';
+    else if (booking.status.toUpperCase() === 'PENDING') statusColor = 'warning';
+    else if (booking.status.toUpperCase() === 'CANCELLED') statusColor = 'danger';
+    else if (booking.status.toUpperCase() === 'SUCCESS') statusColor = 'success';
+
+    // Card
+    const col = document.createElement('div');
+    col.className = 'col-12 col-md-6 col-lg-4';
+    col.innerHTML = `
+    <div class="card h-100 shadow-sm border-0" style="border-radius: 18px;">
+        <img src="${booking.thumbnail}" class="card-img-top" alt="Tour Thumbnail" style="height:180px;object-fit:cover;border-radius: 18px 18px 0 0;">
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title mb-2" style="color: var(--primary-color); font-weight:700;">${booking.tourName}</h5>
+            <div class="mb-2"><span class="badge bg-${statusColor}" style="font-size:0.95em;">${booking.status.toUpperCase()}</span></div>
+            <div class="mb-2"><i class="fas fa-calendar-alt me-1" style="color:var(--secondary-color)"></i> <span>${startStr} - ${endStr}</span></div>
+            <div class="mb-2"><i class="fas fa-users me-1" style="color:var(--secondary-color)"></i> <span>${booking.adultNumber} adults, ${booking.childNumber} children</span></div>
+            <div class="mb-2"><i class="fas fa-money-bill-wave me-1" style="color:var(--secondary-color)"></i> <span style="font-weight:600; color:var(--secondary-color)">${booking.totalPrice.toLocaleString()} đ</span></div>
+            <div class="mt-auto text-end"><small class="text-muted">Booked: ${createdStr}</small></div>
+        </div>
+    </div>
+    `;
+    return col;
+}
