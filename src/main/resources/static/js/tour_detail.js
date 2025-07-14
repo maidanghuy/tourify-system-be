@@ -6,9 +6,13 @@ document.addEventListener("DOMContentLoaded", function () {
         // Lấy danh sách ID đã xem từ localStorage (nếu có)
         let viewedTourIds = JSON.parse(localStorage.getItem("viewedTourIds")) || [];
 
-        // Kiểm tra tourId chưa tồn tại trong danh sách
+        const MAX_VIEWED = 7;
+
         if (!viewedTourIds.includes(tourId)) {
-            viewedTourIds.push(tourId); // Thêm tourId mới vào cuối mảng
+            viewedTourIds.push(tourId);
+            if (viewedTourIds.length > MAX_VIEWED) {
+                viewedTourIds.shift();
+            }
             localStorage.setItem("viewedTourIds", JSON.stringify(viewedTourIds));
         }
     }
