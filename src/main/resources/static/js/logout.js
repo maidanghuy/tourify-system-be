@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
             localStorage.removeItem("accessToken"); // Clear the accessToken
 
 
-              window.location.href = "/tourify/login";
-             // Redirect to login page
+            window.location.href = '/tourify/login';
+            // Redirect to login page
         });
     }
 });

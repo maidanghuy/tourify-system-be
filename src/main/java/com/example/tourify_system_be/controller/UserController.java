@@ -1,19 +1,15 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
-import com.example.tourify_system_be.dto.response.CreditCardResponse;
-import com.example.tourify_system_be.dto.response.TourResponse;
-import com.example.tourify_system_be.dto.response.UserResponse;
-import com.example.tourify_system_be.entity.Tour;
-import com.example.tourify_system_be.entity.TourFavorite;
+import com.example.tourify_system_be.dto.response.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
@@ -23,6 +19,7 @@ import java.util.List;
 public class UserController {
 
         private final UserService userService;
+        private final WebClient.Builder builder;
 
         @GetMapping("")
         public APIResponse<List<UserResponse>> getAllUsers() {
@@ -226,6 +223,13 @@ public class UserController {
                 return APIResponse.<UserResponse>builder()
                                 .result(userService.getUserFromToken(token))
                                 .build();
+        }
+
+        @GetMapping("/booking")
+        public APIResponse<?> getAllBooking(@RequestHeader("Authorization") String token){
+                return APIResponse.<List<BookingTourResponse>>builder()
+                        .result(userService.getAllBooking(token))
+                        .build();
         }
 
 }
