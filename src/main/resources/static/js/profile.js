@@ -868,7 +868,6 @@ function renderFilteredBookings() {
 }
 
 function createBookingCard(booking) {
-    // Format dates
     const start = new Date(booking.dayStart);
     const end = new Date(booking.dayEnd);
     const created = new Date(booking.createdAt);
@@ -876,14 +875,28 @@ function createBookingCard(booking) {
     const startStr = start.toLocaleDateString(undefined, dateOptions);
     const endStr = end.toLocaleDateString(undefined, dateOptions);
     const createdStr = created.toLocaleDateString(undefined, dateOptions);
-    // Status color
+
     let statusColor = 'secondary';
     if (booking.status.toUpperCase() === 'PAID') statusColor = 'success';
     else if (booking.status.toUpperCase() === 'PENDING') statusColor = 'warning';
     else if (booking.status.toUpperCase() === 'CANCELLED') statusColor = 'danger';
     else if (booking.status.toUpperCase() === 'SUCCESS') statusColor = 'success';
 
-    // Card
+    // Nếu SUCCESS thì thêm 2 nút: Feedback + Re-book
+    let extraButtonsHTML = '';
+    if (booking.status.toUpperCase() === 'SUCCESS') {
+        extraButtonsHTML = `
+            <div class="d-flex justify-content-between mt-3">
+                <a href="/tourify/feedback?bookingId=${booking.bookingId}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-comment-dots me-1"></i> Feedback
+                </a>
+                <a href="/tourify/tour-detail/${booking.tourId}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-redo me-1"></i> Re-book
+                </a>
+            </div>
+        `;
+    }
+
     const col = document.createElement('div');
     col.className = 'col-12 col-md-6 col-lg-4';
     col.innerHTML = `
@@ -896,6 +909,7 @@ function createBookingCard(booking) {
             <div class="mb-2"><i class="fas fa-users me-1" style="color:var(--secondary-color)"></i> <span>${booking.adultNumber} adults, ${booking.childNumber} children</span></div>
             <div class="mb-2"><i class="fas fa-money-bill-wave me-1" style="color:var(--secondary-color)"></i> <span style="font-weight:600; color:var(--secondary-color)">${booking.totalPrice.toLocaleString()} đ</span></div>
             <div class="mt-auto text-end"><small class="text-muted">Booked: ${createdStr}</small></div>
+            ${extraButtonsHTML}
         </div>
     </div>
     `;
