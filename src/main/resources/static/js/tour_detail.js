@@ -2,6 +2,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const urlParams = new URLSearchParams(window.location.search);
     const tourId = urlParams.get("id");
 
+    if (tourId) {
+        // Lấy danh sách ID đã xem từ localStorage (nếu có)
+        let viewedTourIds = JSON.parse(localStorage.getItem("viewedTourIds")) || [];
+
+        const MAX_VIEWED = 7;
+
+        if (!viewedTourIds.includes(tourId)) {
+            viewedTourIds.push(tourId);
+            if (viewedTourIds.length > MAX_VIEWED) {
+                viewedTourIds.shift();
+            }
+            localStorage.setItem("viewedTourIds", JSON.stringify(viewedTourIds));
+        }
+    }
+
     // Sử dụng class hoặc id phù hợp, chỉ nên 1 thẻ tourTitle trên trang
     const titleEl = document.getElementById("tourTitle"); // hoặc getElementById("tourTitle")
     const priceEl = document.querySelector(".tour-price");
@@ -16,6 +31,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const favIcon = favBtn ? favBtn.querySelector('i') : null;
     let isFavorite = false;
     const token = localStorage.getItem('accessToken');
+    const bookingEL = document.getElementById('link-booking');
+
+    if (bookingEL && tourId) {
+        bookingEL.href = `/tourify/tour/booking?id=${tourId}`;
+    }
 
     if (!tourId) {
         if (titleEl) titleEl.textContent = "Tour Not Found";
@@ -51,37 +71,64 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     }
 
-    fetch(`/tourify/api/tours/${tourId}`)
-        .then(res => res.json())
-        .then(data => {
-            console.log("Tour detail API result:", data); // DEBUG
-            // Đảm bảo data.code và data.result tồn tại
-            if (data.code === 1000 && data.result) {
-                const tour = data.result;
-                let link_booking = document.getElementById("link-booking");
-                if (link_booking) {
-                    link_booking.href = "/tourify/tour/booking?id=" + tourId;
-                }
-                if (titleEl) titleEl.textContent = tour.tourName || "No Name";
-                if (categoryEl) categoryEl.textContent = tour.categoryName || "";
-                if (priceEl) priceEl.textContent = tour.price ? tour.price.toLocaleString() + " VND" : "";
-                if (descEl) descEl.textContent = tour.description || "";
-                if (placeEl) placeEl.textContent = tour.placeName || "";
-                if (breadcrumbTitleEl) breadcrumbTitleEl.textContent = tour.tourName || "No Name";
-                if (breadcrumbPlace) breadcrumbPlace.textContent = tour.placeName || "";
-                if (durationEl) durationEl.textContent = tour.duration ? `${tour.duration} days` : "";
-                if (thumbnailEl) thumbnailEl.src = tour.thumbnail || "default.jpg";
-                document.querySelectorAll(".thumbnail").forEach(el => {
-                    el.src = tour.thumbnail || "default.jpg";
-                });
-            } else {
-                if (titleEl) titleEl.textContent = "Tour Not Found";
-            }
-        })
-        .catch(err => {
-            if (titleEl) titleEl.textContent = "Tour Not Found";
-            console.error(err);
+fetch(`/tourify/api/tours/${tourId}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.code === 1000 && data.result) {
+      const tour = data.result;
+
+      // Các phần gán text khác...
+      if (titleEl) titleEl.textContent = tour.tourName || "No Name";
+      if (categoryEl) categoryEl.textContent = tour.categoryName || "";
+      if (priceEl) priceEl.textContent = tour.price ? tour.price.toLocaleString() + " VND" : "";
+      if (descEl) descEl.textContent = tour.description || "";
+      if (placeEl) placeEl.textContent = tour.placeName || "";
+      if (breadcrumbTitleEl) breadcrumbTitleEl.textContent = tour.tourName || "No Name";
+      if (breadcrumbPlace) breadcrumbPlace.textContent = tour.placeName || "";
+      if (durationEl) durationEl.textContent = tour.duration ? `${tour.duration} days` : "";
+      if (thumbnailEl) thumbnailEl.src = tour.thumbnail || "default.jpg";
+      document.querySelectorAll(".thumbnail").forEach(el => {
+        el.src = tour.thumbnail || "default.jpg";
+      });
+
+      // --- XỬ LÝ START DAY & END DAY ---
+      const startDayEl = document.querySelector('.start-day');
+      const endDayEl = document.querySelector('.end-day');
+
+      if (startDayEl && endDayEl && tour.startDate && tour.duration) {
+        const startDateObj = new Date(tour.startDate);
+        const duration = tour.duration;
+
+        // Format Start Day
+        const startFormatted = startDateObj.toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
         });
+
+        // Tính End Day = startDate + duration - 1 ngày
+        const endDateObj = new Date(startDateObj);
+        endDateObj.setDate(endDateObj.getDate() + duration - 1);
+
+        const endFormatted = endDateObj.toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+
+        startDayEl.textContent = startFormatted;
+        endDayEl.textContent = endFormatted;
+      } else {
+        if (startDayEl) startDayEl.textContent = "";
+        if (endDayEl) endDayEl.textContent = "";
+      }
+
+    } else {
+      if (titleEl) titleEl.textContent = "Tour Not Found";
+    }
+  })
+  .catch(err => {
+    if (titleEl) titleEl.textContent = "Tour Not Found";
+    console.error(err);
+  });
+
+
 
     // Remove Toastify and implement custom showToast
     function showToast(message, type = 'success') {

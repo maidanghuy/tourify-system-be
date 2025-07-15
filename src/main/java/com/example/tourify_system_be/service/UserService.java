@@ -3,6 +3,7 @@ package com.example.tourify_system_be.service;
 import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
+import com.example.tourify_system_be.dto.response.BookingTourResponse;
 import com.example.tourify_system_be.dto.response.CreditCardResponse;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
@@ -10,6 +11,7 @@ import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.CreditCardMapper;
+import com.example.tourify_system_be.mapper.TourBookingMapper;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.mapper.UserMapper;
 import com.example.tourify_system_be.repository.*;
@@ -32,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.example.tourify_system_be.exception.ErrorCode.OPERATION_NOT_ALLOWED;
 import static com.example.tourify_system_be.exception.ErrorCode.USER_NOT_FOUND;
@@ -44,7 +47,9 @@ public class UserService {
     ICreditCardRepository creditCardRepository;
     ITourFavoriteRepository tourFavoriteRepository;
     ITourRepository tourRepository;
+    IBookingTourRepository bookingTourRepository;
     UserMapper userMapper;
+    TourBookingMapper tourBookingMapper;
     CreditCardMapper creditCardMapper;
     EmailService emailService;
     PasswordEncoder passwordEncoder;
@@ -392,6 +397,18 @@ public class UserService {
         return creditCardMapper.toCreditCardResponse(creditCard);
     }
 
+    public void deleteCreditCard(String token, String cardId) {
+        String jwt = token.replace("Bearer ", "");
+        String userId = jwtUtil.extractUserId(jwt);
+
+        // Tìm credit card theo cardId và userId để đảm bảo user chỉ xóa thẻ của mình
+        CreditCard creditCard = creditCardRepository.findByCardIDAndUser_UserId(cardId, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.OPERATION_NOT_ALLOWED,
+                        "Credit card not found or you don't have permission to delete it"));
+
+        creditCardRepository.delete(creditCard);
+    }
+
     @Transactional
     public void lockAccount(String bearerToken, String userId) {
         ensureAdmin(bearerToken);
@@ -480,7 +497,7 @@ public class UserService {
         // Lấy user và tour
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Tour> tourOpt = tourRepository.findTourByTourId(tourId); // hoặc
-                                                                          // tourRepository.findById(tourId)
+        // tourRepository.findById(tourId)
         if (userOpt.isPresent() && tourOpt.isPresent()) {
 
             TourFavoriteId favoriteId = new TourFavoriteId();
@@ -540,7 +557,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    //Code của P để lấy userId
+    // Code của P để lấy userId
     public UserResponse getUserFromToken(String token) {
         // Tách "Bearer " nếu có
         String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
@@ -562,4 +579,23 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    public List<BookingTourResponse> getAllBooking(String token){
+        String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        // 1. Kiểm tra phiên đăng nhập còn hợp lệ
+        TokenAuthentication session = tokenRepo.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn!");
+        }
+
+        // 2. Giải mã token lấy userId
+        String userId = jwtUtil.extractUserId(tokenValue);
+
+//        List<BookingTour> bookingTourList = bookingTourRepository.findBookingToursByUser_UserId(userId);
+        List<BookingTour> bookingTourList = bookingTourRepository.findBookingToursByUser_UserId(userId).stream().toList();
+
+        return bookingTourList.stream()
+                .map(tourBookingMapper::toBookingTourResponse)
+                .collect(Collectors.toList());
+    }
 }
