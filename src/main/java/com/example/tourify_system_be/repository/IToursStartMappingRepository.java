@@ -22,4 +22,14 @@ public interface IToursStartMappingRepository extends JpaRepository<ToursStartMa
    ORDER BY m.start.startDate
 """)
     List<LocalDateTime> findAllActiveStartDatesByTourId(@Param("tourId") String tourId);
+
+    /**
+     * Lấy startDate đầu tiên
+     */
+    @Query("""
+   SELECT MIN(m.start.startDate)
+   FROM ToursStartMapping m
+   WHERE m.id.tourId = :tourId AND m.start.isActive = true
+""")
+    Optional<LocalDateTime> findFirstActiveStartDateByTourId(@Param("tourId") String tourId);
 }

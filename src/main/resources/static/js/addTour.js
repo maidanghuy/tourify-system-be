@@ -17,63 +17,86 @@ const statusMap = {
 async function handleAddTour(e) {
   e && e.preventDefault && e.preventDefault();
 
-      const minPeople = parseFloat(document.getElementById("minPeople").value);
-      const maxPeople = parseFloat(document.getElementById("maxPeople").value);
-      const duration = parseFloat(document.getElementById("duration").value);
-      const price = parseFloat(document.getElementById("basePrice").value);
+  const minPeople = parseFloat(document.getElementById("minPeople").value);
+  const maxPeople = parseFloat(document.getElementById("maxPeople").value);
+  const duration = parseFloat(document.getElementById("duration").value);
+  const price = parseFloat(document.getElementById("basePrice").value);
 
-      if (isNaN(minPeople) || isNaN(maxPeople)) {
-        Swal.fire({ icon: 'warning', title: 'Please enter min and max people!' });
-        return;
-      }
-      if (minPeople > maxPeople) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Invalid Input',
-          text: 'Min people cannot be greater than Max people.'
-        });
-        return;
-      }
-      if (isNaN(duration) || duration < 1) {
-        Swal.fire({ icon: 'warning', title: 'Duration must be at least 1 day!' });
-        return;
-      }
+  // Validate các trường số cơ bản
+  if (isNaN(minPeople) || isNaN(maxPeople)) {
+    Swal.fire({ icon: 'warning', title: 'Please enter min and max people!' });
+    return;
+  }
+  if (minPeople > maxPeople) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Invalid Input',
+      text: 'Min people cannot be greater than Max people.'
+    });
+    return;
+  }
+  if (isNaN(duration) || duration < 1) {
+    Swal.fire({ icon: 'warning', title: 'Duration must be at least 1 day!' });
+    return;
+  }
+  if (!Number.isInteger(price) || price < 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Base Price phải là số nguyên ≥ 0!'
+    });
+    return;
+  }
+  if (!Number.isInteger(duration) || duration < 1) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Duration phải là số nguyên ≥ 1!'
+    });
+    return;
+  }
+  if (!Number.isInteger(minPeople) || minPeople < 1) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Min People phải là số nguyên ≥ 1!'
+    });
+    return;
+  }
+  if (!Number.isInteger(maxPeople) || maxPeople < 1) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Max People phải là số nguyên ≥ 1!'
+    });
+    return;
+  }
+  if (minPeople > maxPeople) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Min People không được lớn hơn Max People!'
+    });
+    return;
+  }
 
-        if (!Number.isInteger(price) || price < 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Base Price phải là số nguyên ≥ 0!'
-            });
-            return;
-        }
-        if (!Number.isInteger(duration) || duration < 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Duration phải là số nguyên ≥ 1!'
-            });
-            return;
-        }
-        if (!Number.isInteger(minPeople) || minPeople < 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Min People phải là số nguyên ≥ 1!'
-            });
-            return;
-        }
-        if (!Number.isInteger(maxPeople) || maxPeople < 1) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Max People phải là số nguyên ≥ 1!'
-            });
-            return;
-        }
-        if (minPeople > maxPeople) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Min People không được lớn hơn Max People!'
-            });
-            return;
-        }
+  // Validate trường ngày bắt đầu và repeat times
+  const startDateRaw = document.getElementById("startDate").value;
+  const repeatTimes = parseInt(document.getElementById("repeatTimes").value);
+  const repeatCycle = parseInt(document.getElementById("repeatCycle").value);
+
+  if (!startDateRaw) {
+    Swal.fire({ icon: 'warning', title: 'Vui lòng chọn ngày bắt đầu tour!' });
+    return;
+  }
+  if (isNaN(repeatTimes) || repeatTimes < 1) {
+    Swal.fire({ icon: 'warning', title: 'Repeat Times phải >= 1!' });
+    return;
+  }
+  if (isNaN(repeatCycle) || repeatCycle < 1) {
+    Swal.fire({ icon: 'warning', title: 'Repeat Cycle phải ≥ 1!' });
+    return;
+  }
+
+  // Format về yyyy-MM-dd HH:mm:ss nếu backend cần, còn không thì giữ yyyy-MM-dd
+  const startDate = startDateRaw + " 08:00:00";
+
+  // Chuẩn bị dữ liệu gửi lên backend
   const tourData = {
     tourName: document.getElementById("productName").value.trim(),
     description: document.getElementById("productDescription").value.trim(),
@@ -85,7 +108,10 @@ async function handleAddTour(e) {
     status: statusMap[document.getElementById("statusSelect").value],
     place: document.getElementById("place").value,
     category: document.getElementById("categorySelect").value,
-    thumbnail: getFirstImageUrlOrNull()
+    thumbnail: getFirstImageUrlOrNull(),
+    startDate,
+    repeatTimes,
+    repeatCycle
   };
 
   const token = localStorage.getItem("accessToken");
@@ -106,38 +132,38 @@ async function handleAddTour(e) {
 
     const result = await response.json();
 
-if (response.ok && result.code === 1000) {
-  Swal.fire({
-    icon: 'success',
-    title: 'Tour created successfully!',
-    timer: 1600,
-    showConfirmButton: false,
-    toast: true,
-    position: 'top-end'
-  }).then(() => {
-    loadPage("addTour");
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 400);
-  });
-}
- else {
+    if (response.ok && result.code === 1000) {
       Swal.fire({
-              icon: 'error',
-              title: 'Create tour failed!',
-              text: result.message || 'Unknown error!'
-            });
+        icon: 'success',
+        title: 'Tour created successfully!',
+        timer: 1600,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      }).then(() => {
+        loadPage("addTour");
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 400);
+      });
     }
-
+    else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Create tour failed!',
+        text: result.message || 'Unknown error!'
+      });
+    }
   } catch (error) {
     Swal.fire({
-          icon: 'error',
-          title: 'Network error!',
-          text: 'Could not connect to server.'
-        });
+      icon: 'error',
+      title: 'Network error!',
+      text: 'Could not connect to server.'
+    });
     alert("Lỗi kết nối đến máy chủ.");
   }
 }
+
 
 
 async function loadPlacesAndCategories() {
@@ -192,5 +218,37 @@ function getFirstImageUrlOrNull() {
   const img = document.querySelector("#imagePreview img");
   return img ? img.src : null;
 }
+
+function previewStartDates() {
+  const startDateRaw = document.getElementById("startDate").value;
+  const repeatTimes = parseInt(document.getElementById("repeatTimes").value);
+  const repeatCycle = parseInt(document.getElementById("repeatCycle").value);
+
+  if (!startDateRaw || isNaN(repeatTimes) || repeatTimes < 1 || isNaN(repeatCycle) || repeatCycle < 1) {
+    document.getElementById("previewDates").innerHTML = "";
+    return;
+  }
+
+  let dates = [];
+  let d = new Date(startDateRaw + "T08:00:00");
+
+  for (let i = 0; i < repeatTimes; i++) {
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    dates.push(`${day}/${month}/${year}`);
+    d.setDate(d.getDate() + repeatCycle);  // dùng biến repeatCycle thay cho 7
+  }
+
+  document.getElementById("previewDates").innerHTML =
+    "<strong>Các ngày bắt đầu sẽ tự tạo:</strong> <ul class='mb-1'>" +
+    dates.map(date => `<li>${date}</li>`).join('') +
+    "</ul>";
+}
+
+
+document.getElementById("startDate").addEventListener("input", previewStartDates);
+document.getElementById("repeatTimes").addEventListener("input", previewStartDates);
+document.getElementById("repeatCycle").addEventListener("input", previewStartDates);
 
 

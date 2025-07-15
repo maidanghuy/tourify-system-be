@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface CreditCardMapper {
+
     CreditCardResponse toCreditCardResponse(CreditCard creditCard);
     CreditCard toCreditCard(CreditCardResponse creditCardResponse);
 

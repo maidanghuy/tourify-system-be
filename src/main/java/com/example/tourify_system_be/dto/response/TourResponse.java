@@ -31,6 +31,7 @@ public class TourResponse {
     String placeName;
     String categoryName;
     LocalDateTime createdAt;
+    LocalDateTime startDate;
 
     /**
      * Trung bình đánh giá của tour (tính từ feedbacks).

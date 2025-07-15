@@ -21,4 +21,6 @@
         boolean existsByPhoneNumber(String phoneNumber);
 
         List<User> findAllByRole(String subCompany);
+
+        User findByUserId(String userId);
     }

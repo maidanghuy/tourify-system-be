@@ -37,34 +37,11 @@ document.getElementById("applyPromotionBtn").addEventListener("click", () => {
     modal.hide();
 
     // Cuộn đến phần thanh toán
-    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
     updateDiscountAmount();
     updateTotalAmount();
 });
-
-
-// // Tăng/giảm số lượng người lớn và trẻ em - đang bị lặp
-// document.querySelectorAll(".plus").forEach((btn) => {
-//     btn.addEventListener("click", () => {
-//         const input = document.getElementById(btn.dataset.target);
-//         let value = parseInt(input.value);
-//         input.value = value + 1;
-//     });
-// });
-//
-//
-// const minusButtons = document.querySelectorAll(".minus");
-//
-// minusButtons.forEach((btn, index) => {
-//     btn.addEventListener("click", () => {
-//         const input = document.getElementById(btn.dataset.target);
-//         let value = parseInt(input.value);
-//         if ((index === 0 && value > 1) || (index !== 0 && value > 0)) {
-//             input.value = value - 1;
-//         }
-//     });
-// });
 
 
 //Chọn phương thức thanh toán
@@ -90,86 +67,78 @@ document.querySelectorAll(".payment-card").forEach((card) => {
 let isCardNumberVisible = false;
 
 // Hiện/ẩn thông tin tài khoản (card info)
+
 function toggleReveal(headerEl) {
     const fields = document.getElementById("accountFields");
     const checkIcon = document.getElementById("checkIcon");
     const checkoutBtn = document.getElementById("checkoutBtn");
 
-
+    // Toggle state
     isCardRevealed = !isCardRevealed;
 
-
-    fields.classList.toggle("d-none", !isCardRevealed);
-    checkIcon.classList.toggle("text-muted", !isCardRevealed);
-    checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-    headerEl.classList.toggle("clicked", isCardRevealed);
-    headerEl.classList.toggle("bg-light", !isCardRevealed);
-    headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
-
-
-    // Enable checkout only when card is revealed
-    checkoutBtn.disabled = !isCardRevealed;
-}
-
-//Hiện/ẩn số thẻ (card number)
-function toggleCardNumber(event) {
-    event.stopPropagation();
-    const display = document.getElementById("cardNumber");
-    const eye = document.getElementById("eyeIcon");
-
-
-    if (isCardNumberVisible) {
-        display.innerHTML = "**** <span class='fw-bold'>4321</span>";
-        eye.classList.replace("fa-eye-slash", "fa-eye");
+    // Show/hide account info
+    if (isCardRevealed) {
+        fields.classList.remove("d-none");
+        headerEl.classList.remove("bg-light");
+        headerEl.classList.add("bg-success-subtle");
+        checkIcon.classList.remove("text-muted");
+        checkIcon.classList.add("text-success");
     } else {
-        display.innerHTML = "<span class='fw-bold'>1234 5678 9012 4321</span>";
-        eye.classList.replace("fa-eye", "fa-eye-slash");
+        fields.classList.add("d-none");
+        headerEl.classList.add("bg-light");
+        headerEl.classList.remove("bg-success-subtle");
+        checkIcon.classList.add("text-muted");
+        checkIcon.classList.remove("text-success");
     }
 
-
-    isCardNumberVisible = !isCardNumberVisible;
-}
-
-//Chỉnh sửa các trường thông tin người dùng
-function editField(field) {
-    document.getElementById(field + "View").classList.add("d-none");
-    document.getElementById(field + "Edit").classList.remove("d-none");
-}
-
-
-function cancelField(field) {
-    document.getElementById(field + "Edit").classList.add("d-none");
-    document.getElementById(field + "View").classList.remove("d-none");
-}
-
-
-function confirmField(field) {
-    const value = document.getElementById(field + "Input").value;
-    document.getElementById(field + "Display").textContent = value;
-    cancelField(field);
-}
-
-
-function toggleReveal(headerEl) {
-    const fields = document.getElementById("accountFields");
-    const checkIcon = document.getElementById("checkIcon");
-
-
-    isCardRevealed = !isCardRevealed;
-
-
-    fields.classList.toggle("d-none", !isCardRevealed);
-    checkIcon.classList.toggle("text-muted", !isCardRevealed);
-    checkIcon.classList.toggle("text-success", isCardRevealed);
-
-
-    // toggle glow
+    // Add visual cue for active card
     headerEl.classList.toggle("clicked", isCardRevealed);
-    headerEl.classList.toggle("bg-light", !isCardRevealed);
-    headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+
+    // Enable/disable checkout button
+    if (checkoutBtn) {
+        checkoutBtn.disabled = !isCardRevealed;
+    }
 }
+
+
+// //Chỉnh sửa các trường thông tin người dùng
+// function editField(field) {
+//     document.getElementById(field + "View").classList.add("d-none");
+//     document.getElementById(field + "Edit").classList.remove("d-none");
+// }
+//
+//
+// function cancelField(field) {
+//     document.getElementById(field + "Edit").classList.add("d-none");
+//     document.getElementById(field + "View").classList.remove("d-none");
+// }
+//
+//
+// function confirmField(field) {
+//     const value = document.getElementById(field + "Input").value;
+//     document.getElementById(field + "Display").textContent = value;
+//     cancelField(field);
+// }
+
+
+// function toggleReveal(headerEl) {
+//     const fields = document.getElementById("accountFields");
+//     const checkIcon = document.getElementById("checkIcon");
+//
+//
+//     isCardRevealed = !isCardRevealed;
+//
+//
+//     fields.classList.toggle("d-none", !isCardRevealed);
+//     checkIcon.classList.toggle("text-muted", !isCardRevealed);
+//     checkIcon.classList.toggle("text-success", isCardRevealed);
+//
+//
+//     // toggle glow
+//     headerEl.classList.toggle("clicked", isCardRevealed);
+//     headerEl.classList.toggle("bg-light", !isCardRevealed);
+//     headerEl.classList.toggle("bg-success-subtle", isCardRevealed);
+// }
 
 //Hiệu ứng loading khi thanh toán
 function showLoading(btn) {
@@ -714,7 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         }
                     }
 
-                    document.getElementById("checkoutBtn")?.scrollIntoView({ behavior: "smooth" });
+                    document.getElementById("checkoutBtn")?.scrollIntoView({behavior: "smooth"});
 
                     const modal = bootstrap.Modal.getInstance(document.getElementById("promotionModal"));
                     modal?.hide();
@@ -875,22 +844,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const tourId = new URLSearchParams(location.search).get("id");
     if (!tourId) return console.error("Thiếu tourId");
 
-    const display    = document.getElementById("startDateDisplay");
-    const iconBox    = document.querySelector(".calendar-icon-box");
+    const display = document.getElementById("startDateDisplay");
+    const iconBox = document.querySelector(".calendar-icon-box");
 
     fetch(`/tourify/api/tours/${tourId}/start-dates`)
         .then(r => {
             if (!r.ok) throw new Error(r.statusText);
             return r.json();
         })
-        .then(({ result }) => {
+        .then(({result}) => {
             // 1) Lấy mảng ["YYYY-MM-DD", ...]
             const rawDates = result.map(dt => dt.split("T")[0]);
 
             // 2) Chuyển thành Set các chuỗi toDateString() để so sánh chính xác local-date
             const enabledSet = new Set(
                 rawDates.map(str => {
-                    const [y,m,d] = str.split("-").map(Number);
+                    const [y, m, d] = str.split("-").map(Number);
                     return new Date(y, m - 1, d).toDateString();
                 })
             );
@@ -902,7 +871,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 altFormat: "d-m-Y",
                 enable: rawDates,      // chỉ bật các ngày API trả về
                 clickOpens: false,     // chúng ta tự open qua event listener bên dưới
-                onDayCreate(_,__,fp, dayElem) {
+                onDayCreate(_, __, fp, dayElem) {
                     // mỗi ô ngày mới render, dayElem.dateObj là Date Object local
                     if (enabledSet.has(dayElem.dateObj.toDateString())) {
                         dayElem.classList.add("enabled-day");
@@ -910,13 +879,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
                 onChange: (_, dateStr) => {
                     // gán format hiển thị dd-mm-yyyy
-                    const [y,m,d] = dateStr.split("-");
+                    const [y, m, d] = dateStr.split("-");
                     display.value = `${d}-${m}-${y}`;
                 }
             });
 
             // 4) Bật calendar khi click icon hoặc ô input
-            iconBox.addEventListener("click",  () => fp.open());
+            iconBox.addEventListener("click", () => fp.open());
             fp.altInput.addEventListener("click", () => fp.open());
         })
         .catch(err => {
@@ -924,6 +893,7 @@ document.addEventListener("DOMContentLoaded", () => {
             display.disabled = true;
         });
 });
+
 
 //Hiển thị thông tin người dùng ở cuối
 
@@ -965,6 +935,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 avatarImg.src = avatarUrl;
             }
 
+            const avatarImage = document.getElementById("avatarImage");
+            if (avatarImage) {
+                avatarImage.src = avatarUrl;
+            }
+
             // console.log("Thông tin user:", user);
         })
         .catch((err) => {
@@ -972,4 +947,62 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 });
+
+// Lấy credit card cuối cùng được thêm
+document.addEventListener("DOMContentLoaded", function () {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+        console.warn("Không tìm thấy accessToken!");
+        return;
+    }
+
+    fetch("/tourify/api/user/creditcard", {
+        headers: {
+            Authorization: "Bearer " + token
+        },
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result && data.result.length > 0) {
+                const lastCard = data.result[data.result.length - 1];
+                const rawNumber = lastCard.cardNumber || "";
+                const formattedNumber = rawNumber.match(/.{1,4}/g)?.join(" ") || rawNumber;
+                const lastFour = rawNumber.slice(-4);
+
+                const cardDisplay = document.getElementById("cardNumber");
+                if (cardDisplay) {
+                    cardDisplay.innerHTML = `**** <span class="fw-bold">${lastFour}</span>`;
+                    cardDisplay.setAttribute("data-full", formattedNumber);
+                }
+            } else {
+                console.warn("Không có thẻ tín dụng nào.");
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi khi gọi API creditcard:", err);
+        });
+});
+
+// Ẩn hiện số CreditCard
+function toggleCardNumber(event) {
+    event.stopPropagation();
+    const display = document.getElementById("cardNumber");
+    const eye = document.getElementById("eyeIcon");
+
+    const fullNumber = display.getAttribute("data-full") || "";
+    const lastFour = fullNumber.slice(-4);
+
+    if (isCardNumberVisible) {
+        // Hiện dạng ẩn
+        display.innerHTML = `**** <span class="fw-bold">${lastFour}</span>`;
+        eye.classList.replace("fa-eye-slash", "fa-eye");
+    } else {
+        // Hiện đầy đủ
+        display.innerHTML = `<span class="fw-bold">${fullNumber}</span>`;
+        eye.classList.replace("fa-eye", "fa-eye-slash");
+    }
+
+    isCardNumberVisible = !isCardNumberVisible;
+}
 
