@@ -452,4 +452,50 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+document.addEventListener("DOMContentLoaded", function() {
+    // Lấy section và step
+    const infoSection = document.getElementById('info-section');
+    const planSection = document.getElementById('plan-section');
+    const locationSection = document.getElementById('location-section');
+    const stepInfo = document.getElementById('step-info');
+    const stepPlan = document.getElementById('step-plan');
+    const stepLocation = document.getElementById('step-location');
+
+    // Hàm remove/toggle active class
+    function setActiveStep(step) {
+        [stepInfo, stepPlan, stepLocation].forEach(s => s.classList.remove('active'));
+        if (step) step.classList.add('active');
+    }
+
+    // Xử lý scroll để đổi tab active
+    window.addEventListener('scroll', function() {
+        // Tính vị trí từng section
+        const scrollY = window.scrollY || window.pageYOffset;
+        const buffer = 100; // (tùy chỉnh nếu có header)
+        const infoTop = infoSection.offsetTop - buffer;
+        const planTop = planSection.offsetTop - buffer;
+        const locationTop = locationSection.offsetTop - buffer;
+
+        // Tìm section đang nhìn thấy
+        if (scrollY >= locationTop) {
+            setActiveStep(stepLocation);
+        } else if (scrollY >= planTop) {
+            setActiveStep(stepPlan);
+        } else {
+            setActiveStep(stepInfo);
+        }
+    });
+
+    // Xử lý click để scroll (nếu chưa có)
+    stepInfo.addEventListener('click', () => {
+        infoSection.scrollIntoView({behavior: 'smooth'});
+    });
+    stepPlan.addEventListener('click', () => {
+        planSection.scrollIntoView({behavior: 'smooth'});
+    });
+    stepLocation.addEventListener('click', () => {
+        locationSection.scrollIntoView({behavior: 'smooth'});
+    });
+});
+
 
