@@ -584,8 +584,8 @@
         analytics: {
           title: "Analytics",
           breadcrumbs: ["dashboard"],
-          content: `<div class="container-fluid py-4">
-
+          content: `
+          <div class="container-fluid py-4">
   <!-- Bộ lọc Khoảng Thời Gian -->
   <div class="d-flex align-items-end gap-3 mb-4 flex-wrap">
     <div class="form-group">
@@ -618,72 +618,181 @@
     </li>
   </ul>
 
-  <!-- Tab Content -->
   <div class="tab-content mb-4" id="revenue-range-tabs-content">
-    <!-- Day View -->
+    <!-- ===== DAY ===== -->
     <div class="tab-pane fade show active" id="revenue-day" role="tabpanel">
       <div class="card-glass p-4 shadow-sm">
         <h5 class="fw-semibold mb-3">Revenue by Day</h5>
-        <div class="table-responsive">
-          <table class="modern-table w-100" id="companyRevenueDayTable">
-            <thead>
-              <tr>
-                <th style="min-width:120px">Date</th>
-                <th style="min-width:180px">Company</th>
-                <th style="min-width:120px">Revenue (VND)</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyDay">
-              <!-- JS sẽ render daily rows -->
-            </tbody>
-          </table>
+        <!-- System Day -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableSystemDay">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="systemDayTableWrap">
+            <table class="modern-table w-100" id="systemRevenueDayTable">
+              <thead>
+                <tr>
+                  <th colspan="2" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartSystemDay">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Date</th>
+                  <th style="min-width:180px">Total Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="systemTbodyDay"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="systemDayChartWrap">
+            <canvas id="systemDayChart" height="110"></canvas>
+          </div>
+        </div>
+        <!-- Company Day -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableCompanyDay">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="companyDayTableWrap">
+            <table class="modern-table w-100" id="companyRevenueDayTable">
+              <thead>
+                <tr>
+                  <th colspan="3" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartCompanyDay">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Date</th>
+                  <th style="min-width:180px">Company</th>
+                  <th style="min-width:120px">Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyDay"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="companyDayChartWrap">
+            <canvas id="companyDayChart" height="110"></canvas>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Month View -->
+    <!-- ===== MONTH ===== -->
     <div class="tab-pane fade" id="revenue-month" role="tabpanel">
       <div class="card-glass p-4 shadow-sm">
         <h5 class="fw-semibold mb-3">Revenue by Month</h5>
-        <div class="table-responsive">
-          <table class="modern-table w-100" id="companyRevenueMonthTable">
-            <thead>
-              <tr>
-                <th style="min-width:120px">Month</th>
-                <th style="min-width:180px">Company</th>
-                <th style="min-width:120px">Revenue (VND)</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyMonth">
-              <!-- JS sẽ render monthly rows -->
-            </tbody>
-          </table>
+        <!-- System Month -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableSystemMonth">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="systemMonthTableWrap">
+            <table class="modern-table w-100" id="systemRevenueMonthTable">
+              <thead>
+                <tr>
+                  <th colspan="2" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartSystemMonth">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Month</th>
+                  <th style="min-width:180px">Total Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="systemTbodyMonth"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="systemMonthChartWrap">
+            <canvas id="systemMonthChart" height="110"></canvas>
+          </div>
+        </div>
+        <!-- Company Month -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableCompanyMonth">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="companyMonthTableWrap">
+            <table class="modern-table w-100" id="companyRevenueMonthTable">
+              <thead>
+                <tr>
+                  <th colspan="3" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartCompanyMonth">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Month</th>
+                  <th style="min-width:180px">Company</th>
+                  <th style="min-width:120px">Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyMonth"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="companyMonthChartWrap">
+            <canvas id="companyMonthChart" height="110"></canvas>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- Year View -->
+    <!-- ===== YEAR ===== -->
     <div class="tab-pane fade" id="revenue-year" role="tabpanel">
       <div class="card-glass p-4 shadow-sm">
         <h5 class="fw-semibold mb-3">Revenue by Year</h5>
-        <div class="table-responsive">
-          <table class="modern-table w-100" id="companyRevenueYearTable">
-            <thead>
-              <tr>
-                <th style="min-width:120px">Year</th>
-                <th style="min-width:180px">Company</th>
-                <th style="min-width:120px">Revenue (VND)</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyYear">
-              <!-- JS sẽ render yearly rows -->
-            </tbody>
-          </table>
+        <!-- System Year -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableSystemYear">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="systemYearTableWrap">
+            <table class="modern-table w-100" id="systemRevenueYearTable">
+              <thead>
+                <tr>
+                  <th colspan="2" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartSystemYear">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Year</th>
+                  <th style="min-width:180px">Total Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="systemTbodyYear"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="systemYearChartWrap">
+            <canvas id="systemYearChart" height="110"></canvas>
+          </div>
+        </div>
+        <!-- Company Year -->
+        <div class="mb-3">
+          <div class="d-flex justify-content-end gap-2 mb-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm d-none" id="btnShowTableCompanyYear">Xem Bảng</button>
+          </div>
+          <div class="table-responsive" id="companyYearTableWrap">
+            <table class="modern-table w-100" id="companyRevenueYearTable">
+              <thead>
+                <tr>
+                  <th colspan="3" class="text-end py-2" style="background:transparent; border:none">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnShowChartCompanyYear">Xem Biểu Đồ</button>
+                  </th>
+                </tr>
+                <tr>
+                  <th style="min-width:120px">Year</th>
+                  <th style="min-width:180px">Company</th>
+                  <th style="min-width:120px">Revenue (VND)</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyYear"></tbody>
+            </table>
+          </div>
+          <div class="d-none" id="companyYearChartWrap">
+            <canvas id="companyYearChart" height="110"></canvas>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
           `,
         },
       };
@@ -1511,6 +1620,392 @@
           inpStart.value = lastMonth.toISOString().slice(0, 10);
           fetchAndRenderAll();
       }
+
+      function initAnalyticsPage() {
+          const btnFilter = document.getElementById("btnFilter");
+          const inpStart = document.getElementById("startDate");
+          const inpEnd = document.getElementById("endDate");
+          const tableDay = document.getElementById("tbodyDay");
+          const tableMonth = document.getElementById("tbodyMonth");
+          const tableYear = document.getElementById("tbodyYear");
+
+          // --- Các bảng tổng hệ thống ---
+          const sysTableDay = document.getElementById("systemTbodyDay");
+          const sysTableMonth = document.getElementById("systemTbodyMonth");
+          const sysTableYear = document.getElementById("systemTbodyYear");
+
+          // Dữ liệu tổng hệ thống
+          const sysRevenueData = { day: [], month: [], year: [] };
+          // Dữ liệu từng công ty
+          const revenueData = { day: [], month: [], year: [] };
+
+          const accessToken = localStorage.getItem("accessToken");
+
+          // ===== 1. Format tiền tệ =====
+          function formatVND(amount) {
+              return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
+          }
+
+          // ===== 2. Render bảng tổng hệ thống =====
+          function renderSystemTable(type) {
+              let data = sysRevenueData[type] || [];
+              let tbody =
+                  type === "day" ? sysTableDay :
+                      type === "month" ? sysTableMonth :
+                          sysTableYear;
+              tbody.innerHTML = "";
+
+              if (!Array.isArray(data) || !data.length) {
+                  tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
+                  return;
+              }
+
+              for (const row of data) {
+                  let label = row.time || row.date || row.month || row.year || "-";
+                  let value = Number(row.totalRevenue) || 0;
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                <td>${label}</td>
+                <td>${formatVND(value)}</td>
+            `;
+                  tbody.appendChild(tr);
+              }
+          }
+
+          // ===== 3. Render bảng doanh thu từng company =====
+          function renderCompanyTable(type) {
+              let data = revenueData[type] || [];
+              let tbody =
+                  type === "day" ? tableDay :
+                      type === "month" ? tableMonth :
+                          tableYear;
+              tbody.innerHTML = "";
+
+              if (!Array.isArray(data) || !data.length) {
+                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+                  return;
+              }
+
+              for (const row of data) {
+                  let label = row.time || row.date || row.month || row.year || "-";
+                  let company = row.companyName || "-";
+                  let value = Number(row.totalRevenue) || 0;
+                  const tr = document.createElement("tr");
+                  tr.innerHTML = `
+                <td>${label}</td>
+                <td>${company}</td>
+                <td>${formatVND(value)}</td>
+            `;
+                  tbody.appendChild(tr);
+              }
+          }
+
+          // ===== 4. Gọi API và render =====
+          async function fetchAndRenderAll() {
+              const start = inpStart.value;
+              const end = inpEnd.value;
+              if (!start || !end) return;
+
+              const role = getRoleFromToken(accessToken);
+
+              // Ẩn/hiện các bảng tổng hệ thống cho đúng role
+              document.querySelectorAll('[id^="systemRevenue"]').forEach(div => {
+                  div.parentElement.style.display = (role === "admin") ? "" : "none";
+              });
+
+              // Loading message
+              [tableDay, tableMonth, tableYear].forEach(tbody =>
+                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
+              );
+              if (role === "admin") {
+                  [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+                      tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`
+                  );
+              }
+
+              try {
+                  const headers = { "Authorization": "Bearer " + accessToken };
+
+                  if (role === "admin") {
+                      // ADMIN: gọi API tổng hệ thống và từng company
+                      const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
+                      const sysMonthUrl = `/tourify/api/revenue/system/by-month?start=${start}&end=${end}`;
+                      const sysYearUrl = `/tourify/api/revenue/system/by-year?start=${start}&end=${end}`;
+                      const cmpDayUrl = `/tourify/api/revenue/company/by-day?start=${start}&end=${end}`;
+                      const cmpMonthUrl = `/tourify/api/revenue/company/by-month?start=${start}&end=${end}`;
+                      const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
+
+                      const [
+                          sysDay, sysMonth, sysYear,
+                          cmpDay, cmpMonth, cmpYear
+                      ] = await Promise.all([
+                          fetch(sysDayUrl, { headers }).then(r => r.json()),
+                          fetch(sysMonthUrl, { headers }).then(r => r.json()),
+                          fetch(sysYearUrl, { headers }).then(r => r.json()),
+                          fetch(cmpDayUrl, { headers }).then(r => r.json()),
+                          fetch(cmpMonthUrl, { headers }).then(r => r.json()),
+                          fetch(cmpYearUrl, { headers }).then(r => r.json()),
+                      ]);
+
+                      sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
+                      sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
+                      sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
+
+                      revenueData.day = Array.isArray(cmpDay) ? cmpDay : [];
+                      revenueData.month = Array.isArray(cmpMonth) ? cmpMonth : [];
+                      revenueData.year = Array.isArray(cmpYear) ? cmpYear : [];
+                  } else if (role === "sub_company") {
+                      // SUB_COMPANY: chỉ gọi API của company mình
+                      const subCompanyId = getSubCompanyIdFromToken(accessToken);
+
+                      const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+                      const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+                      const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+
+                      const [d, m, y] = await Promise.all([
+                          fetch(dayUrl, { headers }).then(r => r.json()),
+                          fetch(monthUrl, { headers }).then(r => r.json()),
+                          fetch(yearUrl, { headers }).then(r => r.json()),
+                      ]);
+
+                      revenueData.day = Array.isArray(d) ? d : [];
+                      revenueData.month = Array.isArray(m) ? m : [];
+                      revenueData.year = Array.isArray(y) ? y : [];
+                  } else {
+                      // Không hợp lệ (Ẩn hết)
+                      [tableDay, tableMonth, tableYear].forEach(tbody =>
+                          tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+                      );
+                      [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+                          tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+                      );
+                      return;
+                  }
+
+                  // Render bảng
+                  const activeTab = document.querySelector('.tab-pane.active').id;
+                  if (activeTab === "revenue-day") {
+                      if (role === "admin") renderSystemTable("day");
+                      renderCompanyTable("day");
+                  }
+                  if (activeTab === "revenue-month") {
+                      if (role === "admin") renderSystemTable("month");
+                      renderCompanyTable("month");
+                  }
+                  if (activeTab === "revenue-year") {
+                      if (role === "admin") renderSystemTable("year");
+                      renderCompanyTable("year");
+                  }
+                  // GỌI afterRender() SAU KHI RENDER XONG
+                  afterRender();
+              } catch (err) {
+                  [tableDay, tableMonth, tableYear].forEach(tbody =>
+                      tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+                  );
+                  if (role === "admin") {
+                      [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+                          tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+                      );
+                  }
+                  console.error(err);
+              }
+          }
+
+          // ===== 5. Sự kiện UI =====
+          btnFilter.onclick = fetchAndRenderAll;
+          document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
+              if (e.target.classList.contains('nav-link')) {
+                  setTimeout(() => {
+                      const activeTab = document.querySelector('.tab-pane.active').id;
+                      if (activeTab === "revenue-day") {
+                          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("day");
+                          renderCompanyTable("day");
+                      }
+                      if (activeTab === "revenue-month") {
+                          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("month");
+                          renderCompanyTable("month");
+                      }
+                      if (activeTab === "revenue-year") {
+                          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("year");
+                          renderCompanyTable("year");
+                      }
+                      // GỌI afterRender() SAU KHI RENDER XONG
+                      afterRender();
+                  }, 50);
+              }
+          });
+
+          // Set ngày mặc định
+          const today = new Date();
+          inpEnd.value = today.toISOString().slice(0, 10);
+          const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+          inpStart.value = lastMonth.toISOString().slice(0, 10);
+          fetchAndRenderAll();
+
+          // --- Chart object ---
+          const chartObjects = {
+              systemDay: null,
+              systemMonth: null,
+              systemYear: null,
+              companyDay: null,
+              companyMonth: null,
+              companyYear: null
+          };
+
+          function renderChart(type, isSystem) {
+              const key = (isSystem ? "system" : "company") + capitalize(type);
+              const chartId = `${key}Chart`;
+              const chartWrapId = `${key}ChartWrap`;
+              const tableWrapId = `${key}TableWrap`;
+              const btnChartId = `btnShowChart${capitalize(key)}`;
+              const btnTableId = `btnShowTable${capitalize(key)}`;
+
+              let dataArr = isSystem ? sysRevenueData[type] : revenueData[type];
+
+              // === Xử lý dữ liệu cho multi-series chart khi là company (admin xem) ===
+              let labels = [];
+              let datasets = [];
+              if (isSystem) {
+                  // Chỉ 1 cột cho tổng hệ thống
+                  dataArr.forEach(row => {
+                      let label = row.time || row.date || row.month || row.year || "-";
+                      labels.push(label);
+                  });
+                  datasets = [{
+                      label: "Total Revenue (VND)",
+                      data: dataArr.map(row => Number(row.totalRevenue) || 0),
+                      backgroundColor: "#4097e3"
+                  }];
+              } else {
+                  // Lấy danh sách labels (time) và các company
+                  const companySet = new Set();
+                  const labelSet = new Set();
+                  dataArr.forEach(row => {
+                      let label = row.time || row.date || row.month || row.year || "-";
+                      labelSet.add(label);
+                      companySet.add(row.companyName || "-");
+                  });
+                  labels = Array.from(labelSet);
+
+                  // Tạo map: { company: { label: revenue } }
+                  const companyMap = {};
+                  companySet.forEach(c => companyMap[c] = {});
+                  dataArr.forEach(row => {
+                      let label = row.time || row.date || row.month || row.year || "-";
+                      let company = row.companyName || "-";
+                      let value = Number(row.totalRevenue) || 0;
+                      companyMap[company][label] = value;
+                  });
+
+                  // Tạo dataset cho từng công ty
+                  const colorList = [
+                      "#fd9134", "#00C49F", "#FFBB28", "#8884d8", "#d7c51b", "#ae31cf", "#24d463", "#e94560", "#497174"
+                  ];
+                  let colorIdx = 0;
+                  datasets = Array.from(companySet).map(company => ({
+                      label: company,
+                      data: labels.map(label => companyMap[company][label] || 0),
+                      backgroundColor: colorList[colorIdx++ % colorList.length]
+                  }));
+              }
+
+              // Ẩn bảng, hiện canvas chart
+              document.getElementById(tableWrapId).classList.add("d-none");
+              document.getElementById(chartWrapId).classList.remove("d-none");
+              document.getElementById(btnChartId).classList.add("d-none");
+              document.getElementById(btnTableId).classList.remove("d-none");
+
+              // Xóa chart cũ nếu có
+              if (chartObjects[key]) chartObjects[key].destroy();
+
+              const ctx = document.getElementById(chartId).getContext("2d");
+              chartObjects[key] = new Chart(ctx, {
+                  type: "bar",
+                  data: {
+                      labels: labels,
+                      datasets: datasets
+                  },
+                  options: {
+                      responsive: true,
+                      plugins: {
+                          legend: { display: true }
+                      },
+                      scales: {
+                          x: { title: { display: true, text: capitalize(type) } },
+                          y: { title: { display: true, text: 'Revenue (VND)' }, beginAtZero: true }
+                      }
+                  }
+              });
+          }
+
+          function showTable(type, isSystem) {
+              const key = (isSystem ? "system" : "company") + capitalize(type);
+              const chartWrapId = `${key}ChartWrap`;
+              const tableWrapId = `${key}TableWrap`;
+              const btnChartId = `btnShowChart${capitalize(key)}`;
+              const btnTableId = `btnShowTable${capitalize(key)}`;
+              document.getElementById(chartWrapId).classList.add("d-none");
+              document.getElementById(tableWrapId).classList.remove("d-none");
+              document.getElementById(btnChartId).classList.remove("d-none");
+              document.getElementById(btnTableId).classList.add("d-none");
+          }
+
+          function addToggleEvents() {
+              [
+                  ["day", true], ["month", true], ["year", true],
+                  ["day", false], ["month", false], ["year", false]
+              ].forEach(([type, isSystem]) => {
+                  const key = (isSystem ? "system" : "company") + capitalize(type);
+                  const btnChartId = `btnShowChart${capitalize(key)}`;
+                  const btnTableId = `btnShowTable${capitalize(key)}`;
+
+                  if (document.getElementById(btnChartId)) {
+                      document.getElementById(btnChartId).onclick = () => renderChart(type, isSystem);
+                  }
+                  if (document.getElementById(btnTableId)) {
+                      document.getElementById(btnTableId).onclick = () => showTable(type, isSystem);
+                  }
+              });
+          }
+          function capitalize(str) {
+              return str.charAt(0).toUpperCase() + str.slice(1);
+          }
+
+          function afterRender() {
+              addToggleEvents();
+          }
+      }
+
+      // ==== JWT decode helpers ====
+      function getRoleFromToken(token) {
+          if (!token) return null;
+          try {
+              const base64Url = token.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+                  '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+              ).join(''));
+              const payload = JSON.parse(jsonPayload);
+              return (payload.role || "").toLowerCase();
+          } catch {
+              return null;
+          }
+      }
+      function getSubCompanyIdFromToken(token) {
+          if (!token) return null;
+          try {
+              const base64Url = token.split('.')[1];
+              const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+              const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+                  '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+              ).join(''));
+              const payload = JSON.parse(jsonPayload);
+              return payload.subCompanyId || payload.userId || null;
+          } catch {
+              return null;
+          }
+      }
+
 
       // Gọi sau khi HTML đã render xong:
       setTimeout(initAnalyticsPage, 0);

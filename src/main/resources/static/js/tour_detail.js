@@ -404,5 +404,211 @@ document.addEventListener("DOMContentLoaded", function () {
         if (currentPage < totalPages) loadFeedbackPage(currentPage + 1);
     });
 });
+document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get("id");
+
+    const btnOpenReportModal = document.getElementById("btnOpenReportModal");
+    const btnCancelReport = document.getElementById("btnCancelReport"); // nút hủy report mới thêm
+    const btnSubmitReport = document.getElementById("btnSubmitReport");
+    const reportTourModal = document.getElementById('reportTourModal');
+    const reportForm = document.getElementById("reportTourForm");
+    const msgDiv = document.getElementById("reportSuccessMsg");
+
+    // Lấy token từ localStorage
+    function getToken() {
+        return localStorage.getItem("accessToken") || "";
+    }
+
+    // UI: đã report (ẩn nút Report, hiện nút Cancel)
+    function setUIReported() {
+        if (btnOpenReportModal) btnOpenReportModal.classList.add('d-none');
+        if (btnCancelReport) btnCancelReport.classList.remove('d-none');
+        if (msgDiv) msgDiv.classList.remove('d-none');
+    }
+
+    // UI: chưa report (hiện nút Report, ẩn nút Cancel)
+    function setUIUnreported() {
+        if (btnOpenReportModal) {
+            btnOpenReportModal.classList.remove('d-none');
+            btnOpenReportModal.disabled = false;
+            btnOpenReportModal.classList.add('btn-outline-danger');
+            btnOpenReportModal.classList.remove('btn-success');
+            btnOpenReportModal.innerHTML = `<i class="fas fa-flag"></i> Report`;
+            btnOpenReportModal.title = "Báo cáo tour vi phạm";
+        }
+        if (btnCancelReport) btnCancelReport.classList.add('d-none');
+        if (msgDiv) msgDiv.classList.add('d-none');
+    }
+
+    // UI: không được phép báo cáo (chưa login hoặc lỗi tourId)
+    function setUIDisabled(reason) {
+        if (btnOpenReportModal) {
+            btnOpenReportModal.disabled = true;
+            btnOpenReportModal.classList.remove('btn-success');
+            btnOpenReportModal.classList.add('btn-outline-danger');
+            btnOpenReportModal.innerHTML = `<i class="fas fa-flag"></i> Report`;
+            btnOpenReportModal.title = reason || "Bạn cần đăng nhập để báo cáo tour";
+            btnOpenReportModal.classList.remove('d-none');
+        }
+        if (btnCancelReport) btnCancelReport.classList.add('d-none');
+        if (msgDiv) msgDiv.classList.add('d-none');
+    }
+
+    // Check đã report tour này chưa
+    function checkReported() {
+        const token = getToken();
+
+        if (!tourId) {
+            setUIDisabled("Tour không xác định");
+            return;
+        }
+        if (!token) {
+            setUIDisabled("Bạn cần đăng nhập để báo cáo tour");
+            return;
+        }
+
+        fetch(`/tourify/api/report-tours/check?tourId=${encodeURIComponent(tourId)}`, {
+            headers: { "Authorization": "Bearer " + token }
+        })
+            .then(res => {
+                if (!res.ok) throw new Error("API lỗi");
+                return res.json();
+            })
+            .then(alreadyReported => {
+                if (alreadyReported === true) {
+                    setUIReported();
+                } else {
+                    setUIUnreported();
+                }
+            })
+            .catch(() => {
+                setUIUnreported();
+            });
+    }
+
+    checkReported();
+
+    // Mở modal báo cáo
+    if (btnOpenReportModal) {
+        btnOpenReportModal.onclick = function () {
+            if (btnOpenReportModal.disabled) return;
+            let modal = new bootstrap.Modal(reportTourModal);
+            modal.show();
+        };
+    }
+
+    // Submit report
+    if (btnSubmitReport) {
+        btnSubmitReport.onclick = function () {
+            const reasonCode = document.getElementById("reasonCode").value;
+            const description = document.getElementById("description").value.trim();
+            const token = getToken();
+
+            if (!token) {
+                Swal.fire("Please log in to report!", "", "warning");
+                return;
+            }
+            if (!reasonCode) {
+                Swal.fire("Please select a reason!", "", "warning");
+                return;
+            }
+
+            // Có thể thêm kiểm tra từ cấm nếu muốn
+
+            Swal.fire({
+                title: "Are you sure you want to report this tour?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Report!",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#d33"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/tourify/api/report-tours`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({
+                            tourId,
+                            reasonCode,
+                            description
+                        })
+                    })
+                        .then(res => {
+                            if (!res.ok) {
+                                if (res.status === 409) throw new Error("Bạn đã báo cáo tour này trước đó.");
+                                if (res.status === 403) throw new Error("Bạn không có quyền thực hiện.");
+                                return res.json().then(data => { throw new Error(data.message || "Failed to send report"); });
+                            }
+                            return res.json();
+                        })
+                        .then(() => {
+                            Swal.fire("Đã báo cáo!", "Báo cáo của bạn đã được gửi.", "success");
+                            bootstrap.Modal.getInstance(reportTourModal).hide();
+                            reportForm.reset();
+                            checkReported();
+                        })
+                        .catch(err => {
+                            Swal.fire("Không thành công!", err.message, "error");
+                            if (err.message.includes("đã báo cáo")) checkReported();
+                        });
+                }
+            });
+        }
+    }
+
+    // Xử lý nút Hủy báo cáo
+    if (btnCancelReport) {
+        btnCancelReport.onclick = function () {
+            const token = getToken();
+            if (!token) {
+                Swal.fire("Bạn cần đăng nhập để hủy báo cáo!", "", "warning");
+                return;
+            }
+            Swal.fire({
+                title: "Bạn có chắc muốn hủy báo cáo tour này?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Có, hủy báo cáo",
+                cancelButtonText: "Hủy",
+                confirmButtonColor: "#d33"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/tourify/api/report-tours/cancel?tourId=${encodeURIComponent(tourId)}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error("Không thể hủy báo cáo");
+                            return res.json().catch(() => ({}));
+                        })
+                        .then(() => {
+                            Swal.fire("Đã hủy báo cáo!", "Bạn có thể báo cáo lại nếu muốn.", "success");
+                            checkReported();
+                        })
+                        .catch(err => {
+                            Swal.fire("Lỗi!", err.message || "Không thể hủy báo cáo", "error");
+                        });
+                }
+            });
+        }
+    }
+
+    // Lắng nghe sự kiện login/logout để cập nhật UI nút report
+    window.addEventListener('storage', function(e) {
+        if (e.key === "accessToken") {
+            setTimeout(checkReported, 100);
+        }
+    });
+});
+
+
+
+
 
 
