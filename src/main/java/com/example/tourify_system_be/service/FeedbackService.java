@@ -111,7 +111,7 @@ public class FeedbackService {
         CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(jwt);
 
         String role = Optional.ofNullable(userDetails.getRole()).orElse("");
-        if (!"USER".equalsIgnoreCase(role)) {
+        if (!("USER".equalsIgnoreCase(role) || "ADMIN".equalsIgnoreCase(role))) {
             throw new AppException(ErrorCode.OPERATION_NOT_ALLOWED, "Chỉ người dùng mới có thể gửi feedback.");
         }
 
@@ -121,7 +121,8 @@ public class FeedbackService {
                 .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour."));
 
         boolean valid = isFeedbackValid(req);
-        String status = valid ? "APPROVED" : "REJECTED";
+        String status = valid ? "PENDING" : "REJECTED";
+
 
         Feedback fb = Feedback.builder()
                 .user(user)
