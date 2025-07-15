@@ -22,6 +22,7 @@
 <body>
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top shadow-sm">
+  <div id="info-section"></div>
   <div class="container">
     <a class="navbar-brand" th:href="@{/landing}">
       <img src="https://images.pexels.com/photos/9072375/pexels-photo-9072375.jpeg?auto=compress&cs=tinysrgb&w=1600"
@@ -125,7 +126,7 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap mt-3">
       <!-- Tour Flow Section -->
       <div class="tour-flow-container d-flex flex-wrap justify-content-center align-items-center gap-3 gap-md-4">
-        <div class="tour-step active">
+        <div class="tour-step active" id="step-info">
           <i class="fas fa-info-circle me-2"></i>
           <span>Information</span>
         </div>
@@ -134,7 +135,7 @@
         <div class="tour-step-separator"></div>
 
 
-        <div class="tour-step">
+        <div class="tour-step" id="step-plan">
           <i class="fas fa-route me-2"></i>
           <span>Tour Plan</span>
         </div>
@@ -143,7 +144,7 @@
         <div class="tour-step-separator"></div>
 
 
-        <div class="tour-step">
+        <div class="tour-step" id="step-location">
           <i class="fas fa-map-location-dot me-2"></i>
           <span>Location</span>
         </div>
@@ -399,21 +400,23 @@
               </div>
             </div>
             <div class="col-sm-6">
+              <!-- Start Day -->
               <div class="info-card border-start border-4 border-primary bg-white rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center mb-2">
                   <i class="fas fa-calendar-day text-primary fs-5 me-2"></i>
                   <h6 class="mb-0 text-dark-emphasis">Start Day</h6>
                 </div>
-                <p class="mb-0 small text-muted">Monday, July 15</p>
+                <p class="mb-0 small text-muted start-day">Loading...</p> <!-- Thêm class start-day -->
               </div>
             </div>
             <div class="col-sm-6">
+              <!-- End Day -->
               <div class="info-card border-start border-4 border-danger bg-white rounded-4 p-3 shadow-sm h-100">
                 <div class="d-flex align-items-center mb-2">
                   <i class="fas fa-calendar-check text-danger fs-5 me-2"></i>
                   <h6 class="mb-0 text-dark-emphasis">End Day</h6>
                 </div>
-                <p class="mb-0 small text-muted">Wednesday, July 17</p>
+                <p class="mb-0 small text-muted end-day">Loading...</p> <!-- Thêm class end-day -->
               </div>
             </div>
             <div class="col-12">
@@ -434,6 +437,7 @@
 
 
     <!-- Activities Section -->
+    <div id="plan-section"></div>
     <div class="text-center mt-5 mb-4">
       <h2 class="fw-bold text-dark-emphasis">Activities & Locations</h2>
       <div class="divider mx-auto mb-2"></div>
@@ -511,6 +515,7 @@
 
 
     <!-- Review & Map Section -->
+    <div id="location-section"></div>
     <div class="row mt-5 g-4 align-items-stretch">
       <!-- Review Box -->
       <div class="col-md-6 position-relative">
@@ -709,6 +714,7 @@
   <script th:src="@{/js/index.js}"></script>
   <script th:src="@{/js/tour_detail.js}"></script>
   <script th:src="@{/js/logout.js}"></script>
+
 </body>
 
 </html>

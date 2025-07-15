@@ -164,4 +164,5 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
 
     Optional<BookingTour> findByBookingId(String bookingId);
 
+    List<BookingTour> findBookingToursByUser_UserId(String id);
 }

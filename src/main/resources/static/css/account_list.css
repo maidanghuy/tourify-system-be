@@ -1,0 +1,389 @@
+
+body {
+    background: #f4f6fa;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: #d1f5e0;
+    z-index: 1030;
+    /* above navbar */
+    box-shadow: 2px 0 12px #0001;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    margin: 0;
+    padding: 16px 0;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #198754;
+    letter-spacing: 1px;
+}
+
+.sidebar .nav {
+    flex-grow: 1;
+    padding: 1rem;
+}
+
+.sidebar .nav-link {
+    color: #198754;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.sidebar .nav-link.active,
+.sidebar .nav-link:hover {
+    background: #b7e4c7;
+    color: #14532d;
+}
+
+/* TOP NAVBAR */
+.top-navbar-fixed {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    width: calc(100% - 250px);
+    background: #e6f7f1;
+    border-bottom: 1px solid #d1f5e0;
+    min-height: 68px;
+    z-index: 1020;
+    /* below sidebar */
+}
+
+.top-navbar-fixed .navbar-content {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-left: 1rem;
+    min-width: 180px;
+}
+
+.nav-icons a,
+.nav-icons .position-relative {
+    color: #222;
+    font-size: 1.25rem;
+}
+
+.nav-user {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-user img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #b7e4c7;
+}
+
+.nav-user .username {
+    margin-left: 0.5rem;
+    font-weight: 600;
+    color: #222;
+}
+
+.nav-logout {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 1rem;
+    min-width: 180px;
+}
+
+/* REST OF YOUR CSS UNCHANGED */
+.main-content {
+    margin-left: 250px;
+    padding-top: 68px;
+    background: #f4f6fa;
+    min-height: 100vh;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px 0 rgba(34, 41, 47, 0.08);
+    padding: 32px 40px 24px 40px;
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+}
+
+.form-control-mint {
+    border: 1.5px solid #b7e4c7;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 1rem;
+    background: #f6fff8;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-control-mint:focus {
+    border: 1.5px solid #38b000;
+    background: #fff;
+}
+
+.btn-mint-filter {
+    background: #e9fbe5;
+    color: #38b000;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-mint-accent {
+    background: #38b000;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.table-responsive-mint {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 14px;
+    background: #fff;
+    margin-bottom: 0;
+}
+
+.mint-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.mint-table th,
+.mint-table td {
+    text-align: left;
+    padding: 16px 10px;
+    font-size: 1rem;
+}
+
+.mint-table th {
+    background: #e9fbe5;
+    color: #38b000;
+    font-weight: 600;
+    border-bottom: 2px solid #b7e4c7;
+}
+
+.mint-table tr {
+    transition: background 0.15s;
+}
+
+.mint-table tr:hover {
+    background: #f6fff8;
+}
+
+.mint-table tr:nth-child(even) {
+    background: #f8fdf6;
+}
+
+.mint-table td {
+    color: #22292f;
+    vertical-align: middle;
+}
+
+.status-active {
+    color: #38b000;
+    background: #e9fbe5;
+    border-radius: 8px;
+    padding: 4px 16px;
+    font-size: 0.98em;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-blocked {
+    color: #ef4444;
+    background: #fde8e8;
+    border-radius: 8px;
+    padding: 4px 16px;
+    font-size: 0.98em;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btns i {
+    font-size: 1.15em;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+.action-btns i:hover {
+    background: #e9fbe5;
+}
+
+.pagination-mint {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+}
+
+.page-item-mint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f4f6fa;
+    color: #198754;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid #b7e4c7;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+    user-select: none;
+}
+
+.page-item-mint:not(.disabled):hover {
+    background: #e9fbe5;
+    color: #14532d;
+    border-color: #38b000;
+}
+
+.page-item-mint.active {
+    background: #38b000;
+    color: #fff;
+    border-color: #38b000;
+    cursor: default;
+}
+
+.page-item-mint.disabled {
+    color: #b7e4c7;
+    background: #f4f6fa;
+    border-color: #e9fbe5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .admin-card {
+        padding: 12px;
+    }
+
+    .form-control-mint {
+        width: 100%;
+    }
+
+    .mint-table th,
+    .mint-table td {
+        font-size: 0.95em;
+        padding: 8px 4px;
+    }
+
+    .sidebar {
+        width: 60px;
+    }
+
+    .main-content {
+        margin-left: 60px;
+    }
+
+    .top-navbar-fixed {
+        left: 60px;
+        width: calc(100% - 60px);
+    }
+
+    /* 1) Đổi màu nền top‐navbar giống sidebar */
+    .top-navbar-fixed {
+        background: #d1f5e0 !important;
+    }
+
+    /* 2) “Thanh tìm kiếm” bo tròn hơn, viền xanh nhạt */
+    .form-control-mint {
+        border: 1px solid #b7e4c7;
+        border-radius: 24px;
+        padding: 12px 20px;
+        background: #f6fff8;
+    }
+
+    /* 3) Nút Filters: nền trắng, viền xanh lá, text xanh lá */
+    .btn-mint-filter {
+        background: #fff;
+        border: 1px solid #38b000;
+        color: #38b000;
+    }
+
+    /* 4) Khoảng cách giữa icon và border sidebar/trên navbar */
+    .top-navbar-fixed,
+    .sidebar {
+        box-shadow: none; /* nếu bạn muốn giống hoàn toàn, bỏ shadow */
+    }
+
+    /* 5) Điều chỉnh grid layout cho main‐content */
+    .main-content {
+        margin-left: 250px;
+        padding-top: 68px; /* khớp với height của navbar */
+    }
+
+    /* 6) Header của bảng nền xanh nhạt */
+    .mint-table thead th {
+        background: #e9fbe5;
+        color: #38b000;
+    }
+
+    /* 7) Căn icon Home/Bell/Mail sát lề trái của navbar */
+    .top-navbar-fixed > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .top-navbar-fixed .nav-icons {
+        padding-left: 24px;
+    }
+
+    /* 8) Căn avatar + username chính giữa */
+    .top-navbar-fixed .nav-user {
+        flex: 1;
+        justify-content: center !important;
+    }
+
+    /* 9) Căn nút Logout cạnh phải */
+    .top-navbar-fixed .nav-logout {
+        padding-right: 24px;
+    }
+}
