@@ -1,7 +1,6 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.entity.Category;
-import com.example.tourify_system_be.repository.ICategoryRepository;
 import com.example.tourify_system_be.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -130,5 +129,8 @@ public class PageController {
 
     @GetMapping("user/message")
     public String messagePage(){return "messages";}
+
+    @GetMapping("/dashboard/accounts")
+    public String feedbackPage(){return "accounts";}
 }
 

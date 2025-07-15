@@ -1,14 +1,14 @@
-      let toursData = [];      // lưu toàn bộ danh sách tour
-      let currentPage = 1;     // trang hiện tại
-      const pageSize = 6;      // số tour mỗi trang
+let toursData = []; // lưu toàn bộ danh sách tour
+let currentPage = 1; // trang hiện tại
+const pageSize = 6; // số tour mỗi trang
 
-      /* modern-ui pages */
-      const pages = {
-        /* === 1. DASHBOARD === */
-        dashboard: {
-          title: "Dashboard",
-          breadcrumbs: [],
-          content: `
+/* modern-ui pages */
+const pages = {
+  /* === 1. DASHBOARD === */
+  dashboard: {
+    title: "Dashboard",
+    breadcrumbs: [],
+    content: `
           <div class="container-fluid py-4">
             <!-- ==== Time-range pills + Add-Tour ==== -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -160,13 +160,13 @@
           
           </div>
           `,
-        },
+  },
 
-        /* === 2. TOUR LIST === */
-        tourList: {
-          title: "Tour List",
-          breadcrumbs: ["dashboard"],
-            content: `         
+  /* === 2. TOUR LIST === */
+  tourList: {
+    title: "Tour List",
+    breadcrumbs: ["dashboard"],
+    content: `         
           <div class="container py-4">
             <!-- Các button, search box đặt ở đây -->
             <div class="d-flex mb-3 align-items-center flex-wrap gap-3 justify-content-between">
@@ -193,13 +193,13 @@
             <div id="tourListBody"></div>
           </div>
           `,
-        },
+  },
 
-        /* === 3. ADD TOUR (nguyên bản, đã có UI hiện đại) === */
-        addTour: {
-          title: "Add Tour",
-          breadcrumbs: ["dashboard", "tourList"],
-          content: `
+  /* === 3. ADD TOUR (nguyên bản, đã có UI hiện đại) === */
+  addTour: {
+    title: "Add Tour",
+    breadcrumbs: ["dashboard", "tourList"],
+    content: `
           <div class="container-fluid px-4 py-4">
             <div class="row g-4">
                 <div class="col-lg-9">
@@ -268,25 +268,6 @@
         
                         </div>
                         </div>
-                        <div class="form-section-title mt-4">Tour Start Date & Repeat</div>
-                        <div class="row g-2">
-                          <div class="col-md-6">
-                              <label class="form-label">Start Date</label>
-                              <input class="form-control" id="startDate" type="date" min="2025-07-15"/>
-                          </div>
-                          <div class="col-md-6">
-                              <label class="form-label">Repeat Times</label>
-                              <input class="form-control" id="repeatTimes" type="number" min="1" max="20" value="1" />
-                              <small class="text-muted">Tour sẽ tự cập nhật ngày bắt đầu sau mỗi x ngày, tối đa số lần bạn chọn.</small>
-                          </div>
-
-                          <div class="col-md-6">
-                              <label class="form-label">Repeat Cycle (days)</label>
-                              <input class="form-control" id="repeatCycle" type="number" min="1" max="30" value="7" />
-                              <small class="text-muted">Chu kỳ lặp ngày, ví dụ 1, 2, 7, ... (mặc định 7 ngày)</small>
-                          </div>
-                        </div>
-
                     </div>
                     </div>
         
@@ -335,13 +316,13 @@
             </div>
           </div>
           `,
-        },
+  },
 
-        /* === 4. CATEGORIES === */
-        categories: {
-          title: "Categories",
-          breadcrumbs: ["dashboard"],
-          content: `
+  /* === 4. CATEGORIES === */
+  categories: {
+    title: "Categories",
+    breadcrumbs: ["dashboard"],
+    content: `
           <div class="container py-4">
               <div class="admin-card p-4">
                 <!-- Thanh công cụ trên đầu: Search + 2 button dàn ngang -->
@@ -401,13 +382,13 @@
               </div>
           </div>  
           `,
-        },
+  },
 
-        /* === 5. BOOKING === */
-        booking: {
-          title: "Booking",
-          breadcrumbs: ["dashboard"],
-          content: `
+  /* === 5. BOOKING === */
+  booking: {
+    title: "Booking",
+    breadcrumbs: ["dashboard"],
+    content: `
           <div class="container-fluid py-4">
               <div class="admin-card p-4">
                 <!-- Time Filter + Filter Button -->
@@ -473,75 +454,83 @@
               </div>
           </div>
           `,
-        },
+  },
 
-        /* === 6. CUSTOMERS === */
-        customers: {
-          title: "Customers",
-          breadcrumbs: ["dashboard"],
-          content: `
+  /* === 6. CUSTOMERS === */
+  customers: {
+    title: "Account List",
+    breadcrumbs: ["dashboard"],
+    content: `
           <div class="container-fluid py-4">
               <div class="admin-card p-4">
-                <!-- Time Filter + Filter Button -->
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-                  <!-- Search bên trái -->
-                  <div class="flex-grow-1" style="min-width:220px;max-width:520px;">
-                    <input class="form-control-mint w-100" type="text" placeholder="Search category..." />
+                  <h2 class="fw-bold text-success mb-1">Account List</h2>
+                  <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb small">
+                          <li class="breadcrumb-item">
+                              <a class="text-decoration-none text-muted" href="#">Dashboard</a>
+                          </li>
+                          <li aria-current="page" class="breadcrumb-item active text-success">
+                              Account List
+                          </li>
+                      </ol>
+                  </nav>
+                  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                      <div class="flex-grow-1" style="min-width: 220px; max-width: 520px">
+                          <input class="form-control-mint w-100" placeholder="Search account..." type="text"/>
+                      </div>
+                      <div class="d-flex gap-2 flex-shrink-0">
+                          <button class="btn-mint-filter" type="button">
+                              <i class="bi bi-funnel"></i> Filters
+                          </button>
+                          <button class="btn-mint-accent">
+                              <i class="bi bi-plus"></i> Add Account
+                          </button>
+                      </div>
                   </div>
-                  <!-- 2 nút bên phải -->
-                  <div class="d-flex gap-2 flex-shrink-0">
-                    <button class="btn-mint-filter" type="button">
-                      <i class="bi bi-funnel"></i> Filters
-                    </button>
-                    <button class="btn-mint-accent" data-bs-toggle="modal" data-bs-target="#catModal">
-                      <i class="bi bi-plus"></i> Add Customer
-                    </button>
+                  <div class="table-responsive-mint">
+                      <table class="mint-table w-100" id="accountTable">
+                          <thead>
+                          <tr>
+                              <th style="width: 1%"><input type="checkbox"/></th>
+                              <th style="width: 1%">Role</th>
+                              <th style="width: 1%">User Name</th>
+                              <th style="width: 1%">Name</th>
+                              <th style="width: 1%">Gender</th>
+                              <th style="width: 1%">Phone Number</th>
+                              <th style="width: 1%">Address</th>
+                              <th style="width: 2%">Date of Birth</th>
+                              <th style="width: 1%">Status</th>
+                              <th style="width: 1%">Action</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <!-- JS render account rows here -->
+                          </tbody>
+                      </table>
                   </div>
-                </div>
-                <!-- Table -->
-                <div class="table-responsive-mint">
-                  <table class="mint-table w-100" id="bookingTable">
-                    <thead>
-                      <tr>
-                        <th style="width:32px"><input type="checkbox"></th>
-                        <th style="min-width:180px">Customer Name</th>
-                        <th style="min-width:120px">Phone</th>
-                        <th style="min-width:80px">Orders</th>
-                        <th style="min-width:110px">Balance</th>
-                        <th style="min-width:110px">Status</th>
-                        <th style="min-width:110px">Created</th>
-                        <th style="min-width:90px">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- JS render booking rows here -->
-                    </tbody>
-                  </table>
-                </div>
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
-                  <div class="small text-muted">Showing 1-10 from 100</div>
-                  <ul class="pagination-mint mb-0">
-                    <li class="page-item-mint disabled"><span>&lt;</span></li>
-                    <li class="page-item-mint active"><span>1</span></li>
-                    <li class="page-item-mint"><span>2</span></li>
-                    <li class="page-item-mint"><span>3</span></li>
-                    <li class="page-item-mint"><span>4</span></li>
-                    <li class="page-item-mint"><span>5</span></li>
-                    <li class="page-item-mint"><span>...</span></li>
-                    <li class="page-item-mint"><span>&gt;</span></li>
-                  </ul>
-                </div>
+                  <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                      <div class="small text-muted">Showing 1-10 from 100</div>
+                      <ul class="pagination-mint mb-0">
+                          <li class="page-item-mint disabled"><span>&lt;</span></li>
+                          <li class="page-item-mint active"><span>1</span></li>
+                          <li class="page-item-mint"><span>2</span></li>
+                          <li class="page-item-mint"><span>3</span></li>
+                          <li class="page-item-mint"><span>4</span></li>
+                          <li class="page-item-mint"><span>5</span></li>
+                          <li class="page-item-mint"><span>...</span></li>
+                          <li class="page-item-mint"><span>&gt;</span></li>
+                      </ul>
+                  </div>
               </div>
           </div>
-          `,
-        },
+        `,
+  },
 
-        /* === 7. SELLERS === */
-        seller: {
-          title: "Seller",
-          breadcrumbs: ["dashboard"],
-          content: `
+  /* === 7. SELLERS === */
+  seller: {
+    title: "Seller",
+    breadcrumbs: ["dashboard"],
+    content: `
           <div class="container-fluid py-4">
               <div class="admin-card p-4">
                 <!-- Search + Filter/Add buttons -->
@@ -597,13 +586,13 @@
               </div>
           </div>
           `,
-        },
+  },
 
-        /* === 8. ANALYTICS === */
-        analytics: {
-          title: "Analytics",
-          breadcrumbs: ["dashboard"],
-          content: `<div class="container-fluid py-4">
+  /* === 8. ANALYTICS === */
+  analytics: {
+    title: "Analytics",
+    breadcrumbs: ["dashboard"],
+    content: `<div class="container-fluid py-4">
 
   <!-- Bộ lọc Khoảng Thời Gian -->
   <div class="d-flex align-items-end gap-3 mb-4 flex-wrap">
@@ -704,337 +693,354 @@
   </div>
 </div>
           `,
-        },
-      };
+  },
+};
 
-      function loadPage(pageKey) {
-          const page = pages[pageKey];
-          if (!page) {
-              document.getElementById("mainContent").innerHTML = "<h2>Page not found</h2>";
-              return;
-          }
+function loadPage(pageKey) {
+  const page = pages[pageKey];
+  if (!page) {
+    document.getElementById("mainContent").innerHTML =
+      "<h2>Page not found</h2>";
+    return;
+  }
 
-          // --- ACTIVE NAV-LINK ---
-          document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
-          const linkId = pageKey + "Link";
-          const activeLink = document.getElementById(linkId);
-          if (activeLink) activeLink.classList.add('active');
+  // --- ACTIVE NAV-LINK ---
+  document
+    .querySelectorAll(".sidebar .nav-link")
+    .forEach((link) => link.classList.remove("active"));
+  const linkId = pageKey + "Link";
+  const activeLink = document.getElementById(linkId);
+  if (activeLink) activeLink.classList.add("active");
 
-          // Nếu là trang con của "Tour", mở submenu và active luôn menu cha
-          const tourPages = ['tourList', 'addTour'];
-          if (tourPages.includes(pageKey)) {
-              document.getElementById('tourMenuLink')?.classList.add('active');
-              const submenu = document.getElementById("tourSubmenu");
-              if (submenu && !submenu.classList.contains('show')) {
-                  new bootstrap.Collapse(submenu, { toggle: true });
-              }
-          } else {
-              const submenu = document.getElementById("tourSubmenu");
-              if (submenu && submenu.classList.contains('show')) {
-                  new bootstrap.Collapse(submenu, { toggle: true });
-              }
-              document.getElementById('tourMenuLink')?.classList.remove('active');
-          }
+  // Nếu là trang con của "Tour", mở submenu và active luôn menu cha
+  const tourPages = ["tourList", "addTour"];
+  if (tourPages.includes(pageKey)) {
+    document.getElementById("tourMenuLink")?.classList.add("active");
+    const submenu = document.getElementById("tourSubmenu");
+    if (submenu && !submenu.classList.contains("show")) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+  } else {
+    const submenu = document.getElementById("tourSubmenu");
+    if (submenu && submenu.classList.contains("show")) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+    document.getElementById("tourMenuLink")?.classList.remove("active");
+  }
 
-          // --- HIỂN THỊ NỘI DUNG ---
-          const breadcrumbHtml = `
+  // --- HIỂN THỊ NỘI DUNG ---
+  const breadcrumbHtml = `
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="fw-bold text-success mb-1">${page.title}</h2>
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb small">
-            ${page.breadcrumbs.map(crumb => `
+            ${page.breadcrumbs
+              .map(
+                (crumb) => `
               <li class="breadcrumb-item">
                 <a href="javascript:void(0)" onclick="loadPage('${crumb}')"
                    class="text-decoration-none text-muted">${pages[crumb].title}</a>
-              </li>`).join("")}
-            <li class="breadcrumb-item active text-success" aria-current="page">${page.title}</li>
+              </li>`
+              )
+              .join("")}
+            <li class="breadcrumb-item active text-success" aria-current="page">${
+              page.title
+            }</li>
           </ol>
         </nav>
       </div>
     </div>`;
 
-          document.getElementById("mainContent").innerHTML = breadcrumbHtml + page.content;
+  document.getElementById("mainContent").innerHTML =
+    breadcrumbHtml + page.content;
 
-          // Load các trang đặc biệt
-          if (pageKey === "addTour") {
-              setTimeout(() => initAddTourPage(), 0);
-          } else if (pageKey === "tourList") {
-                // 1️⃣ Load và render bảng
-                loadTourList();
+  // Load các trang đặc biệt
+  if (pageKey === "addTour") {
+    setTimeout(() => initAddTourPage(), 0);
+  } else if (pageKey === "tourList") {
+    // 1️⃣ Load và render bảng
+    loadTourList();
 
-                // 2️⃣ Gắn listener cho nút Delete Selected
-                setTimeout(() => {
-                  const delBtn = document.getElementById('btnDeleteSelected');
-                  if (!delBtn) return;
+    // 2️⃣ Gắn listener cho nút Delete Selected
+    setTimeout(() => {
+      const delBtn = document.getElementById("btnDeleteSelected");
+      if (!delBtn) return;
 
-                  delBtn.addEventListener('click', async () => {
-                    const checked = document.querySelectorAll(
-                      '#tourListBody tbody input[type="checkbox"]:checked'
-                    );
-                    const ids = Array.from(checked).map(cb => cb.dataset.id);
+      delBtn.addEventListener("click", async () => {
+        const checked = document.querySelectorAll(
+          '#tourListBody tbody input[type="checkbox"]:checked'
+        );
+        const ids = Array.from(checked).map((cb) => cb.dataset.id);
 
-                    if (ids.length === 0) {
-                      showPopup('warning', 'Chú ý', 'Vui lòng chọn ít nhất 1 tour để xóa.');
-                      return;
-                    }
-                    if (!confirm(`Bạn có chắc muốn xóa ${ids.length} tour đã chọn?`)) return;
-
-                    const token = localStorage.getItem('accessToken');
-                    let success = 0, fail = 0;
-                    await Promise.all(ids.map(async id => {
-                      try {
-                        const res = await fetch(`/tourify/api/tours/${id}`, {
-                          method: 'DELETE',
-                          headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        res.ok ? success++ : fail++;
-                      } catch {
-                        fail++;
-                      }
-                    }));
-
-                    showPopup(
-                      fail === 0 ? 'success' : 'warning',
-                      'Kết quả',
-                      `Xóa thành công ${success} tour${fail ? `, thất bại ${fail}` : ''}.`
-                    );
-                    loadTourList();
-                  });
-                }, 0);
-
-                // 3️⃣ Gắn listener cho nút Add Tour
-                const btn = document.querySelector(".btn-mint-accent");
-                if (btn) {
-                  btn.addEventListener("click", () => loadPage("addTour"));
-                }
-
-              } else if (pageKey === "analytics") {
-                // Khởi tạo analytics
-                setTimeout(() => initAnalyticsPage(), 0);
-              }
-             else if (pageKey === "analytics") {
-              setTimeout(() => initAnalyticsPage(), 0); // ✅ THÊM DÒNG NÀY
-          }
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        loadPage("addTour");
-        const submenu = document.getElementById("tourSubmenu");
-        const icon = document.querySelector("#tourToggle .toggle-icon");
-
-
-        if (submenu && icon) {
-          submenu.addEventListener("show.bs.collapse", () => {
-            icon.classList.remove("fa-chevron-down");
-            icon.classList.add("fa-chevron-up");
-          });
-
-          submenu.addEventListener("hide.bs.collapse", () => {
-            icon.classList.remove("fa-chevron-up");
-            icon.classList.add("fa-chevron-down");
-          });
+        if (ids.length === 0) {
+          showPopup("warning", "Chú ý", "Vui lòng chọn ít nhất 1 tour để xóa.");
+          return;
         }
-      });
+        if (!confirm(`Bạn có chắc muốn xóa ${ids.length} tour đã chọn?`))
+          return;
 
-      let currentMediaType = null;
-
-      function setMediaType(type) {
-        currentMediaType = type;
-        document.getElementById("mediaModalLabel").textContent =
-          type === "image" ? "Add Image" : "Add Video";
-        document.getElementById("mediaUrlInput").value = "";
-        document.getElementById("mediaFileInput").value = "";
-      }
-
-      function addMedia() {
-        const url = document.getElementById("mediaUrlInput").value.trim();
-        const fileInput = document.getElementById("mediaFileInput");
-        const preview = document.getElementById(
-          currentMediaType === "image" ? "imagePreview" : "videoPreview"
+        const token = localStorage.getItem("accessToken");
+        let success = 0,
+          fail = 0;
+        await Promise.all(
+          ids.map(async (id) => {
+            try {
+              const res = await fetch(`/tourify/api/tours/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              res.ok ? success++ : fail++;
+            } catch {
+              fail++;
+            }
+          })
         );
 
-        let mediaHTML = "";
-        if (url) {
-          mediaHTML =
-            currentMediaType === "image"
-              ? `<a href="${url}" target="_blank"><img src="${url}" /></a>`
-              : `<a href="${url}" target="_blank"><video src="${url}" controls muted></video></a>`;
-        } else if (fileInput.files.length > 0) {
-          const fileURL = URL.createObjectURL(fileInput.files[0]);
-          mediaHTML =
-            currentMediaType === "image"
-              ? `<a href="${fileURL}" target="_blank"><img src="${fileURL}" /></a>`
-              : `<a href="${fileURL}" target="_blank"><video src="${fileURL}" controls muted></video></a>`;
-        }
-
-        // ✅ THÊM Ở ĐÂY
-        if (mediaHTML) {
-          preview.insertAdjacentHTML("beforeend", mediaHTML);
-          calculateCompletion(); // ✅ Thêm dòng này để cập nhật phần trăm hoàn thành
-        }
-
-        bootstrap.Modal.getInstance(
-          document.getElementById("mediaModal")
-        ).hide();
-      }
-
-      $(document).ready(function () {
-        $("#categorySelect").select2({
-          placeholder: "Select a category",
-          width: "100%", // đảm bảo vừa khung
-        });
+        showPopup(
+          fail === 0 ? "success" : "warning",
+          "Kết quả",
+          `Xóa thành công ${success} tour${fail ? `, thất bại ${fail}` : ""}.`
+        );
+        loadTourList();
       });
+    }, 0);
 
-      $(document).ready(function () {
-        // Select2 for Category and Status
-        $("#categorySelect, #statusSelect").select2({
-          placeholder: "Select an option",
-          width: "100%",
-        });
+    // 3️⃣ Gắn listener cho nút Add Tour
+    const btn = document.querySelector(".btn-mint-accent");
+    if (btn) {
+      btn.addEventListener("click", () => loadPage("addTour"));
+    }
 
+    // } else if (pageKey === "analytics") {
+    //     // Khởi tạo analytics
+    //     setTimeout(() => initAnalyticsPage(), 0);
+    // } else if (pageKey === "analytics") {
+    //     setTimeout(() => initAnalyticsPage(), 0); // ✅ THÊM DÒNG NÀY
+    // }
+  } else if (pageKey === "customers") {
+    // ← Thêm block này
+    // sau khi HTML inject xong, khởi tạo trang Customers
+    setTimeout(() => initCustomersPage(), 0);
+  } else if (pageKey === "analytics") {
+    initAnalyticsPage();
+  }
+}
 
-        // Cập nhật badge khi chọn Status
-        $("#statusSelect").on("change", function () {
-          const selected = $(this).val();
-          $("#statusBadge").text(selected);
-        });
-      });
+document.addEventListener("DOMContentLoaded", function () {
+  loadPage("addTour");
+  const submenu = document.getElementById("tourSubmenu");
+  const icon = document.querySelector("#tourToggle .toggle-icon");
 
-      const requiredFields = [
-        { selector: "#productName", label: "Product Name" },
-        { selector: "#productDescription", label: "Description" },
-        { selector: "#basePrice", label: "Base Price" },
-        { selector: "#minPeople", label: "Min People" },
-        { selector: "#maxPeople", label: "Max People" },
-        { selector: "#duration", label: "Duration" },
-        { selector: "#place", label: "Place" },
-        { selector: "#categorySelect", label: "Category" },
-        { selector: "#statusSelect", label: "Status" },
-        { selector: "#startDate", label: "Start Date" },
-        { selector: "#repeatTimes", label: "Repeat Times" },
-        { selector: "#repeatCycle", label: "Repeat Cycle" },
-      ];
+  if (submenu && icon) {
+    submenu.addEventListener("show.bs.collapse", () => {
+      icon.classList.remove("fa-chevron-down");
+      icon.classList.add("fa-chevron-up");
+    });
 
-      function isMediaValid() {
-        const imageCount = document.querySelectorAll("#imagePreview img").length;
-        const videoCount = document.querySelectorAll("#videoPreview video").length;
-        return {
-          valid: imageCount > 0 || videoCount > 0, // ✅ Chỉ cần 1 trong 2
-          missing: imageCount === 0 && videoCount === 0
-            ? [{ label: "Image or Video", scrollTo: "#imageDropzone" }]
-            : [],
-        };
-      }
+    submenu.addEventListener("hide.bs.collapse", () => {
+      icon.classList.remove("fa-chevron-up");
+      icon.classList.add("fa-chevron-down");
+    });
+  }
+});
 
-      function calculateCompletion() {
-        let filled = 0;
-        const missingFields = [];
+let currentMediaType = null;
 
+function setMediaType(type) {
+  currentMediaType = type;
+  document.getElementById("mediaModalLabel").textContent =
+    type === "image" ? "Add Image" : "Add Video";
+  document.getElementById("mediaUrlInput").value = "";
+  document.getElementById("mediaFileInput").value = "";
+}
 
-        requiredFields.forEach(({ selector, label }) => {
-          const el = document.querySelector(selector);
-          if (el && el.value.trim() !== "") {
-            filled++;
-          } else {
-            missingFields.push({ label, scrollTo: selector });
-          }
-        });
+function addMedia() {
+  const url = document.getElementById("mediaUrlInput").value.trim();
+  const fileInput = document.getElementById("mediaFileInput");
+  const preview = document.getElementById(
+    currentMediaType === "image" ? "imagePreview" : "videoPreview"
+  );
 
+  let mediaHTML = "";
+  if (url) {
+    mediaHTML =
+      currentMediaType === "image"
+        ? `<a href="${url}" target="_blank"><img src="${url}" /></a>`
+        : `<a href="${url}" target="_blank"><video src="${url}" controls muted></video></a>`;
+  } else if (fileInput.files.length > 0) {
+    const fileURL = URL.createObjectURL(fileInput.files[0]);
+    mediaHTML =
+      currentMediaType === "image"
+        ? `<a href="${fileURL}" target="_blank"><img src="${fileURL}" /></a>`
+        : `<a href="${fileURL}" target="_blank"><video src="${fileURL}" controls muted></video></a>`;
+  }
 
-        const media = isMediaValid();
-        if (media.valid) {
-          filled++;
-        } else {
-          missingFields.push(...media.missing);
-        }
+  // ✅ THÊM Ở ĐÂY
+  if (mediaHTML) {
+    preview.insertAdjacentHTML("beforeend", mediaHTML);
+    calculateCompletion(); // ✅ Thêm dòng này để cập nhật phần trăm hoàn thành
+  }
 
+  bootstrap.Modal.getInstance(document.getElementById("mediaModal")).hide();
+}
 
-        const totalFields = requiredFields.length + 1;
-        const percent = Math.round((filled / totalFields) * 100);
+// $(document).ready(function () {
+//   $("#categorySelect").select2({
+//     placeholder: "Select a category",
+//     width: "100%", // đảm bảo vừa khung
+//   });
+// });
+//
+// $(document).ready(function () {
+//   // Select2 for Category and Status
+//   $("#categorySelect, #statusSelect").select2({
+//     placeholder: "Select an option",
+//     width: "100%",
+//   });
+//
+//
+// // Cập nhật badge khi chọn Status
+// $("#statusSelect").on("change", function () {
+//     const selected = $(this).val();
+//     $("#statusBadge").text(selected);
+// });
+// })
 
+const requiredFields = [
+  { selector: "#productName", label: "Product Name" },
+  { selector: "#productDescription", label: "Description" },
+  { selector: "#basePrice", label: "Base Price" },
+  { selector: "#minPeople", label: "Min People" },
+  { selector: "#maxPeople", label: "Max People" },
+  { selector: "#duration", label: "Duration" },
+  { selector: "#place", label: "Place" },
+  { selector: "#categorySelect", label: "Category" },
+  { selector: "#statusSelect", label: "Status" },
+];
 
-        const badge = document.getElementById("completionBadge");
-        badge.innerText = `${percent}%`;
-        badge.className =
-          "badge ms-1 bg-" + (percent < 100 ? "danger" : "success");
+function isMediaValid() {
+  const imageCount = document.querySelectorAll("#imagePreview img").length;
+  const videoCount = document.querySelectorAll("#videoPreview video").length;
+  return {
+    valid: imageCount > 0 || videoCount > 0, // ✅ Chỉ cần 1 trong 2
+    missing:
+      imageCount === 0 && videoCount === 0
+        ? [{ label: "Image or Video", scrollTo: "#imageDropzone" }]
+        : [],
+  };
+}
 
+function calculateCompletion() {
+  let filled = 0;
+  const missingFields = [];
 
-        document.getElementById("addTourBtn").disabled = percent < 100;
+  requiredFields.forEach(({ selector, label }) => {
+    const el = document.querySelector(selector);
+    if (el && el.value.trim() !== "") {
+      filled++;
+    } else {
+      missingFields.push({ label, scrollTo: selector });
+    }
+  });
 
+  const media = isMediaValid();
+  if (media.valid) {
+    filled++;
+  } else {
+    missingFields.push(...media.missing);
+  }
 
-        const msg = document.getElementById("missingFieldsMsg");
-        if (missingFields.length > 0) {
-          msg.innerHTML =
-            "⚠️ Missing: " +
-            missingFields
-              .map(
-                ({ label, scrollTo }) =>
-                  `<a href="javascript:void(0)" onclick="scrollToElement('${scrollTo}')" class="text-danger fw-semibold text-decoration-underline me-1">${label}</a>`
-              )
-              .join(", ");
-        } else {
-          msg.innerHTML = "";
-        }
-      }
+  const totalFields = requiredFields.length + 1;
+  const percent = Math.round((filled / totalFields) * 100);
 
-      function scrollToElement(selector) {
-        const el = document.querySelector(selector);
-        if (el) {
-          // Scroll with center alignment
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+  const badge = document.getElementById("completionBadge");
+  badge.innerText = `${percent}%`;
+  badge.className = "badge ms-1 bg-" + (percent < 100 ? "danger" : "success");
 
+  document.getElementById("addTourBtn").disabled = percent < 100;
 
-          // Add flashing red border
-          el.classList.add("border", "border-3", "border-danger", "rounded");
+  const msg = document.getElementById("missingFieldsMsg");
+  if (missingFields.length > 0) {
+    msg.innerHTML =
+      "⚠️ Missing: " +
+      missingFields
+        .map(
+          ({ label, scrollTo }) =>
+            `<a href="javascript:void(0)" onclick="scrollToElement('${scrollTo}')" class="text-danger fw-semibold text-decoration-underline me-1">${label}</a>`
+        )
+        .join(", ");
+  } else {
+    msg.innerHTML = "";
+  }
+}
 
+function scrollToElement(selector) {
+  const el = document.querySelector(selector);
+  if (el) {
+    // Scroll with center alignment
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
 
-          // Optional focus
-          if (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) {
-            el.focus({ preventScroll: true });
-          }
+    // Add flashing red border
+    el.classList.add("border", "border-3", "border-danger", "rounded");
 
+    // Optional focus
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) {
+      el.focus({ preventScroll: true });
+    }
 
-          // Remove after 2.5 seconds
-          setTimeout(() => {
-            el.classList.remove(
-              "border",
-              "border-3",
-              "border-danger",
-              "rounded"
-            );
-          }, 2500);
-        }
-      }
+    // Remove after 2.5 seconds
+    setTimeout(() => {
+      el.classList.remove("border", "border-3", "border-danger", "rounded");
+    }, 2500);
+  }
+}
 
-      document.addEventListener("DOMContentLoaded", () => {
-        requiredFields.forEach(({ selector }) => {
-          const el = document.querySelector(selector);
-          if (el) {
-            el.addEventListener("input", calculateCompletion);
-            el.addEventListener("change", calculateCompletion);
-          }
-        });
+document.addEventListener("DOMContentLoaded", () => {
+  requiredFields.forEach(({ selector }) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      el.addEventListener("input", calculateCompletion);
+      el.addEventListener("change", calculateCompletion);
+    }
+  });
 
+  // Live watch for media zone
+  observeMediaZone(document.querySelector("#imageDropzone"));
+  observeMediaZone(document.querySelector("#videoDropzone"));
 
-        // Live watch for media zone
-        observeMediaZone(document.querySelector("#imageDropzone"));
-        observeMediaZone(document.querySelector("#videoDropzone"));
+  calculateCompletion(); // Initial
+});
 
-
-        calculateCompletion(); // Initial
-      });
-
-      function initAddTourPage() {
+function initAddTourPage() {
   // Gọi load data cho category & place mỗi lần vào Add Tour
   loadPlacesAndCategories();
-
+  // //Code P thêm
+  // $("#categorySelect").select2({
+  //     placeholder: "Select a category",
+  //     width: "100%"
+  // });
   // Select2 chỉ setup cho status ở đây
-  $("#statusSelect").select2({
-    placeholder: "Select an option",
-    width: "100%",
-    allowClear: true
-  });
+  // $("#statusSelect").select2({
+  //     placeholder: "Select an option",
+  //     width: "100%",
+  //     allowClear: true
+  // });
+
+  if (typeof $.fn.select2 === "function" && $("#categorySelect").length) {
+    $("#categorySelect").select2({
+      placeholder: "Select a category",
+      width: "100%",
+    });
+  }
+  // Select2 chỉ setup cho status ở đây
+  if (typeof $.fn.select2 === "function" && $("#statusSelect").length) {
+    $("#statusSelect").select2({
+      placeholder: "Select an option",
+      width: "100%",
+      allowClear: true,
+    });
+  }
 
   $("#statusSelect").on("change", function () {
     const selected = $(this).val();
@@ -1065,19 +1071,19 @@
     }
   }, 100);
   // Gán lại sự kiện click cho nút Add Tour mỗi lần vào trang này
-    const addBtn = document.getElementById("addTourBtn");
-    if (addBtn) {
-      addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
-    }
+  const addBtn = document.getElementById("addTourBtn");
+  if (addBtn) {
+    addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
+  }
 }
 
-      function observeMediaZone(zone) {
+function observeMediaZone(zone) {
   if (!zone) return;
   const observer = new MutationObserver(calculateCompletion);
   observer.observe(zone, { childList: true, subtree: true });
 }
 
-      async function loadTourList() {
+async function loadTourList() {
   const token = localStorage.getItem("accessToken");
   if (!token) {
     alert("Bạn chưa đăng nhập.");
@@ -1106,59 +1112,67 @@
       "<div class='alert alert-danger'>Không thể kết nối máy chủ.</div>";
   }
 }
-      function statusBadge(status){
-        switch((status||"").toUpperCase()){
-          case "PUBLISHED":    return `<span class="badge bg-success-subtle text-success">Published</span>`;
-          case "ACTIVE":       return `<span class="badge bg-success-subtle text-success">Active</span>`;
-          case "DRAFT":        return `<span class="badge bg-secondary-subtle text-secondary">Draft</span>`;
-          case "LOW_STOCK":    return `<span class="badge bg-warning-subtle text-warning">Low Stock</span>`;
-          case "OUT_OF_STOCK": return `<span class="badge bg-danger-subtle text-danger">Out of Stock</span>`;
-          case "ARCHIVED":     return `<span class="badge bg-light text-dark">Archived</span>`;
-          default:             return `<span class="badge bg-light text-dark">${status}</span>`;
-        }
-      }
 
-      // thêm ngay trên đầu, trước khi loadPage() hoặc renderTourList()
-      let sortField = null;
-      let sortDir   = 'asc';  // 'asc' hoặc 'desc'
+function statusBadge(status) {
+  switch ((status || "").toUpperCase()) {
+    case "PUBLISHED":
+      return `<span class="badge bg-success-subtle text-success">Published</span>`;
+    case "ACTIVE":
+      return `<span class="badge bg-success-subtle text-success">Active</span>`;
+    case "DRAFT":
+      return `<span class="badge bg-secondary-subtle text-secondary">Draft</span>`;
+    case "LOW_STOCK":
+      return `<span class="badge bg-warning-subtle text-warning">Low Stock</span>`;
+    case "OUT_OF_STOCK":
+      return `<span class="badge bg-danger-subtle text-danger">Out of Stock</span>`;
+    case "ARCHIVED":
+      return `<span class="badge bg-light text-dark">Archived</span>`;
+    default:
+      return `<span class="badge bg-light text-dark">${status}</span>`;
+  }
+}
 
-      function sortBy(field) {
-        // toggle nếu click lại cùng field
-        if (sortField === field) {
-          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-          sortField = field;
-          sortDir   = 'asc';
-        }
-        // sắp xếp toursData
-        toursData.sort((a, b) => {
-          let va = a[field], vb = b[field];
-          if (field === 'price') {
-            va = Number(a.price) || 0;
-            vb = Number(b.price) || 0;
-          } else {
-            va = (va||'').toString().toLowerCase();
-            vb = (vb||'').toString().toLowerCase();
-          }
-          if (va < vb) return sortDir==='asc' ? -1 : 1;
-          if (va > vb) return sortDir==='asc' ?  1 : -1;
-          return 0;
-        });
-        currentPage = 1;
-        renderTourList();
-      }
+// thêm ngay trên đầu, trước khi loadPage() hoặc renderTourList()
+let sortField = null;
+let sortDir = "asc"; // 'asc' hoặc 'desc'
 
+function sortBy(field) {
+  // toggle nếu click lại cùng field
+  if (sortField === field) {
+    sortDir = sortDir === "asc" ? "desc" : "asc";
+  } else {
+    sortField = field;
+    sortDir = "asc";
+  }
+  // sắp xếp toursData
+  toursData.sort((a, b) => {
+    let va = a[field],
+      vb = b[field];
+    if (field === "price") {
+      va = Number(a.price) || 0;
+      vb = Number(b.price) || 0;
+    } else {
+      va = (va || "").toString().toLowerCase();
+      vb = (vb || "").toString().toLowerCase();
+    }
+    if (va < vb) return sortDir === "asc" ? -1 : 1;
+    if (va > vb) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
+  currentPage = 1;
+  renderTourList();
+}
 
-      function renderTourList() {
-          const body = document.getElementById("tourListBody");
-          if (!body) return;
+function renderTourList() {
+  const body = document.getElementById("tourListBody");
+  if (!body) return;
 
-          body.innerHTML = "";
+  body.innerHTML = "";
 
-          // Build table
-          const table = document.createElement("table");
-          table.className = "table table-hover table-modern mb-0 w-100 align-middle";
-          table.innerHTML = `
+  // Build table
+  const table = document.createElement("table");
+  table.className = "table table-hover table-modern mb-0 w-100 align-middle";
+  table.innerHTML = `
     <thead class="table-success text-nowrap">
       <tr>
             <th style="width:36px"><input type="checkbox" id="chkAll"></th>
@@ -1186,41 +1200,44 @@
     </thead>
     <tbody></tbody>
   `;
-          body.appendChild(table);
+  body.appendChild(table);
 
-          const tbody = table.querySelector("tbody");
-          if (!Array.isArray(toursData) || toursData.length === 0) {
-              tbody.innerHTML = `
+  const tbody = table.querySelector("tbody");
+  if (!Array.isArray(toursData) || toursData.length === 0) {
+    tbody.innerHTML = `
       <tr>
         <td colspan="8" class="text-center py-4">
           <div class="alert alert-warning mb-0">Chưa có tour nào.</div>
         </td>
       </tr>
     `;
-              renderPagination();
-              return;
-          }
+    renderPagination();
+    return;
+  }
 
-          // Paging
-          const start = (currentPage - 1) * pageSize;
-          const end   = start + pageSize;
-          const list  = toursData.slice(start, end);
+  // Paging
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const list = toursData.slice(start, end);
 
-          // Use DocumentFragment for performance
-          const frag = document.createDocumentFragment();
+  // Use DocumentFragment for performance
+  const frag = document.createDocumentFragment();
 
-          for (const tour of list) {
-              const thumb    = tour.thumbnail || "https://via.placeholder.com/40x40?text=IMG";
-              const price    = (Number(tour.price) || 0).toLocaleString("vi-VN") + " ₫";
-              const category = tour.categoryName || "-";
-              const regs     = (typeof tour.bookedCustomerCount === "number" && !isNaN(tour.bookedCustomerCount))
-                  ? tour.bookedCustomerCount
-                  : Number(tour.bookedCustomerCount) || 0;
-              const creator  = tour.createdByUserName || "-";
-              const regText  = `${regs} người đăng ký`;
+  for (const tour of list) {
+    const thumb =
+      tour.thumbnail || "https://via.placeholder.com/40x40?text=IMG";
+    const price = (Number(tour.price) || 0).toLocaleString("vi-VN") + " ₫";
+    const category = tour.categoryName || "-";
+    const regs =
+      typeof tour.bookedCustomerCount === "number" &&
+      !isNaN(tour.bookedCustomerCount)
+        ? tour.bookedCustomerCount
+        : Number(tour.bookedCustomerCount) || 0;
+    const creator = tour.createdByUserName || "-";
+    const regText = `${regs} người đăng ký`;
 
-              const tr = document.createElement("tr");
-              tr.innerHTML = `
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td><input type="checkbox" data-id="${tour.tourId}"></td>
       <td>
         <div class="d-flex align-items-center gap-2">
@@ -1266,71 +1283,68 @@
         ></i>
       </td>
     `;
-              frag.appendChild(tr);
-          }
+    frag.appendChild(tr);
+  }
 
-          tbody.appendChild(frag);
-          // ⚙️ cập nhật icon mũi tên
-            ['tourName','categoryName','price'].forEach(field => {
-              const icon = document.getElementById(`icon-${field}`);
-              if (!icon) return;
-              icon.className = 'bi';  // reset classes
-              if (sortField === field) {
-                icon.classList.add(
-                  sortDir === 'asc'
-                    ? 'bi-caret-up-fill'
-                    : 'bi-caret-down-fill'
-                );
-              } else {
-                icon.classList.add('bi-caret-down');
-              }
-            });
+  tbody.appendChild(frag);
+  // ⚙️ cập nhật icon mũi tên
+  ["tourName", "categoryName", "price"].forEach((field) => {
+    const icon = document.getElementById(`icon-${field}`);
+    if (!icon) return;
+    icon.className = "bi"; // reset classes
+    if (sortField === field) {
+      icon.classList.add(
+        sortDir === "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill"
+      );
+    } else {
+      icon.classList.add("bi-caret-down");
+    }
+  });
 
-            // === Select All Checkbox ===
-            const chkAll = table.querySelector('#chkAll');
-            if (chkAll) {
-              chkAll.addEventListener('change', function() {
-                const isChecked = this.checked;
-                // đánh dấu hoặc bỏ đánh dấu tất cả các checkbox trong tbody
-                table
-                  .querySelectorAll('tbody input[type="checkbox"]')
-                  .forEach(cb => { cb.checked = isChecked; });
-              });
-            }
-          renderPagination();
-      }
+  // === Select All Checkbox ===
+  const chkAll = table.querySelector("#chkAll");
+  if (chkAll) {
+    chkAll.addEventListener("change", function () {
+      const isChecked = this.checked;
+      // đánh dấu hoặc bỏ đánh dấu tất cả các checkbox trong tbody
+      table.querySelectorAll('tbody input[type="checkbox"]').forEach((cb) => {
+        cb.checked = isChecked;
+      });
+    });
+  }
+  renderPagination();
+}
 
-      function viewTour(tourId) {
-        window.location.href = `/tourify/tourDetailDashboard?id=${tourId}`;
-      }
+function viewTour(tourId) {
+  window.location.href = `/tourify/tourDetailDashboard?id=${tourId}`;
+}
 
-      async function deleteTour(tourId) {
-        if (!confirm('Bạn có chắc muốn xóa tour này?')) return;
-        const token = localStorage.getItem('accessToken');
+async function deleteTour(tourId) {
+  if (!confirm("Bạn có chắc muốn xóa tour này?")) return;
+  const token = localStorage.getItem("accessToken");
 
-        try {
-          const res = await fetch(`/tourify/api/tours/${tourId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          const result = await res.json();
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const result = await res.json();
 
-          if (res.ok && result.code === 1000) {
-            showPopup('success', 'Thành công', 'Xóa tour thành công');
-            // → Reload lại danh sách (SPA) hoặc reload toàn bộ trang
-            loadTourList();             // nếu bạn muốn refresh chỉ table
-            // window.location.reload(); // nếu bạn muốn reload hẳn trang
-          } else {
-            showPopup('danger', 'Thất bại', result.message || 'Xóa tour thất bại');
-          }
-        } catch (err) {
-          console.error(err);
-          showPopup('danger', 'Lỗi', 'Không thể kết nối máy chủ');
-        }
-      }
+    if (res.ok && result.code === 1000) {
+      showPopup("success", "Thành công", "Xóa tour thành công");
+      // → Reload lại danh sách (SPA) hoặc reload toàn bộ trang
+      loadTourList(); // nếu bạn muốn refresh chỉ table
+      // window.location.reload(); // nếu bạn muốn reload hẳn trang
+    } else {
+      showPopup("danger", "Thất bại", result.message || "Xóa tour thất bại");
+    }
+  } catch (err) {
+    console.error(err);
+    showPopup("danger", "Lỗi", "Không thể kết nối máy chủ");
+  }
+}
 
-
-      function renderPagination() {
+function renderPagination() {
   const totalPages = Math.ceil(toursData.length / pageSize);
   if (totalPages <= 1) return;
 
@@ -1338,15 +1352,24 @@
   pagination.className = "mt-4";
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
-      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})">Trang trước</a>
+      <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+          currentPage - 1
+        })">Trang trước</a>
       </li>
-      ${Array.from({ length: totalPages }, (_, i) => `
-        <li class="page-item ${currentPage === i + 1 ? 'active' : ''}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1})">${i + 1}</a>
-        </li>`).join('')}
-      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})">Trang sau</a>
+      ${Array.from(
+        { length: totalPages },
+        (_, i) => `
+        <li class="page-item ${currentPage === i + 1 ? "active" : ""}">
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+            i + 1
+          })">${i + 1}</a>
+        </li>`
+      ).join("")}
+      <li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+          currentPage + 1
+        })">Trang sau</a>
       </li>
     </ul>
   `;
@@ -1356,7 +1379,7 @@
   if (body) body.appendChild(pagination);
 }
 
-      function changePage(newPage) {
+function changePage(newPage) {
   const totalPages = Math.ceil(toursData.length / pageSize);
   if (newPage >= 1 && newPage <= totalPages) {
     currentPage = newPage;
@@ -1364,183 +1387,197 @@
   }
 }
 
-      document.addEventListener("DOMContentLoaded", function () {
-    const username = localStorage.getItem("username") || "Guest";
-    document.getElementById("usernameDisplay").textContent = username;
-  });
-
-      document.addEventListener("DOMContentLoaded", function () {
-    const token = localStorage.getItem("accessToken");
-    const loginBtn = document.getElementById("login-link");
-    const logoutBtn = document.getElementById("logout-link");
-
-    if (token) {
-        // Đã đăng nhập: Hiện Logout, ẩn Login
-        if (logoutBtn) logoutBtn.style.display = "";
-        if (loginBtn) loginBtn.style.display = "none";
-    } else {
-        // Chưa đăng nhập: Hiện Login, ẩn Logout
-        if (logoutBtn) logoutBtn.style.display = "none";
-        if (loginBtn) loginBtn.style.display = "";
-    }
-
-    // Gắn event login nếu muốn
-    if (loginBtn) {
-        loginBtn.onclick = function() {
-            window.location.href = "/tourify/login"; // Đổi thành đường dẫn login của bạn
-        }
-    }
+document.addEventListener("DOMContentLoaded", function () {
+  const username = localStorage.getItem("username") || "Guest";
+  document.getElementById("usernameDisplay").textContent = username;
 });
 
-      document.getElementById("logout-link")?.addEventListener("click", function() {
-    localStorage.removeItem("accessToken");
-    window.location.href = "/tourify/login"; // hoặc reload lại trang
+document.addEventListener("DOMContentLoaded", function () {
+  const token = localStorage.getItem("accessToken");
+  const loginBtn = document.getElementById("login-link");
+  const logoutBtn = document.getElementById("logout-link");
+
+  if (token) {
+    // Đã đăng nhập: Hiện Logout, ẩn Login
+    if (logoutBtn) logoutBtn.style.display = "";
+    if (loginBtn) loginBtn.style.display = "none";
+  } else {
+    // Chưa đăng nhập: Hiện Login, ẩn Logout
+    if (logoutBtn) logoutBtn.style.display = "none";
+    if (loginBtn) loginBtn.style.display = "";
+  }
+
+  // Gắn event login nếu muốn
+  if (loginBtn) {
+    loginBtn.onclick = function () {
+      window.location.href = "/tourify/login"; // Đổi thành đường dẫn login của bạn
+    };
+  }
 });
 
-      function initAnalyticsPage() {
-          const btnFilter = document.getElementById("btnFilter");
-          const inpStart = document.getElementById("startDate");
-          const inpEnd = document.getElementById("endDate");
-          const tableDay = document.getElementById("tbodyDay");
-          const tableMonth = document.getElementById("tbodyMonth");
-          const tableYear = document.getElementById("tbodyYear");
-          const revenueData = { day: [], month: [], year: [] };
-          const accessToken = localStorage.getItem("accessToken");
+document.getElementById("logout-link")?.addEventListener("click", function () {
+  localStorage.removeItem("accessToken");
+  window.location.href = "/tourify/login"; // hoặc reload lại trang
+});
 
-          // ===== 1. Giải mã JWT để lấy userId =====
-          function getUserIdFromToken(token) {
-              if (!token) return null;
-              try {
-                  const base64Url = token.split('.')[1];
-                  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                  const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-                      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-                  ).join(''));
-                  const payload = JSON.parse(jsonPayload);
-                  // Thường là "userId", có thể backend custom, nhưng với Spring Security phổ biến là userId
-                  return payload.userId || payload.subCompanyId || null;
-              } catch (e) {
-                  console.error("Decode token error:", e);
-                  return null;
-              }
-          }
+function initAnalyticsPage() {
+  // nếu không ở trang analytics, abort
+  const btnFilter = document.getElementById("btnFilter");
+  if (!btnFilter) return;
+  const inpStart = document.getElementById("startDate");
+  const inpEnd = document.getElementById("endDate");
+  const tableDay = document.getElementById("tbodyDay");
+  const tableMonth = document.getElementById("tbodyMonth");
+  const tableYear = document.getElementById("tbodyYear");
+  const revenueData = { day: [], month: [], year: [] };
+  const accessToken = localStorage.getItem("accessToken");
 
-          // ===== 2. Format tiền tệ =====
-          function formatVND(amount) {
-              // Nếu null/undefined hoặc không phải số thì về 0
-              return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
-          }
+  // ===== 1. Giải mã JWT để lấy userId =====
+  function getUserIdFromToken(token) {
+    if (!token) return null;
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+          .join("")
+      );
+      const payload = JSON.parse(jsonPayload);
+      // Thường là "userId", có thể backend custom, nhưng với Spring Security phổ biến là userId
+      return payload.userId || payload.subCompanyId || null;
+    } catch (e) {
+      console.error("Decode token error:", e);
+      return null;
+    }
+  }
 
-          // ===== 3. Render bảng =====
-          function renderTable(type) {
-              let data = revenueData[type] || [];
-              let tbody = type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
-              tbody.innerHTML = "";
+  // ===== 2. Format tiền tệ =====
+  function formatVND(amount) {
+    // Nếu null/undefined hoặc không phải số thì về 0
+    return (Number(amount) || 0).toLocaleString("vi-VN") + " ₫";
+  }
 
-              if (!Array.isArray(data) || !data.length) {
-                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
-                  return;
-              }
+  // ===== 3. Render bảng =====
+  function renderTable(type) {
+    let data = revenueData[type] || [];
+    let tbody =
+      type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+    tbody.innerHTML = "";
 
-              for (const row of data) {
-                  // CHÚ Ý: Đảm bảo lấy đúng totalRevenue dạng số
-                  let revenueVal = 0;
-                  if (row && row.totalRevenue !== undefined && row.totalRevenue !== null) {
-                      revenueVal = Number(row.totalRevenue);
-                      if (isNaN(revenueVal)) revenueVal = 0;
-                  }
-                  // DEBUG LOG: Log từng row cho dev check
-                  // console.log("Row:", row, "Parsed totalRevenue:", revenueVal);
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+      return;
+    }
 
-                  const tr = document.createElement("tr");
-                  tr.innerHTML = `
+    for (const row of data) {
+      // CHÚ Ý: Đảm bảo lấy đúng totalRevenue dạng số
+      let revenueVal = 0;
+      if (row && row.totalRevenue !== undefined && row.totalRevenue !== null) {
+        revenueVal = Number(row.totalRevenue);
+        if (isNaN(revenueVal)) revenueVal = 0;
+      }
+      // DEBUG LOG: Log từng row cho dev check
+      // console.log("Row:", row, "Parsed totalRevenue:", revenueVal);
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
                 <td>${row.time || "-"}</td>
                 <td>${row.companyName || "-"}</td>
                 <td>${formatVND(revenueVal)}</td>
             `;
-                  tbody.appendChild(tr);
-              }
-          }
+      tbody.appendChild(tr);
+    }
+  }
 
-          // ===== 4. Gọi API và render =====
-          async function fetchAndRenderAll() {
-              const start = inpStart.value;
-              const end = inpEnd.value;
-              if (!start || !end) return;
+  // ===== 4. Gọi API và render =====
+  async function fetchAndRenderAll() {
+    const start = inpStart.value;
+    const end = inpEnd.value;
+    if (!start || !end) return;
 
-              [tableDay, tableMonth, tableYear].forEach(tbody =>
-                  tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
-              );
+    [tableDay, tableMonth, tableYear].forEach(
+      (tbody) =>
+        (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
+    );
 
-              // Lấy userId từ token (chính là subCompanyId)
-              const subCompanyId = getUserIdFromToken(accessToken);
-              if (!subCompanyId) {
-                  [tableDay, tableMonth, tableYear].forEach(tbody =>
-                      tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`
-                  );
-                  console.error("Không tìm thấy subCompanyId trong token!");
-                  return;
-              }
+    // Lấy userId từ token (chính là subCompanyId)
+    const subCompanyId = getUserIdFromToken(accessToken);
+    if (!subCompanyId) {
+      [tableDay, tableMonth, tableYear].forEach(
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+      );
+      console.error("Không tìm thấy subCompanyId trong token!");
+      return;
+    }
 
-              try {
-                  const headers = { "Authorization": "Bearer " + accessToken };
-                  // API backend yêu cầu: subCompanyId = userId lấy từ token!
-                  const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-                  const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-                  const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+    try {
+      const headers = { Authorization: "Bearer " + accessToken };
+      // API backend yêu cầu: subCompanyId = userId lấy từ token!
+      const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+      const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+      const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
 
-                  // Đợi dữ liệu về cùng lúc
-                  const [d, m, y] = await Promise.all([
-                      fetch(dayUrl, { headers }).then(r => r.json()),
-                      fetch(monthUrl, { headers }).then(r => r.json()),
-                      fetch(yearUrl, { headers }).then(r => r.json()),
-                  ]);
+      // Đợi dữ liệu về cùng lúc
+      const [d, m, y] = await Promise.all([
+        fetch(dayUrl, { headers }).then((r) => r.json()),
+        fetch(monthUrl, { headers }).then((r) => r.json()),
+        fetch(yearUrl, { headers }).then((r) => r.json()),
+      ]);
 
-                  // Lưu lại
-                  revenueData.day = Array.isArray(d) ? d : [];
-                  revenueData.month = Array.isArray(m) ? m : [];
-                  revenueData.year = Array.isArray(y) ? y : [];
+      // Lưu lại
+      revenueData.day = Array.isArray(d) ? d : [];
+      revenueData.month = Array.isArray(m) ? m : [];
+      revenueData.year = Array.isArray(y) ? y : [];
 
-                  // Render tab đang active
-                  const activeTab = document.querySelector('.tab-pane.active').id;
-                  if (activeTab === "revenue-day") renderTable("day");
-                  if (activeTab === "revenue-month") renderTable("month");
-                  if (activeTab === "revenue-year") renderTable("year");
-              } catch (err) {
-                  [tableDay, tableMonth, tableYear].forEach(tbody =>
-                      tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
-                  );
-                  console.error(err);
-              }
-          }
+      // Render tab đang active
+      const activeTab = document.querySelector(".tab-pane.active").id;
+      if (activeTab === "revenue-day") renderTable("day");
+      if (activeTab === "revenue-month") renderTable("month");
+      if (activeTab === "revenue-year") renderTable("year");
+    } catch (err) {
+      [tableDay, tableMonth, tableYear].forEach(
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+      );
+      console.error(err);
+    }
+  }
 
-          // ===== 5. Sự kiện UI =====
-          btnFilter.onclick = fetchAndRenderAll;
-          document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
-              if (e.target.classList.contains('nav-link')) {
-                  setTimeout(() => {
-                      if (e.target.id === 'day-tab') renderTable("day");
-                      if (e.target.id === 'month-tab') renderTable("month");
-                      if (e.target.id === 'year-tab') renderTable("year");
-                  }, 50);
-              }
-          });
-
-          // Set ngày mặc định
-          const today = new Date();
-          inpEnd.value = today.toISOString().slice(0, 10);
-          const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-          inpStart.value = lastMonth.toISOString().slice(0, 10);
-          fetchAndRenderAll();
+  // ===== 5. Sự kiện UI =====
+  // btnFilter.onclick = fetchAndRenderAll;
+  document
+    .getElementById("revenue-range-tabs")
+    .addEventListener("click", function (e) {
+      if (e.target.classList.contains("nav-link")) {
+        setTimeout(() => {
+          if (e.target.id === "day-tab") renderTable("day");
+          if (e.target.id === "month-tab") renderTable("month");
+          if (e.target.id === "year-tab") renderTable("year");
+        }, 50);
       }
+    });
 
-      // Gọi sau khi HTML đã render xong:
-      setTimeout(initAnalyticsPage, 0);
+  // Set ngày mặc định
+  const today = new Date();
+  inpEnd.value = today.toISOString().slice(0, 10);
+  const lastMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() - 1,
+    today.getDate()
+  );
+  inpStart.value = lastMonth.toISOString().slice(0, 10);
+  fetchAndRenderAll();
+}
 
+// Gọi sau khi HTML đã render xong:
+// setTimeout(initAnalyticsPage, 0);
 
 // khởi tạo toast
-const toastEl = document.getElementById('liveToast');
-const toast    = new bootstrap.Toast(toastEl);
+const toastEl = document.getElementById("liveToast");
+const toast = new bootstrap.Toast(toastEl);
 
 /**
  * showPopup(type, title, message)
@@ -1548,14 +1585,116 @@ const toast    = new bootstrap.Toast(toastEl);
  */
 function showPopup(type, title, message) {
   // (tuỳ chọn) đổi tiêu đề cho khác màu:
-  const header = toastEl.querySelector('.toast-header');
+  const header = toastEl.querySelector(".toast-header");
   header.className = `toast-header bg-${type} text-white`;
-  document.getElementById('toastTitle').textContent = title;
-  document.getElementById('toastBody').textContent  = message;
+  document.getElementById("toastTitle").textContent = title;
+  document.getElementById("toastBody").textContent = message;
   toast.show();
 }
-document.addEventListener('DOMContentLoaded', function () {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('startDate').setAttribute('min', today);
-});
 
+// 1. Hàm format ngày
+function formatDate(isoString) {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+// ===================== ACCOUNT LIST (CUSTOMERS) =====================
+function formatAccountDate(isoString) {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+async function loadAccounts(query = "") {
+    const table = document.getElementById('accountTable');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+    try {
+        const resp = await fetch('/tourify/api/user' + (query ? `?search=${encodeURIComponent(query)}` : ''), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            }
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const json = await resp.json();
+        const users = json.result || [];
+        tbody.innerHTML = '';
+        users.forEach(u => {
+            // Format ngày sinh (ISO → DD/MM/YYYY)
+            let dob = '';
+            if (u.dob) {
+                dob = formatAccountDate(u.dob);
+            }
+            // Giới tính
+            const gender = u.gender === true || u.gender === 'Male'
+                ? 'Male' : u.gender === false || u.gender === 'Female'
+                    ? 'Female' : '';
+            // Trạng thái
+            const statusClass = u.status && u.status.toLowerCase() === 'active'
+                ? 'status-active' : 'status-blocked';
+            // Tạo 1 row mới
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+        <td><input type="checkbox"></td>
+        <td>${u.role || ''}</td>
+        <td>
+          <div class="d-flex align-items-center">
+            <img src="${u.avatar || '/static/images/avatar_default.jpg'}"
+                 style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
+            <div>
+              <div style="font-weight:600; color:#22292f;">
+                ${u.userName || ''}
+              </div>
+              <div style="font-size:0.95em; color:#8b909a;">
+                ${u.email || ''}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>${(u.firstName||'') + ' ' + (u.lastName||'')}</td>
+        <td>${gender}</td>
+        <td>${u.phoneNumber || ''}</td>
+        <td>${u.address || ''}</td>
+        <td>${dob}</td>
+        <td><span class="${statusClass}">${u.status || ''}</span></td>
+        <td class="action-btns">
+          <i class="fa fa-pen text-primary" title="Edit"></i>
+          <i class="fa fa-trash text-danger" title="Delete"></i>
+        </td>
+      `;
+            tbody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error('Fetch users failed:', err);
+    }
+}
+
+function initCustomersPage() {
+    const table = document.getElementById('accountTable');
+    if (!table) return;
+    const tbody = table.querySelector('tbody');
+    const searchInput = document.querySelector('input[placeholder="Search account..."]');
+    if (!tbody || !searchInput) return;
+    // Load lần đầu
+    loadAccounts();
+    // Debounce search
+    searchInput.addEventListener("input", function () {
+        clearTimeout(this._timeout);
+        this._timeout = setTimeout(() => loadAccounts(this.value.trim()), 300);
+    });
+    // Action buttons (edit/delete) - có thể mở rộng sau
+    tbody.addEventListener("click", function (e) {
+        const btn = e.target.closest("i");
+        if (!btn) return;
+        // TODO: Gắn logic edit/delete nếu cần
+    });
+}

@@ -80,8 +80,36 @@ public class UserService {
         }
     }
 
-    public List<UserResponse> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+
+    // Get all user
+//    public List<UserResponse> getUsers() {
+//        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+//    }
+    // phương thức mới:
+    public List<UserResponse> getAllUsersForAdmin(String bearerToken) {
+        // 1. Tách token
+        String tokenValue = bearerToken.startsWith("Bearer ")
+                ? bearerToken.substring(7)
+                : bearerToken;
+
+        // 2. Lấy session từ DB
+        TokenAuthentication session = tokenRepo.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn");
+        }
+
+        // 3. Lấy user gắn với token
+        User me = session.getUser();
+
+        // 4. Check role
+        if (!"admin".equalsIgnoreCase(me.getRole())) {
+            throw new AppException(OPERATION_NOT_ALLOWED, "Chỉ ADMIN mới có quyền xem danh sách người dùng");
+        }
+
+        // 5. Thực sự trả về danh sách
+        return userRepository.findAll().stream()
+                .map(userMapper::toUserResponse)
+                .toList();
     }
 
     public UserResponse updateUser(String id, UserUpdateRequest request) {

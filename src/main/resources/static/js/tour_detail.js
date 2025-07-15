@@ -31,6 +31,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const favIcon = favBtn ? favBtn.querySelector('i') : null;
     let isFavorite = false;
     const token = localStorage.getItem('accessToken');
+    const bookingEL = document.getElementById('link-booking');
+
+    if (bookingEL && tourId) {
+        bookingEL.href = `/tourify/tour/booking?id=${tourId}`;
+    }
 
     if (!tourId) {
         if (titleEl) titleEl.textContent = "Tour Not Found";
