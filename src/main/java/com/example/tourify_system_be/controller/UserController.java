@@ -1,6 +1,7 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
+import com.example.tourify_system_be.dto.response.BookingTourResponse;
 import com.example.tourify_system_be.dto.response.CreditCardResponse;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.dto.response.UserResponse;
@@ -222,5 +223,10 @@ public class UserController {
                 .build();
     }
 
-
+    @GetMapping("/booking")
+    public APIResponse<?> getAllBooking(@RequestHeader("Authorization") String token){
+        return APIResponse.<List<BookingTourResponse>>builder()
+                .result(userService.getAllBooking(token))
+                .build();
+    }
 }
