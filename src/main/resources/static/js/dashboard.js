@@ -1,8 +1,26 @@
 let toursData = []; // lưu toàn bộ danh sách tour
 let currentPage = 1; // trang hiện tại
-const pageSize = 6; // số tour mỗi trang
+let sortField = null;
+let sortDir = "asc"; // 'asc' hoặc 'desc'
+let currentMediaType = null;
 
-/* modern-ui pages */
+const requiredFields = [
+  { selector: "#productName", label: "Product Name" },
+  { selector: "#productDescription", label: "Description" },
+  { selector: "#basePrice", label: "Base Price" },
+  { selector: "#minPeople", label: "Min People" },
+  { selector: "#maxPeople", label: "Max People" },
+  { selector: "#duration", label: "Duration" },
+  { selector: "#place", label: "Place" },
+  { selector: "#categorySelect", label: "Category" },
+  { selector: "#statusSelect", label: "Status" },
+  { selector: "#startDate", label: "Start Date" },
+  { selector: "#repeatTimes", label: "Repeat Times" },
+  { selector: "#repeatCycle", label: "Repeat Cycle" },
+];
+const toastEl = document.getElementById("liveToast");
+const toast = toastEl ? new bootstrap.Toast(toastEl) : null;
+const pageSize = 6; // số tour mỗi trang
 const pages = {
   /* === 1. DASHBOARD === */
   dashboard: {
@@ -554,7 +572,7 @@ const pages = {
 
   /* === 7. SELLERS === */
   seller: {
-    title: "Seller",
+    title: "List Tour Wait Approve",
     breadcrumbs: ["dashboard"],
     content: `
           <div class="container-fluid py-4">
@@ -563,7 +581,7 @@ const pages = {
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
                   <!-- Search box bên trái -->
                   <div class="flex-grow-1" style="min-width:220px;max-width:520px;">
-                    <input class="form-control-mint w-100" type="text" placeholder="Search seller..." id="sellerSearch" />
+                    <input class="form-control-mint w-100" type="text" placeholder="Search tour..." id="sellerSearch" />
                   </div>
                   <!-- 2 nút bên phải -->
                   <div class="d-flex gap-2 flex-shrink-0">
@@ -581,12 +599,12 @@ const pages = {
                     <thead>
                       <tr>
                         <th style="width:32px"><input type="checkbox"></th>
-                        <th style="min-width:180px">Seller Name</th>
-                        <th style="min-width:140px">Email</th>
-                        <th style="min-width:120px">Phone</th>
-                        <th style="min-width:110px">Joined</th>
-                        <th style="min-width:100px">Products</th>
-                        <th style="min-width:110px">Status</th>
+                        <th style="min-width:180px">Thumbnail</th>
+                        <th style="min-width:140px">Tour Name</th>
+                        <th style="min-width:120px">Sub-Company</th>
+                        <th style="min-width:110px">Price</th>
+                        <th style="min-width:100px">Place</th>
+                        <th style="min-width:110px">Created At</th>
                         <th style="min-width:90px">Action</th>
                       </tr>
                     </thead>
@@ -889,6 +907,9 @@ function loadPage(pageKey) {
 
   document.getElementById("mainContent").innerHTML =
     breadcrumbHtml + page.content;
+if (pageKey === "seller") {
+  setTimeout(loadDraftToursForSeller, 0);
+}
 
   // Load các trang đặc biệt
   if (pageKey === "addTour") {
@@ -980,8 +1001,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-let currentMediaType = null;
-
 function setMediaType(type) {
   currentMediaType = type;
   document.getElementById("mediaModalLabel").textContent =
@@ -1001,13 +1020,13 @@ function addMedia() {
   if (url) {
     mediaHTML =
       currentMediaType === "image"
-        ? `<a href="${url}" target="_blank"><img src="${url}" /></a>`
+        ? `<a href="${url}" target="_blank"><img src="${url}"  alt=""/></a>`
         : `<a href="${url}" target="_blank"><video src="${url}" controls muted></video></a>`;
   } else if (fileInput.files.length > 0) {
     const fileURL = URL.createObjectURL(fileInput.files[0]);
     mediaHTML =
       currentMediaType === "image"
-        ? `<a href="${fileURL}" target="_blank"><img src="${fileURL}" /></a>`
+        ? `<a href="${fileURL}" target="_blank"><img src="${fileURL}"  alt=""/></a>`
         : `<a href="${fileURL}" target="_blank"><video src="${fileURL}" controls muted></video></a>`;
   }
 
@@ -1019,43 +1038,6 @@ function addMedia() {
 
   bootstrap.Modal.getInstance(document.getElementById("mediaModal")).hide();
 }
-
-// $(document).ready(function () {
-//   $("#categorySelect").select2({
-//     placeholder: "Select a category",
-//     width: "100%", // đảm bảo vừa khung
-//   });
-// });
-//
-// $(document).ready(function () {
-//   // Select2 for Category and Status
-//   $("#categorySelect, #statusSelect").select2({
-//     placeholder: "Select an option",
-//     width: "100%",
-//   });
-//
-//
-// // Cập nhật badge khi chọn Status
-// $("#statusSelect").on("change", function () {
-//     const selected = $(this).val();
-//     $("#statusBadge").text(selected);
-// });
-// })
-
-const requiredFields = [
-  { selector: "#productName", label: "Product Name" },
-  { selector: "#productDescription", label: "Description" },
-  { selector: "#basePrice", label: "Base Price" },
-  { selector: "#minPeople", label: "Min People" },
-  { selector: "#maxPeople", label: "Max People" },
-  { selector: "#duration", label: "Duration" },
-  { selector: "#place", label: "Place" },
-  { selector: "#categorySelect", label: "Category" },
-  { selector: "#statusSelect", label: "Status" },
-  { selector: "#startDate", label: "Start Date" },
-  { selector: "#repeatTimes", label: "Repeat Times" },
-  { selector: "#repeatCycle", label: "Repeat Cycle" },
-];
 
 function isMediaValid() {
   const imageCount = document.querySelectorAll("#imagePreview img").length;
@@ -1270,10 +1252,6 @@ function statusBadge(status) {
       return `<span class="badge bg-light text-dark">${status}</span>`;
   }
 }
-
-// thêm ngay trên đầu, trước khi loadPage() hoặc renderTourList()
-let sortField = null;
-let sortDir = "asc"; // 'asc' hoặc 'desc'
 
 function sortBy(field) {
   // toggle nếu click lại cùng field
@@ -1559,615 +1537,404 @@ document.getElementById("logout-link")?.addEventListener("click", function () {
   window.location.href = "/tourify/login"; // hoặc reload lại trang
 });
 
+// ==== TOAST POPUP - Hiển thị thông báo góc phải ====
+/**
+ * Hiển thị popup ở góc phải (Bootstrap Toast)
+ * @param {'success'|'danger'} type
+ * @param {string} title
+ * @param {string} message
+ */
+function showPopup(type, title, message) {
+  if (!toastEl) return;
+  const header = toastEl.querySelector(".toast-header");
+  header.className = `toast-header bg-${type} text-white`;
+  document.getElementById("toastTitle").textContent = title;
+  document.getElementById("toastBody").textContent = message;
+  toast.show();
+}
+
+// ==== JWT decode helpers ====
+function getRoleFromToken(token) {
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    const payload = JSON.parse(jsonPayload);
+    return (payload.role || "").toLowerCase();
+  } catch {
+    return null;
+  }
+}
+function getSubCompanyIdFromToken(token) {
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    const payload = JSON.parse(jsonPayload);
+    return payload.subCompanyId || payload.userId || null;
+  } catch {
+    return null;
+  }
+}
+
+// ==== Format tiền tệ, ngày tháng ====
+function formatVND(amount) {
+  return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
+}
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+function formatAccountDate(isoString) {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  return d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+}
+
+// ================== ANALYTICS PAGE MAIN FUNCTION ===================
 function initAnalyticsPage() {
-  // nếu không ở trang analytics, abort
+  // --- Element reference ---
   const btnFilter = document.getElementById("btnFilter");
-  if (!btnFilter) return;
   const inpStart = document.getElementById("startDate");
   const inpEnd = document.getElementById("endDate");
   const tableDay = document.getElementById("tbodyDay");
   const tableMonth = document.getElementById("tbodyMonth");
   const tableYear = document.getElementById("tbodyYear");
+  const sysTableDay = document.getElementById("systemTbodyDay");
+  const sysTableMonth = document.getElementById("systemTbodyMonth");
+  const sysTableYear = document.getElementById("systemTbodyYear");
+  if (!btnFilter || !inpStart || !inpEnd || !tableDay || !tableMonth || !tableYear) return;
+
+  // --- Dữ liệu ---
   const revenueData = {day: [], month: [], year: []};
+  const sysRevenueData = {day: [], month: [], year: []};
   const accessToken = localStorage.getItem("accessToken");
 
-  // ===== 1. Giải mã JWT để lấy userId =====
-  function getUserIdFromToken(token) {
-    if (!token) return null;
-    try {
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const jsonPayload = decodeURIComponent(
-          atob(base64)
-              .split("")
-              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-              .join("")
-      );
-      const payload = JSON.parse(jsonPayload);
-      // Thường là "userId", có thể backend custom, nhưng với Spring Security phổ biến là userId
-      return payload.userId || payload.subCompanyId || null;
-    } catch (e) {
-      console.error("Decode token error:", e);
-      return null;
-    }
-  }
+  // --- Chart object ---
+  const chartObjects = {
+    systemDay: null, systemMonth: null, systemYear: null,
+    companyDay: null, companyMonth: null, companyYear: null
+  };
 
-  // ===== 2. Format tiền tệ =====
-  function formatVND(amount) {
-    // Nếu null/undefined hoặc không phải số thì về 0
-    return (Number(amount) || 0).toLocaleString("vi-VN") + " ₫";
-  }
-
-  // ===== 3. Render bảng =====
-  function renderTable(type) {
-    let data = revenueData[type] || [];
-    let tbody =
-        type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+  // ========== RENDER TABLES ==========
+  function renderSystemTable(type) {
+    let data = sysRevenueData[type] || [];
+    let tbody = type === "day" ? sysTableDay : type === "month" ? sysTableMonth : sysTableYear;
+    if (!tbody) return;
     tbody.innerHTML = "";
-
     if (!Array.isArray(data) || !data.length) {
-      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
       return;
     }
-
     for (const row of data) {
-      // CHÚ Ý: Đảm bảo lấy đúng totalRevenue dạng số
-      let revenueVal = 0;
-      if (row && row.totalRevenue !== undefined && row.totalRevenue !== null) {
-        revenueVal = Number(row.totalRevenue);
-        if (isNaN(revenueVal)) revenueVal = 0;
-      }
-      // DEBUG LOG: Log từng row cho dev check
-      // console.log("Row:", row, "Parsed totalRevenue:", revenueVal);
-
+      let label = row.time || row.date || row.month || row.year || "-";
+      let value = Number(row.totalRevenue) || 0;
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-                <td>${row.time || "-"}</td>
-                <td>${row.companyName || "-"}</td>
-                <td>${formatVND(revenueVal)}</td>
-            `;
+      tr.innerHTML = `<td>${label}</td><td>${formatVND(value)}</td>`;
       tbody.appendChild(tr);
     }
   }
 
-  // ===== 4. Gọi API và render =====
+  function renderCompanyTable(type) {
+    let data = revenueData[type] || [];
+    let tbody = type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (!Array.isArray(data) || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
+      return;
+    }
+    for (const row of data) {
+      let label = row.time || row.date || row.month || row.year || "-";
+      let company = row.companyName || "-";
+      let value = Number(row.totalRevenue) || 0;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${label}</td><td>${company}</td><td>${formatVND(value)}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ========== FETCH & RENDER ALL ==========
   async function fetchAndRenderAll() {
     const start = inpStart.value;
     const end = inpEnd.value;
     if (!start || !end) return;
+    const role = getRoleFromToken(accessToken);
 
-    [tableDay, tableMonth, tableYear].forEach(
-        (tbody) =>
-            (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
+    // Ẩn/hiện các bảng tổng hệ thống cho đúng role
+    document.querySelectorAll('[id^="systemRevenue"]').forEach(div => {
+      div.parentElement.style.display = (role === "admin") ? "" : "none";
+    });
+
+    // Loading message
+    [tableDay, tableMonth, tableYear].forEach(tbody =>
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
     );
-
-    // Lấy userId từ token (chính là subCompanyId)
-    const subCompanyId = getUserIdFromToken(accessToken);
-    if (!subCompanyId) {
-      [tableDay, tableMonth, tableYear].forEach(
-          (tbody) =>
-              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+    if (role === "admin") {
+      [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+          tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`
       );
-      console.error("Không tìm thấy subCompanyId trong token!");
-      return;
     }
 
     try {
-      const headers = {Authorization: "Bearer " + accessToken};
-      // API backend yêu cầu: subCompanyId = userId lấy từ token!
-      const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-      const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-      const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+      const headers = {"Authorization": "Bearer " + accessToken};
+      if (role === "admin") {
+        // ADMIN: gọi API tổng hệ thống và từng company
+        const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
+        const sysMonthUrl = `/tourify/api/revenue/system/by-month?start=${start}&end=${end}`;
+        const sysYearUrl = `/tourify/api/revenue/system/by-year?start=${start}&end=${end}`;
+        const cmpDayUrl = `/tourify/api/revenue/company/by-day?start=${start}&end=${end}`;
+        const cmpMonthUrl = `/tourify/api/revenue/company/by-month?start=${start}&end=${end}`;
+        const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
 
-      // Đợi dữ liệu về cùng lúc
-      const [d, m, y] = await Promise.all([
-        fetch(dayUrl, {headers}).then((r) => r.json()),
-        fetch(monthUrl, {headers}).then((r) => r.json()),
-        fetch(yearUrl, {headers}).then((r) => r.json()),
-      ]);
+        const [
+          sysDay, sysMonth, sysYear,
+          cmpDay, cmpMonth, cmpYear
+        ] = await Promise.all([
+          fetch(sysDayUrl, {headers}).then(r => r.json()),
+          fetch(sysMonthUrl, {headers}).then(r => r.json()),
+          fetch(sysYearUrl, {headers}).then(r => r.json()),
+          fetch(cmpDayUrl, {headers}).then(r => r.json()),
+          fetch(cmpMonthUrl, {headers}).then(r => r.json()),
+          fetch(cmpYearUrl, {headers}).then(r => r.json()),
+        ]);
+        sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
+        sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
+        sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
+        revenueData.day = Array.isArray(cmpDay) ? cmpDay : [];
+        revenueData.month = Array.isArray(cmpMonth) ? cmpMonth : [];
+        revenueData.year = Array.isArray(cmpYear) ? cmpYear : [];
+      } else if (role === "sub_company") {
+        const subCompanyId = getSubCompanyIdFromToken(accessToken);
+        if (!subCompanyId) {
+          [tableDay, tableMonth, tableYear].forEach(
+              (tbody) =>
+                  (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+          );
+          return;
+        }
+        const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+        const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+        const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
+        const [d, m, y] = await Promise.all([
+          fetch(dayUrl, {headers}).then(r => r.json()),
+          fetch(monthUrl, {headers}).then(r => r.json()),
+          fetch(yearUrl, {headers}).then(r => r.json()),
+        ]);
+        revenueData.day = Array.isArray(d) ? d : [];
+        revenueData.month = Array.isArray(m) ? m : [];
+        revenueData.year = Array.isArray(y) ? y : [];
+      } else {
+        [tableDay, tableMonth, tableYear].forEach(tbody =>
+            tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+        );
+        [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+            tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+        );
+        return;
+      }
 
-      // Lưu lại
-      revenueData.day = Array.isArray(d) ? d : [];
-      revenueData.month = Array.isArray(m) ? m : [];
-      revenueData.year = Array.isArray(y) ? y : [];
-
-      // Render tab đang active
-      const activeTab = document.querySelector(".tab-pane.active").id;
-      if (activeTab === "revenue-day") renderTable("day");
-      if (activeTab === "revenue-month") renderTable("month");
-      if (activeTab === "revenue-year") renderTable("year");
+      // Render bảng
+      const activeTab = document.querySelector('.tab-pane.active').id;
+      if (activeTab === "revenue-day") {
+        if (role === "admin") renderSystemTable("day");
+        renderCompanyTable("day");
+      }
+      if (activeTab === "revenue-month") {
+        if (role === "admin") renderSystemTable("month");
+        renderCompanyTable("month");
+      }
+      if (activeTab === "revenue-year") {
+        if (role === "admin") renderSystemTable("year");
+        renderCompanyTable("year");
+      }
+      afterRender();
     } catch (err) {
-      [tableDay, tableMonth, tableYear].forEach(
-          (tbody) =>
-              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+      [tableDay, tableMonth, tableYear].forEach(tbody =>
+          tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
       );
+      if (role === "admin") {
+        [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
+            tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+        );
+      }
       console.error(err);
     }
   }
 
-  // ===== 5. Sự kiện UI =====
-  // btnFilter.onclick = fetchAndRenderAll;
-  document
-      .getElementById("revenue-range-tabs")
-      .addEventListener("click", function (e) {
-        if (e.target.classList.contains("nav-link")) {
-          setTimeout(() => {
-            if (e.target.id === "day-tab") renderTable("day");
-            if (e.target.id === "month-tab") renderTable("month");
-            if (e.target.id === "year-tab") renderTable("year");
-          }, 50);
-        }
-      });
+  // ========== CHART RENDERING ==========
+  function renderChart(type, isSystem) {
+    const key = (isSystem ? "system" : "company") + capitalize(type);
+    const chartId = `${key}Chart`;
+    const chartWrapId = `${key}ChartWrap`;
+    const tableWrapId = `${key}TableWrap`;
+    const btnChartId = `btnShowChart${capitalize(key)}`;
+    const btnTableId = `btnShowTable${capitalize(key)}`;
 
-
-  function initAnalyticsPage() {
-    const btnFilter = document.getElementById("btnFilter");
-    const inpStart = document.getElementById("startDate");
-    const inpEnd = document.getElementById("endDate");
-    const tableDay = document.getElementById("tbodyDay");
-    const tableMonth = document.getElementById("tbodyMonth");
-    const tableYear = document.getElementById("tbodyYear");
-
-    // --- Các bảng tổng hệ thống ---
-    const sysTableDay = document.getElementById("systemTbodyDay");
-    const sysTableMonth = document.getElementById("systemTbodyMonth");
-    const sysTableYear = document.getElementById("systemTbodyYear");
-
-    // Dữ liệu tổng hệ thống
-    const sysRevenueData = {day: [], month: [], year: []};
-    // Dữ liệu từng công ty
-    const revenueData = {day: [], month: [], year: []};
-
-    const accessToken = localStorage.getItem("accessToken");
-
-    // ===== 1. Format tiền tệ =====
-    function formatVND(amount) {
-      return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
-    }
-
-    // ===== 2. Render bảng tổng hệ thống =====
-    function renderSystemTable(type) {
-      let data = sysRevenueData[type] || [];
-      let tbody =
-          type === "day" ? sysTableDay :
-              type === "month" ? sysTableMonth :
-                  sysTableYear;
-      tbody.innerHTML = "";
-
-      if (!Array.isArray(data) || !data.length) {
-        tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
-        return;
-      }
-
-      for (const row of data) {
+    let dataArr = isSystem ? sysRevenueData[type] : revenueData[type];
+    let labels = [];
+    let datasets = [];
+    if (isSystem) {
+      dataArr.forEach(row => {
         let label = row.time || row.date || row.month || row.year || "-";
-        let value = Number(row.totalRevenue) || 0;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-                <td>${label}</td>
-                <td>${formatVND(value)}</td>
-            `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    // ===== 3. Render bảng doanh thu từng company =====
-    function renderCompanyTable(type) {
-      let data = revenueData[type] || [];
-      let tbody =
-          type === "day" ? tableDay :
-              type === "month" ? tableMonth :
-                  tableYear;
-      tbody.innerHTML = "";
-
-      if (!Array.isArray(data) || !data.length) {
-        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No data</td></tr>`;
-        return;
-      }
-
-      for (const row of data) {
+        labels.push(label);
+      });
+      datasets = [{
+        label: "Total Revenue (VND)",
+        data: dataArr.map(row => Number(row.totalRevenue) || 0),
+        backgroundColor: "#4097e3"
+      }];
+    } else {
+      // Multi company chart
+      const companySet = new Set();
+      const labelSet = new Set();
+      dataArr.forEach(row => {
+        let label = row.time || row.date || row.month || row.year || "-";
+        labelSet.add(label);
+        companySet.add(row.companyName || "-");
+      });
+      labels = Array.from(labelSet);
+      const companyMap = {};
+      companySet.forEach(c => companyMap[c] = {});
+      dataArr.forEach(row => {
         let label = row.time || row.date || row.month || row.year || "-";
         let company = row.companyName || "-";
         let value = Number(row.totalRevenue) || 0;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-                <td>${label}</td>
-                <td>${company}</td>
-                <td>${formatVND(value)}</td>
-            `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    // ===== 4. Gọi API và render =====
-    async function fetchAndRenderAll() {
-      const start = inpStart.value;
-      const end = inpEnd.value;
-      if (!start || !end) return;
-
-      const role = getRoleFromToken(accessToken);
-
-      // Ẩn/hiện các bảng tổng hệ thống cho đúng role
-      document.querySelectorAll('[id^="systemRevenue"]').forEach(div => {
-        div.parentElement.style.display = (role === "admin") ? "" : "none";
+        companyMap[company][label] = value;
       });
+      const colorList = [
+        "#fd9134", "#00C49F", "#FFBB28", "#8884d8", "#d7c51b", "#ae31cf", "#24d463", "#e94560", "#497174"
+      ];
+      let colorIdx = 0;
+      datasets = Array.from(companySet).map(company => ({
+        label: company,
+        data: labels.map(label => companyMap[company][label] || 0),
+        backgroundColor: colorList[colorIdx++ % colorList.length]
+      }));
+    }
+    document.getElementById(tableWrapId).classList.add("d-none");
+    document.getElementById(chartWrapId).classList.remove("d-none");
+    document.getElementById(btnChartId).classList.add("d-none");
+    document.getElementById(btnTableId).classList.remove("d-none");
 
-      // Loading message
-      [tableDay, tableMonth, tableYear].forEach(tbody =>
-          tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
-      );
-      if (role === "admin") {
-        [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-            tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`
-        );
-      }
-
-      try {
-        const headers = {"Authorization": "Bearer " + accessToken};
-
-        if (role === "admin") {
-          // ADMIN: gọi API tổng hệ thống và từng company
-          const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
-          const sysMonthUrl = `/tourify/api/revenue/system/by-month?start=${start}&end=${end}`;
-          const sysYearUrl = `/tourify/api/revenue/system/by-year?start=${start}&end=${end}`;
-          const cmpDayUrl = `/tourify/api/revenue/company/by-day?start=${start}&end=${end}`;
-          const cmpMonthUrl = `/tourify/api/revenue/company/by-month?start=${start}&end=${end}`;
-          const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
-
-          const [
-            sysDay, sysMonth, sysYear,
-            cmpDay, cmpMonth, cmpYear
-          ] = await Promise.all([
-            fetch(sysDayUrl, {headers}).then(r => r.json()),
-            fetch(sysMonthUrl, {headers}).then(r => r.json()),
-            fetch(sysYearUrl, {headers}).then(r => r.json()),
-            fetch(cmpDayUrl, {headers}).then(r => r.json()),
-            fetch(cmpMonthUrl, {headers}).then(r => r.json()),
-            fetch(cmpYearUrl, {headers}).then(r => r.json()),
-          ]);
-
-          sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
-          sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
-          sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
-
-          revenueData.day = Array.isArray(cmpDay) ? cmpDay : [];
-          revenueData.month = Array.isArray(cmpMonth) ? cmpMonth : [];
-          revenueData.year = Array.isArray(cmpYear) ? cmpYear : [];
-        } else if (role === "sub_company") {
-          // SUB_COMPANY: chỉ gọi API của company mình
-          const subCompanyId = getSubCompanyIdFromToken(accessToken);
-
-          const dayUrl = `/tourify/api/revenue/by-day?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-          const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-          const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
-
-          const [d, m, y] = await Promise.all([
-            fetch(dayUrl, {headers}).then(r => r.json()),
-            fetch(monthUrl, {headers}).then(r => r.json()),
-            fetch(yearUrl, {headers}).then(r => r.json()),
-          ]);
-
-          revenueData.day = Array.isArray(d) ? d : [];
-          revenueData.month = Array.isArray(m) ? m : [];
-          revenueData.year = Array.isArray(y) ? y : [];
-        } else {
-          // Không hợp lệ (Ẩn hết)
-          [tableDay, tableMonth, tableYear].forEach(tbody =>
-              tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
-          );
-          [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-              tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
-          );
-          return;
+    if (chartObjects[key]) chartObjects[key].destroy();
+    const ctx = document.getElementById(chartId).getContext("2d");
+    chartObjects[key] = new Chart(ctx, {
+      type: "bar",
+      data: {labels: labels, datasets: datasets},
+      options: {
+        responsive: true,
+        plugins: {legend: {display: true}},
+        scales: {
+          x: {title: {display: true, text: capitalize(type)}},
+          y: {title: {display: true, text: 'Revenue (VND)'}, beginAtZero: true}
         }
+      }
+    });
+  }
 
-        // Render bảng
+  function showTable(type, isSystem) {
+    const key = (isSystem ? "system" : "company") + capitalize(type);
+    const chartWrapId = `${key}ChartWrap`;
+    const tableWrapId = `${key}TableWrap`;
+    const btnChartId = `btnShowChart${capitalize(key)}`;
+    const btnTableId = `btnShowTable${capitalize(key)}`;
+    document.getElementById(chartWrapId).classList.add("d-none");
+    document.getElementById(tableWrapId).classList.remove("d-none");
+    document.getElementById(btnChartId).classList.remove("d-none");
+    document.getElementById(btnTableId).classList.add("d-none");
+  }
+
+  function addToggleEvents() {
+    [
+      ["day", true], ["month", true], ["year", true],
+      ["day", false], ["month", false], ["year", false]
+    ].forEach(([type, isSystem]) => {
+      const key = (isSystem ? "system" : "company") + capitalize(type);
+      const btnChartId = `btnShowChart${capitalize(key)}`;
+      const btnTableId = `btnShowTable${capitalize(key)}`;
+      if (document.getElementById(btnChartId)) {
+        document.getElementById(btnChartId).onclick = () => renderChart(type, isSystem);
+      }
+      if (document.getElementById(btnTableId)) {
+        document.getElementById(btnTableId).onclick = () => showTable(type, isSystem);
+      }
+    });
+  }
+  function afterRender() {
+    addToggleEvents();
+  }
+
+  // ========== SỰ KIỆN UI ==========
+  btnFilter.onclick = fetchAndRenderAll;
+  document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
+    if (e.target.classList.contains('nav-link')) {
+      setTimeout(() => {
         const activeTab = document.querySelector('.tab-pane.active').id;
         if (activeTab === "revenue-day") {
-          if (role === "admin") renderSystemTable("day");
+          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("day");
           renderCompanyTable("day");
         }
         if (activeTab === "revenue-month") {
-          if (role === "admin") renderSystemTable("month");
+          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("month");
           renderCompanyTable("month");
         }
         if (activeTab === "revenue-year") {
-          if (role === "admin") renderSystemTable("year");
+          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("year");
           renderCompanyTable("year");
         }
-        // GỌI afterRender() SAU KHI RENDER XONG
         afterRender();
-      } catch (err) {
-        [tableDay, tableMonth, tableYear].forEach(tbody =>
-            tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
-        );
-        if (role === "admin") {
-          [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-              tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
-          );
-        }
-        console.error(err);
-      }
+      }, 50);
     }
-
-    // ===== 5. Sự kiện UI =====
-    btnFilter.onclick = fetchAndRenderAll;
-    document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
-      if (e.target.classList.contains('nav-link')) {
-        setTimeout(() => {
-          const activeTab = document.querySelector('.tab-pane.active').id;
-          if (activeTab === "revenue-day") {
-            if (getRoleFromToken(accessToken) === "admin") renderSystemTable("day");
-            renderCompanyTable("day");
-          }
-          if (activeTab === "revenue-month") {
-            if (getRoleFromToken(accessToken) === "admin") renderSystemTable("month");
-            renderCompanyTable("month");
-          }
-          if (activeTab === "revenue-year") {
-            if (getRoleFromToken(accessToken) === "admin") renderSystemTable("year");
-            renderCompanyTable("year");
-          }
-          // GỌI afterRender() SAU KHI RENDER XONG
-          afterRender();
-        }, 50);
-      }
-    });
-
-    // Set ngày mặc định
-    const today = new Date();
-    inpEnd.value = today.toISOString().slice(0, 10);
-    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-    inpStart.value = lastMonth.toISOString().slice(0, 10);
-    fetchAndRenderAll();
-
-    // --- Chart object ---
-    const chartObjects = {
-      systemDay: null,
-      systemMonth: null,
-      systemYear: null,
-      companyDay: null,
-      companyMonth: null,
-      companyYear: null
-    };
-
-    function renderChart(type, isSystem) {
-      const key = (isSystem ? "system" : "company") + capitalize(type);
-      const chartId = `${key}Chart`;
-      const chartWrapId = `${key}ChartWrap`;
-      const tableWrapId = `${key}TableWrap`;
-      const btnChartId = `btnShowChart${capitalize(key)}`;
-      const btnTableId = `btnShowTable${capitalize(key)}`;
-
-      let dataArr = isSystem ? sysRevenueData[type] : revenueData[type];
-
-      // === Xử lý dữ liệu cho multi-series chart khi là company (admin xem) ===
-      let labels = [];
-      let datasets = [];
-      if (isSystem) {
-        // Chỉ 1 cột cho tổng hệ thống
-        dataArr.forEach(row => {
-          let label = row.time || row.date || row.month || row.year || "-";
-          labels.push(label);
-        });
-        datasets = [{
-          label: "Total Revenue (VND)",
-          data: dataArr.map(row => Number(row.totalRevenue) || 0),
-          backgroundColor: "#4097e3"
-        }];
-      } else {
-        // Lấy danh sách labels (time) và các company
-        const companySet = new Set();
-        const labelSet = new Set();
-        dataArr.forEach(row => {
-          let label = row.time || row.date || row.month || row.year || "-";
-          labelSet.add(label);
-          companySet.add(row.companyName || "-");
-        });
-        labels = Array.from(labelSet);
-
-        // Tạo map: { company: { label: revenue } }
-        const companyMap = {};
-        companySet.forEach(c => companyMap[c] = {});
-        dataArr.forEach(row => {
-          let label = row.time || row.date || row.month || row.year || "-";
-          let company = row.companyName || "-";
-          let value = Number(row.totalRevenue) || 0;
-          companyMap[company][label] = value;
-        });
-
-        // Tạo dataset cho từng công ty
-        const colorList = [
-          "#fd9134", "#00C49F", "#FFBB28", "#8884d8", "#d7c51b", "#ae31cf", "#24d463", "#e94560", "#497174"
-        ];
-        let colorIdx = 0;
-        datasets = Array.from(companySet).map(company => ({
-          label: company,
-          data: labels.map(label => companyMap[company][label] || 0),
-          backgroundColor: colorList[colorIdx++ % colorList.length]
-        }));
-      }
-
-      // Ẩn bảng, hiện canvas chart
-      document.getElementById(tableWrapId).classList.add("d-none");
-      document.getElementById(chartWrapId).classList.remove("d-none");
-      document.getElementById(btnChartId).classList.add("d-none");
-      document.getElementById(btnTableId).classList.remove("d-none");
-
-      // Xóa chart cũ nếu có
-      if (chartObjects[key]) chartObjects[key].destroy();
-
-      const ctx = document.getElementById(chartId).getContext("2d");
-      chartObjects[key] = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: datasets
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {display: true}
-          },
-          scales: {
-            x: {title: {display: true, text: capitalize(type)}},
-            y: {title: {display: true, text: 'Revenue (VND)'}, beginAtZero: true}
-          }
-        }
-      });
-    }
-
-    function showTable(type, isSystem) {
-      const key = (isSystem ? "system" : "company") + capitalize(type);
-      const chartWrapId = `${key}ChartWrap`;
-      const tableWrapId = `${key}TableWrap`;
-      const btnChartId = `btnShowChart${capitalize(key)}`;
-      const btnTableId = `btnShowTable${capitalize(key)}`;
-      document.getElementById(chartWrapId).classList.add("d-none");
-      document.getElementById(tableWrapId).classList.remove("d-none");
-      document.getElementById(btnChartId).classList.remove("d-none");
-      document.getElementById(btnTableId).classList.add("d-none");
-    }
-
-    function addToggleEvents() {
-      [
-        ["day", true], ["month", true], ["year", true],
-        ["day", false], ["month", false], ["year", false]
-      ].forEach(([type, isSystem]) => {
-        const key = (isSystem ? "system" : "company") + capitalize(type);
-        const btnChartId = `btnShowChart${capitalize(key)}`;
-        const btnTableId = `btnShowTable${capitalize(key)}`;
-
-        if (document.getElementById(btnChartId)) {
-          document.getElementById(btnChartId).onclick = () => renderChart(type, isSystem);
-        }
-        if (document.getElementById(btnTableId)) {
-          document.getElementById(btnTableId).onclick = () => showTable(type, isSystem);
-        }
-      });
-    }
-
-    function capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function afterRender() {
-      addToggleEvents();
-    }
-  }
-
-  // ==== JWT decode helpers ====
-  function getRoleFromToken(token) {
-    if (!token) return null;
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      ).join(''));
-      const payload = JSON.parse(jsonPayload);
-      return (payload.role || "").toLowerCase();
-    } catch {
-      return null;
-    }
-  }
-
-  function getSubCompanyIdFromToken(token) {
-    if (!token) return null;
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      ).join(''));
-      const payload = JSON.parse(jsonPayload);
-      return payload.subCompanyId || payload.userId || null;
-    } catch {
-      return null;
-    }
-  }
-
-
-  // Gọi sau khi HTML đã render xong:
-  setTimeout(initAnalyticsPage, 0);
-
-// Gọi sau khi HTML đã render xong:
-// setTimeout(initAnalyticsPage, 0);
-
-// khởi tạo toast
-  const toastEl = document.getElementById("liveToast");
-  const toast = new bootstrap.Toast(toastEl);
-
-  /**
-   * showPopup(type, title, message)
-   *  - type: 'success' | 'danger' (để bạn custom màu nếu muốn)
-   */
-  function showPopup(type, title, message) {
-    // (tuỳ chọn) đổi tiêu đề cho khác màu:
-    const header = toastEl.querySelector(".toast-header");
-    header.className = `toast-header bg-${type} text-white`;
-    document.getElementById("toastTitle").textContent = title;
-    document.getElementById("toastBody").textContent = message;
-    toast.show();
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('startDate').setAttribute('min', today);
   });
 
-// 1. Hàm format ngày
-  function formatDate(isoString) {
-    if (!isoString) return "";
-    const d = new Date(isoString);
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yyyy = d.getFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-  }
+  // Set ngày mặc định cho input
+  const today = new Date();
+  inpEnd.value = today.toISOString().slice(0, 10);
+  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+  inpStart.value = lastMonth.toISOString().slice(0, 10);
+
+  // Khởi động lần đầu
+  fetchAndRenderAll();
+}
+
+// Gọi khi HTML đã load xong
+document.addEventListener('DOMContentLoaded', initAnalyticsPage);
 
 // ===================== ACCOUNT LIST (CUSTOMERS) =====================
-  function formatAccountDate(isoString) {
-    if (!isoString) return "";
-    const d = new Date(isoString);
-    return d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
-  }
-
-  async function loadAccounts(query = "") {
-    const table = document.getElementById('accountTable');
-    if (!table) return;
-    const tbody = table.querySelector('tbody');
-    if (!tbody) return;
-    const token = localStorage.getItem('accessToken');
-    if (!token) return;
-    try {
-      const resp = await fetch('/tourify/api/user' + (query ? `?search=${encodeURIComponent(query)}` : ''), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token
-        }
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const json = await resp.json();
-      const users = json.result || [];
-      tbody.innerHTML = '';
-      users.forEach(u => {
-        // Format ngày sinh (ISO → DD/MM/YYYY)
-        let dob = '';
-        if (u.dob) {
-          dob = formatAccountDate(u.dob);
-        }
-        // Giới tính
-        const gender = u.gender === true || u.gender === 'Male'
-            ? 'Male' : u.gender === false || u.gender === 'Female'
-                ? 'Female' : '';
-        // Trạng thái
-        const statusClass = u.status && u.status.toLowerCase() === 'active'
-            ? 'status-active' : 'status-blocked';
-        // Tạo 1 row mới
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+async function loadAccounts(query = "") {
+  const table = document.getElementById('accountTable');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  const token = localStorage.getItem('accessToken');
+  if (!token) return;
+  try {
+    const resp = await fetch('/tourify/api/user' + (query ? `?search=${encodeURIComponent(query)}` : ''), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      }
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    const users = json.result || [];
+    tbody.innerHTML = '';
+    users.forEach(u => {
+      let dob = u.dob ? formatAccountDate(u.dob) : '';
+      const gender = u.gender === true || u.gender === 'Male'
+          ? 'Male' : u.gender === false || u.gender === 'Female'
+              ? 'Female' : '';
+      const statusClass = u.status && u.status.toLowerCase() === 'active'
+          ? 'status-active' : 'status-blocked';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
         <td><input type="checkbox"></td>
         <td>${u.role || ''}</td>
         <td>
@@ -2175,12 +1942,8 @@ function initAnalyticsPage() {
             <img src="${u.avatar || '/static/images/avatar_default.jpg'}"
                  style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
             <div>
-              <div style="font-weight:600; color:#22292f;">
-                ${u.userName || ''}
-              </div>
-              <div style="font-size:0.95em; color:#8b909a;">
-                ${u.email || ''}
-              </div>
+              <div style="font-weight:600; color:#22292f;">${u.userName || ''}</div>
+              <div style="font-size:0.95em; color:#8b909a;">${u.email || ''}</div>
             </div>
           </div>
         </td>
@@ -2195,33 +1958,32 @@ function initAnalyticsPage() {
           <i class="fa fa-trash text-danger" title="Delete"></i>
         </td>
       `;
-        tbody.appendChild(tr);
-      });
-    } catch (err) {
-      console.error('Fetch users failed:', err);
-    }
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Fetch users failed:', err);
   }
+}
 
-  function initCustomersPage() {
-    const table = document.getElementById('accountTable');
-    if (!table) return;
-    const tbody = table.querySelector('tbody');
-    const searchInput = document.querySelector('input[placeholder="Search account..."]');
-    if (!tbody || !searchInput) return;
-    // Load lần đầu
-    loadAccounts();
-    // Debounce search
-    searchInput.addEventListener("input", function () {
-      clearTimeout(this._timeout);
-      this._timeout = setTimeout(() => loadAccounts(this.value.trim()), 300);
-    });
-    // Action buttons (edit/delete) - có thể mở rộng sau
-    tbody.addEventListener("click", function (e) {
-      const btn = e.target.closest("i");
-      if (!btn) return;
-      // TODO: Gắn logic edit/delete nếu cần
-    });
-  }
+function initCustomersPage() {
+  const table = document.getElementById('accountTable');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  const searchInput = document.querySelector('input[placeholder="Search account..."]');
+  if (!tbody || !searchInput) return;
+  // Load lần đầu
+  loadAccounts();
+  // Debounce search
+  searchInput.addEventListener("input", function () {
+    clearTimeout(this._timeout);
+    this._timeout = setTimeout(() => loadAccounts(this.value.trim()), 300);
+  });
+  // Action buttons (edit/delete) - có thể mở rộng sau
+  tbody.addEventListener("click", function (e) {
+    const btn = e.target.closest("i");
+    if (!btn) return;
+    // TODO: Gắn logic edit/delete nếu cần
+  });
 }
 
 async function loadServicesAndActivities() {
@@ -2258,4 +2020,96 @@ async function loadServicesAndActivities() {
     }
     if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
   } catch (e) { console.error("❌ Activity fetch error:", e); }
+}
+
+async function loadDraftToursForSeller() {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch('/tourify/api/tours/all-draft', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    });
+    if (!res.ok) throw new Error('API error');
+    const tours = await res.json();
+
+    const tbody = document.querySelector('#sellerTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!Array.isArray(tours) || tours.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No draft tour found.</td></tr>`;
+      return;
+    }
+    tours.forEach((tour, idx) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="checkbox" data-id="${tour.tourId}"></td>
+        <td>
+          <img src="${tour.thumbnail || 'https://via.placeholder.com/60x40?text=IMG'}"
+               alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
+        </td>
+        <td>
+          <span class="fw-semibold">${tour.tourName || '-'}</span>
+        </td>
+        <td>
+          <span>${tour.createdByUserName || '-'}</span>
+        </td>
+        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString('vi-VN') + ' ₫' : '-'}</td>
+        <td>${tour.placeName || '-'}</td>
+        <td>${tour.createdAt ? new Date(tour.createdAt).toLocaleDateString('vi-VN') : '-'}</td>
+        <td>
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId}')">
+            <i class="bi bi-check-lg"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (e) {
+    const tbody = document.querySelector('#sellerTable tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Error loading draft tours</td></tr>`;
+    console.error(e);
+  }
+}
+
+async function approveTour(tourId) {
+  if (!confirm('Bạn chắc chắn muốn duyệt tour này?')) return;
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}/approve`, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Approve failed');
+    // Thông báo
+    showPopup && showPopup('success', 'Thành công', 'Tour đã được duyệt!');
+    // Reload lại bảng
+    loadDraftToursForSeller();
+  } catch (e) {
+    showPopup && showPopup('danger', 'Thất bại', 'Không thể duyệt tour!');
+    console.error(e);
+  }
+}
+
+async function deleteTour(tourId) {
+  if (!confirm('Bạn chắc chắn muốn xóa tour này?')) return;
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (res.ok && data.code === 1000) {
+      showPopup && showPopup('success', 'Thành công', data.message || 'Xóa tour thành công!');
+      loadDraftToursForSeller(); // Reload lại bảng, hoặc gọi hàm tương tự bạn đã dùng
+    } else {
+      showPopup && showPopup('danger', 'Thất bại', data.message || 'Xóa tour thất bại!');
+    }
+  } catch (e) {
+    showPopup && showPopup('danger', 'Lỗi', 'Không thể kết nối máy chủ!');
+    console.error(e);
+  }
 }
