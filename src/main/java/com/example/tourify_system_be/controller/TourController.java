@@ -148,4 +148,24 @@ public class TourController {
                 .build();
     }
 
+    @PutMapping("/{tourId}/disable")
+    public APIResponse<?> disableTour(@PathVariable String tourId) {
+        tourService.disableTour(tourId);
+        return APIResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(null)
+                .build();
+    }
+
+    @PutMapping("/{tourId}")
+    public APIResponse<?> updateTour(
+            @PathVariable String tourId,
+            @RequestBody @Valid TourUpdateRequest request,
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        tourService.updateTour(tourId, request, bearerToken);
+        return new APIResponse<>(1000, "Tour updated successfully", null);
+    }
+
 }

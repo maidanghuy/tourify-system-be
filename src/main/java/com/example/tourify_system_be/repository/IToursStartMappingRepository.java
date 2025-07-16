@@ -32,4 +32,6 @@ public interface IToursStartMappingRepository extends JpaRepository<ToursStartMa
    WHERE m.id.tourId = :tourId AND m.start.isActive = true
 """)
     Optional<LocalDateTime> findFirstActiveStartDateByTourId(@Param("tourId") String tourId);
+    List<ToursStartMapping> findAllByTour_TourId(String tourId);
+
 }
