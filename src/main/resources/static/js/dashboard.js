@@ -27,157 +27,128 @@ const pages = {
     title: "Dashboard",
     breadcrumbs: [],
     content: `
-          <div class="container-fluid py-4">
-            <!-- ==== Time-range pills + Add-Tour ==== -->
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-              <div id="rangeFilter" class="btn-group" role="group">
-                <button class="btn btn-outline-success active">All Time</button>
-                <button class="btn btn-outline-success">12 Months</button>
-                <button class="btn btn-outline-success">30 Days</button>
-                <button class="btn btn-outline-success">7 Days</button>
-                <button class="btn btn-outline-success">24 Hour</button>
-              </div>
-          
-              <button id="btnAddTour" class="btn btn-success">
-                <i class="bi bi-plus-lg me-2"></i>Add Tour
+    <div class="container-fluid py-4">
+      <!-- ==== Time-range pills + Add-Tour ==== -->
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <button id="btnAddTour" class="btn btn-success">
+          <i class="bi bi-plus-lg me-2"></i>Add Tour
+        </button>
+      </div>
+
+      <!-- ==== KPI cards ==== -->
+      <div class="row gy-4 gx-4">
+
+        <!-- Total Booking -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card-kpi h-100 p-4">
+            <div class="icon-wrap bg-booking"><i class="bi bi-cart-check"></i></div>
+            <div class="flex-grow-1">
+              <span class="kpi-title">Total Booking</span>
+              <h4 class="fw-bold mb-0" id="bookingCount"><span class="kpi-value"></span></h4>
+            </div>
+            <span class="badge-growth bg-success-subtle text-success" id="bookingGrowth"></span>
+          </div>
+        </div>
+
+        <!-- Total Tour -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card-kpi h-100 p-4">
+            <div class="icon-wrap bg-tour">
+              <i class="bi bi-compass"></i>
+            </div>
+            <div class="flex-grow-1">
+              <span class="kpi-title">Total Tour</span>
+              <h4 class="fw-bold mb-0" id="tourCount"><span class="kpi-value"></span></h4>
+            </div>
+            <span class="badge-growth bg-secondary-subtle text-secondary" id="tourGrowth"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==== Top Tour Booking + Sales by Company ==== -->
+      <div class="row g-4 mt-1">
+        <!-- left 8 cols -->
+        <div class="col-lg-8">
+          <div class="card-glass p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0">Top Tour Booking</h5>
+              <button class="btn btn-outline-success btn-sm" id="tourFilterBtn">
+                <i class="bi bi-sliders"></i> Filters
               </button>
             </div>
-          
-            <!-- ==== KPI cards ==== -->
-            <div class="row gy-4 gx-4">
-              <!-- Total Revenue -->
-              <div class="col-xl-3 col-md-6">
-                <div class="card-kpi h-100 p-4">
-                  <div class="icon-wrap bg-revenue"><i class="bi bi-wallet2"></i></div>
-                  <div class="flex-grow-1">
-                    <span class="kpi-title">Total Revenue</span>
-                    <h4 class="fw-bold mb-0" id="revenueCount">$75,500</h4>
-                  </div>
-                  <span class="badge-growth bg-success-subtle text-success">+10%</span>
-                </div>
-              </div>
-          
-              <!-- Total Booking -->
-              <div class="col-xl-3 col-md-6">
-                <div class="card-kpi h-100 p-4">
-                  <div class="icon-wrap bg-booking"><i class="bi bi-cart-check"></i></div>
-                  <div class="flex-grow-1">
-                    <span class="kpi-title">Total Booking</span>
-                    <h4 class="fw-bold mb-0" id="bookingCount">31,500</h4>
-                  </div>
-                  <span class="badge-growth bg-success-subtle text-success">+15%</span>
-                </div>
-              </div>
-          
-              <!-- Total Tour -->
-              <div class="col-xl-3 col-md-6">
-                <div class="card-kpi h-100 p-4">
-                  <!-- 1️⃣ thêm icon vào đây -->
-                  <div class="icon-wrap bg-tour">
-                    <i class="bi bi-compass"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <span class="kpi-title">Total Tour</span>
-                    <h4 class="fw-bold mb-0" id="tourCount">247</h4>
-                  </div>
-                  <!-- 2️⃣ badge 0 % giữ nguyên (màu xám) -->
-                  <span class="badge-growth bg-secondary-subtle text-secondary">0%</span>
-                </div>
-              </div>
-          
-              <!-- Balance -->
-              <div class="col-xl-3 col-md-6">
-                <div class="card-kpi h-100 p-4">
-                  <div class="icon-wrap bg-balance"><i class="bi bi-cash-coin"></i></div>
-                  <div class="flex-grow-1">
-                    <span class="kpi-title">Balance</span>
-                    <h4 class="fw-bold mb-0" id="balanceCount">$24,500</h4>
-                  </div>
-                  <span class="badge-growth bg-danger-subtle text-danger">-25%</span>
-                </div>
-              </div>
-            </div>
-          
-            <!-- ==== Top Tour Booking + Sales by Company ==== -->
-            <div class="row g-4 mt-1">
-              <!-- left 8 cols -->
-              <div class="col-lg-8">
-                <div class="card-glass p-4 h-100">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0">Top Tour Booking</h5>
-                    <button class="btn btn-outline-success btn-sm" id="tourFilterBtn">
-                      <i class="bi bi-sliders"></i> Filters
-                    </button>
-                  </div>
-          
-                  <table class="table table-modern mb-2" id="topTourTable">
-                    <thead class="table-success text-nowrap">
-                      <tr>
-                        <th>Tours</th><th>Booking</th><th>Price</th><th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody><!-- JS render --></tbody>
-                  </table>
-          
-                  <!-- simple pagination -->
-                  <nav class="d-flex justify-content-end">
-                    <ul class="pagination pagination-sm mb-0">
-                      <li class="page-item disabled"><span class="page-link">&lt;</span></li>
-                      <li class="page-item active"><span class="page-link">1</span></li>
-                      <li class="page-item"><a class="page-link" href="#">2</a></li>
-                      <li class="page-item"><a class="page-link" href="#">3</a></li>
-                      <li class="page-item"><a class="page-link" href="#">&gt;</a></li>
-                    </ul>
-                  </nav>
-                </div>
-              </div>
-          
-              <!-- right 4 cols -->
-              <div class="col-lg-4">
-                <div class="card-glass p-4 h-100">
-                  <h5 class="fw-bold mb-3">Sales by Companies</h5>
-                  <small class="text-muted">Sales performance by company</small>
-          
-                  <ul class="list-group list-group-flush mt-3" id="salesCompanyList">
-                    <!-- JS render -->
-                  </ul>
-                </div>
-              </div>
-            </div>
-          
-            <!-- ==== Recent Bookings ==== -->
-            <div class="card-glass p-4 mt-4">
-              <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h5 class="fw-bold mb-0">Recent Bookings
-                  <span class="badge bg-success-subtle text-success ms-2">+2 Orders</span>
-                </h5>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-success btn-sm" id="bookingFilterBtn">
-                    <i class="bi bi-sliders"></i> Filters
-                  </button>
-                  <button class="btn btn-success btn-sm">See More</button>
-                </div>
-              </div>
-          
-              <table class="table table-modern" id="recentBookingTable">
-                <thead class="table-success text-nowrap">
-                  <tr>
-                    <th><input type="checkbox"></th>
-                    <th>Booking ID</th><th>Booking Tour</th><th>Customer</th>
-                    <th>Total</th><th>Payment</th><th>Status</th><th class="text-end">Action</th>
-                  </tr>
-                </thead>
-                <tbody><!-- JS render --></tbody>
-              </table>
-          
-              <!-- pagination -->
-              <nav class="d-flex justify-content-end">
-                <ul class="pagination pagination-sm mb-0" id="recentBookingPagination"><!-- JS render --></ul>
-              </nav>
-            </div>
-          
+
+            <table class="table table-modern mb-2" id="topTourTable">
+              <thead class="table-success text-nowrap">
+                <tr>
+                  <th>Tours</th><th>Booking</th><th>Price</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- JS render -->
+              </tbody>
+            </table>
+
+            <!-- simple pagination -->
+            <nav class="d-flex justify-content-end">
+              <ul class="pagination pagination-sm mb-0" id="topTourPagination">
+                <!-- JS render -->
+              </ul>
+            </nav>
           </div>
-          `,
+        </div>
+
+        <!-- right 4 cols -->
+        <div class="col-lg-4">
+          <div class="card-glass p-4 h-100">
+            <h5 class="fw-bold mb-3">Sales by Companies</h5>
+            <small class="text-muted">Sales performance by company</small>
+            <ul class="list-group list-group-flush mt-3" id="salesCompanyList">
+              <!-- JS render -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==== Recent Bookings ==== -->
+      <div class="card-glass p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h5 class="fw-bold mb-0">
+            Recent Bookings
+            <span class="badge bg-success-subtle text-success ms-2" id="recentOrderBadge"></span>
+          </h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-success btn-sm" id="bookingFilterBtn">
+              <i class="bi bi-sliders"></i> Filters
+            </button>
+            <button class="btn btn-success btn-sm" id="seeMoreBookingBtn">See More</button>
+          </div>
+        </div>
+        <table class="table table-modern" id="recentBookingTable">
+          <thead class="table-success text-nowrap">
+            <tr>
+              <th><input type="checkbox"></th>
+              <th>Booking ID</th>
+              <th>Booking Tour</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS render -->
+          </tbody>
+        </table>
+        <!-- pagination -->
+        <nav class="d-flex justify-content-end">
+          <ul class="pagination pagination-sm mb-0" id="recentBookingPagination">
+            <!-- JS render -->
+          </ul>
+        </nav>
+      </div>
+    </div>
+  `,
   },
 
   /* === 2. TOUR LIST === */
