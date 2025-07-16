@@ -119,6 +119,34 @@ fetch(`/tourify/api/tours/${tourId}`)
         if (endDayEl) endDayEl.textContent = "";
       }
 
+      // ===============================
+      //  Render 4 activities & 4 services
+      // ===============================
+      const activitiesCol = document.getElementById("activitiesCol");
+      const servicesCol = document.getElementById("servicesCol");
+
+      // Helper function
+      function renderList(arr, iconClass) {
+        if (!arr || arr.length === 0)
+          return '<div class="text-muted">No data.</div>';
+        return arr.slice(0, 4).map(item => `
+          <div class="activity-box d-flex align-items-start mb-3 p-3 rounded-3 shadow-sm bg-white">
+            <i class="${iconClass} fs-5 me-3 mt-1"></i>
+            <div>
+              <div class="fw-semibold">${item.name || ""}</div>
+              ${item.description ? `<div class="small text-secondary">${item.description}</div>` : ""}
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // Kiểm tra dữ liệu trả về, nếu tên field khác thì sửa lại cho đúng!
+      if (activitiesCol) {
+        activitiesCol.innerHTML = renderList(tour.activities, "fa-solid fa-circle-check text-success");
+      }
+      if (servicesCol) {
+        servicesCol.innerHTML = renderList(tour.services, "fa-solid fa-star text-warning");
+      }
     } else {
       if (titleEl) titleEl.textContent = "Tour Not Found";
     }
@@ -127,6 +155,7 @@ fetch(`/tourify/api/tours/${tourId}`)
     if (titleEl) titleEl.textContent = "Tour Not Found";
     console.error(err);
   });
+
 
 
 
