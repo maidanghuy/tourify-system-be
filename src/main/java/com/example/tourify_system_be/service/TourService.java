@@ -275,19 +275,39 @@ public class TourService {
 
     public TourResponse getTourById(String tourId) {
         Tour tour = itourRepository.findById(tourId)
-                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
-
-        // Chuyển entity sang DTO
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "..."));
         TourResponse response = tourMapper.toResponse(tour);
 
-        // Lấy ngày startDate active gần nhất (nếu có)
-        Optional<LocalDateTime> startDateOpt = iToursStartMappingRepository.findFirstActiveStartDateByTourId(tourId);
+        // ===== Lấy activities =====
+        List<TourActivity> tourActivities = iTourActivityRepository.findByTour_TourId(tourId);
+        List<TourResponse.ActivityDTO> activities = tourActivities.stream().map(ta -> {
+            Activity a = ta.getActivity();
+            TourResponse.ActivityDTO dto = new TourResponse.ActivityDTO();
+            dto.setActivityId(a.getActivityId());
+            dto.setName(a.getActivityName());
+            return dto;
+        }).toList();
+        response.setActivities(activities);
 
-        // Set ngày startDate vào DTO
+        // ===== Lấy services =====
+        List<TourServices> tourServices = iTourServicesRepository.findByTour_TourId(tourId);
+        List<TourResponse.ServiceDTO> services = tourServices.stream().map(ts -> {
+            Services s = ts.getService();
+            TourResponse.ServiceDTO dto = new TourResponse.ServiceDTO();
+            dto.setServiceId(s.getServiceId());
+            dto.setName(s.getServiceName());
+            return dto;
+        }).toList();
+        response.setServices(services);
+
+        // ===== Lấy ngày startDate active gần nhất =====
+        Optional<LocalDateTime> startDateOpt = iToursStartMappingRepository.findFirstActiveStartDateByTourId(tourId);
         startDateOpt.ifPresent(response::setStartDate);
 
         return response;
     }
+
+
 
 
     /**
