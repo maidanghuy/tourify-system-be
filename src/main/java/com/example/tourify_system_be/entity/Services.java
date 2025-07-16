@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "services", schema = "Tourify")
-public class Service {
+public class Services {
     @Id
     @Column(name = "service_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)

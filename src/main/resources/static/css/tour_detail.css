@@ -624,3 +624,17 @@
       }
 
 
+.activity-section .activity-box {
+  background: #f8fefd;
+  border: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s;
+}
+.activity-section .activity-box:hover {
+  box-shadow: 0 6px 24px rgba(64,199,170,0.18);
+}
+@media (max-width: 767px) {
+  .activity-section .col-md-6 {
+    margin-bottom: 2rem;
+  }
+}

@@ -79,6 +79,26 @@ async function handleAddTour(e) {
   const startDateRaw = document.getElementById("startDate").value;
   const repeatTimes = parseInt(document.getElementById("repeatTimes").value);
   const repeatCycle = parseInt(document.getElementById("repeatCycle").value);
+  const serviceIds = Array.from(document.getElementById("servicesSelect").selectedOptions).map(o => o.value);
+  const activityIds = Array.from(document.getElementById("activitiesSelect").selectedOptions).map(o => o.value);
+
+  // Thêm đoạn validate này ngay sau khi lấy serviceIds, activityIds:
+  if (serviceIds.length < 4) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Vui lòng chọn ít nhất 4 Services!'
+    });
+    return;
+  }
+
+  if (activityIds.length < 4) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Vui lòng chọn ít nhất 4 Activities!'
+    });
+    return;
+  }
+
 
   if (!startDateRaw) {
     Swal.fire({ icon: 'warning', title: 'Vui lòng chọn ngày bắt đầu tour!' });
@@ -111,6 +131,8 @@ async function handleAddTour(e) {
     thumbnail: getFirstImageUrlOrNull(),
     startDate,
     repeatTimes,
+    serviceIds,
+    activityIds,
     repeatCycle
   };
 
