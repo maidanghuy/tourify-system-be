@@ -17,6 +17,8 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
 
   List<Tour> findAllByTourIdIn(List<String> tourIds);
 
+  List<Tour> findByStatusIgnoreCase(String status);
+
   @Query("SELECT t FROM Tour t WHERE t.tourId = :tourId")
   Optional<Tour> findTourByTourId(@Param("tourId") String tourId);
 

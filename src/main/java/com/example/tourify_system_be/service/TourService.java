@@ -472,4 +472,42 @@ public class TourService {
         tourRepository.save(tour);
     }
 
+    public List<TourResponse> getAllDraftTours() {
+        return tourRepository.findByStatusIgnoreCase("DRAFT")
+                .stream()
+                .map(tour -> new TourResponse(
+                        tour.getTourId(),
+                        tour.getTourName(),
+                        tour.getDescription(),
+                        tour.getDuration(),
+                        tour.getPrice(),
+                        tour.getMinPeople(),
+                        tour.getMaxPeople(),
+                        tour.getTouristNumberAssigned(),
+                        tour.getThumbnail(),
+                        tour.getStatus(),
+                        tour.getPlace() != null ? tour.getPlace().getPlaceName() : null,
+                        tour.getCategory() != null ? tour.getCategory().getCategoryName() : null,
+                        tour.getCreatedAt(),
+                        null, // startDate (nếu có trường thì thay)
+                        null, // activities (tùy nếu cần map sang DTO)
+                        null, // services
+                        BigDecimal.valueOf(5.0), // rating mặc định
+                        tour.getManageBy() != null ? tour.getManageBy().getUserName() : null,
+                        null, // bookedCustomerCount (nếu có tính)
+                        null, // managementBy (nếu cần map User -> UserResponse)
+                        false // myTour
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public void updateStatus(String tourId, String status) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new RuntimeException("Tour not found!"));
+        tour.setStatus(status);
+        tourRepository.save(tour);
+    }
+
+
+
 }

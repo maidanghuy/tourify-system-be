@@ -554,7 +554,7 @@ const pages = {
 
   /* === 7. SELLERS === */
   seller: {
-    title: "Seller",
+    title: "List Tour Wait Approve",
     breadcrumbs: ["dashboard"],
     content: `
           <div class="container-fluid py-4">
@@ -563,7 +563,7 @@ const pages = {
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
                   <!-- Search box bên trái -->
                   <div class="flex-grow-1" style="min-width:220px;max-width:520px;">
-                    <input class="form-control-mint w-100" type="text" placeholder="Search seller..." id="sellerSearch" />
+                    <input class="form-control-mint w-100" type="text" placeholder="Search tour..." id="sellerSearch" />
                   </div>
                   <!-- 2 nút bên phải -->
                   <div class="d-flex gap-2 flex-shrink-0">
@@ -581,12 +581,12 @@ const pages = {
                     <thead>
                       <tr>
                         <th style="width:32px"><input type="checkbox"></th>
-                        <th style="min-width:180px">Seller Name</th>
-                        <th style="min-width:140px">Email</th>
-                        <th style="min-width:120px">Phone</th>
-                        <th style="min-width:110px">Joined</th>
-                        <th style="min-width:100px">Products</th>
-                        <th style="min-width:110px">Status</th>
+                        <th style="min-width:180px">Thumbnail</th>
+                        <th style="min-width:140px">Tour Name</th>
+                        <th style="min-width:120px">Sub-Company</th>
+                        <th style="min-width:110px">Price</th>
+                        <th style="min-width:100px">Place</th>
+                        <th style="min-width:110px">Created At</th>
                         <th style="min-width:90px">Action</th>
                       </tr>
                     </thead>
@@ -780,6 +780,9 @@ function loadPage(pageKey) {
 
   document.getElementById("mainContent").innerHTML =
     breadcrumbHtml + page.content;
+if (pageKey === "seller") {
+  setTimeout(loadDraftToursForSeller, 0);
+}
 
   // Load các trang đặc biệt
   if (pageKey === "addTour") {
@@ -1767,4 +1770,96 @@ async function loadServicesAndActivities() {
     }
     if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
   } catch (e) { console.error("❌ Activity fetch error:", e); }
+}
+
+async function loadDraftToursForSeller() {
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch('/tourify/api/tours/all-draft', {
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    });
+    if (!res.ok) throw new Error('API error');
+    const tours = await res.json();
+
+    const tbody = document.querySelector('#sellerTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!Array.isArray(tours) || tours.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No draft tour found.</td></tr>`;
+      return;
+    }
+    tours.forEach((tour, idx) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="checkbox" data-id="${tour.tourId}"></td>
+        <td>
+          <img src="${tour.thumbnail || 'https://via.placeholder.com/60x40?text=IMG'}"
+               alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
+        </td>
+        <td>
+          <span class="fw-semibold">${tour.tourName || '-'}</span>
+        </td>
+        <td>
+          <span>${tour.createdByUserName || '-'}</span>
+        </td>
+        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString('vi-VN') + ' ₫' : '-'}</td>
+        <td>${tour.placeName || '-'}</td>
+        <td>${tour.createdAt ? new Date(tour.createdAt).toLocaleDateString('vi-VN') : '-'}</td>
+        <td>
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId}')">
+            <i class="bi bi-check-lg"></i>
+          </button>
+          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (e) {
+    const tbody = document.querySelector('#sellerTable tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Error loading draft tours</td></tr>`;
+    console.error(e);
+  }
+}
+
+async function approveTour(tourId) {
+  if (!confirm('Bạn chắc chắn muốn duyệt tour này?')) return;
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}/approve`, {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) throw new Error('Approve failed');
+    // Thông báo
+    showPopup && showPopup('success', 'Thành công', 'Tour đã được duyệt!');
+    // Reload lại bảng
+    loadDraftToursForSeller();
+  } catch (e) {
+    showPopup && showPopup('danger', 'Thất bại', 'Không thể duyệt tour!');
+    console.error(e);
+  }
+}
+
+async function deleteTour(tourId) {
+  if (!confirm('Bạn chắc chắn muốn xóa tour này?')) return;
+  const token = localStorage.getItem('accessToken');
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (res.ok && data.code === 1000) {
+      showPopup && showPopup('success', 'Thành công', data.message || 'Xóa tour thành công!');
+      loadDraftToursForSeller(); // Reload lại bảng, hoặc gọi hàm tương tự bạn đã dùng
+    } else {
+      showPopup && showPopup('danger', 'Thất bại', data.message || 'Xóa tour thất bại!');
+    }
+  } catch (e) {
+    showPopup && showPopup('danger', 'Lỗi', 'Không thể kết nối máy chủ!');
+    console.error(e);
+  }
 }
