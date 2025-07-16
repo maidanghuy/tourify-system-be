@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tours")
@@ -166,6 +167,17 @@ public class TourController {
     ) {
         tourService.updateTour(tourId, request, bearerToken);
         return new APIResponse<>(1000, "Tour updated successfully", null);
+    }
+
+    @GetMapping("/all-draft")
+    public ResponseEntity<List<TourResponse>> getAllDraftTours() {
+        return ResponseEntity.ok(tourService.getAllDraftTours());
+    }
+
+    @PutMapping("/{tourId}/approve")
+    public ResponseEntity<?> approveTour(@PathVariable String tourId) {
+        tourService.updateStatus(tourId, "ACTIVE");
+        return ResponseEntity.ok().body(Map.of("success", true));
     }
 
 }
