@@ -3,10 +3,7 @@ package com.example.tourify_system_be.service;
 import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
-import com.example.tourify_system_be.dto.response.BookingTourResponse;
-import com.example.tourify_system_be.dto.response.CreditCardResponse;
-import com.example.tourify_system_be.dto.response.TourResponse;
-import com.example.tourify_system_be.dto.response.UserResponse;
+import com.example.tourify_system_be.dto.response.*;
 import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
@@ -85,6 +82,7 @@ public class UserService {
 //    public List<UserResponse> getUsers() {
 //        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
 //    }
+
     // phương thức mới:
     public List<UserResponse> getAllUsersForAdmin(String bearerToken) {
         // 1. Tách token
@@ -598,4 +596,33 @@ public class UserService {
                 .map(tourBookingMapper::toBookingTourResponse)
                 .collect(Collectors.toList());
     }
+
+    // Lấy thông tin thường của Subcompany
+    public SubCompanyResponse getSubCompanyDetail(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        SubCompanyDetails details = subCompanyDetailsRepository.findById(userId).orElse(null);
+
+        int totalTours = tourRepository.countByManageBy(user);
+        int totalFollowers = followRepository.countByFollowed(user);
+        int totalCustomers = bookingTourRepository.countDistinctUserByCompany(user);
+
+        return SubCompanyResponse.builder()
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phone(user.getPhoneNumber())
+                .address(user.getAddress())
+                .dob(user.getDob())
+                .website(details != null ? details.getWebsite() : null)
+                .description(details != null ? details.getDescription() : null)
+                .avatar(user.getAvatar())
+                .background(user.getBackground())
+                .totalTours(totalTours)
+                .totalFollowers(totalFollowers)
+                .totalCustomers(totalCustomers)
+                .build();
+    }
+
 }
