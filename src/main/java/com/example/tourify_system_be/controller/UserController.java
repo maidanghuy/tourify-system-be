@@ -230,4 +230,12 @@ public class UserController {
                 .result(userService.getAllBooking(token))
                 .build();
     }
+
+    // Lấy thông tin SubCompanyDetail
+    @GetMapping("/subcompanies/{id}")
+    public APIResponse<?> getSubCompanyDetail(@PathVariable("id") String userId) {
+        return APIResponse.<com.example.tourify_system_be.dto.response.SubCompanyResponse>builder()
+                .result(userService.getSubCompanyDetail(userId))
+                .build();
+    }
 }

@@ -165,4 +165,10 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
     Optional<BookingTour> findByBookingId(String bookingId);
 
     List<BookingTour> findBookingToursByUser_UserId(String id);
+
+    //Đếm số lượng người dùng khác nhau (distinct users) đã đặt tour mà do người có userId quản lý.
+    @Query("SELECT COUNT(DISTINCT b.user.userId) " +
+            "FROM BookingTour b " +
+            "WHERE b.tour.manageBy.userId = :userId")
+    int countDistinctUserIdByManageBy(@Param("userId") String userId);
 }

@@ -52,6 +52,10 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     JwtUtil jwtUtil;
     ITokenAuthenticationRepository tokenRepo;
+    IFollowSubCompanyRepository followSubCompanyRepository;
+    ISubCompanyDetailsRepository subCompanyDetailsRepository;
+
+
 
     Pattern EMAIL_REGEX = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     Duration TOKEN_VALID_DURATION = Duration.ofHours(24);
@@ -597,7 +601,35 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // Lấy thông tin thường của Subcompany
+    // Lấy thông tin thường của Subcompany
+    public com.example.tourify_system_be.dto.response.SubCompanyResponse getSubCompanyDetail(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy người dùng này!"));
 
+        if (!"SUB_COMPANY".equalsIgnoreCase(user.getRole())) {
+            throw new AppException(ErrorCode.NOT_SUBCOMPANY, "Không phải role SubCompany!");
+        }
+
+        SubCompanyDetails details = subCompanyDetailsRepository.findById(userId)
+                .orElse(null);
+
+        int totalTours = tourRepository.findAllByManageBy_UserId(userId).size();
+        long followerCount = followSubCompanyRepository.countBySubCompany(user);
+        long totalCustomersServed = bookingTourRepository.countDistinctUserIdByManageBy(userId);
+
+        return com.example.tourify_system_be.dto.response.SubCompanyResponse.builder()
+                .companyName(user.getUserName())
+                .contactName(user.getFullName())
+                .dob(user.getDob() != null ? user.getDob().toLocalDate().toString() : null)
+                .email(user.getEmail())
+                .hotline(user.getPhoneNumber())
+                .address(user.getAddress())
+                .website(details != null ? details.getWebsite() : null)
+                .description(details != null ? details.getDescription() : null)
+                .totalTours(totalTours)
+                .followerCount(followerCount)
+                .totalCustomersServed(totalCustomersServed)
+                .build();
+    }
 
 }

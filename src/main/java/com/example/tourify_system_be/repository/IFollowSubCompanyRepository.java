@@ -30,4 +30,8 @@ public interface IFollowSubCompanyRepository extends JpaRepository<FollowSubComp
 
     // (Optional) Liệt kê tất cả customer đã follow 1 sub-company
     // List<FollowSubCompany> findAllBySubCompany(User subCompany);
+
+
+// Đếm số follower của 1 sub-company theo userId (P thêm)
+    int countBySubCompany_UserId(String userId);
 }
