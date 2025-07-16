@@ -868,7 +868,6 @@ function renderFilteredBookings() {
 }
 
 function createBookingCard(booking) {
-    // Format dates
     const start = new Date(booking.dayStart);
     const end = new Date(booking.dayEnd);
     const created = new Date(booking.createdAt);
@@ -876,14 +875,74 @@ function createBookingCard(booking) {
     const startStr = start.toLocaleDateString(undefined, dateOptions);
     const endStr = end.toLocaleDateString(undefined, dateOptions);
     const createdStr = created.toLocaleDateString(undefined, dateOptions);
-    // Status color
+
     let statusColor = 'secondary';
     if (booking.status.toUpperCase() === 'PAID') statusColor = 'success';
     else if (booking.status.toUpperCase() === 'PENDING') statusColor = 'warning';
     else if (booking.status.toUpperCase() === 'CANCELLED') statusColor = 'danger';
     else if (booking.status.toUpperCase() === 'SUCCESS') statusColor = 'success';
 
-    // Card
+    // Nếu SUCCESS thì thêm 2 nút: Feedback + Re-book
+    let extraButtonsHTML = '';
+    let feedbackModalHTML = '';
+    if (booking.status.toUpperCase() === 'SUCCESS') {
+        extraButtonsHTML = `
+            <div class="d-flex justify-content-between mt-3">
+                <button type="button"
+                    class="btn btn-outline-primary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#feedbackModal-${booking.bookingId}">
+                    <i class="fas fa-comment-dots me-1"></i> Feedback
+                </button>
+                <a href="/tourify/tour-detail/${booking.tourId}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-redo me-1"></i> Re-book
+                </a>
+            </div>
+        `;
+        feedbackModalHTML = `
+        <!-- Modal feedback riêng cho booking này -->
+<div class="modal fade" id="feedbackModal-${booking.bookingId}" tabindex="-1" aria-labelledby="feedbackModalLabel-${booking.bookingId}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content feedback-form" data-tourid="${booking.tourId}">
+      <div class="modal-header">
+        <h5 class="modal-title" id="feedbackModalLabel-${booking.bookingId}">Feedback for ${booking.tourName}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Title</label>
+          <input type="text" name="title" class="form-control" required minlength="5" maxlength="100">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Content</label>
+          <textarea name="content" class="form-control" required minlength="10" maxlength="1000"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Rating</label>
+          <div class="star-rating d-flex align-items-center gap-1" style="font-size:2em;">
+              <i class="fa-regular fa-star" data-value="1"></i>
+              <i class="fa-regular fa-star" data-value="2"></i>
+              <i class="fa-regular fa-star" data-value="3"></i>
+              <i class="fa-regular fa-star" data-value="4"></i>
+              <i class="fa-regular fa-star" data-value="5"></i>
+              <input type="hidden" name="rating" value="0" required>
+              <span class="ms-2 rating-label text-muted" style="font-size:1em;"></span>
+            </div>
+        </div>
+        <div class="alert alert-success d-none"></div>
+        <div class="alert alert-danger d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+        `;
+    }
+
     const col = document.createElement('div');
     col.className = 'col-12 col-md-6 col-lg-4';
     col.innerHTML = `
@@ -896,8 +955,106 @@ function createBookingCard(booking) {
             <div class="mb-2"><i class="fas fa-users me-1" style="color:var(--secondary-color)"></i> <span>${booking.adultNumber} adults, ${booking.childNumber} children</span></div>
             <div class="mb-2"><i class="fas fa-money-bill-wave me-1" style="color:var(--secondary-color)"></i> <span style="font-weight:600; color:var(--secondary-color)">${booking.totalPrice.toLocaleString()} đ</span></div>
             <div class="mt-auto text-end"><small class="text-muted">Booked: ${createdStr}</small></div>
+            ${extraButtonsHTML}
         </div>
+        ${feedbackModalHTML}
     </div>
     `;
     return col;
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Chờ render xong booking cards thì mới gắn sự kiện
+    document.body.addEventListener('submit', async function(e) {
+        if (e.target.matches('.feedback-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const tourId = form.getAttribute('data-tourid');
+            const title = form.querySelector('[name="title"]').value.trim();
+            const content = form.querySelector('[name="content"]').value.trim();
+            const rating = form.querySelector('[name="rating"]').value;
+            const token = localStorage.getItem('accessToken');
+            const successMsg = form.querySelector('.alert-success');
+            const errorMsg = form.querySelector('.alert-danger');
+            successMsg.classList.add('d-none');
+            errorMsg.classList.add('d-none');
+
+            if (!token) {
+                errorMsg.textContent = "Bạn phải đăng nhập để gửi feedback.";
+                errorMsg.classList.remove('d-none');
+                return;
+            }
+            try {
+                const resp = await fetch('/tourify/api/feedbacks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ tourId, title, content, rating })
+                });
+                if (resp.ok) {
+                    successMsg.textContent = "Gửi feedback thành công! Cảm ơn bạn đã đánh giá.";
+                    successMsg.classList.remove('d-none');
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
+                        modal.hide();
+                        form.reset();
+                    }, 1000);
+                } else {
+                    const errorData = await resp.json();
+                    errorMsg.textContent = errorData.message || "Gửi feedback thất bại!";
+                    errorMsg.classList.remove('d-none');
+                }
+            } catch (err) {
+                errorMsg.textContent = "Lỗi kết nối server, vui lòng thử lại!";
+                errorMsg.classList.remove('d-none');
+            }
+        }
+    });
+});
+
+function initStarRating(modal) {
+    modal.querySelectorAll('.star-rating').forEach(starDiv => {
+        const stars = starDiv.querySelectorAll('i[data-value]');
+        const input = starDiv.querySelector('input[name="rating"]');
+        const label = starDiv.querySelector('.rating-label');
+        const ratingTexts = ["", "Rất tệ", "Tệ", "Bình thường", "Tốt", "Xuất sắc"];
+        let selected = 0;
+
+        stars.forEach(star => {
+            // Hover effect
+            star.addEventListener('mouseenter', () => {
+                const val = parseInt(star.getAttribute('data-value'));
+                stars.forEach((s, idx) => {
+                    s.className = idx < val ? 'fa-solid fa-star text-warning' : 'fa-regular fa-star';
+                });
+                label.textContent = ratingTexts[val];
+            });
+            // Rời khỏi
+            star.addEventListener('mouseleave', () => {
+                stars.forEach((s, idx) => {
+                    s.className = idx < selected ? 'fa-solid fa-star text-warning' : 'fa-regular fa-star';
+                });
+                label.textContent = selected > 0 ? ratingTexts[selected] : "";
+            });
+            // Click chọn
+            star.addEventListener('click', () => {
+                selected = parseInt(star.getAttribute('data-value'));
+                input.value = selected;
+                stars.forEach((s, idx) => {
+                    s.className = idx < selected ? 'fa-solid fa-star text-warning' : 'fa-regular fa-star';
+                });
+                label.textContent = ratingTexts[selected];
+            });
+        });
+    });
+}
+
+// Gọi hàm này mỗi khi mở modal feedback (hoặc sau khi render modal động)
+document.addEventListener('shown.bs.modal', function(e) {
+    if (e.target.classList.contains('modal')) {
+        initStarRating(e.target);
+    }
+});

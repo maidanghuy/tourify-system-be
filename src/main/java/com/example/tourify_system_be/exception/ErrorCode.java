@@ -54,6 +54,8 @@ public enum ErrorCode {
     INVALID_FEEDBACK(1042, "Invalid feedback", HttpStatus.BAD_REQUEST),
     SERVICE_NOT_FOUND(1043,"Not found Service",HttpStatus.BAD_REQUEST),
     ACTIVITY_NOT_FOUND(1044,"Not found Activity",HttpStatus.BAD_REQUEST),
+    TOUR_ALREADY_REPORTED(1602, "You have already reported this tour.", HttpStatus.BAD_REQUEST),
+    INVALID_FEEDBACK(1042, "Invalid feedback", HttpStatus.BAD_REQUEST)
     ;
 
 
