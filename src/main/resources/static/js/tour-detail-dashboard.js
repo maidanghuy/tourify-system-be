@@ -214,10 +214,135 @@
 
 
     // ==== 5. Sự kiện Edit/Disable ====
-    document.getElementById('editTourBtn').onclick = function() {
-      window.location.href = `/tourify/tourEdit?id=${tourId}`;
-    };
     document.getElementById('disableTourBtn').onclick = function() {
-      // TODO: Gọi API đổi status, confirm, toast...
-      alert('Feature coming soon!');
+      if (!confirm("Are you sure you want to disable this tour?")) return;
+
+      fetch(`/tourify/api/tours/${tourId}/disable`, {
+        method: "PUT",
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code === 1000) {
+          alert('Tour has been disabled!');
+          location.reload();
+        } else {
+          alert(data.message || "Disable failed!");
+        }
+      })
+      .catch(() => {
+        alert("Network error!");
+      });
     };
+
+// === Load Category Dropdown khi vào trang hoặc khi cần, trả về Promise ===
+function loadCategoriesDropdown(selectedCategoryId) {
+    return fetch("/tourify/api/categories")
+        .then(res => res.json())
+        .then(data => {
+            // Nếu API trả về object { result: [...] }
+            const categories = Array.isArray(data.result) ? data.result : (Array.isArray(data) ? data : []);
+            const catSelect = document.getElementById('editCategory');
+            // Nếu chưa có select, báo lỗi dev
+            if (!catSelect) {
+                console.error("Không tìm thấy select#editCategory trên DOM!");
+                return;
+            }
+            catSelect.innerHTML = categories.map(c =>
+                `<option value="${c.categoryId}">${c.categoryName}</option>`
+            ).join('');
+            // Nếu có truyền selectedCategoryId thì chọn đúng option
+            if (selectedCategoryId) {
+                catSelect.value = selectedCategoryId;
+            }
+        });
+}
+
+// --- Khi bấm Edit, mở modal và fill data ---
+document.getElementById("editTourBtn").addEventListener("click", function () {
+    fetch(`/tourify/api/tours/${tourId}`, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.code === 1000) {
+            const t = data.result;
+            document.getElementById('editTourName').value = t.tourName || "";
+            document.getElementById('editPrice').value = t.price || "";
+            document.getElementById('editDescription').value = t.description || "";
+            document.getElementById('editStartDate').value = t.startDate ? t.startDate.slice(0, 16) : "";
+            document.getElementById('editDuration').value = t.duration || "";
+            document.getElementById('editStatus').value = t.status || "DRAFT";
+            document.getElementById('editMinPeople').value = t.minPeople || "";
+            document.getElementById('editMaxPeople').value = t.maxPeople || "";
+            document.getElementById('editThumbnail').value = t.thumbnail || "";
+            document.getElementById('editPlace').value = t.placeName || "";
+
+            // Lưu ý: categoryId có thể nằm ở t.categoryId hoặc t.category.categoryId
+            const selectedCategoryId = t.categoryId || (t.category && t.category.categoryId);
+
+            // Load category xong mới set selected value và show modal
+            loadCategoriesDropdown(selectedCategoryId)
+                .then(() => {
+                    new bootstrap.Modal(document.getElementById('editTourModal')).show();
+                });
+        }
+    });
+});
+
+// --- Submit form: Cập nhật tour (KHÔNG gửi place) ---
+document.getElementById("editTourForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const req = {
+        tourName: document.getElementById('editTourName').value,
+        price: document.getElementById('editPrice').value,
+        description: document.getElementById('editDescription').value,
+        startDate: document.getElementById('editStartDate').value,
+        duration: document.getElementById('editDuration').value,
+        status: document.getElementById('editStatus').value,
+        minPeople: document.getElementById('editMinPeople').value,
+        maxPeople: document.getElementById('editMaxPeople').value,
+        thumbnail: document.getElementById('editThumbnail').value,
+        category: document.getElementById('editCategory').value
+        // KHÔNG gửi place!
+    };
+
+    fetch(`/tourify/api/tours/${tourId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(req)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.code === 1000) {
+            bootstrap.Modal.getInstance(document.getElementById('editTourModal')).hide();
+            showToast("Cập nhật thành công!", "success");
+            setTimeout(() => location.reload(), 1500); // Đợi toast rồi reload
+        } else {
+            showToast("Update thất bại: " + (data.message || ""), "error");
+        }
+    })
+    .catch(() => showToast("Network error", "error"));
+});
+
+function showToast(message, type = 'success') {
+    const toastEl = document.getElementById('notifyToast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.textContent = message;
+
+    // Đổi màu toast dựa vào type
+    toastEl.classList.remove('bg-success', 'bg-danger', 'bg-primary');
+    if (type === 'success') toastEl.classList.add('bg-success');
+    else if (type === 'error') toastEl.classList.add('bg-danger');
+    else toastEl.classList.add('bg-primary');
+
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface ITourActivityRepository extends JpaRepository<TourActivity, TourActivityId> {
     List<TourActivity> findByTour_TourId(String tourId);
+    void deleteAllByTour_TourId(String tourId);
+
 }
