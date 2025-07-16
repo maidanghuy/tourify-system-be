@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,11 +60,29 @@
                     <li class="nav-item position-relative list-unstyled me-2">
                         <a th:href="@{/user/message}" class="nav-link nav-custom" id="message-link">
                             <i class="fas fa-comment-dots fa-lg"></i>
-                            <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                  style="font-size: 11px; min-width:18px; display: none;">
-            0
-        </span>
+                            <span id="unread-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px; min-width:18px; display: none;">
+                                0
+                            </span>
                         </a>
+                    </li>
+                    <!-- Notification Icon -->
+                    <li class="nav-item position-relative list-unstyled me-2">
+                        <a href="#" class="nav-link nav-custom" id="notificationDropdown" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span id="notification-badge"
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 11px; min-width:18px; display: none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown"
+                            style="width: 350px; max-height: 400px; overflow-y: auto;">
+                            <li class="dropdown-header text-white">Notifications</li>
+                            <div id="notification-list">
+                                <li class="dropdown-item text-center text-muted">No notifications</li>
+                            </div>
+                        </ul>
                     </li>
                     <div class="dropdown">
                         <button class="btn dropdown-toggle text-white d-flex align-items-center nav-custom"
@@ -75,10 +94,12 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             <li>
-                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i class="fas fa-user-circle me-2"></i>View Profile</a>
+                                <a class="dropdown-item" th:href="@{/user/profile}" id="profile-view"><i
+                                        class="fas fa-user-circle me-2"></i>View Profile</a>
                             </li>
                             <li>
-                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i class="fas fa-edit me-2"></i>Edit Account</a>
+                                <a class="dropdown-item" th:href="@{/user/edit-account}" id="account-edit"><i
+                                        class="fas fa-edit me-2"></i>Edit Account</a>
                             </li>
                             <li>
                                 <a class="dropdown-item" th:href="@{/user/viewed}" id="list-viewed">
@@ -142,20 +163,15 @@
 
     <!-- Modern Tour Search Form -->
     <div class="booking-form mb-4">
-        <form class="row g-3 align-items-end"
-              th:action="@{/tour}" method="get">
+        <form class="row g-3 align-items-end" th:action="@{/tour}" method="get">
 
             <!-- Where -->
             <div class="col-md-3">
                 <label class="form-label">Where</label>
                 <div class="form-floating-custom position-relative">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <input
-                            type="text"
-                            name="placeName"
-                            class="form-control"
-                            placeholder="Enter destination"
-                            th:value="${placeName}" />
+                    <input type="text" name="placeName" class="form-control" placeholder="Enter destination"
+                        th:value="${placeName}" />
                 </div>
             </div>
 
@@ -165,29 +181,19 @@
                 <div class="form-floating-custom">
                     <i class="bi bi-clock"></i>
                     <select class="form-select" name="duration">
-                        <option
-                                value=""
-                                th:selected="${duration == null}">
+                        <option value="" th:selected="${duration == null}">
                             Any
                         </option>
-                        <option
-                                value="1"
-                                th:selected="${duration == 1}">
+                        <option value="1" th:selected="${duration == 1}">
                             01 Day
                         </option>
-                        <option
-                                value="3"
-                                th:selected="${duration == 3}">
+                        <option value="3" th:selected="${duration == 3}">
                             03 Day
                         </option>
-                        <option
-                                value="5"
-                                th:selected="${duration == 5}">
+                        <option value="5" th:selected="${duration == 5}">
                             05 Day
                         </option>
-                        <option
-                                value="7"
-                                th:selected="${duration == 7}">
+                        <option value="7" th:selected="${duration == 7}">
                             07 Day
                         </option>
                     </select>
@@ -200,16 +206,12 @@
                 <div class="form-floating-custom">
                     <i class="bi bi-globe-americas"></i>
                     <select class="form-select" name="categoryName">
-                        <option
-                                value=""
-                                th:selected="${categoryName == null}">
+                        <option value="" th:selected="${categoryName == null}">
                             Any
                         </option>
                         <th:block th:each="cat : ${categories}">
-                            <option
-                                    th:value="${cat.categoryName}"
-                                    th:text="${cat.categoryName}"
-                                    th:selected="${cat.categoryName == categoryName}">
+                            <option th:value="${cat.categoryName}" th:text="${cat.categoryName}"
+                                th:selected="${cat.categoryName == categoryName}">
                             </option>
                         </th:block>
                     </select>
@@ -221,14 +223,8 @@
                 <label class="form-label">People</label>
                 <div class="form-floating-custom">
                     <i class="bi bi-people-fill"></i>
-                    <input
-                            type="number"
-                            name="touristNumberAssigned"
-                            class="form-control"
-                            placeholder="Enter number"
-                            min="0"
-                            step="1"
-                    th:value="${touristNumberAssigned}" />
+                    <input type="number" name="touristNumberAssigned" class="form-control" placeholder="Enter number"
+                        min="0" step="1" th:value="${touristNumberAssigned}" />
                 </div>
             </div>
 
@@ -364,7 +360,7 @@
 
         <!-- Preview ảnh -->
         <div id="imagePreviewContainer" class="preview-container" style="display:none;">
-            <img id="imagePreview" src="" alt="Ảnh chọn…"/>
+            <img id="imagePreview" src="" alt="Ảnh chọn…" />
             <button id="removeImageBtn" class="remove-image-btn">&times;</button>
         </div>
 
@@ -372,7 +368,7 @@
             <label for="imageInput" class="image-upload-btn">
                 <i class="fas fa-image"></i>
             </label>
-            <input type="file" id="imageInput" accept="image/*"/>
+            <input type="file" id="imageInput" accept="image/*" />
 
             <textarea id="userInput" class="input-box" placeholder="Nhập tin nhắn…"></textarea>
             <button id="sendBtn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
@@ -381,6 +377,179 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchNotifications();
+
+            // Hàm lấy thông báo từ API
+            function fetchNotifications() {
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    updateNotificationUI([]);
+                    return;
+                }
+                fetch('/tourify/api/notifications', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        updateNotificationUI(data.result || []);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notifications:', error);
+                    });
+            }
+
+            // Hàm cập nhật giao diện thông báo
+            function updateNotificationUI(notifications) {
+                const badge = document.getElementById('notification-badge');
+                const list = document.getElementById('notification-list');
+                list.innerHTML = '';
+
+                // Tăng chiều rộng dropdown
+                list.parentElement.style.width = '400px';
+                list.parentElement.style.maxWidth = '95vw';
+
+                if (notifications && notifications.length > 0) {
+                    const unreadCount = notifications.filter(n => !n.isRead).length;
+                    badge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+                    badge.textContent = unreadCount;
+
+                    notifications.forEach(noti => {
+                        const li = document.createElement('li');
+                        li.className = 'dropdown-item d-flex align-items-start gap-3 px-3 py-3 border-bottom position-relative';
+                        li.style.cursor = 'pointer';
+                        li.style.transition = 'background 0.2s, opacity 0.2s';
+                        li.style.opacity = noti.isRead ? '0.6' : '1';
+                        if (!noti.isRead) {
+                            li.style.backgroundColor = '#e7f1ff';
+                            li.style.fontWeight = '600';
+                        } else {
+                            li.style.backgroundColor = '#fff';
+                            li.style.fontWeight = '400';
+                        }
+                        li.onmouseenter = () => { li.style.backgroundColor = '#f0f4fa'; };
+                        li.onmouseleave = () => {
+                            li.style.backgroundColor = !noti.isRead ? '#e7f1ff' : '#fff';
+                        };
+                        // Click vào nội dung để chuyển trang nếu có link
+                        li.onclick = (e) => {
+                            // Nếu click vào icon read thì không chuyển trang
+                            if (e.target.classList.contains('mark-read-btn')) return;
+                            if (noti.link) window.location.href = noti.link;
+                        };
+
+                        // Nút hoặc icon đánh dấu đã đọc
+                        let readBtnHtml = '';
+                        if (!noti.isRead) {
+                            readBtnHtml = `<button class="btn btn-sm btn-light mark-read-btn position-absolute top-0 end-0 mt-2 me-2" title="Đánh dấu đã đọc" data-id="${noti.id}"><i class="fas fa-circle text-primary"></i></button>`;
+                        } else {
+                            readBtnHtml = `<span class="position-absolute top-0 end-0 mt-2 me-2" title="Đã đọc"><i class="fas fa-check-circle text-success"></i></span>`;
+                        }
+
+                        li.innerHTML = `
+                <div class="flex-shrink-0 pt-1">
+                    <i class="fas fa-bell fa-lg text-primary"></i>
+                </div>
+                <div class="flex-grow-1" style="min-width:0;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="fw-semibold text-dark" style="font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:inline-block;">
+                            ${noti.title || 'Thông báo'}
+                        </span>
+                        <small class="text-secondary ms-2" style="white-space:nowrap;">${new Date(noti.createdAt).toLocaleString()}</small>
+                    </div>
+                    <div class="text-body" style="font-size:0.97rem;word-break:break-word;white-space:pre-line;">${noti.message}</div>
+                    ${noti.imageUrl ? `<img src="${noti.imageUrl}" alt="img" style="width:38px;height:38px;object-fit:cover;border-radius:8px;margin-top:6px;float:right;">` : ''}
+                </div>
+                ${readBtnHtml}
+            `;
+                        list.appendChild(li);
+                    });
+
+                    // Gán sự kiện cho nút đánh dấu đã đọc
+                    list.querySelectorAll('.mark-read-btn').forEach(btn => {
+                        btn.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                            const notiId = this.getAttribute('data-id');
+                            markNotificationAsRead(notiId);
+                        });
+                    });
+                } else {
+                    badge.style.display = 'none';
+                    list.innerHTML = `
+            <li class="dropdown-item text-center text-muted py-4" style="background:#fff;">
+                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                <div>Không có thông báo nào</div>
+            </li>
+        `;
+                }
+            }
+
+            // Hàm gọi API đánh dấu đã đọc
+            function markNotificationAsRead(notiId) {
+                const token = localStorage.getItem('accessToken');
+                fetch('/tourify/api/notifications/read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify([notiId])
+                })
+                    .then(res => res.json())
+                    .then(() => {
+                        fetchNotifications();
+                    });
+            }
+
+            function parseJwt(token) {
+                if (!token) return null;
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(jsonPayload);
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            const token = localStorage.getItem("accessToken");
+            const payload = parseJwt(token);
+            const userId = payload?.userId;
+
+            if (!userId) {
+                console.error("❌ Không lấy được userId từ token!");
+            } else {
+                const socket = new SockJS('/tourify/ws');
+                const stompClient = Stomp.over(socket);
+
+                stompClient.connect({}, () => {
+                    // ✅ Subscribe thông báo hệ thống
+                    stompClient.subscribe('/topic/notifications', message => {
+                        const data = JSON.parse(message.body);
+                        alert("📢 Thông báo hệ thống: " + data.title);
+                        fetchNotifications();
+                    });
+
+                    // ✅ Subscribe thông báo cá nhân
+                    stompClient.subscribe(`/topic/user/${userId}`, message => {
+                        const data = JSON.parse(message.body);
+                        alert("🔔 Thông báo cá nhân: " + data.title);
+                        fetchNotifications();
+                    });
+                }, error => {
+                    console.error("❌ Kết nối WebSocket thất bại:", error);
+                });
+            }
+        });
+    </script>
     <script src="js/chatbot.js"></script>
     <script src="js/index.js"></script>
     <script src="js/logout.js"></script>
