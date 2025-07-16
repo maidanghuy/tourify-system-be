@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -56,5 +57,6 @@ public class TourCreateRequest {
     private int repeatTimes;
     @Min(1)
     private int repeatCycle = 7;  // default 7 nếu FE không gửi
-
+    private List<String> activityIds; // (new)
+    private List<String> serviceIds;
 }

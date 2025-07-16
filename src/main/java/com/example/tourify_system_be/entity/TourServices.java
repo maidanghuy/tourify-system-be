@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "tour_service", schema = "Tourify")
-public class TourService {
+public class TourServices {
     @EmbeddedId
     TourServiceId id;
 
@@ -23,6 +23,6 @@ public class TourService {
     @MapsId("serviceId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_id", nullable = false)
-    Service service;
+    Services service;
 
 }
