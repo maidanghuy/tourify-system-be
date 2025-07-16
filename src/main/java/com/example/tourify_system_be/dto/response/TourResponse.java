@@ -62,5 +62,4 @@ public class TourResponse {
     UserResponse managementBy;
     @Builder.Default
     boolean myTour = false;
-    String manageByUserId;
 }

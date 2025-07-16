@@ -16,7 +16,7 @@ public class FollowSubCompanyService {
     private final IUserRepository userRepo;
 
     /**
-     * Customer follow một Sub-company.
+     * Customer (user hoặc admin) follow một Sub-company.
      */
     @Transactional
     public void follow(String customerId, String subCompanyId) {
@@ -29,8 +29,11 @@ public class FollowSubCompanyService {
         User subCompany = userRepo.findById(subCompanyId)
                 .orElseThrow(() -> new IllegalArgumentException("Sub-company không tồn tại"));
 
-        if (!"user".equalsIgnoreCase(customer.getRole())) {
-            throw new IllegalArgumentException("Chỉ customer (role 'user') mới được follow.");
+        // Cho phép role 'user' hoặc 'admin', không phân biệt hoa thường
+        String customerRole = customer.getRole();
+        if (customerRole == null ||
+                (!customerRole.equalsIgnoreCase("user") && !customerRole.equalsIgnoreCase("admin"))) {
+            throw new IllegalArgumentException("Chỉ customer (role 'user' hoặc 'admin') mới được follow.");
         }
         if (!"SUB_COMPANY".equalsIgnoreCase(subCompany.getRole())) {
             throw new IllegalArgumentException("Chỉ được follow user có role 'SUB_COMPANY'.");
@@ -40,7 +43,6 @@ public class FollowSubCompanyService {
         }
 
         FollowSubCompany follow = FollowSubCompany.builder()
-                // Không set followId, Hibernate sẽ tự sinh!
                 .customer(customer)
                 .subCompany(subCompany)
                 .build();
@@ -48,7 +50,7 @@ public class FollowSubCompanyService {
     }
 
     /**
-     * Customer unfollow một Sub-company.
+     * Customer (user hoặc admin) unfollow một Sub-company.
      */
     @Transactional
     public void unfollow(String customerId, String subCompanyId) {
@@ -57,8 +59,11 @@ public class FollowSubCompanyService {
         User subCompany = userRepo.findById(subCompanyId)
                 .orElseThrow(() -> new IllegalArgumentException("Sub-company không tồn tại"));
 
-        if (!"user".equalsIgnoreCase(customer.getRole())) {
-            throw new IllegalArgumentException("Chỉ customer (role 'user') mới được unfollow.");
+        // Cho phép role 'user' hoặc 'admin', không phân biệt hoa thường
+        String customerRole = customer.getRole();
+        if (customerRole == null ||
+                (!customerRole.equalsIgnoreCase("user") && !customerRole.equalsIgnoreCase("admin"))) {
+            throw new IllegalArgumentException("Chỉ customer (role 'user' hoặc 'admin') mới được unfollow.");
         }
         if (!"SUB_COMPANY".equalsIgnoreCase(subCompany.getRole())) {
             throw new IllegalArgumentException("Chỉ được unfollow user có role 'SUB_COMPANY'.");
