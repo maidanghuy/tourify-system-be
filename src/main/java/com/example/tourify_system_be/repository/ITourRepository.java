@@ -21,4 +21,5 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
   Optional<Tour> findTourByTourId(@Param("tourId") String tourId);
 
   Tour findByTourId(String tourId);
+
 }

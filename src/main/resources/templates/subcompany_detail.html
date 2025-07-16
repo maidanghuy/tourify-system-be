@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8"/>
+    <title>SubCompany Profile | Tourify</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <!-- Bootstrap 5 -->
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+            rel="stylesheet"
+    />
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+    <link
+            rel="stylesheet"
+            href="/css/subcompany_detail.css"
+            th:href="@{/css/subcompany_detail.css}"
+    />
+</head>
+<body>
+<div class="profile-cover">
+    <!--    <button class="btn btn-add-cover">-->
+    <!--        <i class="bi bi-camera me-2"></i> Thêm ảnh bìa-->
+    <!--    </button>-->
+</div>
+<div class="profile-header-row">
+    <img
+            alt="avatar"
+            class="profile-avatar"
+            src="https://randomuser.me/api/portraits/men/32.jpg"
+    />
+    <!--    <button class="avatar-edit-btn" title="Đổi avatar">-->
+    <!--        <i class="bi bi-camera"></i>-->
+    <!--    </button>-->
+    <div class="profile-info">
+        <span class="profile-name">Tourify SubCompany</span>
+        <span class="profile-followers">1,420 người theo dõi</span>
+    </div>
+    <div class="profile-actions">
+        <button class="btn btn-primary" id="btnSendMessenger">
+            <i class="bi bi-messenger"></i> Nhắn tin
+        </button>
+        <button id="followBtn" class="btn btn-outline-secondary">
+            <i class="bi bi-person-plus"></i> Follow
+        </button>
+        <!--        <button class="btn btn-light"><i class="bi bi-three-dots"></i></button>-->
+    </div>
+</div>
+
+
+<!-- THỐNG KÊ SUBCOMPANY -->
+<div class="container mt-0 mb-4">
+    <div class="row justify-content-center g-3">
+        <div class="col-md-4 col-12">
+            <div
+                    class="stat-card p-4 d-flex align-items-center gap-3 shadow rounded-4"
+            >
+                <div
+                        class="stat-icon bg-success-subtle d-flex align-items-center justify-content-center rounded-circle"
+                        style="width: 56px; height: 56px"
+                >
+                    <i class="bi bi-map-fill fs-3" style="color: #41c98a"></i>
+                </div>
+                <div>
+                    <div class="stat-value fw-bold" style="font-size: 2rem">26</div>
+                    <div class="stat-label text-secondary">Tours</div>
+                </div>
+            </div>
+        </div>
+<!--        <div class="col-md-4 col-12">-->
+<!--            <div-->
+<!--                    class="stat-card p-4 d-flex align-items-center gap-3 shadow rounded-4"-->
+<!--            >-->
+<!--                <div-->
+<!--                        class="stat-icon bg-warning-subtle d-flex align-items-center justify-content-center rounded-circle"-->
+<!--                        style="width: 56px; height: 56px"-->
+<!--                >-->
+<!--                    <i class="bi bi-star-fill fs-3" style="color: #efbb39"></i>-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                    <div class="stat-value fw-bold" style="font-size: 2rem">4.9</div>-->
+<!--                    <div class="stat-label text-secondary">Đánh giá</div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="col-md-4 col-12">
+            <div
+                    class="stat-card p-4 d-flex align-items-center gap-3 shadow rounded-4"
+            >
+                <div
+                        class="stat-icon bg-info-subtle d-flex align-items-center justify-content-center rounded-circle"
+                        style="width: 56px; height: 56px"
+                >
+                    <i class="bi bi-people-fill fs-3" style="color: #3db2ff"></i>
+                </div>
+                <div>
+                    <div class="stat-value fw-bold" style="font-size: 2rem">
+                        1,050+
+                    </div>
+                    <div class="stat-label text-secondary">Khách hàng DN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- PHẦN GIỚI THIỆU SUBCOMPANY (INTRO SECTION) -->
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+            <div class="card shadow bg-dark border-0 rounded-4 px-3 py-4">
+                <div class="card-body p-0">
+                    <h5
+                            class="fw-bold mb-4"
+                            style="
+                  color: #38816c;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                "
+                    >
+                        <i class="bi bi-info-circle"></i>
+                        Giới thiệu về công ty
+                    </h5>
+                    <div class="row g-3">
+                        <!-- 1) Người liên hệ -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-person fs-4" style="color: #ef8354"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Người liên hệ</div>
+                                    <div class="fw-semibold">Trần Hồng Phong</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2) Ngày thành lập -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-calendar-event fs-4" style="color: #326d5b"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Ngày thành lập</div>
+                                    <div class="fw-semibold">01/06/2018</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3) Email -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-envelope-at-fill fs-4" style="color: #38816c"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Email</div>
+                                    <div class="fw-semibold">
+                                        <a class="text-decoration-none" href="mailto:contact@tourifysubco.com"
+                                           style="color: #38816c">
+                                            contact@tourifysubco.com
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4) Website -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-globe fs-4" style="color: #41c98a"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Website</div>
+                                    <div class="fw-semibold">
+                                        <a class="link-info text-decoration-none" href="https://tourifysubco.com"
+                                           style="color: #38816c" target="_blank">
+                                            tourifysubco.com
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5) Hotline -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-telephone-fill fs-4" style="color: #28b27a"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Hotline</div>
+                                    <div class="fw-semibold">1900 636 888</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 6) Địa chỉ -->
+                        <div class="col-sm-6">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-geo-alt-fill fs-4" style="color: #41c98a"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Địa chỉ</div>
+                                    <div class="fw-semibold">88 Trần Duy Hưng, Hà Nội</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 7) Mô tả công ty (full width) -->
+                        <div class="col-12">
+                            <div class="intro-info-box d-flex align-items-start gap-3 p-3 rounded-3">
+                                <i class="bi bi-building fs-4" style="color: #38816c"></i>
+                                <div>
+                                    <div class="text-light-emphasis">Mô tả công ty</div>
+                                    <div class="fw-semibold">
+                                        Tourify SubCompany chuyên cung cấp tour du lịch trải nghiệm, nghỉ dưỡng, hội
+                                        thảo, team building với hơn 1000+ khách hàng doanh nghiệp. Cam kết dịch vụ 5★,
+                                        trải nghiệm mới lạ, giá ưu đãi.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 8) Kết nối (social) -->
+                        <div class="col-12">
+                            <div class="d-flex gap-3 align-items-center ps-1 pt-3">
+
+                                <!-- các nút social -->
+                                <div class="col-12">
+                                    <div class="d-flex gap-3 align-items-center ps-1 pt-3">
+    <span class="fw-semibold" style="color: #38816c">
+      <i class="bi bi-share me-1"></i>Kết nối:
+    </span>
+                                        <a
+                                                class="btn btn-outline-primary btn-sm rounded-circle"
+                                                href="https://facebook.com/tourifysubco"
+                                                target="_blank"
+                                                title="Facebook"
+                                        ><i class="bi bi-facebook"></i></a>
+                                        <a
+                                                class="btn btn-outline-success btn-sm rounded-circle"
+                                                href="https://zalo.me/123456789"
+                                                target="_blank"
+                                                title="Zalo"
+                                        ><i class="bi bi-telephone"></i></a>
+                                        <a
+                                                class="btn btn-outline-danger btn-sm rounded-circle"
+                                                href="https://instagram.com/tourifysubco"
+                                                target="_blank"
+                                                title="Instagram"
+                                        ><i class="bi bi-instagram"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- row -->
+</div>
+<!-- container -->
+
+
+<!-- Modal Chat Messenger -->
+<div class="modal fade" id="chatModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 14px">
+            <div
+                    class="modal-header"
+                    style="
+              background: #41c98a;
+              color: #fff;
+              border-radius: 14px 14px 0 0;
+            "
+            >
+                <i class="bi bi-messenger me-2"></i> Chat với Tourify SubCompany
+                <button
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        type="button"
+                ></button>
+            </div>
+            <div class="modal-body" style="min-height: 180px">
+                <p>
+                    Bạn cần hỗ trợ gì? (Demo UI chat, kết nối API thực tuỳ backend)
+                </p>
+                <input class="form-control mb-2" placeholder="Nhập tin nhắn..."/>
+                <button class="btn btn-primary w-100">
+                    <i class="bi bi-send"></i> Gửi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document
+        .getElementById("btnSendMessenger")
+        .addEventListener("click", function () {
+            var chatModal = new bootstrap.Modal(
+                document.getElementById("chatModal")
+            );
+            chatModal.show();
+        });
+</script>
+<script th:src="@{/js/subcompany_detail.js}"></script>
+</body>
+</html>
+
+
+

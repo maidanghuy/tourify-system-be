@@ -3,10 +3,7 @@ package com.example.tourify_system_be.service;
 import com.example.tourify_system_be.dto.request.CreditCardRequest;
 import com.example.tourify_system_be.dto.request.UserCreateRequest;
 import com.example.tourify_system_be.dto.request.UserUpdateRequest;
-import com.example.tourify_system_be.dto.response.BookingTourResponse;
-import com.example.tourify_system_be.dto.response.CreditCardResponse;
-import com.example.tourify_system_be.dto.response.TourResponse;
-import com.example.tourify_system_be.dto.response.UserResponse;
+import com.example.tourify_system_be.dto.response.*;
 import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
@@ -85,6 +82,7 @@ public class UserService {
 //    public List<UserResponse> getUsers() {
 //        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
 //    }
+
     // phương thức mới:
     public List<UserResponse> getAllUsersForAdmin(String bearerToken) {
         // 1. Tách token
@@ -598,4 +596,8 @@ public class UserService {
                 .map(tourBookingMapper::toBookingTourResponse)
                 .collect(Collectors.toList());
     }
+
+    // Lấy thông tin thường của Subcompany
+
+
 }

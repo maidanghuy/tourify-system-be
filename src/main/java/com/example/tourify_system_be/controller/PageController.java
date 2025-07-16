@@ -132,5 +132,8 @@ public class PageController {
 
     @GetMapping("/dashboard/accounts")
     public String feedbackPage(){return "accounts";}
+
+    @GetMapping("/subcompanyDetail")
+    public String subcompanyDetailPage(){return "subcompany_detail";}
 }
 

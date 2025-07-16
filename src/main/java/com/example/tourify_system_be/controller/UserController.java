@@ -22,12 +22,13 @@ public class UserController {
 
     private final UserService userService;
 
-    //        @GetMapping("")
-//        public APIResponse<List<UserResponse>> getAllUsers() {
-//                return APIResponse.<List<UserResponse>>builder()
-//                                .result(userService.getUsers())
-//                                .build();
-//        }
+//    @GetMapping("")
+//    public APIResponse<List<UserResponse>> getAllUsers() {
+//        return APIResponse.<List<UserResponse>>builder()
+//                .result(userService.getUsers())
+//                .build();
+//    }
+
     @GetMapping("")
     public APIResponse<List<UserResponse>> getAllUsers(
             @RequestHeader("Authorization") String bearerToken) {

@@ -3,6 +3,7 @@ package com.example.tourify_system_be.service;
 import com.example.tourify_system_be.dto.request.TourCreateRequest;
 import com.example.tourify_system_be.dto.request.TourFilterRequest;
 import com.example.tourify_system_be.dto.request.TourSearchRequest;
+import com.example.tourify_system_be.dto.request.TourUpdateRequest;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.entity.*;
 import com.example.tourify_system_be.exception.AppException;
@@ -374,4 +375,101 @@ public class TourService {
             toursStartMappingRepository.save(mapping);
         }
     }
+
+    @Transactional
+    public void disableTour(String tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new EntityNotFoundException("Tour not found"));
+        tour.setStatus("INACTIVE");
+        tour.setUpdatedAt(LocalDateTime.now());
+        tourRepository.save(tour);
+    }
+
+    @Transactional
+    public void updateTour(String tourId, TourUpdateRequest req, String bearerToken) {
+        String userId = jwtUtil.extractUserId(bearerToken.substring(7));
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Tour not found!"));
+
+        if (!tour.getManageBy().getUserId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, "You are not allowed to edit this tour!");
+        }
+
+        // Update các field cơ bản
+        tour.setTourName(req.getTourName());
+        tour.setDescription(req.getDescription());
+        tour.setPrice(req.getPrice());
+        tour.setDuration(req.getDuration());
+        tour.setMinPeople(req.getMinPeople());
+        tour.setMaxPeople(req.getMaxPeople());
+        tour.setStatus(req.getStatus());
+        tour.setThumbnail(req.getThumbnail());
+        tour.setUpdatedAt(LocalDateTime.now());
+
+        // CHỈ update category nếu FE vẫn gửi
+        if (req.getCategory() != null) {
+            Category category = iCategoryRepository.findById(req.getCategory())
+                    .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND, "Category not found!"));
+            tour.setCategory(category);
+        }
+
+        // ============= XỬ LÝ NGÀY KHỞI HÀNH ==============
+        if (req.getStartDate() != null && !req.getStartDate().isEmpty()) {
+            // Xóa hết mapping & start cũ của tour này (nếu có)
+            List<ToursStartMapping> oldMappings = toursStartMappingRepository.findAllByTour_TourId(tourId);
+            for (ToursStartMapping mapping : oldMappings) {
+                String startId = mapping.getStart().getStartId();
+                toursStartMappingRepository.delete(mapping);
+                toursStartRepository.deleteById(startId);
+            }
+            // Thêm start mới
+            ToursStart newStart = ToursStart.builder()
+                    .startDate(LocalDateTime.parse(req.getStartDate()))
+                    .isActive(true)
+                    .build();
+            ToursStart savedStart = toursStartRepository.save(newStart);
+
+            ToursStartMapping mapping = ToursStartMapping.builder()
+                    .id(new ToursStartMappingId(tourId, savedStart.getStartId()))
+                    .tour(tour)
+                    .start(savedStart)
+                    .build();
+            toursStartMappingRepository.save(mapping);
+        }
+
+        // ============= XỬ LÝ ACTIVITIES =============
+        if (req.getActivityIds() != null) {
+            iTourActivityRepository.deleteAllByTour_TourId(tourId);
+            for (String activityId : req.getActivityIds()) {
+                Activity activity = iActivityRepository.findById(activityId)
+                        .orElseThrow(() -> new AppException(ErrorCode.ACTIVITY_NOT_FOUND, "Activity not found!"));
+                TourActivityId taId = new TourActivityId(tourId, activityId);
+                TourActivity mapping = TourActivity.builder()
+                        .id(taId)
+                        .tour(tour)
+                        .activity(activity)
+                        .build();
+                iTourActivityRepository.save(mapping);
+            }
+        }
+
+        // ============= XỬ LÝ SERVICES =============
+        if (req.getServiceIds() != null) {
+            iTourServicesRepository.deleteAllByTour_TourId(tourId);
+            for (String serviceId : req.getServiceIds()) {
+                Services service = iServicesRepository.findById(serviceId)
+                        .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_FOUND, "Service not found!"));
+                TourServiceId tsId = new TourServiceId(tourId, serviceId);
+                TourServices mapping = TourServices.builder()
+                        .id(tsId)
+                        .tour(tour)
+                        .service(service)
+                        .build();
+                iTourServicesRepository.save(mapping);
+            }
+        }
+
+        tourRepository.save(tour);
+    }
+
 }
