@@ -299,10 +299,17 @@ const pages = {
                           <option value="" disabled selected>Select a category</option>
                         </select>
         
-        
+                        <!-- Chọn Services -->
+                        <div class="form-section-title mt-4">Services</div>
+                        <select id="servicesSelect" class="form-select" multiple></select>
+
+                        <!-- Chọn Activities -->
+                        <div class="form-section-title mt-4">Activities</div>
+                        <select id="activitiesSelect" class="form-select" multiple></select>
+
         
                     </div>
-        
+
         
                     <div class="card p-4 mb-3">
                         <div class="form-section-title">
@@ -1146,6 +1153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function initAddTourPage() {
   // Gọi load data cho category & place mỗi lần vào Add Tour
   loadPlacesAndCategories();
+  loadServicesAndActivities();
   // //Code P thêm
   // $("#categorySelect").select2({
   //     placeholder: "Select a category",
@@ -2214,4 +2222,40 @@ function initAnalyticsPage() {
       // TODO: Gắn logic edit/delete nếu cần
     });
   }
+}
+
+async function loadServicesAndActivities() {
+  // Load Services
+  try {
+    const res = await fetch("/tourify/api/services");
+    const arr = await res.json();
+    const select = document.getElementById("servicesSelect");
+    select.innerHTML = "";
+    if (Array.isArray(arr)) {
+      arr.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s.serviceId;
+        opt.textContent = s.serviceName;
+        select.appendChild(opt);
+      });
+    }
+    if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
+  } catch (e) { console.error("❌ Service fetch error:", e); }
+
+  // Load Activities
+  try {
+    const res = await fetch("/tourify/api/activities");
+    const arr = await res.json();
+    const select = document.getElementById("activitiesSelect");
+    select.innerHTML = "";
+    if (Array.isArray(arr)) {
+      arr.forEach((a) => {
+        const opt = document.createElement("option");
+        opt.value = a.activityId;
+        opt.textContent = a.activityName;
+        select.appendChild(opt);
+      });
+    }
+    if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
+  } catch (e) { console.error("❌ Activity fetch error:", e); }
 }

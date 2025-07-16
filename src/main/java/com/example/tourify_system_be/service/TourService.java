@@ -44,6 +44,10 @@ public class TourService {
     private final IToursStartMappingRepository iToursStartMappingRepository;
     private final IToursStartRepository toursStartRepository;
     private final IToursStartMappingRepository toursStartMappingRepository;
+    private final ITourActivityRepository iTourActivityRepository;
+    private final ITourServicesRepository iTourServicesRepository;
+    private final IActivityRepository iActivityRepository;
+    private final IServicesRepository iServicesRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -153,7 +157,35 @@ public class TourService {
 
         // 1. Lưu tour để có tourId
         tour = itourRepository.save(tour);
+        // Lưu activityIds cho tour
+        if (request.getActivityIds() != null) {
+            for (String activityId : request.getActivityIds()) {
+                Activity activity = iActivityRepository.findById(activityId)
+                        .orElseThrow(() -> new AppException(ErrorCode.ACTIVITY_NOT_FOUND, "Activity not found!"));
+                TourActivityId taId = new TourActivityId(tour.getTourId(), activityId);
+                TourActivity ta = TourActivity.builder()
+                        .id(taId)
+                        .tour(tour)
+                        .activity(activity)
+                        .build();
+                iTourActivityRepository.save(ta);
+            }
+        }
 
+        // Lưu serviceIds cho tour
+        if (request.getServiceIds() != null) {
+            for (String serviceId : request.getServiceIds()) {
+                Services service = iServicesRepository.findById(serviceId)
+                        .orElseThrow(() -> new AppException(ErrorCode.SERVICE_NOT_FOUND, "Service not found!"));
+                TourServiceId tsId = new TourServiceId(tour.getTourId(), serviceId);
+                TourServices ts = TourServices.builder()
+                        .id(tsId)
+                        .tour(tour)
+                        .service(service)
+                        .build();
+                iTourServicesRepository.save(ts);
+            }
+        }
         // 2. Xử lý tạo ngày khởi hành (start dates) và mapping
         String startDateStr = request.getStartDate(); // VD: "2025-07-14 08:00:00"
         int repeatTimes = request.getRepeatTimes();
