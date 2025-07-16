@@ -1,23 +1,23 @@
 package com.example.tourify_system_be.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SubCompanyResponse {
-    String userId;
-    String companyName;          // user.userName
-    String contactPerson;        // user.firstName + user.lastName
-    String dob;                  // user.dob (format dd/MM/yyyy)
+    String companyName;
+    String contactName;
+    String dob;
     String email;
-    String hotline;              // user.phoneNumber
+    String hotline;
     String address;
     String website;
     String description;
-    int totalToursCreated;
-    int totalFollowers;
-    int totalServedUsers;
-    String avatar;
-    String background;
+    int totalTours;
+    long followerCount;
+    long totalCustomersServed;
 }
