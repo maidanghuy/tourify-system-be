@@ -598,31 +598,6 @@ public class UserService {
     }
 
     // Lấy thông tin thường của Subcompany
-    public SubCompanyResponse getSubCompanyDetail(String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        SubCompanyDetails details = subCompanyDetailsRepository.findById(userId).orElse(null);
-
-        int totalTours = tourRepository.countByManageBy(user);
-        int totalFollowers = followRepository.countByFollowed(user);
-        int totalCustomers = bookingTourRepository.countDistinctUserByCompany(user);
-
-        return SubCompanyResponse.builder()
-                .userId(user.getUserId())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .phone(user.getPhoneNumber())
-                .address(user.getAddress())
-                .dob(user.getDob())
-                .website(details != null ? details.getWebsite() : null)
-                .description(details != null ? details.getDescription() : null)
-                .avatar(user.getAvatar())
-                .background(user.getBackground())
-                .totalTours(totalTours)
-                .totalFollowers(totalFollowers)
-                .totalCustomers(totalCustomers)
-                .build();
-    }
 
 }
