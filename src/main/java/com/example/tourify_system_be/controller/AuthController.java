@@ -177,14 +177,14 @@ public class AuthController {
     @GetMapping("/me")
     public APIResponse<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Token hết hạn!");
         }
 
         String token = authHeader.substring(7); // loại bỏ "Bearer "
         UserResponse user = authService.getUserFromToken(token);
 
         if (user == null) {
-            throw new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy người dùng");
         }
 
         return APIResponse.<UserResponse>builder()

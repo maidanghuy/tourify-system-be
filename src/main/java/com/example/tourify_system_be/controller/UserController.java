@@ -169,6 +169,25 @@ public class UserController {
     // "cardType":
     // }
 
+    @DeleteMapping("/creditcard/{cardId}")
+    public APIResponse<?> deleteCreditCard(@RequestHeader("Authorization") String token,
+                                           @PathVariable("cardId") String cardId) {
+        userService.deleteCreditCard(token, cardId);
+        return APIResponse.builder()
+                .message("Credit card deleted successfully")
+                .code(1000)
+                .result(null)
+                .build();
+    }
+
+    // Sample JSON
+    // {
+    // "cardNumber": ,
+    // "cardHolderName": ,
+    // "expiryTime": ,
+    // "cardType":
+    // }
+
     @GetMapping("/favorites")
     public APIResponse<?> getFavorites(@RequestHeader("Authorization") String token) {
         return APIResponse.<List<TourResponse>>builder()
