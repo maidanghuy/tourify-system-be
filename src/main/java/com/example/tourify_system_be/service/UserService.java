@@ -617,6 +617,13 @@ public class UserService {
         long followerCount = followSubCompanyRepository.countBySubCompany(user);
         long totalCustomersServed = bookingTourRepository.countDistinctUserIdByManageBy(userId);
 
+        // ==> Lấy avatar từ user entity
+        String avatarUrl = user.getAvatar();
+        // Nếu chưa có avatar, có thể set một ảnh mặc định
+        if (avatarUrl == null || avatarUrl.isBlank()) {
+            avatarUrl = "https://randomuser.me/api/portraits/men/32.jpg";
+        }
+
         return com.example.tourify_system_be.dto.response.SubCompanyResponse.builder()
                 .companyName(user.getUserName())
                 .contactName(user.getFullName())
@@ -629,6 +636,7 @@ public class UserService {
                 .totalTours(totalTours)
                 .followerCount(followerCount)
                 .totalCustomersServed(totalCustomersServed)
+                .avatar(avatarUrl)
                 .build();
     }
 
