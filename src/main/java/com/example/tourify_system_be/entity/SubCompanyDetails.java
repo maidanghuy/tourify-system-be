@@ -25,6 +25,6 @@ public class SubCompanyDetails {
     @Column(name = "website")
     String website;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     String description;
 }
