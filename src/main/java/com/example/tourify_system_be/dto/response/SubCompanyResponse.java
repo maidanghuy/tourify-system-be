@@ -20,4 +20,5 @@ public class SubCompanyResponse {
     int totalTours;
     long followerCount;
     long totalCustomersServed;
+    String avatar;
 }

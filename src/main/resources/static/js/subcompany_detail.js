@@ -28,6 +28,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            // ==== HIỂN THỊ AVATAR ====
+            const avatarEl = document.querySelector(".profile-avatar");
+            if (avatarEl) {
+                avatarEl.src = data.avatar || "https://randomuser.me/api/portraits/men/32.jpg";
+            }
+
+
             // === Cập nhật UI (nên kiểm tra element trước khi gán) ===
             const setText = (id, value) => {
                 const el = document.getElementById(id);
