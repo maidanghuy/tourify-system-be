@@ -602,7 +602,7 @@ const pages = {
           </div>
           `,
   },
-  
+
         /* === 8. ANALYTICS === */
         analytics: {
           title: "Analytics",
@@ -1924,10 +1924,14 @@ async function loadAccounts(query = "") {
         <td>${u.address || ''}</td>
         <td>${dob}</td>
         <td><span class="${statusClass}">${u.status || ''}</span></td>
-        <td class="action-btns">
-          <i class="fa fa-pen text-primary" title="Edit"></i>
-          <i class="fa fa-trash text-danger" title="Delete"></i>
-        </td>
+            <td class="action-btns">
+              <i class="fa fa-pen text-primary" title="Edit"></i>
+              ${user.status === 'ACTIVE'
+          ? `<i class="fa fa-unlock text-success toggle-status-btn" title="Block Account" data-status="ACTIVE"></i>`
+          : `<i class="fa fa-lock text-danger toggle-status-btn" title="Unblock Account" data-status="BLOCKED"></i>`
+      }
+<!--              <i class="fa fa-trash text-danger" title="Delete"></i>-->
+            </td>
       `;
       tbody.appendChild(tr);
     });
@@ -1954,6 +1958,21 @@ function initCustomersPage() {
     const btn = e.target.closest("i");
     if (!btn) return;
     // TODO: Gắn logic edit/delete nếu cần
+      // Xử lý toggle block/unblock
+      if (btn.classList.contains('toggle-status-btn')) {
+          let status = btn.getAttribute("data-status");
+          if (status === "ACTIVE") {
+              btn.setAttribute("data-status", "BLOCKED");
+              btn.classList.remove("fa-unlock", "text-success");
+              btn.classList.add("fa-lock", "text-danger");
+              btn.title = "Unblock Account";
+          } else {
+              btn.setAttribute("data-status", "ACTIVE");
+              btn.classList.remove("fa-lock", "text-danger");
+              btn.classList.add("fa-unlock", "text-success");
+              btn.title = "Block Account";
+          }
+      }
   });
 }
 

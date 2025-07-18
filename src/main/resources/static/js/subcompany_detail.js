@@ -173,4 +173,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+document.getElementById("btnSendMessenger").onclick = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const subCompanyId = urlParams.get('userId');
+    if (subCompanyId) {
+        localStorage.setItem('lastChatUserId', subCompanyId);
+        window.location.href = '/tourify/user/message'; // Chỉ chuyển url gốc
+    }
+};
+
+
+
 
