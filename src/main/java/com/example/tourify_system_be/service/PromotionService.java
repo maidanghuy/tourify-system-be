@@ -244,5 +244,38 @@ public List<PromotionResponse> getActivePromotionsByTour(String tourId) {
         return promotionMapper.toPromotionResponse(promotion);
     }
 
+    //Xóa Promotion
+    @Transactional
+    public void deletePromotions(List<String> promotionIds, String token) {
+        String jwt = token.replace("Bearer ", "");
+        if (!jwtUtil.validateToken(jwt))
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập hết hạn!");
+
+        String userId = jwtUtil.extractUserId(jwt);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy người dùng!"));
+
+        for (String promotionId : promotionIds) {
+            Promotion promotion = promotionRepository.findById(promotionId)
+                    .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND, "Không tìm thấy promotion với id: " + promotionId));
+
+            boolean isAdmin = user.getRole().equalsIgnoreCase("ADMIN");
+            boolean isSubCompany = user.getRole().equalsIgnoreCase("SUB_COMPANY");
+            boolean isCreator = promotion.getCreateBy().getUserId().equals(userId);
+
+            if (isAdmin) {
+                // admin được phép xóa tất cả
+            } else if (isSubCompany && isCreator) {
+                // subcompany chỉ được phép xóa promotion do chính họ tạo ra
+            } else {
+                throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Bạn không có quyền xóa promotion có id: " + promotionId);
+            }
+
+            // Xóa liên kết tour_promotion
+            tourPromotionRepository.deleteByPromotion(promotion);
+            // Xóa promotion
+            promotionRepository.delete(promotion);
+        }
+    }
 }
 
