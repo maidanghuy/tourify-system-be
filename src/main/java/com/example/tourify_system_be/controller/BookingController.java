@@ -22,6 +22,7 @@ public class BookingController {
 
         BookingTourResponse createdBooking = bookingsTourService.createBooking(request, token);
         return APIResponse.<BookingTourResponse>builder()
+                .message("Booking successfully")
                 .result(createdBooking)
                 .build();
     }
@@ -33,6 +34,7 @@ public class BookingController {
     ) {
         BookingTourResponse cancelBooking = bookingsTourService.cancelBooking(request, token);
         return APIResponse.<BookingTourResponse>builder()
+                .message("Cancel tour successfully")
                 .result(cancelBooking)
                 .build();
     }
