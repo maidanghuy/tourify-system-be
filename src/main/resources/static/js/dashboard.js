@@ -1878,6 +1878,22 @@ function initAnalyticsPage() {
 document.addEventListener('DOMContentLoaded', initAnalyticsPage);
 
 // ===================== ACCOUNT LIST (CUSTOMERS) =====================
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch (e) {
+    return {};
+  }
+}
+
+function isAdmin(role) {
+  return role && role.toUpperCase() === 'ADMIN';
+}
+
+function isActive(status) {
+  return status && status.toUpperCase() === 'ACTIVE';
+}
+
 async function loadAccounts(query = "") {
   const table = document.getElementById('accountTable');
   if (!table) return;
@@ -1885,12 +1901,17 @@ async function loadAccounts(query = "") {
   if (!tbody) return;
   const token = localStorage.getItem('accessToken');
   if (!token) return;
+
+  // Giải mã lấy role của người đăng nhập (không phân biệt hoa thường)
+  const userInfo = parseJwt(token);
+  const myRole = userInfo && userInfo.role ? userInfo.role.toUpperCase() : "";
+
   try {
     const resp = await fetch('/tourify/api/user' + (query ? `?search=${encodeURIComponent(query)}` : ''), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token
+        'Authorization': 'Bearer ' + token
       }
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -1902,8 +1923,18 @@ async function loadAccounts(query = "") {
       const gender = u.gender === true || u.gender === 'Male'
           ? 'Male' : u.gender === false || u.gender === 'Female'
               ? 'Female' : '';
-      const statusClass = u.status && u.status.toLowerCase() === 'active'
+      const statusClass = isActive(u.status)
           ? 'status-active' : 'status-blocked';
+
+      // Không phân biệt hoa thường khi kiểm tra role và status
+      let lockBtn = "";
+      const targetRole = u.role ? u.role.toUpperCase() : "";
+      if (myRole === 'ADMIN' && targetRole !== 'ADMIN') {
+        lockBtn = isActive(u.status)
+            ? `<i class="fa fa-lock text-danger toggle-status-btn" title="Block Account" data-status="ACTIVE" data-userid="${u.userId}"></i>`
+            : `<i class="fa fa-unlock text-success toggle-status-btn" title="Unblock Account" data-status="BLOCKED" data-userid="${u.userId}"></i>`;
+      }
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><input type="checkbox"></td>
@@ -1924,16 +1955,46 @@ async function loadAccounts(query = "") {
         <td>${u.address || ''}</td>
         <td>${dob}</td>
         <td><span class="${statusClass}">${u.status || ''}</span></td>
-            <td class="action-btns">
-              <i class="fa fa-pen text-primary" title="Edit"></i>
-              ${user.status === 'ACTIVE'
-          ? `<i class="fa fa-unlock text-success toggle-status-btn" title="Block Account" data-status="ACTIVE"></i>`
-          : `<i class="fa fa-lock text-danger toggle-status-btn" title="Unblock Account" data-status="BLOCKED"></i>`
-      }
-<!--              <i class="fa fa-trash text-danger" title="Delete"></i>-->
-            </td>
+        <td class="action-btns">
+          <i class="fa fa-pen text-primary" title="Edit"></i>
+          ${lockBtn}
+        </td>
       `;
       tbody.appendChild(tr);
+
+      // Gắn sự kiện cho từng nút lock/unlock của từng user (nếu có)
+      const toggleBtn = tr.querySelector('.toggle-status-btn');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', async function() {
+          const userId = this.getAttribute('data-userid');
+          const status = this.getAttribute('data-status');
+          if (!userId || !token) return;
+          let url = '';
+          let successMsg = '';
+          if (status && status.toUpperCase() === 'ACTIVE') {
+            url = `/tourify/api/useradmins/${userId}/lock`;
+            successMsg = 'Khoá tài khoản thành công!';
+          } else {
+            url = `/tourify/api/useradmins/${userId}/unlock`;
+            successMsg = 'Mở khoá tài khoản thành công!';
+          }
+          try {
+            const resp = await fetch(url, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            alert(successMsg); // Có thể thay alert bằng toast UI đẹp hơn
+            loadAccounts(query); // Reload lại list để update icon
+          } catch (e) {
+            alert('Có lỗi xảy ra khi đổi trạng thái tài khoản.');
+            console.error(e);
+          }
+        });
+      }
     });
   } catch (err) {
     console.error('Fetch users failed:', err);
