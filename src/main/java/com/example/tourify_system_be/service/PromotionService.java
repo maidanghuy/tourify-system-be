@@ -14,6 +14,8 @@ import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.entity.TourPromotion;
 import com.example.tourify_system_be.entity.TourPromotionId;
+import com.example.tourify_system_be.dto.request.UpdatePromotionRequest;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -37,14 +39,17 @@ public class PromotionService {
     private final JwtUtil jwtUtil;
     private final ITokenAuthenticationRepository tokenAuthenticationRepository;
     private final PromotionMapper promotionMapper;
+
     public PromotionResponse createPromotion(CreatePromotionRequest request, String token) {
+        //Ktr xem token có tồn tại không
         String jwt = token.replace("Bearer ", "");
-        if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED, "Feedback không hợp lệ và đã bị xoá!");
+        if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên dăng nhập!");
 
         String userId = jwtUtil.extractUserId(jwt);
         User creator = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Feedback không hợp lệ và đã bị xoá!"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy user!"));
 
+        //Token hết hạn, hết phiên đăng nhập
         TokenAuthentication session = tokenAuthenticationRepository.findByTokenValue(jwt);
         if (session == null || !session.getIsUsed())
             throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập hết hạn");
@@ -155,6 +160,89 @@ public List<PromotionResponse> getActivePromotionsByTour(String tourId) {
             .map(promotionMapper::toPromotionResponse)
             .toList();
 }
+
+    // Update Promotion
+    @Transactional
+    public PromotionResponse editPromotion(String promotionId, UpdatePromotionRequest request, String token) {
+        String jwt = token.replace("Bearer ", "");
+        if (!jwtUtil.validateToken(jwt)) throw new AppException(ErrorCode.SESSION_EXPIRED, "Phiên đăng nhập hết hạn!");
+
+        String userId = jwtUtil.extractUserId(jwt);
+        User editor = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND, "Không tìm thấy người dùng!"));
+
+        Promotion promotion = promotionRepository.findById(promotionId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_FOUND, "Không tìm thấy promotion!"));
+
+        boolean isAdmin = editor.getRole().equalsIgnoreCase("ADMIN");
+        boolean isSubCompany = editor.getRole().equalsIgnoreCase("SUB_COMPANY");
+        boolean isCreator = promotion.getCreateBy().getUserId().equals(userId);
+
+        if (!(isAdmin || (isSubCompany && isCreator))) {
+            throw new AppException(ErrorCode.PROMOTION_FORBIDDEN, "Không có quyền chỉnh sửa promotion này!");
+        }
+
+        // Kiểm tra code nếu user muốn sửa code
+        if (!promotion.getCode().equals(request.getCode())) {
+            if (promotionRepository.findByCode(request.getCode()).isPresent()) {
+                throw new AppException(ErrorCode.DUPLICATE_PROMOTION_CODE, "Mã code không được trùng!");
+            }
+            promotion.setCode(request.getCode());
+        }
+
+        // Kiểm tra thời gian
+        if (request.getEndTime().isBefore(request.getStartTime())) {
+            throw new AppException(ErrorCode.INVALID_PROMOTION_TIME, "Ngày kết thúc không được trước ngày bắt đầu");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (request.getStartTime().isBefore(now)) {
+            throw new AppException(ErrorCode.INVALID_TIME, "Ngày bắt đầu phải lớn hơn thời gian hiện tại");
+        }
+        if (request.getEndTime().isBefore(now)) {
+            throw new AppException(ErrorCode.INVALID_TIME, "Ngày kết thúc phải lớn hơn thời gian hiện tại");
+        }
+
+        // Update các field
+        promotion.setQuantity(request.getQuantity());
+        promotion.setConditions(request.getConditions());
+        promotion.setDiscountPercent(request.getDiscountPercent());
+        promotion.setStartTime(request.getStartTime());
+        promotion.setEndTime(request.getEndTime());
+        promotion.setDescription(request.getDescription());
+        promotion.setMinPurchase(request.getMinPurchase());
+
+        // -------- Update danh sách tour liên kết ----------
+        if (request.getTourIds() != null) {
+            // Xoá hết liên kết cũ
+            tourPromotionRepository.deleteByPromotion(promotion);
+
+            List<String> invalidTourIds = new java.util.ArrayList<>();
+            for (UUID tourId : request.getTourIds()) {
+                Tour tour = tourRepository.findById(tourId.toString())
+                        .orElseThrow(() -> new AppException(ErrorCode.TOUR_NOT_FOUND, "Không tìm thấy tour với id: " + tourId));
+
+                // Nếu là sub-company thì chỉ được liên kết tour của mình
+                if (isSubCompany && !tour.getManageBy().getUserId().equals(editor.getUserId())) {
+                    invalidTourIds.add(tourId.toString());
+                    continue;
+                }
+                TourPromotionId tpId = new TourPromotionId(tourId.toString(), promotion.getPromotionId());
+                TourPromotion tp = TourPromotion.builder()
+                        .id(tpId)
+                        .tour(tour)
+                        .promotion(promotion)
+                        .build();
+                tourPromotionRepository.save(tp);
+            }
+            if (!invalidTourIds.isEmpty()) {
+                throw new RuntimeException(
+                        "You do not have permission to apply the promotion to the following tours: " + invalidTourIds);
+            }
+        }
+
+        promotionRepository.save(promotion);
+        return promotionMapper.toPromotionResponse(promotion);
+    }
 
 }
 
