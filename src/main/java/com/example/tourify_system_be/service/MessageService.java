@@ -46,13 +46,10 @@ public class MessageService {
 
     // Lấy lịch sử chat (dùng cho API /api/messages/history)
     public List<MessageResponse> getChatHistory(String myUserId, String otherUserId) {
-        List<Message> msgs = messageRepository.findBySenderIdAndReceiverIdOrSenderIdAndReceiverIdOrderBySentAtAsc(
-                myUserId, otherUserId, otherUserId, myUserId
-        );
+        List<Message> msgs = messageRepository.findAllMessagesBetweenUsers(myUserId, otherUserId);
         return msgs.stream().map(m -> new MessageResponse(
                 m.getMessageId(),
                 m.getSenderId(),
-                // Optional: show tên người gửi
                 userRepository.findById(m.getSenderId()).map(User::getUserName).orElse(""),
                 m.getReceiverId(),
                 m.getContent(),
@@ -60,4 +57,5 @@ public class MessageService {
                 m.getIsRead()
         )).collect(Collectors.toList());
     }
+
 }
