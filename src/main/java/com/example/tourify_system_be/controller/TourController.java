@@ -180,4 +180,14 @@ public class TourController {
         return ResponseEntity.ok().body(Map.of("success", true));
     }
 
+    @PutMapping("/{tourId}/enable")
+    public APIResponse<?> enableTour(@PathVariable String tourId) {
+        tourService.enableTour(tourId);
+        return APIResponse.builder()
+                .code(1000)
+                .message("Success")
+                .result(null)
+                .build();
+    }
+
 }

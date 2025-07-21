@@ -44,6 +44,18 @@
           badge.className = "badge status-badge bg-secondary";
           badge.textContent = tour.status || "Draft";
         }
+            // Ẩn/hiện nút theo status
+            if (tour.status === "ACTIVE") {
+                document.getElementById('disableTourBtn').classList.remove('d-none');
+                document.getElementById('enableTourBtn').classList.add('d-none');
+            } else if (tour.status === "INACTIVE") {
+                document.getElementById('enableTourBtn').classList.remove('d-none');
+                document.getElementById('disableTourBtn').classList.add('d-none');
+            } else { // Nếu là DRAFT hoặc trạng thái khác, ẩn cả hai nút
+                document.getElementById('enableTourBtn').classList.add('d-none');
+                document.getElementById('disableTourBtn').classList.add('d-none');
+            }
+
       });
 
     // ==== 3. Gọi API danh sách booking ====
@@ -238,6 +250,30 @@
       });
     };
 
+// Enable tour
+document.getElementById('enableTourBtn').onclick = function() {
+    if (!confirm("Are you sure you want to enable this tour?")) return;
+
+    fetch(`/tourify/api/tours/${tourId}/enable`, {
+        method: "PUT",
+        headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.code === 1000) {
+            alert('Tour has been enabled!');
+            location.reload();
+        } else {
+            alert(data.message || "Enable failed!");
+        }
+    })
+    .catch(() => {
+        alert("Network error!");
+    });
+};
 // === Load Category Dropdown khi vào trang hoặc khi cần, trả về Promise ===
 function loadCategoriesDropdown(selectedCategoryId) {
     return fetch("/tourify/api/categories")

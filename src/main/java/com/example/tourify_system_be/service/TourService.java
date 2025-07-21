@@ -386,6 +386,16 @@ public class TourService {
     }
 
     @Transactional
+    public void enableTour(String tourId) {
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new EntityNotFoundException("Tour not found"));
+        tour.setStatus("ACTIVE");
+        tour.setUpdatedAt(LocalDateTime.now());
+        tourRepository.save(tour);
+    }
+
+
+    @Transactional
     public void updateTour(String tourId, TourUpdateRequest req, String bearerToken) {
         String userId = jwtUtil.extractUserId(bearerToken.substring(7));
         Tour tour = tourRepository.findById(tourId)
