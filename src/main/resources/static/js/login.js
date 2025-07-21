@@ -120,6 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.token === null && data.message === "Invalid username or password") {
             errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng.';
           }
+          if (data.message && data.message.includes("khóa")) {
+              errorMessage = 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.';
+            }
           showMessage(errorMessage, 'error');
           console.error('Login failed:', data);
         }
