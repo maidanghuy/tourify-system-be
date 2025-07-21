@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -109,30 +110,35 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        return userRepository.findByUserName(request.getUsername())
-                .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
-                .map(user -> {
-                    String token = jwtUtil.generateToken( // ✅ gọi đúng instance
-                            user.getUserId(), user.getUserName(), user.getRole());
+        Optional<User> userOpt = userRepository.findByUserName(request.getUsername());
 
-                    ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
-                    LocalDateTime now = LocalDateTime.now(vietnamZone);
-                    LocalDateTime expiresAt = now.plusDays(1);
+        if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS, "Tên đăng nhập hoặc mật khẩu không đúng.");
+        }
+        User user = userOpt.get();
+        if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            throw new AppException(ErrorCode.USER_BLOCKED, "Tài khoản của bạn đã bị khóa!");
+        }
 
-                    TokenAuthentication tokenEntity = TokenAuthentication.builder()
-                            .tokenValue(token)
-                            .createAt(now)
-                            .expiresAt(expiresAt)
-                            .isUsed(true)
-                            .user(user)
-                            .build();
+        String token = jwtUtil.generateToken(user.getUserId(), user.getUserName(), user.getRole());
 
-                    tokenRepo.save(tokenEntity);
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime now = LocalDateTime.now(vietnamZone);
+        LocalDateTime expiresAt = now.plusDays(1);
 
-                    return new LoginResponse("Login successful!", token);
-                })
-                .orElseThrow(() -> new AppException(ErrorCode.INVALID_CREDENTIALS, "Feedback không hợp lệ và đã bị xoá!"));
+        TokenAuthentication tokenEntity = TokenAuthentication.builder()
+                .tokenValue(token)
+                .createAt(now)
+                .expiresAt(expiresAt)
+                .isUsed(true)
+                .user(user)
+                .build();
+
+        tokenRepo.save(tokenEntity);
+
+        return new LoginResponse("Login successful!", token);
     }
+
 
     public boolean logout(String tokenValue) {
         TokenAuthentication token = tokenRepo.findByTokenValue(tokenValue);
