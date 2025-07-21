@@ -47,6 +47,8 @@ public enum ErrorCode {
     INVALID_PROMOTION_TIME(1211, "The start time cannot be after the end time", HttpStatus.BAD_REQUEST),
     INVALID_TIME(1212, "The time must be greater than the current time", HttpStatus.BAD_REQUEST ),
     TOUR_START_DATE_NOT_FOUND(1213, "The start date of the tour is not found", HttpStatus.NOT_FOUND),
+    PROMOTION_NOT_FOUND(1214, "Promotion not found", HttpStatus.BAD_REQUEST),
+    PROMOTION_FORBIDDEN(1215, "You do not have permission to edit this promotion", HttpStatus.FORBIDDEN),
     OPERATION_NOT_ALLOWED(1304, "Operation not allowed for this role", HttpStatus.FORBIDDEN),
     INVALID_REQUEST(1400, "Invalid request", HttpStatus.BAD_REQUEST),
     FEEDBACK_NOT_FOUND(1501, "No approved feedback found for this tour", HttpStatus.NOT_FOUND),
@@ -55,6 +57,7 @@ public enum ErrorCode {
     SERVICE_NOT_FOUND(1043,"Not found Service",HttpStatus.BAD_REQUEST),
     ACTIVITY_NOT_FOUND(1044,"Not found Activity",HttpStatus.BAD_REQUEST),
     TOUR_ALREADY_REPORTED(1602, "You have already reported this tour.", HttpStatus.BAD_REQUEST),
+    USER_BLOCKED(1045,"Account is blocked",HttpStatus.BAD_REQUEST),
     ;
 
 
