@@ -603,8 +603,8 @@ const pages = {
           `,
   },
 
-        /* === 8. ANALYTICS === */
-        analytics: {
+  /* === 8. ANALYTICS === */
+  analytics: {
           title: "Analytics",
           breadcrumbs: ["dashboard"],
           content: `
@@ -621,6 +621,40 @@ const pages = {
     </div>
     <button id="btnFilter" class="btn btn-primary mb-2">Apply</button>
   </div>
+  
+  <!-- === Thống kê bổ sung === -->
+  <div class="row mb-4">
+    <!-- Active Tours -->
+    <div class="col-lg-4 col-md-6 mb-3">
+      <div class="card-glass p-3 text-center shadow-sm">
+        <h6 class="fw-semibold mb-2">Active Tours</h6>
+        <h2 id="activeToursCount">0</h2>
+      </div>
+    </div>
+    <!-- Top Booked Tours -->
+    <div class="col-lg-8 col-md-6 mb-3">
+      <div class="card-glass p-3 shadow-sm">
+        <h6 class="fw-semibold mb-3">Top Booked Tours</h6>
+        <div class="table-responsive">
+          <table class="modern-table w-100" id="topBookedToursTable">
+            <thead>
+              <tr>
+                <th>Tour Name</th>
+                <th class="text-end">Bookings</th>
+              </tr>
+            </thead>
+            <tbody id="topBookedToursTbody">
+              <!-- JS sẽ đổ data vào đây -->
+            </tbody>
+          </table>
+        </div>
+        <div class="d-none" id="topBookedToursChartWrap">
+          <canvas id="topBookedToursChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- === Kết thúc Thống kê bổ sung === -->
 
   <!-- Tabs Filter: Day / Month / Year -->
   <ul class="nav nav-pills mb-3" id="revenue-range-tabs" role="tablist">
@@ -1582,8 +1616,8 @@ function initAnalyticsPage() {
   if (!btnFilter || !inpStart || !inpEnd || !tableDay || !tableMonth || !tableYear) return;
 
   // --- Dữ liệu ---
-  const revenueData = {day: [], month: [], year: []};
-  const sysRevenueData = {day: [], month: [], year: []};
+  const revenueData = { day: [], month: [], year: [] };
+  const sysRevenueData = { day: [], month: [], year: [] };
   const accessToken = localStorage.getItem("accessToken");
 
   // --- Chart object ---
@@ -1653,7 +1687,7 @@ function initAnalyticsPage() {
     }
 
     try {
-      const headers = {"Authorization": "Bearer " + accessToken};
+      const headers = { "Authorization": "Bearer " + accessToken };
       if (role === "admin") {
         // ADMIN: gọi API tổng hệ thống và từng company
         const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
@@ -1667,12 +1701,12 @@ function initAnalyticsPage() {
           sysDay, sysMonth, sysYear,
           cmpDay, cmpMonth, cmpYear
         ] = await Promise.all([
-          fetch(sysDayUrl, {headers}).then(r => r.json()),
-          fetch(sysMonthUrl, {headers}).then(r => r.json()),
-          fetch(sysYearUrl, {headers}).then(r => r.json()),
-          fetch(cmpDayUrl, {headers}).then(r => r.json()),
-          fetch(cmpMonthUrl, {headers}).then(r => r.json()),
-          fetch(cmpYearUrl, {headers}).then(r => r.json()),
+          fetch(sysDayUrl, { headers }).then(r => r.json()),
+          fetch(sysMonthUrl, { headers }).then(r => r.json()),
+          fetch(sysYearUrl, { headers }).then(r => r.json()),
+          fetch(cmpDayUrl, { headers }).then(r => r.json()),
+          fetch(cmpMonthUrl, { headers }).then(r => r.json()),
+          fetch(cmpYearUrl, { headers }).then(r => r.json()),
         ]);
         sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
         sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
@@ -1693,9 +1727,9 @@ function initAnalyticsPage() {
         const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
         const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
         const [d, m, y] = await Promise.all([
-          fetch(dayUrl, {headers}).then(r => r.json()),
-          fetch(monthUrl, {headers}).then(r => r.json()),
-          fetch(yearUrl, {headers}).then(r => r.json()),
+          fetch(dayUrl, { headers }).then(r => r.json()),
+          fetch(monthUrl, { headers }).then(r => r.json()),
+          fetch(yearUrl, { headers }).then(r => r.json()),
         ]);
         revenueData.day = Array.isArray(d) ? d : [];
         revenueData.month = Array.isArray(m) ? m : [];
@@ -1736,6 +1770,83 @@ function initAnalyticsPage() {
       }
       console.error(err);
     }
+  }
+
+  // ========== THỐNG KÊ HEADER ==========
+  async function loadActiveToursCount() {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const role = getRoleFromToken(token)?.toLowerCase();
+      let url = '/tourify/api/revenue/active-tours/count';
+
+      // Nếu là sub_company thì truyền subCompanyId vào param (giả sử backend nhận param ?subCompanyId=)
+      if (role === "sub_company") {
+        const subCompanyId = getSubCompanyIdFromToken(token);
+        if (!subCompanyId) throw new Error("Không lấy được subCompanyId!");
+        url += `?subCompanyId=${encodeURIComponent(subCompanyId)}`;
+      }
+
+      const resp = await fetch(url, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+      });
+      if (!resp.ok) throw new Error("Lỗi API active tours");
+      const json = await resp.json();
+      const count = (json.result != null) ? json.result : (json.count || 0);
+      document.getElementById("activeToursCount").textContent = count;
+    } catch (err) {
+      document.getElementById("activeToursCount").textContent = "—";
+      console.error("Không lấy được số lượng active tours:", err);
+    }
+  }
+
+  async function loadTopBookedTours(start, end) {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const role = getRoleFromToken(token)?.toLowerCase();
+      let url = `/tourify/api/revenue/top-booked?limit=10`;
+
+      // Nếu là sub_company thì truyền subCompanyId cho backend filter
+      if (role === "sub_company") {
+        const subCompanyId = getSubCompanyIdFromToken(token);
+        if (!subCompanyId) throw new Error("Không lấy được subCompanyId!");
+        url += `&subCompanyId=${encodeURIComponent(subCompanyId)}`;
+      }
+      // Nếu cần filter theo ngày thì truyền thêm start/end
+
+      const resp = await fetch(url, {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+      });
+      if (!resp.ok) throw new Error("Lỗi API top booked tours");
+      const json = await resp.json();
+      const data = Array.isArray(json.result) ? json.result : [];
+      const tbody = document.getElementById("topBookedToursTbody");
+      tbody.innerHTML = "";
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
+      } else {
+        data.forEach(t => {
+          tbody.innerHTML += `
+        <tr>
+          <td>${t.tourName || "-"}</td>
+          <td class="text-end">${t.bookingCount || 0}</td>
+        </tr>`;
+        });
+      }
+    } catch (err) {
+      document.getElementById("topBookedToursTbody").innerHTML =
+          `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
+      console.error("Không lấy được top booked tours:", err);
+    }
+  }
+
+  // **HÀM GỌI HEADER STATS**
+  async function analyticsHeaderStats() {
+    const start = inpStart.value;
+    const end = inpEnd.value;
+    await Promise.all([
+      loadActiveToursCount(),
+      loadTopBookedTours(start, end)
+    ]);
   }
 
   // ========== CHART RENDERING ==========
@@ -1797,13 +1908,13 @@ function initAnalyticsPage() {
     const ctx = document.getElementById(chartId).getContext("2d");
     chartObjects[key] = new Chart(ctx, {
       type: "bar",
-      data: {labels: labels, datasets: datasets},
+      data: { labels: labels, datasets: datasets },
       options: {
         responsive: true,
-        plugins: {legend: {display: true}},
+        plugins: { legend: { display: true } },
         scales: {
-          x: {title: {display: true, text: capitalize(type)}},
-          y: {title: {display: true, text: 'Revenue (VND)'}, beginAtZero: true}
+          x: { title: { display: true, text: capitalize(type) } },
+          y: { title: { display: true, text: 'Revenue (VND)' }, beginAtZero: true }
         }
       }
     });
@@ -1842,7 +1953,10 @@ function initAnalyticsPage() {
   }
 
   // ========== SỰ KIỆN UI ==========
-  btnFilter.onclick = fetchAndRenderAll;
+  btnFilter.onclick = function () {
+    fetchAndRenderAll();
+    analyticsHeaderStats(); // ← Gọi lại header stats khi filter
+  };
   document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
     if (e.target.classList.contains('nav-link')) {
       setTimeout(() => {
@@ -1860,6 +1974,7 @@ function initAnalyticsPage() {
           renderCompanyTable("year");
         }
         afterRender();
+        analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
       }, 50);
     }
   });
@@ -1872,7 +1987,19 @@ function initAnalyticsPage() {
 
   // Khởi động lần đầu
   fetchAndRenderAll();
+  analyticsHeaderStats();
 }
+
+// Utility: capitalize
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Utility: formatVND (nếu chưa có)
+function formatVND(n) {
+  return (n || 0).toLocaleString('vi-VN') + " ₫";
+}
+
 
 // Gọi khi HTML đã load xong
 document.addEventListener('DOMContentLoaded', initAnalyticsPage);
