@@ -1,6 +1,8 @@
 package com.example.tourify_system_be.controller;
 
+import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.response.RevenueStatisticResponse;
+import com.example.tourify_system_be.dto.response.TourBookingStatisticResponse;
 import com.example.tourify_system_be.service.RevenueStatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -89,5 +91,26 @@ public class RevenueStatisticController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
         return service.getAllCompaniesRevenueByYear(start, end);
+    }
+
+    @GetMapping("/top-booked")
+    public APIResponse<List<TourBookingStatisticResponse>> topBooked(
+            @RequestParam(name = "limit", defaultValue = "5") int limit,
+            @RequestParam(name = "subCompanyId", required = false) String subCompanyId) {
+        List<TourBookingStatisticResponse> list = service.getMostBookedTours(limit, subCompanyId);
+        return APIResponse.<List<TourBookingStatisticResponse>>builder()
+                .message("Top " + limit + " booked tours")
+                .result(list)
+                .build();
+    }
+
+    @GetMapping("/active-tours/count")
+    public APIResponse<Long> activeTourCount(
+            @RequestParam(name = "subCompanyId", required = false) String subCompanyId) {
+        long count = service.countActiveTours(subCompanyId);
+        return APIResponse.<Long>builder()
+                .message("Number of active tours")
+                .result(count)
+                .build();
     }
 }

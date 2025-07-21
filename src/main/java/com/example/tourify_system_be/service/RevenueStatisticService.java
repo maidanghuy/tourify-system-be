@@ -1,8 +1,10 @@
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.response.RevenueStatisticResponse;
+import com.example.tourify_system_be.dto.response.TourBookingStatisticResponse;
 import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.repository.IBookingTourRepository;
+import com.example.tourify_system_be.repository.ITourRepository;
 import com.example.tourify_system_be.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +23,7 @@ public class RevenueStatisticService {
 
     private final IBookingTourRepository bookingTourRepository;
     private final IUserRepository userRepository;
+    private final ITourRepository tourRepo;
 
     private static final DateTimeFormatter DAY_FMT   = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -186,5 +193,34 @@ public class RevenueStatisticService {
             if (!"null".equals(t)) m.put(t, v);
         }
         return m;
+    }
+
+    public List<TourBookingStatisticResponse> getMostBookedTours(int topN, String subCompanyId) {
+        Pageable limit = PageRequest.of(0, topN);
+        List<Object[]> raw;
+        if (subCompanyId != null && !subCompanyId.isEmpty()) {
+            // Chỉ lấy top tour của sub-company đó
+            raw = bookingTourRepository.findTopBookedToursBySubCompanyId(subCompanyId, limit);
+        } else {
+            // Lấy top tour toàn hệ thống
+            raw = bookingTourRepository.findTopBookedTours(limit);
+        }
+        return raw.stream()
+                .map(r -> new TourBookingStatisticResponse(
+                        (String) r[0],
+                        (String) r[1],
+                        ((Number) r[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public long countActiveTours(String subCompanyId) {
+        if (subCompanyId != null && !subCompanyId.isEmpty()) {
+            // Đếm tour active của 1 sub-company (role: SUB_COMPANY)
+            return tourRepo.countByStatusIgnoreCaseAndManageBy_UserIdIgnoreCase("active", subCompanyId);
+        } else {
+            // Đếm tất cả tour active (role: ADMIN)
+            return tourRepo.countByStatusIgnoreCase("active");
+        }
     }
 }

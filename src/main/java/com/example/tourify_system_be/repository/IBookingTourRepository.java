@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+
 
 public interface IBookingTourRepository extends JpaRepository<BookingTour, String> {
 
@@ -171,4 +173,26 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
             "FROM BookingTour b " +
             "WHERE b.tour.manageBy.userId = :userId")
     int countDistinctUserIdByManageBy(@Param("userId") String userId);
+
+    // Top booked tours toàn hệ thống
+    @Query(value =
+            "SELECT b.tour_id, t.tour_name, COUNT(*) AS cnt " +
+                    "FROM bookings_tour b " +
+                    "JOIN tours t ON b.tour_id = t.tour_id " +
+                    "WHERE b.status = 'booked' " +
+                    "GROUP BY b.tour_id, t.tour_name " +
+                    "ORDER BY cnt DESC",
+            nativeQuery = true)
+    List<Object[]> findTopBookedTours(Pageable pageable);
+
+    // Top booked tours của 1 sub-company
+    @Query(value =
+            "SELECT b.tour_id, t.tour_name, COUNT(*) AS cnt " +
+                    "FROM bookings_tour b " +
+                    "JOIN tours t ON b.tour_id = t.tour_id " +
+                    "WHERE b.status = 'booked' AND t.manage_by = :subCompanyId " +
+                    "GROUP BY b.tour_id, t.tour_name " +
+                    "ORDER BY cnt DESC",
+            nativeQuery = true)
+    List<Object[]> findTopBookedToursBySubCompanyId(@Param("subCompanyId") String subCompanyId, Pageable pageable);
 }

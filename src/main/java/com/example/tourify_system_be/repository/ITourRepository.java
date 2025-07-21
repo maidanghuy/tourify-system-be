@@ -24,4 +24,9 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
 
   Tour findByTourId(String tourId);
 
+  // Đếm số tour theo status và userId của sub-company quản lý (không phân biệt hoa thường)
+  long countByStatusIgnoreCaseAndManageBy_UserIdIgnoreCase(String status, String userId);
+
+  // Nếu cần đếm cho toàn hệ thống
+  long countByStatusIgnoreCase(String status);
 }
