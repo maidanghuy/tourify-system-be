@@ -193,14 +193,16 @@ async function loadPlacesAndCategories() {
   const placeSelect = document.getElementById("place");
 
   // XÓA hết option cũ
-  categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
-  placeSelect.innerHTML = '<option value="" disabled selected>Select a place</option>';
+  if (categorySelect)
+    categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+  if (placeSelect)
+    placeSelect.innerHTML = '<option value="" disabled selected>Select a place</option>';
 
   // Fetch categories
   try {
     const res = await fetch("/tourify/api/categories");
     const categories = await res.json();
-    if (Array.isArray(categories)) {
+    if (Array.isArray(categories) && categorySelect) {
       categories.forEach((c) => {
         const opt = document.createElement("option");
         opt.value = c.categoryId;
@@ -216,7 +218,7 @@ async function loadPlacesAndCategories() {
   try {
     const res = await fetch("/tourify/api/place");
     const result = await res.json();
-    if (Array.isArray(result.result)) {
+    if (Array.isArray(result.result) && placeSelect) {
       result.result.forEach((p) => {
         const opt = document.createElement("option");
         opt.value = p.placeId;
@@ -229,11 +231,13 @@ async function loadPlacesAndCategories() {
   }
 
   // Setup lại Select2 (sau khi đã append option)
-  $("#categorySelect, #place").select2({
-    width: "100%",
-    placeholder: "Select an option",
-    allowClear: true,
-  });
+  if (window.$ && $("#categorySelect").length && $("#place").length) {
+    $("#categorySelect, #place").select2({
+      width: "100%",
+      placeholder: "Select an option",
+      allowClear: true,
+    });
+  }
 }
 
 function getFirstImageUrlOrNull() {
@@ -269,8 +273,11 @@ function previewStartDates() {
 }
 
 
-document.getElementById("startDate").addEventListener("input", previewStartDates);
-document.getElementById("repeatTimes").addEventListener("input", previewStartDates);
-document.getElementById("repeatCycle").addEventListener("input", previewStartDates);
+if (document.getElementById("startDate"))
+  document.getElementById("startDate").addEventListener("input", previewStartDates);
+if (document.getElementById("repeatTimes"))
+  document.getElementById("repeatTimes").addEventListener("input", previewStartDates);
+if (document.getElementById("repeatCycle"))
+  document.getElementById("repeatCycle").addEventListener("input", previewStartDates);
 
 
