@@ -264,16 +264,16 @@ public List<PromotionResponse> getActivePromotionsByTour(String tourId) {
             boolean isCreator = promotion.getCreateBy().getUserId().equals(userId);
 
             if (isAdmin) {
-                // admin được phép xóa tất cả
+
             } else if (isSubCompany && isCreator) {
                 // subcompany chỉ được phép xóa promotion do chính họ tạo ra
             } else {
                 throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Bạn không có quyền xóa promotion có id: " + promotionId);
             }
 
-            // Xóa liên kết tour_promotion
+
             tourPromotionRepository.deleteByPromotion(promotion);
-            // Xóa promotion
+
             promotionRepository.delete(promotion);
         }
     }
