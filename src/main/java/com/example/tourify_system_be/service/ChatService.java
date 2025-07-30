@@ -223,9 +223,10 @@ public class ChatService {
         String header = place != null
                 ? String.format("Tour đắt nhất ở %s:", capitalize(place))
                 : "Tour đắt nhất:";
-        return String.format("%s\n\n• %s — %s ₫",
+        return String.format("%s\n\n• %s — %s ₫\n  Link: %s",
                 header, max.getTourName(),
-                NumberFormat.getNumberInstance(vn).format(max.getPrice())
+                NumberFormat.getNumberInstance(vn).format(max.getPrice()),
+                buildTourLink(max.getTourId())
         );
     }
 
@@ -241,9 +242,10 @@ public class ChatService {
         String header = place != null
                 ? String.format("Tour rẻ nhất ở %s:", capitalize(place))
                 : "Tour rẻ nhất:";
-        return String.format("%s\n\n• %s — %s ₫",
+        return String.format("%s\n\n• %s — %s ₫\n  Link: %s",
                 header, min.getTourName(),
-                NumberFormat.getNumberInstance(vn).format(min.getPrice())
+                NumberFormat.getNumberInstance(vn).format(min.getPrice()),
+                buildTourLink(min.getTourId())
         );
     }
 
@@ -346,6 +348,10 @@ public class ChatService {
                             .append(" — ")
                             .append(NumberFormat.getNumberInstance(vn).format(t.getPrice()))
                             .append(" ₫\n")
+                            .append("  <a href=\"")
+                            .append(buildTourLink(t.getTourId()))
+                            .append("\" target=\"_blank\">Xem chi tiết</a>")
+                            .append("\n")
             );
         }
         return sb.toString();
@@ -369,6 +375,10 @@ public class ChatService {
                             .append(" — ")
                             .append(NumberFormat.getNumberInstance(vn).format(t.getPrice()))
                             .append(" ₫\n")
+                            .append("  <a href=\"")
+                            .append(buildTourLink(t.getTourId()))
+                            .append("\" target=\"_blank\">Xem chi tiết</a>")
+                            .append("\n")
             );
         }
         return sb.toString();
@@ -388,6 +398,10 @@ public class ChatService {
                             .append(" — ")
                             .append(NumberFormat.getNumberInstance(vn).format(t.getPrice()))
                             .append(" ₫\n")
+                            .append("  <a href=\"")
+                            .append(buildTourLink(t.getTourId()))
+                            .append("\" target=\"_blank\">Xem chi tiết</a>")
+                            .append("\n")
             );
         }
         return sb.toString();
@@ -405,8 +419,11 @@ public class ChatService {
             sb.append("• ")
                     .append(t.getTourName())
                     .append(" — ")
-                    .append(fmt.format(t.getPrice()))
-                    .append(" ₫")
+                    .append(NumberFormat.getNumberInstance(vn).format(t.getPrice()))
+                    .append(" ₫\n")
+                    .append("  <a href=\"")
+                    .append(buildTourLink(t.getTourId()))
+                    .append("\" target=\"_blank\">Xem chi tiết</a>")
                     .append("\n");
         }
         return sb.toString();
@@ -422,5 +439,10 @@ public class ChatService {
             }
         }
         return String.join(" ", parts);
+    }
+
+    private String buildTourLink(String tourId) {
+
+        return "http://localhost:8080/tourify/tourDetail?id=" + tourId;
     }
 }
