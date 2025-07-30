@@ -1365,3 +1365,51 @@ body {
 #revenue-range-tabs .nav-link:focus {
   box-shadow: none;
 }
+
+/* --- Promotion Add All/Clear All toolbar custom --- */
+.promotion-toolbar {
+  margin-bottom: 8px;
+}
+
+.promotion-toolbar .btn {
+  min-width: 120px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 4px rgba(60, 180, 120, 0.04);
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.promotion-toolbar .btn-success {
+  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+  border: none;
+  color: #fff;
+}
+
+.promotion-toolbar .btn-success:hover {
+  background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+  color: #fff;
+}
+
+.promotion-toolbar .btn-outline-danger {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background: #fff;
+}
+
+.promotion-toolbar .btn-outline-danger:hover {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+/* Custom style for Add All Tours button */
+#addAllToursBtn {
+  border-color: #2f8765 !important;
+  color: #2f8765 !important;
+  background: #fff !important;
+}
+
+#addAllToursBtn:hover {
+  background: #2f8765 !important;
+  color: #fff !important;
+  border-color: #2f8765 !important;
+}
