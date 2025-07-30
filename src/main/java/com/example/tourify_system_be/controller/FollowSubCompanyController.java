@@ -62,4 +62,11 @@ public class FollowSubCompanyController {
         long count = followService.countFollowed(customerId);
         return ResponseEntity.ok().body("{\"count\": " + count + "}");
     }
+
+    @GetMapping("/sub-company/{subCompanyId}/followers")
+    public ResponseEntity<?> getFollowers(
+            @PathVariable String subCompanyId) {
+        var ids = followService.getFollowerIds(subCompanyId);
+        return ResponseEntity.ok().body(ids);
+    }
 }

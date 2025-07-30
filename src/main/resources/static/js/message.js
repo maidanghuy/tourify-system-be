@@ -183,8 +183,8 @@ document.getElementById("goHomeBtn").addEventListener("click", function(e) {
     e.preventDefault();
     const role = localStorage.getItem('role');
     if (role === 'SUB_COMPANY') {
-        window.location.href = "http://localhost:8080/tourify/dashboard";
+        window.location.href = "/tourify/dashboard";
     } else {
-        window.location.href = "http://localhost:8080/tourify/landing";
+        window.location.href = "/tourify/landing";
     }
 });

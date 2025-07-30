@@ -7,6 +7,8 @@ import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.TourMapper;
 import com.example.tourify_system_be.security.CustomUserDetails;
+import com.example.tourify_system_be.service.FollowSubCompanyService;
+import com.example.tourify_system_be.service.NotificationService;
 import com.example.tourify_system_be.service.TourService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,9 @@ import java.util.Map;
 public class TourController {
 
     private final TourService tourService;
+    private final FollowSubCompanyService followService;
+    private final NotificationService notificationService;
+
     private final TourMapper tourMapper;
 
     @PostMapping("/search")
@@ -52,6 +57,23 @@ public class TourController {
 
         Tour createdTour = tourService.createTour(request, currentUser.getId());
         TourResponse response = tourMapper.toResponse(createdTour);
+
+        List<String> followerIds = followService.getFollowerIds(String.valueOf(currentUser.getId()));
+
+        if (!followerIds.isEmpty() && createdTour.getStatus().equals("ACTIVE")) {
+            // 3. Tạo NotificationRequest
+            NotificationRequest notificationRequest = new NotificationRequest();
+            notificationRequest.setTitle("New Tour from " + currentUser.getUsername());
+            notificationRequest.setMessage("A new tour '" + createdTour.getTourName() + "' has been published.");
+            notificationRequest.setType("TOUR");
+            notificationRequest.setLink("tourDetail?id=" + createdTour.getTourId());
+            notificationRequest.setImageUrl(createdTour.getThumbnail()); // nếu có
+            notificationRequest.setCreatedBy(String.valueOf(currentUser.getId()));
+            notificationRequest.setTargetUserIds(followerIds);
+
+            // 4. Gửi thông báo
+            notificationService.sendToUsers(notificationRequest);
+        }
 
         return ResponseEntity.ok(APIResponse.builder()
                 .code(1000)
