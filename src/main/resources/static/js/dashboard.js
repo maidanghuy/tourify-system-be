@@ -898,8 +898,16 @@ const pages = {
                   <input class="form-control" id="promotionEndTime" type="date">
                 </div>
               </div>
-              <div class="mb-3">
+              <div class="mb-3"></div>
                 <label class="form-label">Apply to Tours</label>
+                <div class="d-flex gap-2 mb-2">
+                  <button type="button" class="btn btn-outline-primary btn-sm" id="addAllToursBtn">
+                    <i class="bi bi-plus-circle me-1"></i>Add All Tours
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm" id="clearAllToursBtn">
+                    <i class="bi bi-x-circle me-1"></i>Clear All
+                  </button>
+                </div>
                 <select id="promotionTourIds" class="form-select" multiple>
                 <option value=""> Select Tour </option>
 </select>
@@ -1102,7 +1110,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Đảm bảo avatar được load sau khi trang load hoàn toàn
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
   // Kiểm tra và load lại avatar nếu cần
   setTimeout(() => {
     if (!isAvatarLoaded()) {
@@ -1824,7 +1832,7 @@ function initAnalyticsPage() {
     }
 
     try {
-      const headers = { "Authorization": "Bearer " + accessToken };
+      const headers = { Authorization: "Bearer " + accessToken };
       if (role === "admin") {
         // ADMIN: gọi API tổng hệ thống và từng company
         const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
@@ -1914,9 +1922,9 @@ function initAnalyticsPage() {
   // ========== THỐNG KÊ HEADER ==========
   async function loadActiveToursCount() {
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const role = getRoleFromToken(token)?.toLowerCase();
-      let url = '/tourify/api/revenue/active-tours/count';
+      let url = "/tourify/api/revenue/active-tours/count";
 
       // Nếu là sub_company thì truyền subCompanyId vào param (giả sử backend nhận param ?subCompanyId=)
       if (role === "sub_company") {
@@ -1926,11 +1934,11 @@ function initAnalyticsPage() {
       }
 
       const resp = await fetch(url, {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        headers: token ? { Authorization: "Bearer " + token } : {},
       });
       if (!resp.ok) throw new Error("Lỗi API active tours");
       const json = await resp.json();
-      const count = (json.result != null) ? json.result : (json.count || 0);
+      const count = json.result != null ? json.result : json.count || 0;
       document.getElementById("activeToursCount").textContent = count;
     } catch (err) {
       document.getElementById("activeToursCount").textContent = "—";
@@ -1940,7 +1948,7 @@ function initAnalyticsPage() {
 
   async function loadTopBookedTours(start, end) {
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const role = getRoleFromToken(token)?.toLowerCase();
       let url = `/tourify/api/revenue/top-booked?limit=10`;
 
@@ -1953,7 +1961,7 @@ function initAnalyticsPage() {
       // Nếu cần filter theo ngày thì truyền thêm start/end
 
       const resp = await fetch(url, {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        headers: token ? { Authorization: "Bearer " + token } : {},
       });
       if (!resp.ok) throw new Error("Lỗi API top booked tours");
       const json = await resp.json();
@@ -1963,7 +1971,7 @@ function initAnalyticsPage() {
       if (data.length === 0) {
         tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
       } else {
-        data.forEach(t => {
+        data.forEach((t) => {
           tbody.innerHTML += `
         <tr>
           <td>${t.tourName || "-"}</td>
@@ -1972,8 +1980,9 @@ function initAnalyticsPage() {
         });
       }
     } catch (err) {
-      document.getElementById("topBookedToursTbody").innerHTML =
-          `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
+      document.getElementById(
+        "topBookedToursTbody"
+      ).innerHTML = `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
   }
@@ -1982,10 +1991,7 @@ function initAnalyticsPage() {
   async function analyticsHeaderStats() {
     const start = inpStart.value;
     const end = inpEnd.value;
-    await Promise.all([
-      loadActiveToursCount(),
-      loadTopBookedTours(start, end)
-    ]);
+    await Promise.all([loadActiveToursCount(), loadTopBookedTours(start, end)]);
   }
 
   // ========== CHART RENDERING ==========
@@ -2115,27 +2121,32 @@ function initAnalyticsPage() {
     fetchAndRenderAll();
     analyticsHeaderStats(); // ← Gọi lại header stats khi filter
   };
-  document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
-    if (e.target.classList.contains('nav-link')) {
-      setTimeout(() => {
-        const activeTab = document.querySelector('.tab-pane.active').id;
-        if (activeTab === "revenue-day") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("day");
-          renderCompanyTable("day");
-        }
-        if (activeTab === "revenue-month") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("month");
-          renderCompanyTable("month");
-        }
-        if (activeTab === "revenue-year") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("year");
-          renderCompanyTable("year");
-        }
-        afterRender();
-        analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
-      }, 50);
-    }
-  });
+  document
+    .getElementById("revenue-range-tabs")
+    .addEventListener("click", function (e) {
+      if (e.target.classList.contains("nav-link")) {
+        setTimeout(() => {
+          const activeTab = document.querySelector(".tab-pane.active").id;
+          if (activeTab === "revenue-day") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("day");
+            renderCompanyTable("day");
+          }
+          if (activeTab === "revenue-month") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("month");
+            renderCompanyTable("month");
+          }
+          if (activeTab === "revenue-year") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("year");
+            renderCompanyTable("year");
+          }
+          afterRender();
+          analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
+        }, 50);
+      }
+    });
 
   // Set ngày mặc định cho input
   const today = new Date();
@@ -2159,9 +2170,8 @@ function capitalize(str) {
 
 // Utility: formatVND (nếu chưa có)
 function formatVND(n) {
-  return (n || 0).toLocaleString('vi-VN') + " ₫";
+  return (n || 0).toLocaleString("vi-VN") + " ₫";
 }
-
 
 // Gọi khi HTML đã load xong
 document.addEventListener("DOMContentLoaded", initAnalyticsPage);
@@ -2602,6 +2612,19 @@ function initAddPromotionPage() {
   if (addBtn) {
     addBtn.onclick = handleAddPromotion;
   }
+
+  // Gán sự kiện cho nút Add All Tours
+  const addAllBtn = document.getElementById("addAllToursBtn");
+  if (addAllBtn) {
+    addAllBtn.onclick = handleAddAllTours;
+  }
+
+  // Gán sự kiện cho nút Clear All
+  const clearAllBtn = document.getElementById("clearAllToursBtn");
+  if (clearAllBtn) {
+    clearAllBtn.onclick = handleClearAllTours;
+  }
+
   // Load danh sách tour khi click vào select (chỉ load 1 lần)
   const select = document.getElementById("promotionTourIds");
   if (select) {
@@ -2682,6 +2705,75 @@ async function loadPromotionTours() {
       select.innerHTML = "<option disabled>Error loading tours</option>";
     console.error("❌ Promotion tour fetch error:", e);
   }
+}
+
+// Hàm xử lý nút Add All Tours
+function handleAddAllTours() {
+  const select = document.getElementById("promotionTourIds");
+  if (!select) return;
+
+  // Nếu đang sử dụng Select2
+  if (
+    typeof $ !== "undefined" &&
+    $(select).hasClass("select2-hidden-accessible")
+  ) {
+    // Lấy tất cả options có sẵn
+    const allOptions = $(select).find("option:not(:disabled)");
+    const allValues = allOptions
+      .map(function () {
+        return this.value;
+      })
+      .get();
+
+    // Chọn tất cả
+    $(select).val(allValues).trigger("change");
+  } else {
+    // Cho select thường
+    const options = select.querySelectorAll("option:not([disabled])");
+    options.forEach((option) => {
+      option.selected = true;
+    });
+    // Trigger change event
+    select.dispatchEvent(new Event("change"));
+  }
+
+  // Tính lại completion
+  calculatePromotionCompletion();
+
+  // Hiển thị thông báo
+  showPopup("success", "Success", "All tours have been added to the promotion");
+}
+
+// Hàm xử lý nút Clear All
+function handleClearAllTours() {
+  const select = document.getElementById("promotionTourIds");
+  if (!select) return;
+
+  // Nếu đang sử dụng Select2
+  if (
+    typeof $ !== "undefined" &&
+    $(select).hasClass("select2-hidden-accessible")
+  ) {
+    $(select).val(null).trigger("change");
+  } else {
+    // Cho select thường
+    const options = select.querySelectorAll("option");
+    options.forEach((option) => {
+      option.selected = false;
+    });
+    // Trigger change event
+    select.dispatchEvent(new Event("change"));
+  }
+
+  // Tính lại completion
+  calculatePromotionCompletion();
+
+  // Hiển thị thông báo
+  showPopup(
+    "success",
+    "Success",
+    "All tours have been cleared from the promotion"
+  );
 }
 
 async function handleAddPromotion() {
