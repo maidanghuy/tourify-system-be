@@ -8,7 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -81,5 +84,100 @@ public class SuggestTourService {
                 .serviceIds(serviceIds)
                 .activityIds(activityIds)
                 .build();
+    }
+
+    public SuggestTourResponse suggestTourFromImage(MultipartFile image) {
+        // Lấy ngẫu nhiên services & activities
+        List<String> serviceIds = serviceRepository.findRandomIds(4);
+        List<String> activityIds = activityRepository.findRandomIds(4);
+
+        String prompt = """
+    Analyze the uploaded travel image and suggest:
+    - A creative tour name
+    - A short description
+    - Estimated duration in days (1-7)
+    - Place: return ONLY the official Vietnamese city/province name with correct accents (ví dụ: "Đà Lạt", "Hội An", "TP. Hồ Chí Minh")
+    - Category: (romantic, adventure, cultural, etc.)
+
+    IMPORTANT:
+    Reply ONLY in pure JSON, no markdown, no explanation.
+    Do not include any extra words.
+
+    JSON format:
+    {
+      "tourName": "...",
+      "description": "...",
+      "duration": 3,
+      "place": "...",
+      "category": "..."
+    }
+    """;
+
+
+        try {
+            ByteArrayResource resource = new ByteArrayResource(image.getBytes());
+
+            String aiText = chatClient.prompt()
+                    .user(u -> u
+                            .media(MimeTypeUtils.IMAGE_JPEG, resource)
+                            .text(prompt)
+                    )
+                    .call()
+                    .content();
+
+            // Làm sạch kết quả
+            aiText = aiText
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .trim();
+
+            // Nếu AI trả về lẫn giải thích, chỉ lấy phần từ { đến }
+            if (aiText.contains("{") && aiText.contains("}")) {
+                aiText = aiText.substring(aiText.indexOf("{"), aiText.lastIndexOf("}") + 1);
+            }
+
+            // Mặc định
+            String tourName = "AI Tour";
+            String description = aiText;
+            String place = "";
+            String category = "";
+            int duration = 3;
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode node = mapper.readTree(aiText);
+
+                if (node.has("tourName")) {
+                    tourName = node.get("tourName").asText();
+                }
+                if (node.has("description")) {
+                    description = node.get("description").asText();
+                }
+                if (node.has("duration")) {
+                    duration = node.get("duration").asInt(3);
+                }
+                if (node.has("place")) {
+                    place = node.get("place").asText();
+                }
+                if (node.has("category")) {
+                    category = node.get("category").asText();
+                }
+            } catch (Exception e) {
+                System.err.println("Parse JSON error: " + e.getMessage());
+            }
+
+            return SuggestTourResponse.builder()
+                    .tourName(tourName)
+                    .description(description)
+                    .price(duration * 200)
+                    .place(place)
+                    .category(category)
+                    .serviceIds(serviceIds)
+                    .activityIds(activityIds)
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to process image", e);
+        }
     }
 }

@@ -329,7 +329,10 @@ const pages = {
                     <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
                     <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
                         <i class="bi bi-robot"></i> AI Suggest
-                      </button>
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="openImageSuggestModal()">
+                            <i class="bi bi-image"></i> AI Image
+                    </button>
                 </div>
             </div>
           </div>

@@ -339,6 +339,89 @@ async function suggestTourWithAI() {
   }
 }
 
+function openImageSuggestModal() {
+  const modal = new bootstrap.Modal(document.getElementById('imageSuggestModal'));
+  modal.show();
+}
+
+
+async function suggestTourFromImage() {
+  const fileInput = document.getElementById("aiImageFile");
+  if (!fileInput.files.length) {
+    alert("Hãy chọn một hình ảnh!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("image", fileInput.files[0]);
+
+  const res = await fetch("/tourify/api/ai/suggest-tour-from-image", {
+    method: "POST",
+    body: formData
+  });
+
+  if (!res.ok) {
+    alert("AI image analysis failed");
+    return;
+  }
+
+  const aiData = await res.json();
+
+  // Gán dữ liệu chung
+  document.getElementById("productName").value = aiData.tourName;
+  document.getElementById("productDescription").value = aiData.description;
+  document.getElementById("basePrice").value = aiData.price;
+
+  // Auto chọn place nếu trả về
+  if (aiData.place) {
+    const placeSelect = document.getElementById("place");
+    const normalizedAI = aiData.place.trim().toLowerCase();
+
+    let matched = false;
+    Array.from(placeSelect.options).forEach(opt => {
+      const text = opt.textContent.trim().toLowerCase();
+      if (text.includes(normalizedAI)) { // so sánh gần đúng
+        opt.selected = true;
+        matched = true;
+      }
+    });
+
+    if (!matched) {
+      console.warn("Không tìm thấy place khớp với:", aiData.place);
+    }
+
+    placeSelect.dispatchEvent(new Event("change"));
+  }
+
+  // Auto chọn category nếu trả về
+  if (aiData.category) {
+    const categorySelect = document.getElementById("categorySelect");
+    Array.from(categorySelect.options).forEach(opt => {
+      if (opt.textContent.trim().toLowerCase() === aiData.category.trim().toLowerCase()) {
+        opt.selected = true;
+      }
+    });
+    categorySelect.dispatchEvent(new Event("change"));
+  }
+
+  // Auto chọn services
+  const serviceSelect = document.getElementById("servicesSelect");
+  Array.from(serviceSelect.options).forEach(opt => {
+    opt.selected = aiData.serviceIds.includes(opt.value);
+  });
+  $(serviceSelect).trigger("change");
+
+  // Auto chọn activities
+  const activitySelect = document.getElementById("activitiesSelect");
+  Array.from(activitySelect.options).forEach(opt => {
+    opt.selected = aiData.activityIds.includes(opt.value);
+  });
+  $(activitySelect).trigger("change");
+
+  calculateCompletion();
+  bootstrap.Modal.getInstance(document.getElementById('imageSuggestModal')).hide();
+}
+
 
 if (document.getElementById("startDate"))
   document.getElementById("startDate").addEventListener("input", previewStartDates);
