@@ -101,10 +101,12 @@ function appendUserBubble(text, file) {
 
 function appendBotBubble(text) {
   const chatBox = document.getElementById("chatBox");
+  const html = text
+      .replace(/\n/g, "<br>")
   chatBox.insertAdjacentHTML(
     "beforeend",
     `<div class="message-container bot-message">
-       <div class="message"><strong>Chatbot:</strong> ${text}</div>
+       <div class="message"><strong>Chatbot:</strong><br>${html}</div>
      </div>`
   );
   chatBox.scrollTop = chatBox.scrollHeight;
