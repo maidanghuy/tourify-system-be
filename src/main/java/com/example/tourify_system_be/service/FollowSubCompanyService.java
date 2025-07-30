@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FollowSubCompanyService {
@@ -102,5 +104,17 @@ public class FollowSubCompanyService {
         User customer = userRepo.findById(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Customer không tồn tại"));
         return followRepo.countByCustomer(customer);
+    }
+
+    /**
+     * Lấy danh sách userId của các user đã follow sub-company này.
+     */
+    public List<String> getFollowerIds(String subCompanyId) {
+        User subCompany = userRepo.findById(subCompanyId)
+                .orElseThrow(() -> new IllegalArgumentException("Sub-company không tồn tại"));
+        List<FollowSubCompany> follows = followRepo.findAllBySubCompany(subCompany);
+        return follows.stream()
+                .map(f -> f.getCustomer().getUserId())
+                .toList();
     }
 }
