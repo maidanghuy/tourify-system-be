@@ -254,7 +254,16 @@
 .send-btn:hover {
   transform: translateY(-50%) scale(1.1);
 }
-
+.bot-message .message a {
+  display: inline-block;
+  margin-top: 4px;
+  color: #2c8c77;
+  font-weight: bold;
+  text-decoration: underline;
+}
+.bot-message .message a:hover {
+  color: #1f5a4d;
+}
 /* ===== Responsive ===== */
 @media (max-width: 400px) {
   .chat-container {
