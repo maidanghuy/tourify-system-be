@@ -106,7 +106,7 @@ public class PlaceController {
 
         // Check if user has SUB_COMPANY role
         if (!"SUB_COMPANY".equals(userDetails.getRole())) {
-            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED,
+            throw new AppException(ErrorCode.ROLE_ALLOWED_TOUR_COMPANY,
                     "Only SUB_COMPANY role is allowed to perform this operation");
         }
     }
