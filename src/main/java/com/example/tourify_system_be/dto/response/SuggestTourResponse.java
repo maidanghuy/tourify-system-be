@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SuggestTourResponse {
+    String place;
+    String category;
     private String tourName;
     private String description;
     private double price;

@@ -4,10 +4,8 @@ import com.example.tourify_system_be.dto.request.SuggestTourRequest;
 import com.example.tourify_system_be.dto.response.SuggestTourResponse;
 import com.example.tourify_system_be.service.SuggestTourService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -20,5 +18,10 @@ public class AiController {
     public SuggestTourResponse suggestTour(@RequestBody SuggestTourRequest req) {
         return suggestTourService.suggestTour(req);
     }
+    @PostMapping("/suggest-tour-from-image")
+    public SuggestTourResponse suggestTourFromImage(@RequestParam("image") MultipartFile image) {
+        return suggestTourService.suggestTourFromImage(image);
+    }
+
 }
 
