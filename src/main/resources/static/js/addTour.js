@@ -272,6 +272,73 @@ function previewStartDates() {
     "</ul>";
 }
 
+async function suggestTourWithAI() {
+  const placeText = document.getElementById("place").selectedOptions[0]?.textContent;
+  const categoryText = document.getElementById("categorySelect").selectedOptions[0]?.textContent;
+  const duration = document.getElementById("duration").value;
+
+  if (!placeText || !categoryText || !duration) {
+    Swal.fire({
+      icon: "warning",
+      title: "Please choose Place, Category and Duration first!"
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch("/tourify/api/ai/suggest-tour", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        place: placeText,
+        category: categoryText,
+        duration: parseInt(duration)
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch AI suggestion");
+    }
+
+    const aiData = await res.json();
+
+    // Đổ dữ liệu vào form
+    document.getElementById("productName").value = aiData.tourName;
+    document.getElementById("productDescription").value = aiData.description;
+    document.getElementById("basePrice").value = aiData.price;
+
+    // Auto chọn services
+    const serviceSelect = document.getElementById("servicesSelect");
+    Array.from(serviceSelect.options).forEach(opt => {
+      opt.selected = aiData.serviceIds.includes(opt.value);
+    });
+    $(serviceSelect).trigger("change");
+
+    // Auto chọn activities
+    const activitySelect = document.getElementById("activitiesSelect");
+    Array.from(activitySelect.options).forEach(opt => {
+      opt.selected = aiData.activityIds.includes(opt.value);
+    });
+    $(activitySelect).trigger("change");
+
+    calculateCompletion();
+
+    Swal.fire({
+      icon: "success",
+      title: "AI Suggestion Completed",
+      text: "Form has been filled with AI suggestion."
+    });
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "AI Suggestion Failed",
+      text: err.message
+    });
+  }
+}
+
 
 if (document.getElementById("startDate"))
   document.getElementById("startDate").addEventListener("input", previewStartDates);
