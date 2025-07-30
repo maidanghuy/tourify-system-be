@@ -327,6 +327,9 @@ const pages = {
                 <div>
                     <button class="btn btn-outline-danger">Cancel</button>
                     <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
+                    <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
+                        <i class="bi bi-robot"></i> AI Suggest
+                      </button>
                 </div>
             </div>
           </div>
