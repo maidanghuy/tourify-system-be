@@ -398,11 +398,115 @@ const pages = {
                   </ul>
                 </div>
               </div>
-          </div>  
+            </div>
           `,
   },
 
-  /* === 5. BOOKING === */
+  /* === 5. PLACES === */
+  places: {
+    title: "Places",
+    breadcrumbs: ["dashboard"],
+    content: `
+          <div class="container py-4">
+              <div class="admin-card p-4">
+                <!-- Thanh công cụ trên đầu: Search + Add button -->
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                  <!-- Search bên trái -->
+                  <div class="flex-grow-1" style="min-width:220px; max-width:520px;">
+                    <input
+                      class="form-control-mint w-100"
+                      type="text"
+                      id="placeSearchInput"
+                      placeholder="Search places..."
+                    />
+                  </div>
+                  <!-- Add button bên phải -->
+                  <div class="d-flex gap-2 flex-shrink-0">
+                    <button
+                      class="btn-mint-accent"
+                      data-bs-toggle="modal"
+                      data-bs-target="#placeModal"
+                      onclick="initPlaceModal()"
+                    >
+                      <i class="bi bi-plus"></i> Add Place
+                    </button>
+                  </div>
+                </div>
+            
+                <!-- Table -->
+                <div class="table-responsive-mint">
+                  <table class="mint-table w-100" id="placeTable">
+                    <thead>
+                      <tr>
+                        <th style="width:32px"><input type="checkbox" id="selectAllPlaces" /></th>
+                        <th style="min-width:180px">Place Name</th>
+                        <th style="min-width:200px">Description</th>
+                        <th style="min-width:120px">Rating</th>
+                        <th style="min-width:120px">GPS Coordinates</th>
+                        <th style="min-width:90px">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="placeTableBody">
+                      <!-- JS sẽ render dữ liệu vào đây -->
+                    </tbody>
+                  </table>
+                </div>
+            
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                  <div class="small text-muted" id="placePaginationInfo">Showing 0-0 from 0</div>
+                  <ul class="pagination-mint mb-0" id="placePagination">
+                    <!-- JS sẽ render pagination -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Place Modal -->
+            <div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="placeModalLabel">Add New Place</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="placeForm">
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label for="placeName" class="form-label">Place Name *</label>
+                          <input type="text" class="form-control" id="placeName" required>
+                        </div>
+                        <div class="col-12">
+                          <label for="placeDescription" class="form-label">Description</label>
+                          <textarea class="form-control" id="placeDescription" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="placeImage" class="form-label">Image URL</label>
+                          <input type="url" class="form-control" id="placeImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="col-md-6">
+                          <label for="placeRating" class="form-label">Rating</label>
+                          <input type="number" class="form-control" id="placeRating" min="0" max="5" step="0.1" value="5.0">
+                        </div>
+                        <div class="col-12">
+                          <label for="placeGpsCoordinates" class="form-label">GPS Coordinates</label>
+                          <input type="text" class="form-control" id="placeGpsCoordinates" placeholder="10.123,103.456">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="savePlaceBtn" onclick="savePlace()">Save Place</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `,
+  },
+
+  /* === 6. BOOKING === */
   booking: {
     title: "Booking",
     breadcrumbs: ["dashboard"],
@@ -474,7 +578,7 @@ const pages = {
           `,
   },
 
-  /* === 6. CUSTOMERS === */
+  /* === 7. CUSTOMERS === */
   customers: {
     title: "Account List",
     breadcrumbs: ["dashboard"],
@@ -544,7 +648,7 @@ const pages = {
         `,
   },
 
-  /* === 7. SELLERS === */
+  /* === 8. SELLERS === */
   seller: {
     title: "List Tour Wait Approve",
     breadcrumbs: ["dashboard"],
@@ -606,7 +710,7 @@ const pages = {
           `,
   },
 
-  /* === 8. ANALYTICS === */
+  /* === 9. ANALYTICS === */
   analytics: {
     title: "Analytics",
     breadcrumbs: ["dashboard"],
@@ -856,7 +960,7 @@ const pages = {
           `,
   },
 
-  /* === 9. ADD PROMOTION === */
+  /* === 10. ADD PROMOTION === */
   addPromotion: {
     title: "Add Promotion",
     breadcrumbs: ["dashboard", "promotionList"],
@@ -993,17 +1097,16 @@ function loadPage(pageKey) {
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb small">
             ${page.breadcrumbs
-              .map(
-                (crumb) => `
+      .map(
+        (crumb) => `
               <li class="breadcrumb-item">
                 <a href="javascript:void(0)" onclick="loadPage('${crumb}')"
                    class="text-decoration-none text-muted">${pages[crumb].title}</a>
               </li>`
-              )
-              .join("")}
-            <li class="breadcrumb-item active text-success" aria-current="page">${
-              page.title
-            }</li>
+      )
+      .join("")}
+            <li class="breadcrumb-item active text-success" aria-current="page">${page.title
+    }</li>
           </ol>
         </nav>
       </div>
@@ -1084,6 +1187,9 @@ function loadPage(pageKey) {
     setTimeout(() => initCustomersPage(), 0);
   } else if (pageKey === "analytics") {
     initAnalyticsPage();
+  } else if (pageKey === "places") {
+    // Khởi tạo trang Places
+    setTimeout(() => initPlacesPage(), 0);
   }
 }
 
@@ -1465,7 +1571,7 @@ function renderTourList() {
     const category = tour.categoryName || "-";
     const regs =
       typeof tour.bookedCustomerCount === "number" &&
-      !isNaN(tour.bookedCustomerCount)
+        !isNaN(tour.bookedCustomerCount)
         ? tour.bookedCustomerCount
         : Number(tour.bookedCustomerCount) || 0;
     const creator = tour.createdByUserName || "-";
@@ -1588,23 +1694,20 @@ function renderPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage - 1
-        })">Trang trước</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1
+    })">Trang trước</a>
       </li>
       ${Array.from(
-        { length: totalPages },
-        (_, i) => `
+      { length: totalPages },
+      (_, i) => `
         <li class="page-item ${currentPage === i + 1 ? "active" : ""}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-            i + 1
-          })">${i + 1}</a>
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1
+        })">${i + 1}</a>
         </li>`
-      ).join("")}
+    ).join("")}
       <li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage + 1
-        })">Trang sau</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1
+    })">Trang sau</a>
       </li>
     </ul>
   `;
@@ -1768,8 +1871,8 @@ function initAnalyticsPage() {
       type === "day"
         ? sysTableDay
         : type === "month"
-        ? sysTableMonth
-        : sysTableYear;
+          ? sysTableMonth
+          : sysTableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -1980,9 +2083,8 @@ function initAnalyticsPage() {
         });
       }
     } catch (err) {
-      document.getElementById(
-        "topBookedToursTbody"
-      ).innerHTML = `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
+      document.getElementById("topBookedToursTbody").innerHTML =
+        `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
   }
@@ -2208,7 +2310,7 @@ async function loadAccounts(query = "") {
   try {
     const resp = await fetch(
       "/tourify/api/user" +
-        (query ? `?search=${encodeURIComponent(query)}` : ""),
+      (query ? `?search=${encodeURIComponent(query)}` : ""),
       {
         method: "GET",
         headers: {
@@ -2227,8 +2329,8 @@ async function loadAccounts(query = "") {
         u.gender === true || u.gender === "Male"
           ? "Male"
           : u.gender === false || u.gender === "Female"
-          ? "Female"
-          : "";
+            ? "Female"
+            : "";
       const statusClass = isActive(u.status)
         ? "status-active"
         : "status-blocked";
@@ -2251,12 +2353,10 @@ async function loadAccounts(query = "") {
             <img src="${u.avatar || "/static/images/avatar_default.jpg"}"
                  style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
             <div>
-              <div style="font-weight:600; color:#22292f;">${
-                u.userName || ""
-              }</div>
-              <div style="font-size:0.95em; color:#8b909a;">${
-                u.email || ""
-              }</div>
+              <div style="font-weight:600; color:#22292f;">${u.userName || ""
+        }</div>
+              <div style="font-size:0.95em; color:#8b909a;">${u.email || ""
+        }</div>
             </div>
           </div>
         </td>
@@ -2414,9 +2514,8 @@ async function loadDraftToursForSeller() {
       row.innerHTML = `
         <td><input type="checkbox" data-id="${tour.tourId}"></td>
         <td>
-          <img src="${
-            tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
-          }"
+          <img src="${tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
+        }"
                alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
         </td>
         <td>
@@ -2425,24 +2524,20 @@ async function loadDraftToursForSeller() {
         <td>
           <span>${tour.createdByUserName || "-"}</span>
         </td>
-        <td class="text-success">${
-          tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
+        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
         }</td>
         <td>${tour.placeName || "-"}</td>
-        <td>${
-          tour.createdAt
-            ? new Date(tour.createdAt).toLocaleDateString("vi-VN")
-            : "-"
+        <td>${tour.createdAt
+          ? new Date(tour.createdAt).toLocaleDateString("vi-VN")
+          : "-"
         }</td>
         <td>
-          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${
-            tour.tourId
-          }')">
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId
+        }')">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${
-            tour.tourId
-          }')">
+          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId
+        }')">
             <i class="bi bi-trash"></i>
           </button>
         </td>
@@ -2992,3 +3087,333 @@ function isAvatarLoaded() {
     avatarElements[0].src !== "https://randomuser.me/api/portraits/men/32.jpg"
   );
 }
+
+// Place Management Functions
+let placesData = [];
+let currentPlacePage = 0;
+let placePageSize = 10;
+let editingPlaceId = null;
+
+// Initialize Place page
+function initPlacesPage() {
+  loadPlaces();
+  setupPlaceEventListeners();
+}
+
+// Load places from API
+async function loadPlaces() {
+  try {
+    const response = await fetch('/tourify/api/place/paged?page=' + currentPlacePage + '&size=' + placePageSize);
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      placesData = data.result.content || [];
+      renderPlacesTable();
+      renderPlacePagination(data.result);
+    } else {
+      console.error('Failed to load places:', data.message);
+      showPopup('error', 'Error', 'Failed to load places');
+    }
+  } catch (error) {
+    console.error('Error loading places:', error);
+    showPopup('error', 'Error', 'Network error while loading places');
+  }
+}
+
+// Render places table
+function renderPlacesTable() {
+  const tbody = document.getElementById('placeTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+
+  if (placesData.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-muted py-4">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          No places found
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  placesData.forEach(place => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="checkbox" class="place-checkbox" value="${place.placeId}"></td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <img src="${place.image || 'https://via.placeholder.com/40x40?text=IMG'}" 
+               class="rounded" width="40" height="40" 
+               style="object-fit:cover; border:1.5px solid #ddd;">
+          <div>
+            <div class="fw-semibold lh-sm mb-1">${place.placeName}</div>
+          </div>
+        </div>
+      </td>
+      <td class="text-break">${place.placeDescription || '-'}</td>
+      <td>
+        <span class="badge bg-warning text-dark">
+          <i class="bi bi-star-fill me-1"></i>${place.rating || 'N/A'}
+        </span>
+      </td>
+      <td class="text-break">${place.gpsCoordinates || '-'}</td>
+      <td>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-primary" onclick="editPlace('${place.placeId}')" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-outline-danger" onclick="deletePlace('${place.placeId}')" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// Render place pagination
+function renderPlacePagination(pageData) {
+  const paginationInfo = document.getElementById('placePaginationInfo');
+  const pagination = document.getElementById('placePagination');
+
+  if (paginationInfo) {
+    const start = currentPlacePage * placePageSize + 1;
+    const end = Math.min(start + placePageSize - 1, pageData.totalElements);
+    paginationInfo.textContent = `Showing ${start}-${end} from ${pageData.totalElements}`;
+  }
+
+  if (pagination) {
+    pagination.innerHTML = '';
+
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item-mint ${currentPlacePage === 0 ? 'disabled' : ''}`;
+    prevLi.innerHTML = '<span>&lt;</span>';
+    if (currentPlacePage > 0) {
+      prevLi.onclick = () => changePlacePage(currentPlacePage - 1);
+    }
+    pagination.appendChild(prevLi);
+
+    // Page numbers
+    const totalPages = pageData.totalPages;
+    const startPage = Math.max(0, currentPlacePage - 1);
+    const endPage = Math.min(totalPages, startPage + 3);
+
+    for (let i = startPage; i < endPage; i++) {
+      const pageLi = document.createElement('li');
+      pageLi.className = `page-item-mint ${i === currentPlacePage ? 'active' : ''}`;
+      pageLi.innerHTML = `<span>${i + 1}</span>`;
+      pageLi.onclick = () => changePlacePage(i);
+      pagination.appendChild(pageLi);
+    }
+
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item-mint ${currentPlacePage >= totalPages - 1 ? 'disabled' : ''}`;
+    nextLi.innerHTML = '<span>&gt;</span>';
+    if (currentPlacePage < totalPages - 1) {
+      nextLi.onclick = () => changePlacePage(currentPlacePage + 1);
+    }
+    pagination.appendChild(nextLi);
+  }
+}
+
+// Change place page
+function changePlacePage(newPage) {
+  currentPlacePage = newPage;
+  loadPlaces();
+}
+
+// Setup place event listeners
+function setupPlaceEventListeners() {
+  // Search functionality
+  const searchInput = document.getElementById('placeSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(function () {
+      // Implement search functionality if needed
+      console.log('Searching for:', this.value);
+    }, 300));
+  }
+
+  // Select all functionality
+  const selectAllCheckbox = document.getElementById('selectAllPlaces');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function () {
+      const checkboxes = document.querySelectorAll('.place-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+  }
+}
+
+// Initialize place modal
+function initPlaceModal(placeId = null) {
+  editingPlaceId = placeId;
+  const modal = document.getElementById('placeModal');
+  const modalLabel = document.getElementById('placeModalLabel');
+  const saveBtn = document.getElementById('savePlaceBtn');
+
+  if (placeId) {
+    // Edit mode
+    modalLabel.textContent = 'Edit Place';
+    saveBtn.textContent = 'Update Place';
+    loadPlaceForEdit(placeId);
+  } else {
+    // Add mode
+    modalLabel.textContent = 'Add New Place';
+    saveBtn.textContent = 'Save Place';
+    clearPlaceForm();
+  }
+}
+
+// Load place data for editing
+async function loadPlaceForEdit(placeId) {
+  try {
+    const response = await fetch(`/tourify/api/place/${placeId}`);
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      const place = data.result;
+      document.getElementById('placeName').value = place.placeName || '';
+      document.getElementById('placeDescription').value = place.placeDescription || '';
+      document.getElementById('placeImage').value = place.image || '';
+      document.getElementById('placeRating').value = place.rating || 5.0;
+      document.getElementById('placeGpsCoordinates').value = place.gpsCoordinates || '';
+    } else {
+      showPopup('error', 'Error', 'Failed to load place data');
+    }
+  } catch (error) {
+    console.error('Error loading place:', error);
+    showPopup('error', 'Error', 'Network error while loading place');
+  }
+}
+
+// Clear place form
+function clearPlaceForm() {
+  document.getElementById('placeName').value = '';
+  document.getElementById('placeDescription').value = '';
+  document.getElementById('placeImage').value = '';
+  document.getElementById('placeRating').value = '5.0';
+  document.getElementById('placeGpsCoordinates').value = '';
+}
+
+// Save place (create or update)
+async function savePlace() {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    showPopup('error', 'Error', 'Please login to continue');
+    return;
+  }
+
+  const placeData = {
+    placeName: document.getElementById('placeName').value.trim(),
+    placeDescription: document.getElementById('placeDescription').value.trim(),
+    image: document.getElementById('placeImage').value.trim(),
+    rating: parseFloat(document.getElementById('placeRating').value),
+    gpsCoordinates: document.getElementById('placeGpsCoordinates').value.trim()
+  };
+
+  // Validation
+  if (!placeData.placeName) {
+    showPopup('error', 'Validation Error', 'Place name is required');
+    return;
+  }
+
+  try {
+    const url = editingPlaceId
+      ? `/tourify/api/place/${editingPlaceId}`
+      : '/tourify/api/place';
+
+    const method = editingPlaceId ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(placeData)
+    });
+
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      showPopup('success', 'Success', editingPlaceId ? 'Place updated successfully' : 'Place created successfully');
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('placeModal'));
+      if (modal) {
+        modal.hide();
+      }
+
+      // Reload places
+      loadPlaces();
+    } else {
+      showPopup('error', 'Error', data.message || 'Operation failed');
+    }
+  } catch (error) {
+    console.error('Error saving place:', error);
+    showPopup('error', 'Error', 'Network error while saving place');
+  }
+}
+
+// Edit place
+function editPlace(placeId) {
+  initPlaceModal(placeId);
+  const modal = new bootstrap.Modal(document.getElementById('placeModal'));
+  modal.show();
+}
+
+// Delete place
+async function deletePlace(placeId) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    showPopup('error', 'Error', 'Please login to continue');
+    return;
+  }
+
+  // Confirm deletion
+  if (!confirm('Are you sure you want to delete this place?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/tourify/api/place/${placeId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      showPopup('success', 'Success', 'Place deleted successfully');
+      loadPlaces();
+    } else {
+      showPopup('error', 'Error', data.message || 'Failed to delete place');
+    }
+  } catch (error) {
+    console.error('Error deleting place:', error);
+    showPopup('error', 'Error', 'Network error while deleting place');
+  }
+}
+
+// Debounce utility function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func.apply(this, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
