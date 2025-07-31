@@ -1320,6 +1320,45 @@ body {
   color: #fff;
 }
 
+.btn-excel {
+  background-color: #217346; /* Màu xanh đặc trưng Excel */
+  color: #fff;
+  border: none;
+}
+
+.btn-excel:hover {
+  background-color: #185c37; /* Màu đậm hơn khi hover */
+  color: #fff;
+}
+
+.btn-excel i {
+  margin-right: 4px;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px; /* Khoảng cách giữa các nút */
+  margin-top: 20px;
+}
+
+.button-group .btn {
+  min-width: 150px; /* tất cả nút có chiều rộng tối thiểu */
+  font-weight: 500;
+}
+
+/* Style cho nút Excel giống màu Excel */
+.btn-excel {
+  background-color: #217346;
+  color: #fff;
+  border: none;
+}
+.btn-excel:hover {
+  background-color: #185c37;
+  color: #fff;
+}
+
+
 @media (max-width: 900px) {
   .modern-table {
     min-width: 100%;

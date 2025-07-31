@@ -5,11 +5,9 @@ import com.example.tourify_system_be.dto.request.PlaceCreateRequest;
 import com.example.tourify_system_be.dto.request.PlaceUpdateRequest;
 import com.example.tourify_system_be.dto.response.PageResponse;
 import com.example.tourify_system_be.dto.response.PlaceResponse;
-import com.example.tourify_system_be.exception.AppException;
-import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.security.CustomUserDetails;
-import com.example.tourify_system_be.security.JwtUtil;
 import com.example.tourify_system_be.service.PlaceService;
+import com.example.tourify_system_be.utils.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +21,7 @@ public class PlaceController {
     private PlaceService placeService;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private AuthUtils authUtils;
 
     @GetMapping("")
     public APIResponse<List<PlaceResponse>> getAllPlaces() {
@@ -35,9 +33,10 @@ public class PlaceController {
     @GetMapping("/paged")
     public APIResponse<PageResponse<PlaceResponse>> getPlacesWithPagination(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size) {
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) String search) {
         return APIResponse.<PageResponse<PlaceResponse>>builder()
-                .result(placeService.getPlacesWithPagination(page, size))
+                .result(placeService.getPlacesWithPagination(page, size, search))
                 .build();
     }
 
@@ -52,8 +51,8 @@ public class PlaceController {
     public APIResponse<PlaceResponse> createPlace(
             @RequestHeader("Authorization") String token,
             @RequestBody PlaceCreateRequest request) {
-        // Validate token and check role
-        validateTokenAndRole(token);
+        // Validate token and check SUB_COMPANY role
+        CustomUserDetails userDetails = authUtils.validateAdminToken(token);
 
         return APIResponse.<PlaceResponse>builder()
                 .result(placeService.createPlace(request))
@@ -65,8 +64,8 @@ public class PlaceController {
             @RequestHeader("Authorization") String token,
             @PathVariable String placeId,
             @RequestBody PlaceUpdateRequest request) {
-        // Validate token and check role
-        validateTokenAndRole(token);
+        // Validate token and check ADMIN role
+        CustomUserDetails userDetails = authUtils.validateAdminToken(token);
 
         return APIResponse.<PlaceResponse>builder()
                 .result(placeService.updatePlace(placeId, request))
@@ -77,8 +76,8 @@ public class PlaceController {
     public APIResponse<Void> deletePlace(
             @RequestHeader("Authorization") String token,
             @PathVariable String placeId) {
-        // Validate token and check role
-        validateTokenAndRole(token);
+        // Validate token and check ADMIN role
+        CustomUserDetails userDetails = authUtils.validateAdminToken(token);
 
         placeService.deletePlace(placeId);
         return APIResponse.<Void>builder()
@@ -87,27 +86,17 @@ public class PlaceController {
                 .build();
     }
 
-    /**
-     * Validate JWT token and check if user has SUB_COMPANY role
-     */
-    private void validateTokenAndRole(String token) {
-        // Remove "Bearer " prefix if present
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
+    @DeleteMapping("/bulk")
+    public APIResponse<Void> deletePlaces(
+            @RequestHeader("Authorization") String token,
+            @RequestBody List<String> placeIds) {
+        // Validate token and check ADMIN role
+        CustomUserDetails userDetails = authUtils.validateAdminToken(token);
 
-        // Validate token
-        if (!jwtUtil.validateToken(token)) {
-            throw new AppException(ErrorCode.INVALID_TOKEN, "Invalid token");
-        }
-
-        // Extract user details from token
-        CustomUserDetails userDetails = jwtUtil.getUserDetailsFromToken(token);
-
-        // Check if user has SUB_COMPANY role
-        if (!"SUB_COMPANY".equals(userDetails.getRole())) {
-            throw new AppException(ErrorCode.ROLE_ALLOWED_TOUR_COMPANY,
-                    "Only SUB_COMPANY role is allowed to perform this operation");
-        }
+        placeService.deletePlaces(placeIds);
+        return APIResponse.<Void>builder()
+                .code(1000)
+                .message("Places deleted successfully")
+                .build();
     }
 }
