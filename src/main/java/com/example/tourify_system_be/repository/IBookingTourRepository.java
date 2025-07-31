@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 
-
 public interface IBookingTourRepository extends JpaRepository<BookingTour, String> {
 
     // 1. Sub-company thống kê theo ngày
@@ -19,7 +18,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT DATE_FORMAT(b.day_start, '%Y-%m-%d') AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue, " +
+                    "         SUM(b.total_price) AS totalRevenue, " +
                     "         t.manage_by AS subCompanyId " +
                     "  FROM bookings_tour b " +
                     "  JOIN tours t ON b.tour_id = t.tour_id " +
@@ -40,7 +39,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT DATE_FORMAT(b.day_start, '%Y-%m') AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue, " +
+                    "         SUM(b.total_price) AS totalRevenue, " +
                     "         t.manage_by AS subCompanyId " +
                     "  FROM bookings_tour b " +
                     "  JOIN tours t ON b.tour_id = t.tour_id " +
@@ -61,7 +60,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT YEAR(b.day_start) AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue, " +
+                    "         SUM(b.total_price) AS totalRevenue, " +
                     "         t.manage_by AS subCompanyId " +
                     "  FROM bookings_tour b " +
                     "  JOIN tours t ON b.tour_id = t.tour_id " +
@@ -79,9 +78,8 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
     // 4. Tổng doanh thu hệ thống theo ngày
     @Query(value =
             "SELECT DATE_FORMAT(b.day_start, '%Y-%m-%d') AS time, " +
-                    "       SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "       SUM(b.total_price) AS totalRevenue " +
                     "FROM bookings_tour b " +
-                    "JOIN tours t ON b.tour_id = t.tour_id " +
                     "WHERE b.day_start BETWEEN :start AND :end " +
                     "  AND b.status = 'booked' " +
                     "GROUP BY time " +
@@ -92,9 +90,8 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
     // 5. Tổng doanh thu hệ thống theo tháng
     @Query(value =
             "SELECT DATE_FORMAT(b.day_start, '%Y-%m') AS time, " +
-                    "       SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "       SUM(b.total_price) AS totalRevenue " +
                     "FROM bookings_tour b " +
-                    "JOIN tours t ON b.tour_id = t.tour_id " +
                     "WHERE b.day_start BETWEEN :start AND :end " +
                     "  AND b.status = 'booked' " +
                     "GROUP BY time " +
@@ -105,9 +102,8 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
     // 6. Tổng doanh thu hệ thống theo năm
     @Query(value =
             "SELECT YEAR(b.day_start) AS time, " +
-                    "       SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "       SUM(b.total_price) AS totalRevenue " +
                     "FROM bookings_tour b " +
-                    "JOIN tours t ON b.tour_id = t.tour_id " +
                     "WHERE b.day_start BETWEEN :start AND :end " +
                     "  AND b.status = 'booked' " +
                     "GROUP BY time " +
@@ -121,7 +117,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT t.manage_by AS subCompanyId, DATE_FORMAT(b.day_start, '%Y-%m-%d') AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "         SUM(b.total_price) AS totalRevenue " +
                     "  FROM bookings_tour b JOIN tours t ON b.tour_id = t.tour_id " +
                     "  WHERE b.day_start BETWEEN :start AND :end AND b.status='booked' " +
                     "  GROUP BY subCompanyId, time " +
@@ -136,7 +132,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT t.manage_by AS subCompanyId, DATE_FORMAT(b.day_start, '%Y-%m') AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "         SUM(b.total_price) AS totalRevenue " +
                     "  FROM bookings_tour b JOIN tours t ON b.tour_id = t.tour_id " +
                     "  WHERE b.day_start BETWEEN :start AND :end AND b.status='booked' " +
                     "  GROUP BY subCompanyId, time " +
@@ -151,7 +147,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "FROM users u " +
                     "LEFT JOIN ( " +
                     "  SELECT t.manage_by AS subCompanyId, YEAR(b.day_start) AS time, " +
-                    "         SUM(t.price * (b.adult_number + b.child_number)) AS totalRevenue " +
+                    "         SUM(b.total_price) AS totalRevenue " +
                     "  FROM bookings_tour b JOIN tours t ON b.tour_id = t.tour_id " +
                     "  WHERE b.day_start BETWEEN :start AND :end AND b.status='booked' " +
                     "  GROUP BY subCompanyId, time " +
@@ -160,7 +156,6 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                     "ORDER BY u.user_id, d.time", nativeQuery = true)
     List<Object[]> getAllCompaniesRevenueByYear(@Param("start") LocalDateTime start,
                                                 @Param("end") LocalDateTime end);
-
 
     long countByTour_TourId(String tourId);
 
