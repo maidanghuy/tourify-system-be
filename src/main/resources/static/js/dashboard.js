@@ -323,26 +323,30 @@ const pages = {
                 <div id="missingFieldsMsg" class="text-danger mt-1 small"></div>
                 </div>
         
-        
-                <div>
-                    <button class="btn btn-outline-danger" onclick="location.reload()">Cancel</button>
-                    <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
-                    <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
-                        <i class="bi bi-robot"></i> AI Suggest
-                    </button>
-                    <button type="button" class="btn btn-info" onclick="openImageSuggestModal()">
-                            <i class="bi bi-image"></i> AI Image
-                    </button>
-                    <button type="button" class="btn btn-warning" onclick="generateItineraryWithAI()">
-                      <i class="bi bi-map"></i> AI Itinerary & Price
-                    </button>
-                    <button type="button" class="btn btn-warning" id="btnImportExcel">
-                      <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
-                    </button>
 
-                    <input type="file" id="excelFileInput" accept=".xlsx" style="display:none" />
+                <div class="button-group">
+                  <button class="btn btn-outline-danger" onclick="location.reload()">Cancel</button>
+                  <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
 
+                  <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
+                    <i class="bi bi-robot"></i> AI Suggest
+                  </button>
+
+                  <button type="button" class="btn btn-info" onclick="openImageSuggestModal()">
+                    <i class="bi bi-image"></i> AI Image
+                  </button>
+
+                  <button type="button" class="btn btn-warning" onclick="generateItineraryWithAI()">
+                    <i class="bi bi-map"></i> AI Itinerary & Price
+                  </button>
+
+                  <button type="button" class="btn btn-excel" id="btnImportExcel">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
+                  </button>
+
+                  <input type="file" id="excelFileInput" accept=".xlsx" style="display:none" />
                 </div>
+
             </div>
             <!-- AI Itinerary Result -->
             <div id="itineraryContainer" class="mt-3"></div>
