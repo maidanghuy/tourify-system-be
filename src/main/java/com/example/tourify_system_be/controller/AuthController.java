@@ -86,25 +86,26 @@ public class AuthController {
     public APIResponse<?> register(@Valid @RequestBody UserCreateRequest userDTO) {
         if (userService.emailExists(userDTO.getEmail())) {
             throw new AppException(ErrorCode.
-                    EMAIL_EXISTED, "Feedback không hợp lệ và đã bị xoá!");
+                    EMAIL_EXISTED, "Email already exists!");
+
         }
 
         if (userService.userNameExists(userDTO.getUserName())) {
-            throw new AppException(ErrorCode.USER_EXISTED, "Feedback không hợp lệ và đã bị xoá!");
+            throw new AppException(ErrorCode.USER_EXISTED, "User already exists!");
         }
 
         try {
             boolean result = userService.sendRegistrationToken(userDTO);
             if (!result) {
-                throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
+                throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Unable to send registration token. Please try again later!");
             }
             return APIResponse.<Void>builder()
                     .message("Registration email sent successfully")
                     .result(null)
                     .build();
         } catch (Exception e) {
-            logger.error("Lỗi trong quá trình gửi email xác nhận đăng ký: {}", e.getMessage(), e);
-            throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Feedback không hợp lệ và đã bị xoá!");
+            logger.error("Failed to send registration confirmation email: {}", e.getMessage(), e);
+            throw new AppException(ErrorCode.FAIL_TO_SEND_REGISTRATION_TOKEN, "Unable to send registration token. Please try again later!");
         }
     }
     /*
