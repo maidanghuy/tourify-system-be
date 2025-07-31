@@ -27,7 +27,7 @@ public interface ITourPromotionRepository extends JpaRepository<TourPromotion, T
     SELECT tp.promotion
     FROM TourPromotion tp
     WHERE tp.tour.tourId = :tourId AND tp.promotion.status = 'active'
-""")
+    """)
     List<Promotion> findActivePromotionsByTourId(@Param("tourId") String tourId);
 
 

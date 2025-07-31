@@ -70,4 +70,16 @@ public class PromotionController {
                 .message("Delete promotions successfully")
                 .build();
     }
+
+
+    // =============================
+    // 5. API: List all promotions (role-based)
+    // =============================
+    @GetMapping
+    public APIResponse<?> listPromotions(@RequestHeader("Authorization") String token) {
+        return APIResponse.<List<PromotionResponse>>builder()
+                .message("Danh sách promotions")
+                .result(promotionService.listPromotions(token))
+                .build();
+    }
 }
