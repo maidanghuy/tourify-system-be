@@ -336,6 +336,12 @@ const pages = {
                     <button type="button" class="btn btn-warning" onclick="generateItineraryWithAI()">
                       <i class="bi bi-map"></i> AI Itinerary & Price
                     </button>
+                    <button type="button" class="btn btn-warning" id="btnImportExcel">
+                      <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
+                    </button>
+
+                    <input type="file" id="excelFileInput" accept=".xlsx" style="display:none" />
+
                 </div>
             </div>
             <!-- AI Itinerary Result -->
@@ -1453,6 +1459,7 @@ function initAddTourPage() {
   if (addBtn) {
     addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
   }
+  attachExcelImportEvents();
 }
 
 function observeMediaZone(zone) {

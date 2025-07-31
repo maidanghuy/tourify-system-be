@@ -83,18 +83,18 @@ async function handleAddTour(e) {
   const activityIds = Array.from(document.getElementById("activitiesSelect").selectedOptions).map(o => o.value);
 
   // Thêm đoạn validate này ngay sau khi lấy serviceIds, activityIds:
-  if (serviceIds.length < 4) {
+  if (serviceIds.length < 0) {
     Swal.fire({
       icon: 'warning',
-      title: 'Vui lòng chọn ít nhất 4 Services!'
+      title: 'Vui lòng chọn ít nhất 0 Services!'
     });
     return;
   }
 
-  if (activityIds.length < 4) {
+  if (activityIds.length < 0) {
     Swal.fire({
       icon: 'warning',
-      title: 'Vui lòng chọn ít nhất 4 Activities!'
+      title: 'Vui lòng chọn ít nhất 0 Activities!'
     });
     return;
   }
@@ -472,6 +472,136 @@ async function generateItineraryWithAI() {
     title: "AI Lịch Trình Hoàn Tất",
     text: "Lịch trình và giá tour đã được đề xuất!"
   });
+}
+
+function attachExcelImportEvents() {
+  const input = document.getElementById("excelFileInput");
+  const button = document.getElementById("btnImportExcel");
+
+  if (!input || !button) {
+    console.warn("Không tìm thấy input hoặc button Excel.");
+    return;
+  }
+
+  button.addEventListener("click", () => input.click());
+
+  input.addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/tourify/api/ai/parse-excel", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        Swal.fire({ icon: "error", title: "Import failed", text: "Failed to parse Excel file!" });
+        return;
+      }
+
+      const tours = await res.json();
+      console.log("Excel tours:", tours);
+
+      if (!Array.isArray(tours) || tours.length === 0) {
+        Swal.fire({ icon: "warning", title: "No data", text: "Không có tour nào trong file Excel!" });
+        return;
+      }
+
+      // Import lần lượt từng tour
+      await importMultipleTours(tours);
+
+      Swal.fire({
+        icon: "success",
+        title: "Completed!",
+        text: `Đã import ${tours.length} tours thành công`
+      });
+
+    } catch (err) {
+      console.error("Excel import error", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Có lỗi khi đọc file Excel."
+      });
+    }
+  });
+}
+
+// Hàm fill form với 1 tour
+function fillTourForm(t) {
+  document.getElementById("productName").value = t.tourName || "";
+  document.getElementById("productDescription").value = t.description || "";
+  document.getElementById("basePrice").value = t.price || "";
+  document.getElementById("minPeople").value = t.minPeople || "";
+  document.getElementById("maxPeople").value = t.maxPeople || "";
+  document.getElementById("duration").value = t.duration || "";
+
+  // Chuyển đổi startDate
+  if (t.startDate) {
+    let raw = t.startDate.trim();
+    if (raw.includes("thg")) {
+      // "15-thg 8-2025" -> [15, thg, 8, 2025]
+      const parts = raw.split(/[\s-]+/);
+      const day = parts[0];
+      const month = parts[2];
+      const year = parts[3];
+      const m = month.toString().padStart(2, "0");
+      raw = `${year}-${m}-${day.padStart(2,"0")}`;
+    } else if (raw.includes("/")) {
+      const parts = raw.split("/");
+      raw = `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+    }
+    document.getElementById("startDate").value = raw;
+  }
+
+  // Nếu có imageUrl
+  if (t.imageUrl) {
+    const preview = document.getElementById("imagePreview");
+    preview.innerHTML = `<img src="${t.imageUrl}" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;" />`;
+  }
+
+  // Chọn Place
+  if (t.place) {
+    const placeSelect = document.getElementById("place");
+    const normalized = t.place.trim().toLowerCase();
+    Array.from(placeSelect.options).forEach(opt => {
+      if (opt.textContent.trim().toLowerCase() === normalized) {
+        opt.selected = true;
+      }
+    });
+    placeSelect.dispatchEvent(new Event("change"));
+  }
+
+  // Chọn Category
+  if (t.category) {
+    const categorySelect = document.getElementById("categorySelect");
+    const normalized = t.category.trim().toLowerCase();
+    Array.from(categorySelect.options).forEach(opt => {
+      if (opt.textContent.trim().toLowerCase() === normalized) {
+        opt.selected = true;
+      }
+    });
+    categorySelect.dispatchEvent(new Event("change"));
+  }
+
+  calculateCompletion();
+}
+
+// Import nhiều tour
+async function importMultipleTours(tours) {
+  for (let i = 0; i < tours.length; i++) {
+    fillTourForm(tours[i]);
+
+    // Gọi trực tiếp hàm handleAddTour (không cần click nút)
+    await handleAddTour();
+
+    // Đợi 1 chút để server xử lý
+    await new Promise(r => setTimeout(r, 5000));
+  }
 }
 
 

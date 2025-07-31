@@ -8,13 +8,19 @@ import com.example.tourify_system_be.repository.IServicesRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -220,5 +226,44 @@ public class SuggestTourService {
         }
         return response;
     }
+
+
+    public List<Map<String, Object>> parseExcel(MultipartFile file) throws IOException {
+        List<Map<String, Object>> tours = new ArrayList<>();
+
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            int lastRow = sheet.getLastRowNum();
+
+            // Bỏ header ở row 0, đọc từ row 1 trở đi
+            for (int i = 1; i <= lastRow; i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("place", row.getCell(0).getStringCellValue());
+                data.put("category", row.getCell(1).getStringCellValue());
+                data.put("tourName", row.getCell(2).getStringCellValue());
+                data.put("description", row.getCell(3).getStringCellValue());
+                data.put("price", row.getCell(4).getNumericCellValue());
+                data.put("minPeople", (int) row.getCell(5).getNumericCellValue());
+                data.put("maxPeople", (int) row.getCell(6).getNumericCellValue());
+                data.put("duration", (int) row.getCell(7).getNumericCellValue());
+
+                if (row.getCell(8) != null) {
+                    data.put("startDate", row.getCell(8).toString());
+                }
+                if (row.getCell(9) != null) {
+                    data.put("imageUrl", row.getCell(9).toString());
+                }
+
+                tours.add(data);
+            }
+        }
+        return tours;
+    }
+
 
 }
