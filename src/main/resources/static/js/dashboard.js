@@ -4,6 +4,13 @@ let sortField = null;
 let sortDir = "asc"; // 'asc' hoặc 'desc'
 let currentMediaType = null;
 
+// Promotion variables
+let promotionsData = []; // lưu toàn bộ danh sách promotion
+let currentPromotionPage = 1; // trang hiện tại cho promotion
+let promotionSortField = null;
+let promotionSortDir = "asc"; // 'asc' hoặc 'desc'
+let currentEditingPromotion = null; // lưu promotion đang được chỉnh sửa
+
 const requiredFields = [
   { selector: "#productName", label: "Product Name" },
   { selector: "#productDescription", label: "Description" },
@@ -1065,10 +1072,37 @@ const pages = {
     `,
   },
 
+  /* === 11. PROMOTION LIST === */
   promotionList: {
     title: "Promotion List",
     breadcrumbs: ["dashboard"],
-    content: `<div class='p-4'>Promotion List Page (TODO)</div>`,
+    content: `         
+          <div class="container py-4">
+            <!-- Các button, search box đặt ở đây -->
+            <div class="d-flex mb-3 align-items-center flex-wrap gap-3 justify-content-between">
+              <!-- Search box bên trái -->
+              <div class="flex-grow-1" style="min-width:240px;max-width:520px;">
+                <input class="form-control-mint w-100" type="text" placeholder="Search promotion. . ." />
+              </div>
+              <!-- 2 nút bên phải -->
+              <div class="d-flex gap-3 flex-shrink-0">
+                <button class="btn-mint-filter" type="button">
+                  <i class="bi bi-funnel"></i> Filters
+                </button>
+                <button class="btn-mint-accent" type="button"
+                        onclick="loadPage('addPromotion')">
+                  <i class="bi bi-plus"></i> Add Promotion
+                </button>
+                <button id="btnDeleteSelectedPromotions" class="btn btn-danger" type="button">
+                    <i class="bi bi-trash me-1"></i> Delete Selected
+                </button>
+              </div>
+            </div>
+        
+            <!-- Đây là div cũ giữ nguyên để render JS vào -->
+            <div id="promotionListBody" style="max-width: 1200px; margin: 0 auto;"></div>
+          </div>
+          `,
   },
 };
 
@@ -1136,7 +1170,8 @@ function loadPage(pageKey) {
               </li>`
       )
       .join("")}
-            <li class="breadcrumb-item active text-success" aria-current="page">${page.title
+            <li class="breadcrumb-item active text-success" aria-current="page">${
+              page.title
     }</li>
           </ol>
         </nav>
@@ -1165,7 +1200,7 @@ function loadPage(pageKey) {
         const checked = document.querySelectorAll(
           '#tourListBody tbody input[type="checkbox"]:checked'
         );
-        const ids = Array.from(checked).map((cb) => cb.dataset.id);
+        const ids = Array.from(checked).map((cb) => cb.getAttribute("data-id"));
 
         if (ids.length === 0) {
           Swal.fire({
@@ -1220,13 +1255,31 @@ function loadPage(pageKey) {
     if (btn) {
       btn.addEventListener("click", () => loadPage("addTour"));
     }
+  } else if (pageKey === "promotionList") {
+    // 1️⃣ Load và render bảng promotion
+    loadPromotionList();
 
-    // } else if (pageKey === "analytics") {
-    //     // Khởi tạo analytics
-    //     setTimeout(() => initAnalyticsPage(), 0);
-    // } else if (pageKey === "analytics") {
-    //     setTimeout(() => initAnalyticsPage(), 0); // ✅ THÊM DÒNG NÀY
-    // }
+    // 2️⃣ Gắn listener cho nút Delete Selected Promotions
+    setTimeout(() => {
+      const delBtn = document.getElementById("btnDeleteSelectedPromotions");
+      if (!delBtn) return;
+
+      delBtn.addEventListener("click", async () => {
+        const checked = document.querySelectorAll(
+          '#promotionListBody tbody input[type="checkbox"]:checked'
+        );
+        const ids = Array.from(checked).map((cb) => cb.getAttribute("data-id"));
+        
+        // Sử dụng hàm mới để xóa nhiều promotion
+        await deleteMultiplePromotions(ids);
+      });
+    }, 0);
+
+    // 3️⃣ Gắn listener cho nút Add Promotion
+    const btn = document.querySelector(".btn-mint-accent");
+    if (btn) {
+      btn.addEventListener("click", () => loadPage("addPromotion"));
+    }
   } else if (pageKey === "customers") {
     // ← Thêm block này
     // sau khi HTML inject xong, khởi tạo trang Customers
@@ -1433,6 +1486,7 @@ function initAddTourPage() {
     });
   }
 
+  if (typeof $ !== "undefined") {
   $("#statusSelect").on("change", function () {
     const selected = $(this).val();
     $("#statusBadge").text(selected);
@@ -1441,6 +1495,7 @@ function initAddTourPage() {
   $("#categorySelect, #place").on("change", function () {
     calculateCompletion();
   });
+  }
 
   requiredFields.forEach(({ selector }) => {
     const el = document.querySelector(selector);
@@ -1464,7 +1519,14 @@ function initAddTourPage() {
   // Gán lại sự kiện click cho nút Add Tour mỗi lần vào trang này
   const addBtn = document.getElementById("addTourBtn");
   if (addBtn) {
+    // Kiểm tra xem hàm handleAddTour có tồn tại không
+    if (typeof handleAddTour === "function") {
     addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
+    } else {
+      console.warn(
+        "handleAddTour function is not available. Make sure addTour.js is loaded."
+      );
+    }
   }
   attachExcelImportEvents();
 }
@@ -1762,19 +1824,22 @@ function renderPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+          currentPage - 1
     })">Trang trước</a>
       </li>
       ${Array.from(
       { length: totalPages },
       (_, i) => `
         <li class="page-item ${currentPage === i + 1 ? "active" : ""}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+            i + 1
         })">${i + 1}</a>
         </li>`
     ).join("")}
       <li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
+          currentPage + 1
     })">Trang sau</a>
       </li>
     </ul>
@@ -1793,10 +1858,684 @@ function changePage(newPage) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const username = localStorage.getItem("username") || "Guest";
-  document.getElementById("usernameDisplay").textContent = username;
-});
+// ==== PROMOTION FUNCTIONS ====
+async function loadPromotionList() {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/tourify/api/promotions", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await res.json();
+    if (res.ok && result.code === 1000) {
+      promotionsData = result.result || []; // ✅ lưu dữ liệu vào biến toàn cục
+      currentPromotionPage = 1;
+      renderPromotionList(); // ✅ gọi hàm mới (không truyền biến)
+    } else {
+      document.getElementById("promotionListBody").innerHTML =
+        "<div class='alert alert-warning'>Không có promotion nào được tìm thấy.</div>";
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy danh sách promotion:", error);
+    document.getElementById("promotionListBody").innerHTML =
+      "<div class='alert alert-danger'>Không thể kết nối máy chủ.</div>";
+  }
+}
+
+function promotionStatusBadge(status) {
+  switch ((status || "").toUpperCase()) {
+    case "ACTIVE":
+      return `<span class="badge bg-success-subtle text-success">Active</span>`;
+    case "INACTIVE":
+      return `<span class="badge bg-secondary-subtle text-secondary">Inactive</span>`;
+    case "EXPIRED":
+      return `<span class="badge bg-danger-subtle text-danger">Expired</span>`;
+    default:
+      return `<span class="badge bg-light text-dark">${status}</span>`;
+  }
+}
+
+function sortPromotionBy(field) {
+  // toggle nếu click lại cùng field
+  if (promotionSortField === field) {
+    promotionSortDir = promotionSortDir === "asc" ? "desc" : "asc";
+  } else {
+    promotionSortField = field;
+    promotionSortDir = "asc";
+  }
+  // sắp xếp promotionsData
+  promotionsData.sort((a, b) => {
+    let va = a[field],
+      vb = b[field];
+    if (
+      field === "discountPercent" ||
+      field === "quantity" ||
+      field === "minPurchase"
+    ) {
+      va = Number(a[field]) || 0;
+      vb = Number(b[field]) || 0;
+    } else {
+      va = (va || "").toString().toLowerCase();
+      vb = (vb || "").toString().toLowerCase();
+    }
+    if (va < vb) return promotionSortDir === "asc" ? -1 : 1;
+    if (va > vb) return promotionSortDir === "asc" ? 1 : -1;
+    return 0;
+  });
+  currentPromotionPage = 1;
+  renderPromotionList();
+}
+
+function renderPromotionList() {
+  const body = document.getElementById("promotionListBody");
+  if (!body) return;
+
+  body.innerHTML = "";
+
+  // Build table
+  const table = document.createElement("table");
+  table.className = "table table-hover table-modern mb-0 w-100 align-middle";
+  table.innerHTML = `
+    <thead class="table-success text-nowrap">
+      <tr>
+            <th style="width:36px"><input type="checkbox" id="chkAllPromotions"></th>
+
+            <th style="width:120px; cursor:pointer"
+                onclick="sortPromotionBy('code')">
+              Code <i id="icon-code" class="bi"></i>
+            </th>
+
+            <th style="width:200px; cursor:pointer"
+                onclick="sortPromotionBy('description')">
+              Description <i id="icon-description" class="bi"></i>
+            </th>
+
+            <th style="width:80px; cursor:pointer"
+                onclick="sortPromotionBy('discountPercent')">
+              Discount <i id="icon-discountPercent" class="bi"></i>
+            </th>
+
+            <th style="width:80px; cursor:pointer"
+                onclick="sortPromotionBy('quantity')">
+              Quantity <i id="icon-quantity" class="bi"></i>
+            </th>
+
+            <th style="width:100px; cursor:pointer"
+                onclick="sortPromotionBy('minPurchase')">
+              Min Purchase <i id="icon-minPurchase" class="bi"></i>
+            </th>
+
+            <th style="width:100px; cursor:pointer"
+                onclick="sortPromotionBy('startTime')">
+              Start Time <i id="icon-startTime" class="bi"></i>
+            </th>
+
+            <th style="width:100px; cursor:pointer"
+                onclick="sortPromotionBy('endTime')">
+              End Time <i id="icon-endTime" class="bi"></i>
+            </th>
+
+            <th style="width:80px">Status</th>
+            <th style="width:100px">Created By</th>
+            <th class="text-center" style="width:80px">Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  body.appendChild(table);
+
+  const tbody = table.querySelector("tbody");
+  if (!Array.isArray(promotionsData) || promotionsData.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="11" class="text-center py-4">
+          <div class="alert alert-warning mb-0">Chưa có promotion nào.</div>
+        </td>
+      </tr>
+    `;
+    renderPromotionPagination();
+    return;
+  }
+
+  // Paging
+  const start = (currentPromotionPage - 1) * pageSize;
+  const end = start + pageSize;
+  const list = promotionsData.slice(start, end);
+
+  // Use DocumentFragment for performance
+  const frag = document.createDocumentFragment();
+
+  for (const promotion of list) {
+    const discount = (Number(promotion.discountPercent) || 0) + "%";
+    const quantity = promotion.quantity || 0;
+    const minPurchase =
+      (Number(promotion.minPurchase) || 0).toLocaleString("vi-VN") + " ₫";
+    const startTime = promotion.startTime
+      ? new Date(promotion.startTime).toLocaleDateString("vi-VN")
+      : "-";
+    const endTime = promotion.endTime
+      ? new Date(promotion.endTime).toLocaleDateString("vi-VN")
+      : "-";
+    // Xử lý hiển thị người tạo promotion - ưu tiên userName
+    let creatorDisplay = "-";
+    if (promotion.createdByUserName) {
+      // Ưu tiên sử dụng userName từ backend
+      creatorDisplay = promotion.createdByUserName;
+    } else if (promotion.createdBy) {
+      // Fallback: xử lý createdBy nếu không có userName
+      if (typeof promotion.createdBy === 'object' && promotion.createdBy.firstName) {
+        creatorDisplay = `${promotion.createdBy.firstName} ${promotion.createdBy.lastName || ''}`.trim();
+      } else if (typeof promotion.createdBy === 'string') {
+        if (promotion.createdBy.includes('@')) {
+          const username = promotion.createdBy.split('@')[0];
+          creatorDisplay = username.charAt(0).toUpperCase() + username.slice(1);
+        } else {
+          creatorDisplay = promotion.createdBy.charAt(0).toUpperCase() + promotion.createdBy.slice(1);
+        }
+      }
+    }
+    const creator = creatorDisplay;
+
+    // Cắt ngắn description nếu quá dài
+    const description = promotion.description || "-";
+    const shortDescription =
+      description.length > 50
+        ? description.substring(0, 50) + "..."
+        : description;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input type="checkbox" data-id="${promotion.promotionId}"></td>
+      <td>
+        <div class="fw-semibold" style="font-size:0.95rem;">${
+          promotion.code || "-"
+        }</div>
+      </td>
+      <td class="align-middle text-break" style="max-width: 200px;" title="${description}">${shortDescription}</td>
+      <td class="align-middle text-success fw-semibold text-center">${discount}</td>
+      <td class="align-middle text-center">${quantity}</td>
+      <td class="align-middle text-center">${minPurchase}</td>
+      <td class="align-middle text-center" style="font-size:0.9rem;">${startTime}</td>
+      <td class="align-middle text-center" style="font-size:0.9rem;">${endTime}</td>
+      <td class="align-middle text-center">${promotionStatusBadge(
+        promotion.status
+      )}</td>
+      <td class="align-middle text-center">${creator}</td>
+      <td class="align-middle text-center">
+        <i
+          class="bi bi-pencil text-warning me-2"
+          title="Edit"
+          onclick="editPromotion('${promotion.promotionId}')"
+        ></i>
+        <i
+          class="bi bi-trash text-danger"
+          title="Delete"
+          onclick="deletePromotion('${promotion.promotionId}')"
+        ></i>
+      </td>
+    `;
+    frag.appendChild(tr);
+  }
+
+  tbody.appendChild(frag);
+  // ⚙️ cập nhật icon mũi tên
+  [
+    "code",
+    "description",
+    "discountPercent",
+    "quantity",
+    "minPurchase",
+    "startTime",
+    "endTime",
+  ].forEach((field) => {
+    const icon = document.getElementById(`icon-${field}`);
+    if (!icon) return;
+    icon.className = "bi"; // reset classes
+    if (promotionSortField === field) {
+      icon.classList.add(
+        promotionSortDir === "asc" ? "bi-caret-up-fill" : "bi-caret-down-fill"
+      );
+    } else {
+      icon.classList.add("bi-caret-down");
+    }
+  });
+
+  // === Select All Checkbox ===
+  const chkAll = table.querySelector("#chkAllPromotions");
+  if (chkAll) {
+    chkAll.addEventListener("change", function () {
+      const isChecked = this.checked;
+      // đánh dấu hoặc bỏ đánh dấu tất cả các checkbox trong tbody
+      table.querySelectorAll('tbody input[type="checkbox"]').forEach((cb) => {
+        cb.checked = isChecked;
+      });
+    });
+  }
+  renderPromotionPagination();
+}
+
+function renderPromotionPagination() {
+  const totalPages = Math.ceil(promotionsData.length / pageSize);
+  if (totalPages <= 1) return;
+
+  const pagination = document.createElement("nav");
+  pagination.className = "mt-4";
+  pagination.innerHTML = `
+    <ul class="pagination justify-content-center">
+      <li class="page-item ${currentPromotionPage === 1 ? "disabled" : ""}">
+        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
+          currentPromotionPage - 1
+        })">Trang trước</a>
+      </li>
+      ${Array.from(
+        { length: totalPages },
+        (_, i) => `
+        <li class="page-item ${currentPromotionPage === i + 1 ? "active" : ""}">
+          <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
+            i + 1
+          })">${i + 1}</a>
+        </li>`
+      ).join("")}
+      <li class="page-item ${
+        currentPromotionPage === totalPages ? "disabled" : ""
+      }">
+        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
+          currentPromotionPage + 1
+        })">Trang sau</a>
+      </li>
+    </ul>
+  `;
+
+  // Thêm vào đúng vị trí trong promotionListBody
+  const body = document.getElementById("promotionListBody");
+  if (body) body.appendChild(pagination);
+}
+
+function changePromotionPage(newPage) {
+  const totalPages = Math.ceil(promotionsData.length / pageSize);
+  if (newPage >= 1 && newPage <= totalPages) {
+    currentPromotionPage = newPage;
+    renderPromotionList();
+  }
+}
+
+async function deletePromotion(promotionId) {
+  if (!confirm("Bạn có chắc chắn muốn xóa promotion này?")) return;
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/tourify/api/promotions", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        promotionIds: [promotionId],
+      }),
+    });
+
+    const result = await res.json();
+    if (res.ok && result.code === 1000) {
+      showPopup("success", "Success", "Promotion đã được xóa thành công!");
+      loadPromotionList(); // Reload danh sách
+    } else {
+      showPopup("error", "Error", result.message || "Không thể xóa promotion");
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi xóa promotion:", error);
+    showPopup("error", "Error", "Không thể kết nối máy chủ");
+  }
+}
+
+// Hàm xóa nhiều promotion cùng lúc
+async function deleteMultiplePromotions(promotionIds) {
+  if (!promotionIds || promotionIds.length === 0) {
+    showPopup("warning", "Chú ý", "Vui lòng chọn ít nhất 1 promotion để xóa.");
+    return;
+  }
+
+  if (!confirm(`Bạn có chắc muốn xóa ${promotionIds.length} promotion đã chọn?`)) {
+    return;
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/tourify/api/promotions", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        promotionIds: promotionIds,
+      }),
+    });
+
+    const result = await res.json();
+    if (res.ok && result.code === 1000) {
+      showPopup(
+        "success",
+        "Success",
+        `Xóa thành công ${promotionIds.length} promotion.`
+      );
+      loadPromotionList(); // Reload danh sách
+    } else {
+      showPopup(
+        "error",
+        "Error",
+        result.message || "Không thể xóa promotions"
+      );
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi xóa promotions:", error);
+    showPopup("error", "Error", "Không thể kết nối máy chủ");
+  }
+}
+
+// Biến toàn cục để lưu promotion đang edit
+
+async function editPromotion(promotionId) {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    // Tìm promotion trong danh sách hiện tại
+    const promotion = promotionsData.find(p => p.promotionId === promotionId);
+    if (!promotion) {
+      showPopup("error", "Error", "Không tìm thấy promotion");
+      return;
+    }
+
+    currentEditingPromotion = promotion;
+    showEditPromotionModal();
+  } catch (error) {
+    console.error("❌ Lỗi khi tải thông tin promotion:", error);
+    showPopup("error", "Error", "Không thể tải thông tin promotion");
+  }
+}
+
+function showEditPromotionModal() {
+  if (!currentEditingPromotion) return;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal fade';
+  modal.id = 'editPromotionModal';
+  modal.setAttribute('tabindex', '-1');
+  modal.setAttribute('aria-labelledby', 'editPromotionModalLabel');
+  modal.setAttribute('aria-hidden', 'true');
+
+  // Format datetime cho input
+  const formatDateTimeForInput = (dateTimeStr) => {
+    if (!dateTimeStr) return '';
+    const date = new Date(dateTimeStr);
+    return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+  };
+
+  modal.innerHTML = `
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPromotionModalLabel">
+            <i class="bi bi-pencil-square text-warning me-2"></i>
+            Chỉnh sửa Promotion: ${currentEditingPromotion.code}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPromotionForm">
+            <div class="row g-3">
+              <!-- Code -->
+              <div class="col-md-6">
+                <label for="editCode" class="form-label fw-semibold">
+                  <i class="bi bi-tag me-1"></i>Mã khuyến mãi <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="editCode" 
+                       value="${currentEditingPromotion.code || ''}" required>
+              </div>
+
+              <!-- Quantity -->
+              <div class="col-md-6">
+                <label for="editQuantity" class="form-label fw-semibold">
+                  <i class="bi bi-box me-1"></i>Số lượng <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" id="editQuantity" 
+                       value="${currentEditingPromotion.quantity || 0}" min="0" required>
+              </div>
+
+              <!-- Discount Percent -->
+              <div class="col-md-6">
+                <label for="editDiscountPercent" class="form-label fw-semibold">
+                  <i class="bi bi-percent me-1"></i>Phần trăm giảm giá <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="editDiscountPercent" 
+                         value="${currentEditingPromotion.discountPercent || 0}" min="0" max="100" required>
+                  <span class="input-group-text">%</span>
+                </div>
+              </div>
+
+              <!-- Min Purchase -->
+              <div class="col-md-6">
+                <label for="editMinPurchase" class="form-label fw-semibold">
+                  <i class="bi bi-currency-dollar me-1"></i>Giá trị tối thiểu <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="editMinPurchase" 
+                         value="${currentEditingPromotion.minPurchase || 0}" min="0" required>
+                  <span class="input-group-text">₫</span>
+                </div>
+              </div>
+
+              <!-- Start Time -->
+              <div class="col-md-6">
+                <label for="editStartTime" class="form-label fw-semibold">
+                  <i class="bi bi-calendar-event me-1"></i>Thời gian bắt đầu <span class="text-danger">*</span>
+                </label>
+                <input type="datetime-local" class="form-control" id="editStartTime" 
+                       value="${formatDateTimeForInput(currentEditingPromotion.startTime)}" required>
+              </div>
+
+              <!-- End Time -->
+              <div class="col-md-6">
+                <label for="editEndTime" class="form-label fw-semibold">
+                  <i class="bi bi-calendar-x me-1"></i>Thời gian kết thúc <span class="text-danger">*</span>
+                </label>
+                <input type="datetime-local" class="form-control" id="editEndTime" 
+                       value="${formatDateTimeForInput(currentEditingPromotion.endTime)}" required>
+              </div>
+
+              <!-- Description -->
+              <div class="col-12">
+                <label for="editDescription" class="form-label fw-semibold">
+                  <i class="bi bi-text-paragraph me-1"></i>Mô tả
+                </label>
+                <textarea class="form-control" id="editDescription" rows="3" 
+                          placeholder="Nhập mô tả chi tiết về khuyến mãi...">${currentEditingPromotion.description || ''}</textarea>
+              </div>
+
+              <!-- Conditions -->
+              <div class="col-12">
+                <label for="editConditions" class="form-label fw-semibold">
+                  <i class="bi bi-list-check me-1"></i>Điều kiện áp dụng
+                </label>
+                <textarea class="form-control" id="editConditions" rows="3" 
+                          placeholder="Nhập các điều kiện áp dụng khuyến mãi...">${currentEditingPromotion.conditions || ''}</textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-info" onclick="resetEditPromotionForm()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+          </button>
+          <button type="button" class="btn btn-danger" onclick="clearEditPromotionForm()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Clear All
+          </button>
+          <button type="button" class="btn" onclick="saveEditPromotion()" style="background-color: #2f8765; color: white; border-color: #2f8765;">
+            <i class="bi bi-check-circle me-1"></i>Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Thêm modal vào body
+  document.body.appendChild(modal);
+
+  // Hiển thị modal
+  const bootstrapModal = new bootstrap.Modal(modal);
+  bootstrapModal.show();
+
+  // Xử lý khi modal đóng
+  modal.addEventListener('hidden.bs.modal', function () {
+    document.body.removeChild(modal);
+    currentEditingPromotion = null;
+  });
+}
+
+function resetEditPromotionForm() {
+  if (!confirm("Bạn có chắc chắn muốn reset lại thông tin cũ của promotion?")) {
+    return;
+  }
+
+  // Reset form về giá trị ban đầu của promotion
+  if (currentEditingPromotion) {
+    const formatDateTimeForInput = (dateTimeStr) => {
+      if (!dateTimeStr) return '';
+      const date = new Date(dateTimeStr);
+      return date.toISOString().slice(0, 16);
+    };
+
+    document.getElementById('editCode').value = currentEditingPromotion.code || '';
+    document.getElementById('editQuantity').value = currentEditingPromotion.quantity || 0;
+    document.getElementById('editDiscountPercent').value = currentEditingPromotion.discountPercent || 0;
+    document.getElementById('editMinPurchase').value = currentEditingPromotion.minPurchase || 0;
+    document.getElementById('editStartTime').value = formatDateTimeForInput(currentEditingPromotion.startTime);
+    document.getElementById('editEndTime').value = formatDateTimeForInput(currentEditingPromotion.endTime);
+    document.getElementById('editDescription').value = currentEditingPromotion.description || '';
+    document.getElementById('editConditions').value = currentEditingPromotion.conditions || '';
+  }
+
+  showPopup("info", "Thông báo", "Đã reset lại thông tin cũ của promotion!");
+}
+
+function clearEditPromotionForm() {
+  if (!confirm("Bạn có chắc chắn muốn xóa tất cả thông tin trong form?")) {
+    return;
+  }
+
+  // Xóa trắng tất cả các trường trong form
+  document.getElementById('editCode').value = '';
+  document.getElementById('editQuantity').value = '';
+  document.getElementById('editDiscountPercent').value = '';
+  document.getElementById('editMinPurchase').value = '';
+  document.getElementById('editStartTime').value = '';
+  document.getElementById('editEndTime').value = '';
+  document.getElementById('editDescription').value = '';
+  document.getElementById('editConditions').value = '';
+
+  showPopup("info", "Thông báo", "Đã xóa tất cả thông tin trong form!");
+}
+
+async function saveEditPromotion() {
+  if (!currentEditingPromotion) {
+    showPopup("error", "Error", "Không có promotion nào đang được chỉnh sửa");
+    return;
+  }
+
+  // Validate form
+  const form = document.getElementById('editPromotionForm');
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  // Thu thập dữ liệu từ form
+  const formData = {
+    code: document.getElementById('editCode').value.trim(),
+    quantity: parseInt(document.getElementById('editQuantity').value) || 0,
+    discountPercent: parseInt(document.getElementById('editDiscountPercent').value) || 0,
+    minPurchase: parseInt(document.getElementById('editMinPurchase').value) || 0,
+    startTime: document.getElementById('editStartTime').value,
+    endTime: document.getElementById('editEndTime').value,
+    description: document.getElementById('editDescription').value.trim(),
+    conditions: document.getElementById('editConditions').value.trim(),
+    tourIds: [] // Giữ nguyên danh sách tour hiện tại
+  };
+
+  // Validate logic
+  if (formData.discountPercent < 0 || formData.discountPercent > 100) {
+    showPopup("error", "Lỗi", "Phần trăm giảm giá phải từ 0-100%");
+    return;
+  }
+
+  if (new Date(formData.startTime) >= new Date(formData.endTime)) {
+    showPopup("error", "Lỗi", "Thời gian kết thúc phải sau thời gian bắt đầu");
+    return;
+  }
+
+  if (!confirm("Bạn có chắc chắn muốn lưu các thay đổi?")) {
+    return;
+  }
+
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("Bạn chưa đăng nhập.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/tourify/api/promotions/${currentEditingPromotion.promotionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await res.json();
+    if (res.ok && result.code === 1000) {
+      showPopup("success", "Thành công", "Promotion đã được cập nhật thành công!");
+      
+      // Đóng modal
+      const modal = document.getElementById('editPromotionModal');
+      if (modal) {
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        bootstrapModal.hide();
+      }
+      
+      // Reload danh sách promotion
+      loadPromotionList();
+    } else {
+      showPopup("error", "Lỗi", result.message || "Không thể cập nhật promotion");
+    }
+  } catch (error) {
+    console.error("❌ Lỗi khi cập nhật promotion:", error);
+    showPopup("error", "Lỗi", "Không thể kết nối máy chủ");
+  }
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const token = localStorage.getItem("accessToken");
@@ -1819,6 +2558,9 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = "/tourify/login"; // Đổi thành đường dẫn login của bạn
     };
   }
+
+  // Khởi tạo username và avatar ngay khi trang load
+  updateNavbarAvatar("/static/images/avatar_default.jpg");
 });
 
 document.getElementById("logout-link")?.addEventListener("click", function () {
@@ -2181,8 +2923,9 @@ function initAnalyticsPage() {
         });
       }
     } catch (err) {
-      document.getElementById("topBookedToursTbody").innerHTML =
-        `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
+      document.getElementById(
+        "topBookedToursTbody"
+      ).innerHTML = `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
   }
@@ -2363,15 +3106,7 @@ function initAnalyticsPage() {
   analyticsHeaderStats();
 }
 
-// Utility: capitalize
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-// Utility: formatVND (nếu chưa có)
-function formatVND(n) {
-  return (n || 0).toLocaleString("vi-VN") + " ₫";
-}
+// Utility functions are already defined above
 
 // Gọi khi HTML đã load xong
 document.addEventListener("DOMContentLoaded", initAnalyticsPage);
@@ -2451,9 +3186,11 @@ async function loadAccounts(query = "") {
             <img src="${u.avatar || "/static/images/avatar_default.jpg"}"
                  style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
             <div>
-              <div style="font-weight:600; color:#22292f;">${u.userName || ""
+              <div style="font-weight:600; color:#22292f;">${
+                u.userName || ""
         }</div>
-              <div style="font-size:0.95em; color:#8b909a;">${u.email || ""
+              <div style="font-size:0.95em; color:#8b909a;">${
+                u.email || ""
         }</div>
             </div>
           </div>
@@ -2612,7 +3349,8 @@ async function loadDraftToursForSeller() {
       row.innerHTML = `
         <td><input type="checkbox" data-id="${tour.tourId}"></td>
         <td>
-          <img src="${tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
+          <img src="${
+            tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
         }"
                alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
         </td>
@@ -2622,19 +3360,23 @@ async function loadDraftToursForSeller() {
         <td>
           <span>${tour.createdByUserName || "-"}</span>
         </td>
-        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
+        <td class="text-success">${
+          tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
         }</td>
         <td>${tour.placeName || "-"}</td>
-        <td>${tour.createdAt
+        <td>${
+          tour.createdAt
           ? new Date(tour.createdAt).toLocaleDateString("vi-VN")
           : "-"
         }</td>
         <td>
-          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${
+            tour.tourId
         }')">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId
+          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${
+            tour.tourId
         }')">
             <i class="bi bi-trash"></i>
           </button>
@@ -3121,81 +3863,67 @@ async function handleAddPromotion() {
 
 // ==== LOAD USER AVATAR FOR NAVBAR ====
 async function loadUserAvatarForNavbar() {
-  try {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.log("Không có token, không thể load avatar");
-      // Vẫn cập nhật username từ JWT nếu có
-      updateNavbarAvatar("/static/images/avatar_default.jpg");
+    updateNavbarAvatar("/static/images/avatar_default.jpg", "User");
       return;
     }
-
-    const response = await fetch("/tourify/api/user/info", {
+  try {
+    const res = await fetch("/tourify/api/user/info", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    const result = await response.json();
-
-    if (response.ok && result.result) {
-      // Cập nhật avatar trên navbar
-      const avatarUrl =
-        result.result.avatar || "/static/images/avatar_default.jpg";
-      updateNavbarAvatar(avatarUrl);
-
-      // Lưu thông tin user vào localStorage để sử dụng sau
-      localStorage.setItem("userInfo", JSON.stringify(result.result));
-    } else {
-      // Sử dụng avatar mặc định nếu không có
-      updateNavbarAvatar("/static/images/avatar_default.jpg");
+    if (!res.ok) {
+      updateNavbarAvatar("/static/images/avatar_default.jpg", "User");
+      return;
     }
-  } catch (error) {
-    console.error("Lỗi load avatar:", error);
-    // Sử dụng avatar mặc định khi có lỗi
-    updateNavbarAvatar("/static/images/avatar_default.jpg");
+    const data = await res.json();
+    // API trả về { result: { ...user } }
+    const user = data.result || {};
+    const fullName = (user.firstName ? user.firstName : "") + (user.lastName ? " " + user.lastName : "");
+    updateNavbarAvatar(user.avatar || "/static/images/avatar_default.jpg", fullName.trim() || "User");
+  } catch (e) {
+    updateNavbarAvatar("/static/images/avatar_default.jpg", "User");
   }
 }
 
-function updateNavbarAvatar(avatarUrl) {
-  // Tìm và cập nhật avatar trên navbar - sử dụng selector cụ thể hơn
+function updateNavbarAvatar(avatarUrl, fullName) {
+  const defaultAvatar = "/static/images/avatar_default.jpg";
+  const url = avatarUrl || defaultAvatar;
   const navbarAvatars = document.querySelectorAll(
     '.topbar img.rounded-circle, .topbar img[width="32"], .topbar img[height="32"], .navbar img, .top-navbar img'
   );
 
   navbarAvatars.forEach((avatar) => {
     if (avatar.tagName === "IMG") {
-      avatar.src = avatarUrl;
-      // Thêm alt text cho accessibility
+      avatar.src = url;
+      avatar.onerror = function () {
+        this.onerror = null;
+        this.src = defaultAvatar;
+      };
       avatar.alt = "User Avatar";
     } else {
-      avatar.style.backgroundImage = `url(${avatarUrl})`;
+      avatar.style.backgroundImage = `url(${url})`;
     }
   });
 
-  // Cập nhật username từ JWT token
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const username = payload.userName || payload.username || "User";
-
+  // Hiển thị tên đầy đủ (firstName + lastName)
+  const username = fullName || "User";
       const usernameElements = document.querySelectorAll(
         "#usernameDisplay, .username-display, .user-name"
       );
       usernameElements.forEach((element) => {
+    if (element) {
         element.textContent = username;
-      });
-    } catch (error) {
-      console.error("Lỗi parse JWT token:", error);
     }
-  }
+      });
 }
 
 // Tích hợp vào loadPage
-const oldLoadPage = loadPage;
+const originalLoadPage = loadPage;
 loadPage = function (pageKey) {
-  oldLoadPage(pageKey);
+  originalLoadPage(pageKey);
   if (pageKey === "addPromotion") {
     setTimeout(initAddPromotionPage, 0);
   }
@@ -3265,10 +3993,10 @@ async function loadPlaces() {
 
 // Render places table
 function renderPlacesTable() {
-  const tbody = document.getElementById('placeTableBody');
+  const tbody = document.getElementById("placeTableBody");
   if (!tbody) return;
 
-  tbody.innerHTML = '';
+  tbody.innerHTML = "";
 
   if (placesData.length === 0) {
     tbody.innerHTML = `
@@ -3282,13 +4010,17 @@ function renderPlacesTable() {
     return;
   }
 
-  placesData.forEach(place => {
-    const row = document.createElement('tr');
+  placesData.forEach((place) => {
+    const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="checkbox" class="place-checkbox" value="${place.placeId}"></td>
+      <td><input type="checkbox" class="place-checkbox" value="${
+        place.placeId
+      }"></td>
       <td>
         <div class="d-flex align-items-center gap-2">
-          <img src="${place.image || 'https://via.placeholder.com/40x40?text=IMG'}" 
+          <img src="${
+            place.image || "https://via.placeholder.com/40x40?text=IMG"
+          }" 
                class="rounded" width="40" height="40" 
                style="object-fit:cover; border:1.5px solid #ddd;">
           <div>
@@ -3296,19 +4028,23 @@ function renderPlacesTable() {
           </div>
         </div>
       </td>
-      <td class="text-break">${place.placeDescription || '-'}</td>
+      <td class="text-break">${place.placeDescription || "-"}</td>
       <td>
         <span class="badge bg-warning text-dark">
-          <i class="bi bi-star-fill me-1"></i>${place.rating || 'N/A'}
+          <i class="bi bi-star-fill me-1"></i>${place.rating || "N/A"}
         </span>
       </td>
-      <td class="text-break">${place.gpsCoordinates || '-'}</td>
+      <td class="text-break">${place.gpsCoordinates || "-"}</td>
       <td>
         <div class="btn-group btn-group-sm">
-          <button class="btn btn-outline-primary" onclick="editPlace('${place.placeId}')" title="Edit">
+          <button class="btn btn-outline-primary" onclick="editPlace('${
+            place.placeId
+          }')" title="Edit">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-outline-danger" onclick="deletePlace('${place.placeId}')" title="Delete">
+          <button class="btn btn-outline-danger" onclick="deletePlace('${
+            place.placeId
+          }')" title="Delete">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -3320,8 +4056,8 @@ function renderPlacesTable() {
 
 // Render place pagination
 function renderPlacePagination(pageData) {
-  const paginationInfo = document.getElementById('placePaginationInfo');
-  const pagination = document.getElementById('placePagination');
+  const paginationInfo = document.getElementById("placePaginationInfo");
+  const pagination = document.getElementById("placePagination");
 
   if (paginationInfo) {
     const start = currentPlacePage * placePageSize + 1;
@@ -3330,12 +4066,14 @@ function renderPlacePagination(pageData) {
   }
 
   if (pagination) {
-    pagination.innerHTML = '';
+    pagination.innerHTML = "";
 
     // Previous button
-    const prevLi = document.createElement('li');
-    prevLi.className = `page-item-mint ${currentPlacePage === 0 ? 'disabled' : ''}`;
-    prevLi.innerHTML = '<span>&lt;</span>';
+    const prevLi = document.createElement("li");
+    prevLi.className = `page-item-mint ${
+      currentPlacePage === 0 ? "disabled" : ""
+    }`;
+    prevLi.innerHTML = "<span>&lt;</span>";
     if (currentPlacePage > 0) {
       prevLi.onclick = () => changePlacePage(currentPlacePage - 1);
     }
@@ -3347,17 +4085,21 @@ function renderPlacePagination(pageData) {
     const endPage = Math.min(totalPages, startPage + 3);
 
     for (let i = startPage; i < endPage; i++) {
-      const pageLi = document.createElement('li');
-      pageLi.className = `page-item-mint ${i === currentPlacePage ? 'active' : ''}`;
+      const pageLi = document.createElement("li");
+      pageLi.className = `page-item-mint ${
+        i === currentPlacePage ? "active" : ""
+      }`;
       pageLi.innerHTML = `<span>${i + 1}</span>`;
       pageLi.onclick = () => changePlacePage(i);
       pagination.appendChild(pageLi);
     }
 
     // Next button
-    const nextLi = document.createElement('li');
-    nextLi.className = `page-item-mint ${currentPlacePage >= totalPages - 1 ? 'disabled' : ''}`;
-    nextLi.innerHTML = '<span>&gt;</span>';
+    const nextLi = document.createElement("li");
+    nextLi.className = `page-item-mint ${
+      currentPlacePage >= totalPages - 1 ? "disabled" : ""
+    }`;
+    nextLi.innerHTML = "<span>&gt;</span>";
     if (currentPlacePage < totalPages - 1) {
       nextLi.onclick = () => changePlacePage(currentPlacePage + 1);
     }
@@ -3374,7 +4116,7 @@ function changePlacePage(newPage) {
 // Setup place event listeners
 function setupPlaceEventListeners() {
   // Search functionality
-  const searchInput = document.getElementById('placeSearchInput');
+  const searchInput = document.getElementById("placeSearchInput");
   if (searchInput) {
     searchInput.addEventListener('input', debounce(function () {
       currentSearchTerm = this.value.trim();
@@ -3384,11 +4126,11 @@ function setupPlaceEventListeners() {
   }
 
   // Select all functionality
-  const selectAllCheckbox = document.getElementById('selectAllPlaces');
+  const selectAllCheckbox = document.getElementById("selectAllPlaces");
   if (selectAllCheckbox) {
-    selectAllCheckbox.addEventListener('change', function () {
-      const checkboxes = document.querySelectorAll('.place-checkbox');
-      checkboxes.forEach(checkbox => {
+    selectAllCheckbox.addEventListener("change", function () {
+      const checkboxes = document.querySelectorAll(".place-checkbox");
+      checkboxes.forEach((checkbox) => {
         checkbox.checked = this.checked;
       });
       updateDeleteSelectedButton();
@@ -3511,19 +4253,19 @@ async function deleteSelectedPlaces() {
 // Initialize place modal
 function initPlaceModal(placeId = null) {
   editingPlaceId = placeId;
-  const modal = document.getElementById('placeModal');
-  const modalLabel = document.getElementById('placeModalLabel');
-  const saveBtn = document.getElementById('savePlaceBtn');
+  const modal = document.getElementById("placeModal");
+  const modalLabel = document.getElementById("placeModalLabel");
+  const saveBtn = document.getElementById("savePlaceBtn");
 
   if (placeId) {
     // Edit mode
-    modalLabel.textContent = 'Edit Place';
-    saveBtn.textContent = 'Update Place';
+    modalLabel.textContent = "Edit Place";
+    saveBtn.textContent = "Update Place";
     loadPlaceForEdit(placeId);
   } else {
     // Add mode
-    modalLabel.textContent = 'Add New Place';
-    saveBtn.textContent = 'Save Place';
+    modalLabel.textContent = "Add New Place";
+    saveBtn.textContent = "Save Place";
     clearPlaceForm();
   }
 }
@@ -3536,11 +4278,13 @@ async function loadPlaceForEdit(placeId) {
 
     if (data.code === 1000) {
       const place = data.result;
-      document.getElementById('placeName').value = place.placeName || '';
-      document.getElementById('placeDescription').value = place.placeDescription || '';
-      document.getElementById('placeImage').value = place.image || '';
-      document.getElementById('placeRating').value = place.rating || 5.0;
-      document.getElementById('placeGpsCoordinates').value = place.gpsCoordinates || '';
+      document.getElementById("placeName").value = place.placeName || "";
+      document.getElementById("placeDescription").value =
+        place.placeDescription || "";
+      document.getElementById("placeImage").value = place.image || "";
+      document.getElementById("placeRating").value = place.rating || 5.0;
+      document.getElementById("placeGpsCoordinates").value =
+        place.gpsCoordinates || "";
     } else {
       Swal.fire({
         icon: 'error',
@@ -3560,16 +4304,16 @@ async function loadPlaceForEdit(placeId) {
 
 // Clear place form
 function clearPlaceForm() {
-  document.getElementById('placeName').value = '';
-  document.getElementById('placeDescription').value = '';
-  document.getElementById('placeImage').value = '';
-  document.getElementById('placeRating').value = '5.0';
-  document.getElementById('placeGpsCoordinates').value = '';
+  document.getElementById("placeName").value = "";
+  document.getElementById("placeDescription").value = "";
+  document.getElementById("placeImage").value = "";
+  document.getElementById("placeRating").value = "5.0";
+  document.getElementById("placeGpsCoordinates").value = "";
 }
 
 // Save place (create or update)
 async function savePlace() {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   if (!token) {
     Swal.fire({
       icon: 'error',
@@ -3580,11 +4324,11 @@ async function savePlace() {
   }
 
   const placeData = {
-    placeName: document.getElementById('placeName').value.trim(),
-    placeDescription: document.getElementById('placeDescription').value.trim(),
-    image: document.getElementById('placeImage').value.trim(),
-    rating: parseFloat(document.getElementById('placeRating').value),
-    gpsCoordinates: document.getElementById('placeGpsCoordinates').value.trim()
+    placeName: document.getElementById("placeName").value.trim(),
+    placeDescription: document.getElementById("placeDescription").value.trim(),
+    image: document.getElementById("placeImage").value.trim(),
+    rating: parseFloat(document.getElementById("placeRating").value),
+    gpsCoordinates: document.getElementById("placeGpsCoordinates").value.trim(),
   };
 
   // Validation
@@ -3600,17 +4344,17 @@ async function savePlace() {
   try {
     const url = editingPlaceId
       ? `/tourify/api/place/${editingPlaceId}`
-      : '/tourify/api/place';
+      : "/tourify/api/place";
 
-    const method = editingPlaceId ? 'PUT' : 'POST';
+    const method = editingPlaceId ? "PUT" : "POST";
 
     const response = await fetch(url, {
       method: method,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(placeData)
+      body: JSON.stringify(placeData),
     });
 
     const data = await response.json();
@@ -3623,7 +4367,9 @@ async function savePlace() {
       });
 
       // Close modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('placeModal'));
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("placeModal")
+      );
       if (modal) {
         modal.hide();
       }
@@ -3650,13 +4396,13 @@ async function savePlace() {
 // Edit place
 function editPlace(placeId) {
   initPlaceModal(placeId);
-  const modal = new bootstrap.Modal(document.getElementById('placeModal'));
+  const modal = new bootstrap.Modal(document.getElementById("placeModal"));
   modal.show();
 }
 
 // Delete place
 async function deletePlace(placeId) {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   if (!token) {
     Swal.fire({
       icon: 'error',
@@ -3679,10 +4425,10 @@ async function deletePlace(placeId) {
 
   try {
     const response = await fetch(`/tourify/api/place/${placeId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await response.json();

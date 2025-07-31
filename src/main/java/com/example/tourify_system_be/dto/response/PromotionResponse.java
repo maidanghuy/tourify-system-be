@@ -22,4 +22,5 @@ public class PromotionResponse {
     String description;
     Integer minPurchase;
     String createdBy; // Tên hoặc ID người tạo (tùy theo bạn muốn show gì)
+    String createdByUserName; // UserName của người tạo
 }

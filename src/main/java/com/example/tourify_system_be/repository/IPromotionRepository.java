@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface IPromotionRepository extends JpaRepository<Promotion, String> {
     Optional<Promotion> findByCode(String code);
     List<Promotion> findAllByStatus(String status);
+
+    //List all Promotion theo role
+    List<Promotion> findByCreateBy_UserId(String userId);
 }
