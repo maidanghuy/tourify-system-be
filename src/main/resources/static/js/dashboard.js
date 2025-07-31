@@ -504,7 +504,10 @@ const pages = {
                         </div>
                         <div class="col-12">
                           <label for="placeGpsCoordinates" class="form-label">GPS Coordinates</label>
-                          <input type="text" class="form-control" id="placeGpsCoordinates" placeholder="10.123,103.456">
+                          <div class="input-group">
+                            <input type="text" class="form-control" id="placeGpsCoordinates" placeholder="10.123,103.456">
+                            <button type="button" class="btn btn-outline-secondary" onclick="openMapModal()">Chọn từ bản đồ</button>
+                          </div>
                         </div>
                       </div>
                     </form>
@@ -3703,4 +3706,73 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
+}
+
+// === GOOGLE MAPS PICKER FOR PLACE (có search box) ===
+let map, marker, selectedLatLng, autocomplete;
+
+function openMapModal() {
+  const modal = new bootstrap.Modal(document.getElementById('mapModal'));
+  modal.show();
+
+  setTimeout(() => {
+    const gpsInput = document.getElementById('placeGpsCoordinates').value.trim();
+    let lat = 10.762622, lng = 106.660172;
+    if (gpsInput && gpsInput.includes(',')) {
+      const [latStr, lngStr] = gpsInput.split(',');
+      lat = parseFloat(latStr) || lat;
+      lng = parseFloat(lngStr) || lng;
+    }
+
+    if (!map) {
+      map = new google.maps.Map(document.getElementById('googleMap'), {
+        center: { lat, lng },
+        zoom: 13,
+      });
+      marker = new google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+        draggable: true,
+      });
+      map.addListener('click', function (e) {
+        placeMarker(e.latLng);
+      });
+      marker.addListener('dragend', function (e) {
+        placeMarker(e.latLng);
+      });
+      // Tích hợp search box
+      const input = document.getElementById('mapSearchBox');
+      autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ['geocode'],
+        componentRestrictions: { country: 'vn' }
+      });
+      autocomplete.bindTo('bounds', map);
+      autocomplete.addListener('place_changed', function () {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        map.panTo(place.geometry.location);
+        map.setZoom(16);
+        placeMarker(place.geometry.location);
+      });
+    } else {
+      map.setCenter({ lat, lng });
+      marker.setPosition({ lat, lng });
+      document.getElementById('mapSearchBox').value = '';
+    }
+    selectedLatLng = { lat, lng };
+  }, 300);
+}
+
+function placeMarker(latLng) {
+  marker.setPosition(latLng);
+  selectedLatLng = { lat: latLng.lat(), lng: latLng.lng() };
+}
+
+function confirmMapLocation() {
+  if (selectedLatLng) {
+    document.getElementById('placeGpsCoordinates').value =
+      selectedLatLng.lat.toFixed(6) + ',' + selectedLatLng.lng.toFixed(6);
+  }
+  const modal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
+  if (modal) modal.hide();
 }

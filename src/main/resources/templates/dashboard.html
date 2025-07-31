@@ -206,23 +206,42 @@
         </div>
     </div>
 
-<div class="modal fade" id="imageSuggestModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Phân tích ảnh với AI</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="file" id="aiImageFile" accept="image/*" class="form-control">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="suggestTourFromImage()">Tạo</button>
+    <div class="modal fade" id="imageSuggestModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Phân tích ảnh với AI</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" id="aiImageFile" accept="image/*" class="form-control">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="suggestTourFromImage()">Tạo</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Google Map Modal for Place GPS -->
+    <div class="modal fade" id="mapModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn vị trí trên bản đồ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="height:400px;">
+                    <input id="mapSearchBox" class="form-control mb-2" type="text" placeholder="Tìm địa điểm...">
+                    <div id="googleMap" style="width:100%;height:100%;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="confirmMapLocation()">Chọn vị trí này</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Google Map Modal -->
 
 
     <!-- Notification and Message Modals Here -->
@@ -231,7 +250,6 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script th:src="@{/js/index.js}"></script>
     <script th:src="@{/js/addTour.js}"></script>
     <script th:src="@{/js/dashboard.js}"></script>
