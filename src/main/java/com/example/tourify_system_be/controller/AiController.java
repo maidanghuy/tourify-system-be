@@ -37,6 +37,16 @@ public class AiController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/parse-excel")
+    public ResponseEntity<?> parseExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            List<Map<String, Object>> tours = suggestTourService.parseExcel(file);
+            return ResponseEntity.ok(tours);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
 }
 
