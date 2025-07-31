@@ -30,10 +30,20 @@ public class PlaceService {
         return placeRepository.findAll().stream().map(placeMapper::toPlaceResponse).toList();
     }
 
-    public PageResponse<PlaceResponse> getPlacesWithPagination(int page, int size) {
+    public PageResponse<PlaceResponse> getPlacesWithPagination(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<PlaceResponse> placePage = placeRepository.findAll(pageable)
-                .map(placeMapper::toPlaceResponse);
+        Page<PlaceResponse> placePage;
+
+        if (search != null && !search.trim().isEmpty()) {
+            // Search by place name or description
+            placePage = placeRepository.findByPlaceNameContainingIgnoreCaseOrPlaceDescriptionContainingIgnoreCase(
+                    search.trim(), search.trim(), pageable)
+                    .map(placeMapper::toPlaceResponse);
+        } else {
+            placePage = placeRepository.findAll(pageable)
+                    .map(placeMapper::toPlaceResponse);
+        }
+
         return PageResponse.fromPage(placePage);
     }
 
@@ -79,5 +89,19 @@ public class PlaceService {
             throw new AppException(ErrorCode.PLACE_NOT_FOUND, "Place not found with id: " + placeId);
         }
         placeRepository.deleteById(placeId);
+    }
+
+    public void deletePlaces(List<String> placeIds) {
+        if (placeIds == null || placeIds.isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_REQUEST, "No place IDs provided");
+        }
+
+        // Check if all places exist
+        List<Place> placesToDelete = placeRepository.findAllById(placeIds);
+        if (placesToDelete.size() != placeIds.size()) {
+            throw new AppException(ErrorCode.PLACE_NOT_FOUND, "Some places not found");
+        }
+
+        placeRepository.deleteAllById(placeIds);
     }
 }

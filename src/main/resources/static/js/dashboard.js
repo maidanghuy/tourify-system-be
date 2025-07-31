@@ -426,6 +426,14 @@ const pages = {
                   <!-- Add button bên phải -->
                   <div class="d-flex gap-2 flex-shrink-0">
                     <button
+                      class="btn btn-danger"
+                      id="deleteSelectedPlacesBtn"
+                      style="display: none;"
+                      onclick="deleteSelectedPlaces()"
+                    >
+                      <i class="bi bi-trash"></i> Delete Selected
+                    </button>
+                    <button
                       class="btn-mint-accent"
                       data-bs-toggle="modal"
                       data-bs-target="#placeModal"
@@ -441,7 +449,9 @@ const pages = {
                   <table class="mint-table w-100" id="placeTable">
                     <thead>
                       <tr>
-                        <th style="width:32px"><input type="checkbox" id="selectAllPlaces" /></th>
+                        <th style="width:32px">
+                          <input type="checkbox" id="selectAllPlaces" />
+                        </th>
                         <th style="min-width:180px">Place Name</th>
                         <th style="min-width:200px">Description</th>
                         <th style="min-width:120px">Rating</th>
@@ -1140,11 +1150,26 @@ function loadPage(pageKey) {
         const ids = Array.from(checked).map((cb) => cb.dataset.id);
 
         if (ids.length === 0) {
-          showPopup("warning", "Chú ý", "Vui lòng chọn ít nhất 1 tour để xóa.");
+          Swal.fire({
+            icon: 'warning',
+            title: 'Chú ý',
+            text: 'Vui lòng chọn ít nhất 1 tour để xóa.'
+          });
           return;
         }
-        if (!confirm(`Bạn có chắc muốn xóa ${ids.length} tour đã chọn?`))
-          return;
+
+        const result = await Swal.fire({
+          title: 'Xác nhận xóa',
+          text: `Bạn có chắc muốn xóa ${ids.length} tour đã chọn?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Có, xóa chúng!',
+          cancelButtonText: 'Hủy'
+        });
+
+        if (!result.isConfirmed) return;
 
         const token = localStorage.getItem("accessToken");
         let success = 0,
@@ -1163,11 +1188,11 @@ function loadPage(pageKey) {
           })
         );
 
-        showPopup(
-          fail === 0 ? "success" : "warning",
-          "Kết quả",
-          `Xóa thành công ${success} tour${fail ? `, thất bại ${fail}` : ""}.`
-        );
+        Swal.fire({
+          icon: fail === 0 ? 'success' : 'warning',
+          title: 'Kết quả',
+          text: `Xóa thành công ${success} tour${fail ? `, thất bại ${fail}` : ""}.`
+        });
         loadTourList();
       });
     }, 0);
@@ -1664,7 +1689,14 @@ function viewTour(tourId) {
 }
 
 async function deleteTour(tourId) {
-  if (!confirm("Bạn có chắc muốn xóa tour này?")) return;
+  const result = await showConfirmDialog({
+    title: 'Xác nhận xóa',
+    text: 'Bạn có chắc muốn xóa tour này?',
+    confirmButtonText: 'Có, xóa nó!'
+  });
+
+  if (!result.isConfirmed) return;
+
   const token = localStorage.getItem("accessToken");
 
   try {
@@ -1675,16 +1707,30 @@ async function deleteTour(tourId) {
     const result = await res.json();
 
     if (res.ok && result.code === 1000) {
-      showPopup("success", "Thành công", "Xóa tour thành công");
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Xóa tour thành công',
+        timer: 2000,
+        showConfirmButton: false
+      });
       // → Reload lại danh sách (SPA) hoặc reload toàn bộ trang
       loadTourList(); // nếu bạn muốn refresh chỉ table
       // window.location.reload(); // nếu bạn muốn reload hẳn trang
     } else {
-      showPopup("danger", "Thất bại", result.message || "Xóa tour thất bại");
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: result.message || "Xóa tour thất bại"
+      });
     }
   } catch (err) {
     console.error(err);
-    showPopup("danger", "Lỗi", "Không thể kết nối máy chủ");
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không thể kết nối máy chủ'
+    });
   }
 }
 
@@ -1762,19 +1808,49 @@ document.getElementById("logout-link")?.addEventListener("click", function () {
 });
 
 // ==== TOAST POPUP - Hiển thị thông báo góc phải ====
-/**
- * Hiển thị popup ở góc phải (Bootstrap Toast)
- * @param {'success'|'danger'} type
- * @param {string} title
- * @param {string} message
- */
 function showPopup(type, title, message) {
-  if (!toastEl) return;
-  const header = toastEl.querySelector(".toast-header");
-  header.className = `toast-header bg-${type} text-white`;
-  document.getElementById("toastTitle").textContent = title;
-  document.getElementById("toastBody").textContent = message;
-  toast.show();
+  // Legacy function - now using Swal.fire instead
+  Swal.fire({
+    icon: type === 'success' ? 'success' :
+      type === 'error' || type === 'danger' ? 'error' :
+        type === 'warning' ? 'warning' : 'info',
+    title: title,
+    text: message,
+    timer: type === 'success' ? 2000 : undefined,
+    showConfirmButton: type !== 'success'
+  });
+}
+
+// Utility function for consistent Swal popups
+function showSwalPopup(options) {
+  const defaultOptions = {
+    timer: 2000,
+    showConfirmButton: false,
+    toast: false,
+    position: 'center'
+  };
+
+  return Swal.fire({
+    ...defaultOptions,
+    ...options
+  });
+}
+
+// Confirmation dialog utility
+async function showConfirmDialog(options) {
+  const defaultOptions = {
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Có, tiếp tục!',
+    cancelButtonText: 'Hủy'
+  };
+
+  return Swal.fire({
+    ...defaultOptions,
+    ...options
+  });
 }
 
 // ==== JWT decode helpers ====
@@ -2556,7 +2632,17 @@ async function loadDraftToursForSeller() {
 }
 
 async function approveTour(tourId) {
-  if (!confirm("Bạn chắc chắn muốn duyệt tour này?")) return;
+  const result = await showConfirmDialog({
+    title: 'Xác nhận duyệt',
+    text: 'Bạn chắc chắn muốn duyệt tour này?',
+    icon: 'question',
+    confirmButtonColor: '#28a745',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Có, duyệt nó!'
+  });
+
+  if (!result.isConfirmed) return;
+
   const token = localStorage.getItem("accessToken");
   try {
     const res = await fetch(`/tourify/api/tours/${tourId}/approve`, {
@@ -2565,17 +2651,34 @@ async function approveTour(tourId) {
     });
     if (!res.ok) throw new Error("Approve failed");
     // Thông báo
-    showPopup && showPopup("success", "Thành công", "Tour đã được duyệt!");
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: 'Tour đã được duyệt!',
+      timer: 2000,
+      showConfirmButton: false
+    });
     // Reload lại bảng
     loadDraftToursForSeller();
   } catch (e) {
-    showPopup && showPopup("danger", "Thất bại", "Không thể duyệt tour!");
+    Swal.fire({
+      icon: 'error',
+      title: 'Thất bại',
+      text: 'Không thể duyệt tour!'
+    });
     console.error(e);
   }
 }
 
 async function deleteTour(tourId) {
-  if (!confirm("Bạn chắc chắn muốn xóa tour này?")) return;
+  const result = await showConfirmDialog({
+    title: 'Xác nhận xóa',
+    text: 'Bạn chắc chắn muốn xóa tour này?',
+    confirmButtonText: 'Có, xóa nó!'
+  });
+
+  if (!result.isConfirmed) return;
+
   const token = localStorage.getItem("accessToken");
   try {
     const res = await fetch(`/tourify/api/tours/${tourId}`, {
@@ -2584,19 +2687,27 @@ async function deleteTour(tourId) {
     });
     const data = await res.json();
     if (res.ok && data.code === 1000) {
-      showPopup &&
-        showPopup(
-          "success",
-          "Thành công",
-          data.message || "Xóa tour thành công!"
-        );
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: data.message || "Xóa tour thành công!",
+        timer: 2000,
+        showConfirmButton: false
+      });
       loadDraftToursForSeller(); // Reload lại bảng, hoặc gọi hàm tương tự bạn đã dùng
     } else {
-      showPopup &&
-        showPopup("danger", "Thất bại", data.message || "Xóa tour thất bại!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: data.message || "Xóa tour thất bại!"
+      });
     }
   } catch (e) {
-    showPopup && showPopup("danger", "Lỗi", "Không thể kết nối máy chủ!");
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không thể kết nối máy chủ!'
+    });
     console.error(e);
   }
 }
@@ -3096,6 +3207,7 @@ let placesData = [];
 let currentPlacePage = 0;
 let placePageSize = 10;
 let editingPlaceId = null;
+let currentSearchTerm = '';
 
 // Initialize Place page
 function initPlacesPage() {
@@ -3106,7 +3218,8 @@ function initPlacesPage() {
 // Load places from API
 async function loadPlaces() {
   try {
-    const response = await fetch('/tourify/api/place/paged?page=' + currentPlacePage + '&size=' + placePageSize);
+    const searchParam = currentSearchTerm ? `&search=${encodeURIComponent(currentSearchTerm)}` : '';
+    const response = await fetch('/tourify/api/place/paged?page=' + currentPlacePage + '&size=' + placePageSize + searchParam);
     const data = await response.json();
 
     if (data.code === 1000) {
@@ -3115,11 +3228,19 @@ async function loadPlaces() {
       renderPlacePagination(data.result);
     } else {
       console.error('Failed to load places:', data.message);
-      showPopup('error', 'Error', 'Failed to load places');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load places'
+      });
     }
   } catch (error) {
     console.error('Error loading places:', error);
-    showPopup('error', 'Error', 'Network error while loading places');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Network error while loading places'
+    });
   }
 }
 
@@ -3135,7 +3256,7 @@ function renderPlacesTable() {
       <tr>
         <td colspan="6" class="text-center text-muted py-4">
           <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-          No places found
+          ${currentSearchTerm ? 'No places found matching your search' : 'No places found'}
         </td>
       </tr>
     `;
@@ -3237,9 +3358,10 @@ function setupPlaceEventListeners() {
   const searchInput = document.getElementById('placeSearchInput');
   if (searchInput) {
     searchInput.addEventListener('input', debounce(function () {
-      // Implement search functionality if needed
-      console.log('Searching for:', this.value);
-    }, 300));
+      currentSearchTerm = this.value.trim();
+      currentPlacePage = 0; // Reset to first page when searching
+      loadPlaces();
+    }, 500));
   }
 
   // Select all functionality
@@ -3250,6 +3372,119 @@ function setupPlaceEventListeners() {
       checkboxes.forEach(checkbox => {
         checkbox.checked = this.checked;
       });
+      updateDeleteSelectedButton();
+    });
+  }
+
+  // Individual checkbox functionality
+  document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('place-checkbox')) {
+      updateSelectAllCheckbox();
+      updateDeleteSelectedButton();
+    }
+  });
+}
+
+// Update select all checkbox
+function updateSelectAllCheckbox() {
+  const selectAllCheckbox = document.getElementById('selectAllPlaces');
+  const checkboxes = document.querySelectorAll('.place-checkbox');
+  const checkedCheckboxes = document.querySelectorAll('.place-checkbox:checked');
+
+  if (checkboxes.length === 0) {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+  } else if (checkedCheckboxes.length === 0) {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+  } else if (checkedCheckboxes.length === checkboxes.length) {
+    selectAllCheckbox.checked = true;
+    selectAllCheckbox.indeterminate = false;
+  } else {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = true;
+  }
+}
+
+// Update delete selected button visibility
+function updateDeleteSelectedButton() {
+  const deleteBtn = document.getElementById('deleteSelectedPlacesBtn');
+  const checkedCheckboxes = document.querySelectorAll('.place-checkbox:checked');
+
+  if (checkedCheckboxes.length > 0) {
+    deleteBtn.style.display = 'inline-block';
+    deleteBtn.textContent = `Delete Selected (${checkedCheckboxes.length})`;
+  } else {
+    deleteBtn.style.display = 'none';
+  }
+}
+
+// Delete selected places
+async function deleteSelectedPlaces() {
+  const checkedCheckboxes = document.querySelectorAll('.place-checkbox:checked');
+  if (checkedCheckboxes.length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Warning',
+      text: 'Please select places to delete'
+    });
+    return;
+  }
+
+  const placeIds = Array.from(checkedCheckboxes).map(cb => cb.value);
+
+  const result = await showConfirmDialog({
+    title: 'Confirm Delete',
+    text: `Are you sure you want to delete ${placeIds.length} selected place(s)?`,
+    confirmButtonText: 'Yes, delete them!'
+  });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please login to continue'
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch('/tourify/api/place/bulk', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(placeIds)
+    });
+
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      showSwalPopup({
+        icon: 'success',
+        title: 'Success',
+        text: `Successfully deleted ${placeIds.length} place(s)`
+      });
+      loadPlaces(); // Reload the list
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Failed to delete places'
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting places:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Network error while deleting places'
     });
   }
 }
@@ -3288,11 +3523,19 @@ async function loadPlaceForEdit(placeId) {
       document.getElementById('placeRating').value = place.rating || 5.0;
       document.getElementById('placeGpsCoordinates').value = place.gpsCoordinates || '';
     } else {
-      showPopup('error', 'Error', 'Failed to load place data');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load place data'
+      });
     }
   } catch (error) {
     console.error('Error loading place:', error);
-    showPopup('error', 'Error', 'Network error while loading place');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Network error while loading place'
+    });
   }
 }
 
@@ -3309,7 +3552,11 @@ function clearPlaceForm() {
 async function savePlace() {
   const token = localStorage.getItem('accessToken');
   if (!token) {
-    showPopup('error', 'Error', 'Please login to continue');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please login to continue'
+    });
     return;
   }
 
@@ -3323,7 +3570,11 @@ async function savePlace() {
 
   // Validation
   if (!placeData.placeName) {
-    showPopup('error', 'Validation Error', 'Place name is required');
+    Swal.fire({
+      icon: 'error',
+      title: 'Validation Error',
+      text: 'Place name is required'
+    });
     return;
   }
 
@@ -3346,7 +3597,11 @@ async function savePlace() {
     const data = await response.json();
 
     if (data.code === 1000) {
-      showPopup('success', 'Success', editingPlaceId ? 'Place updated successfully' : 'Place created successfully');
+      showSwalPopup({
+        icon: 'success',
+        title: 'Success',
+        text: editingPlaceId ? 'Place updated successfully' : 'Place created successfully'
+      });
 
       // Close modal
       const modal = bootstrap.Modal.getInstance(document.getElementById('placeModal'));
@@ -3357,11 +3612,19 @@ async function savePlace() {
       // Reload places
       loadPlaces();
     } else {
-      showPopup('error', 'Error', data.message || 'Operation failed');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Operation failed'
+      });
     }
   } catch (error) {
     console.error('Error saving place:', error);
-    showPopup('error', 'Error', 'Network error while saving place');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Network error while saving place'
+    });
   }
 }
 
@@ -3376,12 +3639,22 @@ function editPlace(placeId) {
 async function deletePlace(placeId) {
   const token = localStorage.getItem('accessToken');
   if (!token) {
-    showPopup('error', 'Error', 'Please login to continue');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Please login to continue'
+    });
     return;
   }
 
   // Confirm deletion
-  if (!confirm('Are you sure you want to delete this place?')) {
+  const result = await showConfirmDialog({
+    title: 'Confirm Delete',
+    text: 'Are you sure you want to delete this place?',
+    confirmButtonText: 'Yes, delete it!'
+  });
+
+  if (!result.isConfirmed) {
     return;
   }
 
@@ -3396,14 +3669,26 @@ async function deletePlace(placeId) {
     const data = await response.json();
 
     if (data.code === 1000) {
-      showPopup('success', 'Success', 'Place deleted successfully');
+      showSwalPopup({
+        icon: 'success',
+        title: 'Success',
+        text: 'Place deleted successfully'
+      });
       loadPlaces();
     } else {
-      showPopup('error', 'Error', data.message || 'Failed to delete place');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message || 'Failed to delete place'
+      });
     }
   } catch (error) {
     console.error('Error deleting place:', error);
-    showPopup('error', 'Error', 'Network error while deleting place');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Network error while deleting place'
+    });
   }
 }
 
@@ -3419,4 +3704,3 @@ function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
-

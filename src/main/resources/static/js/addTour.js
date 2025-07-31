@@ -182,7 +182,11 @@ async function handleAddTour(e) {
       title: 'Network error!',
       text: 'Could not connect to server.'
     });
-    alert("Lỗi kết nối đến máy chủ.");
+    Swal.fire({
+      icon: 'error',
+      title: 'Network Error',
+      text: 'Lỗi kết nối đến máy chủ.'
+    });
   }
 }
 
