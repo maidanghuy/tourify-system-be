@@ -283,4 +283,31 @@ public class PromotionService {
             promotionRepository.delete(promotion);
         }
     }
+
+    //List Promotion theo role (cả active và inactive)
+    public List<PromotionResponse> listPromotions(String token) {
+        String jwt = token.replace("Bearer ", "");
+        if (!jwtUtil.validateToken(jwt))
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên đăng nhập!");
+
+        String userId = jwtUtil.extractUserId(jwt);
+        String role = jwtUtil.extractRole(jwt);
+
+        List<Promotion> promotions;
+
+        if ("ADMIN".equalsIgnoreCase(role)) {
+            // Admin: lấy tất cả
+            promotions = promotionRepository.findAll();
+        } else if ("SUB_COMPANY".equalsIgnoreCase(role)) {
+            // SubCompany: chỉ lấy promotions do mình tạo
+            promotions = promotionRepository.findByCreateBy_UserId(userId);
+        } else {
+            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Bạn không có quyền xem danh sách promotions");
+        }
+
+        return promotions.stream()
+                .map(promotionMapper::toPromotionResponse)
+                .toList();
+    }
+
 }
