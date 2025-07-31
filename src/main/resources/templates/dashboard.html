@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,226 +12,285 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/index.css}" />
     <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/places.css}" />
 
 </head>
+
 <body>
-<div class="sidebar d-flex flex-column p-3">
-    <h4 class="text-center fw-bold mb-4">Dashlab</h4>
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a id="dashboardLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('dashboard')">
-                <i class="fas fa-th-large me-2"></i> Dashboard
+    <div class="sidebar d-flex flex-column p-3">
+        <h4 class="text-center fw-bold mb-4">Dashlab</h4>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a id="dashboardLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('dashboard')">
+                    <i class="fas fa-th-large me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <!-- CHÚ Ý: menu cha có id="tourMenuLink" -->
+                <a id="tourMenuLink" class="nav-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#tourSubmenu" role="button" aria-expanded="false"
+                    aria-controls="tourSubmenu">
+                    <span><i class="fas fa-suitcase me-2"></i> Tour</span>
+                    <i class="fas fa-chevron-down small toggle-icon"></i>
+                </a>
+                <div class="collapse" id="tourSubmenu">
+                    <ul class="nav flex-column ms-3">
+                        <li class="nav-item">
+                            <a id="tourListLink" class="nav-link" href="javascript:void(0)"
+                                onclick="loadPage('tourList')">
+                                <i class="fas fa-list me-2"></i> Tour List
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="addTourLink" class="nav-link" href="javascript:void(0)"
+                                onclick="loadPage('addTour')">
+                                <i class="fas fa-plus me-2"></i> Add Tour
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <!-- CHÚ Ý: menu cha có id="promotionMenuLink" -->
+                <a id="promotionMenuLink" class="nav-link d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#promotionSubmenu" role="button" aria-expanded="false"
+                    aria-controls="promotionSubmenu">
+                    <span><i class="fas fa-gift me-2"></i> Promotion</span>
+                    <i class="fas fa-chevron-down small toggle-icon"></i>
+                </a>
+                <div class="collapse" id="promotionSubmenu">
+                    <ul class="nav flex-column ms-3">
+                        <li class="nav-item">
+                            <a id="promotionListLink" class="nav-link" href="javascript:void(0)"
+                                onclick="loadPage('promotionList')">
+                                <i class="fas fa-list me-2"></i> Promotion List
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a id="addPromotionLink" class="nav-link" href="javascript:void(0)"
+                                onclick="loadPage('addPromotion')">
+                                <i class="fas fa-plus me-2"></i> Add Promotion
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a id="categoriesLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('categories')">
+                    <i class="fas fa-th-list me-2"></i> Categories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="placesLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('places')">
+                    <i class="fas fa-map-marker-alt me-2"></i> Places
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="bookingLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('booking')">
+                    <i class="fas fa-calendar-alt me-2"></i> Booking
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="customersLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('customers')">
+                    <i class="fas fa-users me-2"></i> Accounts
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="sellerLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('seller')">
+                    <i class="fas fa-store me-2"></i> Tour By Company
+                </a>
+            </li>
+            <li class="nav-item">
+                <a id="analyticsLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('analytics')">
+                    <i class="fas fa-chart-line me-2"></i> Analytics
+                </a>
+            </li>
+        </ul>
+
+    </div>
+
+    <div class="topbar d-flex justify-content-between align-items-center p-3 bg-light">
+        <div class="d-flex align-items-center gap-4">
+            <!-- Nút Home mới -->
+            <a href="/tourify/landing" class="btn btn-link text-dark fs-4 px-2 py-0" id="home-link"
+                style="text-decoration:none;">
+                <i class="fas fa-house"></i>
+            </a>
+            <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                <i class="fas fa-bell fa-lg"></i><span>3</span>
+            </button>
+            <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#messageModal">
+                <i class="fas fa-envelope fa-lg"></i><span>64</span>
+            </button>
+        </div>
+        <!-- Message Icon (Realtime Chat) -->
+        <li class="nav-item position-relative list-unstyled me-2">
+            <a th:href="@{/user/message}" class="nav-link nav-custom" id="message-link">
+                <i class="fas fa-comment-dots fa-lg"></i>
+                <span id="unread-badge"
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    style="font-size: 11px; min-width:18px; display: none;">
+                    0
+                </span>
             </a>
         </li>
-        <li class="nav-item">
-            <!-- CHÚ Ý: menu cha có id="tourMenuLink" -->
-            <a id="tourMenuLink" class="nav-link d-flex justify-content-between align-items-center"
-               data-bs-toggle="collapse" data-bs-target="#tourSubmenu" role="button" aria-expanded="false" aria-controls="tourSubmenu">
-                <span><i class="fas fa-suitcase me-2"></i> Tour</span>
-                <i class="fas fa-chevron-down small toggle-icon"></i>
-            </a>
-            <div class="collapse" id="tourSubmenu">
-                <ul class="nav flex-column ms-3">
-                    <li class="nav-item">
-                        <a id="tourListLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('tourList')">
-                            <i class="fas fa-list me-2"></i> Tour List
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="addTourLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('addTour')">
-                            <i class="fas fa-plus me-2"></i> Add Tour
-                        </a>
-                    </li>
-                </ul>
+        <div class="d-flex align-items-center">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-2" width="32"
+                height="32" />
+            <span id="usernameDisplay" class="fw-semibold"></span>
+        </div>
+        <!-- ... -->
+        <button id="login-link" class="btn btn-success btn-sm ms-3" style="display: none;">
+            <i class="fas fa-sign-in-alt me-1"></i> Login
+        </button>
+        <button id="logout-link" class="btn btn-outline-success btn-sm ms-3">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+        </button>
+        <!-- ... -->
+
+
+    </div>
+
+    <div class="main" id="mainContent">
+        <h1 class="p-4">Welcome to the Dashboard</h1>
+    </div>
+    <!-- Media Modal -->
+    <div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-4">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="mediaModalLabel">Add Media</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label class="form-label">Upload from Device</label>
+                    <input type="file" id="mediaFileInput" class="form-control mb-3" accept="image/*,video/*">
+
+                    <label class="form-label">Or enter URL</label>
+                    <input type="text" id="mediaUrlInput" class="form-control"
+                        placeholder="https://example.com/media.jpg or .mp4">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="addMedia()">Add</button>
+                </div>
             </div>
-        </li>
-        <li class="nav-item">
-            <a id="categoriesLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('categories')">
-                <i class="fas fa-th-list me-2"></i> Categories
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="bookingLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('booking')">
-                <i class="fas fa-calendar-alt me-2"></i> Booking
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="customersLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('customers')">
-                <i class="fas fa-users me-2"></i> Accounts
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="sellerLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('seller')">
-                <i class="fas fa-store me-2"></i> Tour By Company
-            </a>
-        </li>
-        <li class="nav-item">
-            <a id="analyticsLink" class="nav-link" href="javascript:void(0)" onclick="loadPage('analytics')">
-                <i class="fas fa-chart-line me-2"></i> Analytics
-            </a>
-        </li>
-    </ul>
-
-</div>
-
-<div class="topbar d-flex justify-content-between align-items-center p-3 bg-light">
-    <div class="d-flex align-items-center gap-4">
-        <!-- Nút Home mới -->
-        <a href="/tourify/landing" class="btn btn-link text-dark fs-4 px-2 py-0" id="home-link" style="text-decoration:none;">
-            <i class="fas fa-house"></i>
-        </a>
-        <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#notificationModal">
-            <i class="fas fa-bell fa-lg"></i><span>3</span>
-        </button>
-        <button class="icon-button icon-badge" data-bs-toggle="modal" data-bs-target="#messageModal">
-            <i class="fas fa-envelope fa-lg"></i><span>64</span>
-        </button>
+        </div>
     </div>
-    <!-- Message Icon (Realtime Chat) -->
-    <li class="nav-item position-relative list-unstyled me-2">
-        <a th:href="@{/user/message}" class="nav-link nav-custom" id="message-link">
-            <i class="fas fa-comment-dots fa-lg"></i>
-            <span id="unread-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  style="font-size: 11px; min-width:18px; display: none;">
-            0
-        </span>
-        </a>
-    </li>
-    <div class="d-flex align-items-center">
-        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-2" width="32" height="32" />
-        <span id="usernameDisplay" class="fw-semibold"></span>
+    <!-- ✅ Success Toast (top right) -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    🎉 Tour created successfully!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
     </div>
-    <!-- ... -->
-    <button id="login-link" class="btn btn-success btn-sm ms-3" style="display: none;">
-        <i class="fas fa-sign-in-alt me-1"></i> Login
-    </button>
-    <button id="logout-link" class="btn btn-outline-success btn-sm ms-3">
-        <i class="fas fa-sign-out-alt me-1"></i> Logout
-    </button>
-    <!-- ... -->
 
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toastBody">
+                Nội dung…
+            </div>
+        </div>
+    </div>
 
-</div>
-
-<div class="main" id="mainContent">
-    <h1 class="p-4">Welcome to the Dashboard</h1>
-</div>
-<!-- Media Modal -->
-<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow rounded-4">
+<div class="modal fade" id="imageSuggestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="mediaModalLabel">Add Media</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Phân tích ảnh với AI</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body">
-                <label class="form-label">Upload from Device</label>
-                <input type="file" id="mediaFileInput" class="form-control mb-3" accept="image/*,video/*">
-
-                <label class="form-label">Or enter URL</label>
-                <input type="text" id="mediaUrlInput" class="form-control" placeholder="https://example.com/media.jpg or .mp4">
+                <input type="file" id="aiImageFile" accept="image/*" class="form-control">
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="addMedia()">Add</button>
+                <button class="btn btn-primary" onclick="suggestTourFromImage()">Tạo</button>
             </div>
         </div>
     </div>
 </div>
-<!-- ✅ Success Toast (top right) -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
-    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
-                🎉 Tour created successfully!
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-</div>
-
-<!-- Toast container -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
-    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto" id="toastTitle">Thông báo</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body" id="toastBody">
-            Nội dung…
-        </div>
-    </div>
-</div>
 
 
-<!-- Notification and Message Modals Here -->
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Notification and Message Modals Here -->
 
-<script th:src="@{/js/index.js}"></script>
-<script th:src="@{/js/addTour.js}"></script>
-<script th:src="@{/js/dashboard.js}"></script>
-<script th:src="@{/js/logout.js}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    function parseJwt(token) {
-        try {
-            return JSON.parse(atob(token.split('.')[1]));
-        } catch (e) { return null; }
-    }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    const accessToken = localStorage.getItem('accessToken');
-    const user = parseJwt(accessToken);
-    const userId = user && user.userId;
-    const userName = user && user.userName; // Lấy userName từ JWT nếu có
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/addTour.js}"></script>
+    <script th:src="@{/js/dashboard.js}"></script>
+    <script th:src="@{/js/logout.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function parseJwt(token) {
+            try {
+                return JSON.parse(atob(token.split('.')[1]));
+            } catch (e) { return null; }
+        }
 
-    let stompClient = null;
+        const accessToken = localStorage.getItem('accessToken');
+        const user = parseJwt(accessToken);
+        const userId = user && user.userId;
+        const userName = user && user.userName; // Lấy userName từ JWT nếu có
 
-    function connect() {
-        const socket = new SockJS('/tourify/ws');
-        stompClient = Stomp.over(socket);
+        let stompClient = null;
 
-        stompClient.connect(
-            { Authorization: 'Bearer ' + accessToken },
-            function (frame) {
-                // SUBSCRIBE về đúng đích danh userId (Websocket cá nhân)
-                stompClient.subscribe(`/user/queue/messages`, function (message) {
-                    const msg = JSON.parse(message.body);
-                    // Hiện tin nhắn đến
-                    showMessage(msg.senderId, msg.senderName, msg.content);
-                });
-            }
-        );
-    }
+        function connect() {
+            const socket = new SockJS('/tourify/ws');
+            stompClient = Stomp.over(socket);
 
-    function sendMsg() {
-        const receiverId = document.getElementById('receiverId').value.trim();
-        const content = document.getElementById('messageContent').value.trim();
-        if (!receiverId || !content) return;
-        stompClient.send(
-            "/app/chat.private.send",
-            { Authorization: "Bearer " + accessToken },
-            JSON.stringify({
-                receiverId: receiverId,
-                content: content
-            })
-        );
-        // Hiện luôn tin nhắn mình vừa gửi
-        showMessage(userId, userName || "Bạn", content);
-        document.getElementById('messageContent').value = '';
-    }
+            stompClient.connect(
+                { Authorization: 'Bearer ' + accessToken },
+                function (frame) {
+                    // SUBSCRIBE về đúng đích danh userId (Websocket cá nhân)
+                    stompClient.subscribe(`/user/queue/messages`, function (message) {
+                        const msg = JSON.parse(message.body);
+                        // Hiện tin nhắn đến
+                        showMessage(msg.senderId, msg.senderName, msg.content);
+                    });
+                }
+            );
+        }
 
-    function showMessage(senderId, senderName, content) {
-        const chatBox = document.getElementById('chatBox');
-        const isMine = senderId === userId;
-        chatBox.innerHTML += `
+        function sendMsg() {
+            const receiverId = document.getElementById('receiverId').value.trim();
+            const content = document.getElementById('messageContent').value.trim();
+            if (!receiverId || !content) return;
+            stompClient.send(
+                "/app/chat.private.send",
+                { Authorization: "Bearer " + accessToken },
+                JSON.stringify({
+                    receiverId: receiverId,
+                    content: content
+                })
+            );
+            // Hiện luôn tin nhắn mình vừa gửi
+            showMessage(userId, userName || "Bạn", content);
+            document.getElementById('messageContent').value = '';
+        }
+
+        function showMessage(senderId, senderName, content) {
+            const chatBox = document.getElementById('chatBox');
+            const isMine = senderId === userId;
+            chatBox.innerHTML += `
             <div style="margin:5px 0; text-align:${isMine ? 'right' : 'left'}">
                 <span style="font-weight:bold; color:${isMine ? '#20b876' : '#222'}">${isMine ? "Bạn" : senderName}:</span>
                 <span style="background:${isMine ? '#e6f9f0' : '#f3f3f3'}; border-radius:7px; padding:4px 10px; margin-left:5px; display:inline-block; max-width:180px; word-break:break-word;">
@@ -238,10 +298,11 @@
                 </span>
             </div>
         `;
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
-    connect();
-</script>
+        connect();
+    </script>
 </body>
+
 </html>

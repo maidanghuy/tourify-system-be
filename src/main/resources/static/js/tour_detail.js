@@ -90,7 +90,7 @@ fetch(`/tourify/api/tours/${tourId}`)
       document.querySelectorAll(".thumbnail").forEach(el => {
         el.src = tour.thumbnail || "default.jpg";
       });
-
+        document.title = `Tourify - ${tour.placeName} - ${tour.tourName}`;
       // --- XỬ LÝ START DAY & END DAY ---
       const startDayEl = document.querySelector('.start-day');
       const endDayEl = document.querySelector('.end-day');

@@ -325,10 +325,21 @@ const pages = {
         
         
                 <div>
-                    <button class="btn btn-outline-danger">Cancel</button>
+                    <button class="btn btn-outline-danger" onclick="location.reload()">Cancel</button>
                     <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
+                    <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
+                        <i class="bi bi-robot"></i> AI Suggest
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="openImageSuggestModal()">
+                            <i class="bi bi-image"></i> AI Image
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="generateItineraryWithAI()">
+                      <i class="bi bi-map"></i> AI Itinerary & Price
+                    </button>
                 </div>
             </div>
+            <!-- AI Itinerary Result -->
+            <div id="itineraryContainer" class="mt-3"></div>
           </div>
           `,
   },
@@ -395,11 +406,115 @@ const pages = {
                   </ul>
                 </div>
               </div>
-          </div>  
+            </div>
           `,
   },
 
-  /* === 5. BOOKING === */
+  /* === 5. PLACES === */
+  places: {
+    title: "Places",
+    breadcrumbs: ["dashboard"],
+    content: `
+          <div class="container py-4">
+              <div class="admin-card p-4">
+                <!-- Thanh công cụ trên đầu: Search + Add button -->
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                  <!-- Search bên trái -->
+                  <div class="flex-grow-1" style="min-width:220px; max-width:520px;">
+                    <input
+                      class="form-control-mint w-100"
+                      type="text"
+                      id="placeSearchInput"
+                      placeholder="Search places..."
+                    />
+                  </div>
+                  <!-- Add button bên phải -->
+                  <div class="d-flex gap-2 flex-shrink-0">
+                    <button
+                      class="btn-mint-accent"
+                      data-bs-toggle="modal"
+                      data-bs-target="#placeModal"
+                      onclick="initPlaceModal()"
+                    >
+                      <i class="bi bi-plus"></i> Add Place
+                    </button>
+                  </div>
+                </div>
+            
+                <!-- Table -->
+                <div class="table-responsive-mint">
+                  <table class="mint-table w-100" id="placeTable">
+                    <thead>
+                      <tr>
+                        <th style="width:32px"><input type="checkbox" id="selectAllPlaces" /></th>
+                        <th style="min-width:180px">Place Name</th>
+                        <th style="min-width:200px">Description</th>
+                        <th style="min-width:120px">Rating</th>
+                        <th style="min-width:120px">GPS Coordinates</th>
+                        <th style="min-width:90px">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="placeTableBody">
+                      <!-- JS sẽ render dữ liệu vào đây -->
+                    </tbody>
+                  </table>
+                </div>
+            
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                  <div class="small text-muted" id="placePaginationInfo">Showing 0-0 from 0</div>
+                  <ul class="pagination-mint mb-0" id="placePagination">
+                    <!-- JS sẽ render pagination -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Place Modal -->
+            <div class="modal fade" id="placeModal" tabindex="-1" aria-labelledby="placeModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="placeModalLabel">Add New Place</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="placeForm">
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label for="placeName" class="form-label">Place Name *</label>
+                          <input type="text" class="form-control" id="placeName" required>
+                        </div>
+                        <div class="col-12">
+                          <label for="placeDescription" class="form-label">Description</label>
+                          <textarea class="form-control" id="placeDescription" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="placeImage" class="form-label">Image URL</label>
+                          <input type="url" class="form-control" id="placeImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="col-md-6">
+                          <label for="placeRating" class="form-label">Rating</label>
+                          <input type="number" class="form-control" id="placeRating" min="0" max="5" step="0.1" value="5.0">
+                        </div>
+                        <div class="col-12">
+                          <label for="placeGpsCoordinates" class="form-label">GPS Coordinates</label>
+                          <input type="text" class="form-control" id="placeGpsCoordinates" placeholder="10.123,103.456">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="savePlaceBtn" onclick="savePlace()">Save Place</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `,
+  },
+
+  /* === 6. BOOKING === */
   booking: {
     title: "Booking",
     breadcrumbs: ["dashboard"],
@@ -471,7 +586,7 @@ const pages = {
           `,
   },
 
-  /* === 6. CUSTOMERS === */
+  /* === 7. CUSTOMERS === */
   customers: {
     title: "Account List",
     breadcrumbs: ["dashboard"],
@@ -541,7 +656,7 @@ const pages = {
         `,
   },
 
-  /* === 7. SELLERS === */
+  /* === 8. SELLERS === */
   seller: {
     title: "List Tour Wait Approve",
     breadcrumbs: ["dashboard"],
@@ -603,11 +718,11 @@ const pages = {
           `,
   },
 
-  /* === 8. ANALYTICS === */
+  /* === 9. ANALYTICS === */
   analytics: {
-          title: "Analytics",
-          breadcrumbs: ["dashboard"],
-          content: `
+    title: "Analytics",
+    breadcrumbs: ["dashboard"],
+    content: `
           <div class="container-fluid py-4">
   <!-- Bộ lọc Khoảng Thời Gian -->
   <div class="d-flex align-items-end gap-3 mb-4 flex-wrap">
@@ -852,6 +967,86 @@ const pages = {
 
           `,
   },
+
+  /* === 10. ADD PROMOTION === */
+  addPromotion: {
+    title: "Add Promotion",
+    breadcrumbs: ["dashboard", "promotionList"],
+    content: `
+      <div class="container-fluid px-4 py-4">
+        <div class="row">
+          <div >
+            <div class="card p-4">
+              <div class="form-section-title">Promotion Information</div>
+              <input type="text" id="promotionCode" class="form-control mb-3" placeholder="Promotion code...">
+              <textarea id="promotionDescription" class="form-control mb-3" rows="2" placeholder="Description..."></textarea>
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Quantity</label>
+                  <input class="form-control" id="promotionQuantity" type="number" min="1" placeholder="Quantity">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Min Purchase</label>
+                  <input class="form-control" id="promotionMinPurchase" type="number" min="0" placeholder="Min purchase value">
+                </div>
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Discount (%)</label>
+                  <input class="form-control" id="promotionDiscountPercent" type="number" min="1" max="100" placeholder="e.g. 10">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Min Purchase Description</label>
+                  <input class="form-control" id="promotionMinPurchaseDescription" type="text" placeholder="Min Purchase Description">
+                </div>
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Start Time</label>
+                  <input class="form-control" id="promotionStartTime" type="date">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">End Time</label>
+                  <input class="form-control" id="promotionEndTime" type="date">
+                </div>
+              </div>
+              <div class="mb-3"></div>
+                <label class="form-label">Apply to Tours</label>
+                <div class="d-flex gap-2 mb-2">
+                  <button type="button" class="btn btn-outline-primary btn-sm" id="addAllToursBtn">
+                    <i class="bi bi-plus-circle me-1"></i>Add All Tours
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm" id="clearAllToursBtn">
+                    <i class="bi bi-x-circle me-1"></i>Clear All
+                  </button>
+                </div>
+                <select id="promotionTourIds" class="form-select" multiple>
+                <option value=""> Select Tour </option>
+</select>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <div>
+                <span class="fw-semibold text-danger">Promotion Completion</span>
+                <span id="promotionCompletionBadge" class="badge bg-danger ms-1">0%</span>
+                <div id="promotionMissingFieldsMsg" class="text-danger mt-1 small"></div>
+              </div>
+              <div>
+                <button class="btn btn-outline-danger">Cancel</button>
+                <button class="btn btn-success" id="addPromotionBtn" disabled>+ Add Promotion</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+  },
+
+  promotionList: {
+    title: "Promotion List",
+    breadcrumbs: ["dashboard"],
+    content: `<div class='p-4'>Promotion List Page (TODO)</div>`,
+  },
 };
 
 function loadPage(pageKey) {
@@ -886,6 +1081,22 @@ function loadPage(pageKey) {
     document.getElementById("tourMenuLink")?.classList.remove("active");
   }
 
+  // Nếu là trang con của "Promotion", mở submenu và active luôn menu cha
+  const promotionPages = ["promotionList", "addPromotion"];
+  if (promotionPages.includes(pageKey)) {
+    document.getElementById("promotionMenuLink")?.classList.add("active");
+    const submenu = document.getElementById("promotionSubmenu");
+    if (submenu && !submenu.classList.contains("show")) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+  } else {
+    const submenu = document.getElementById("promotionSubmenu");
+    if (submenu && submenu.classList.contains("show")) {
+      new bootstrap.Collapse(submenu, { toggle: true });
+    }
+    document.getElementById("promotionMenuLink")?.classList.remove("active");
+  }
+
   // --- HIỂN THỊ NỘI DUNG ---
   const breadcrumbHtml = `
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -894,17 +1105,16 @@ function loadPage(pageKey) {
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb small">
             ${page.breadcrumbs
-              .map(
-                (crumb) => `
+      .map(
+        (crumb) => `
               <li class="breadcrumb-item">
                 <a href="javascript:void(0)" onclick="loadPage('${crumb}')"
                    class="text-decoration-none text-muted">${pages[crumb].title}</a>
               </li>`
-              )
-              .join("")}
-            <li class="breadcrumb-item active text-success" aria-current="page">${
-              page.title
-            }</li>
+      )
+      .join("")}
+            <li class="breadcrumb-item active text-success" aria-current="page">${page.title
+    }</li>
           </ol>
         </nav>
       </div>
@@ -912,9 +1122,9 @@ function loadPage(pageKey) {
 
   document.getElementById("mainContent").innerHTML =
     breadcrumbHtml + page.content;
-if (pageKey === "seller") {
-  setTimeout(loadDraftToursForSeller, 0);
-}
+  if (pageKey === "seller") {
+    setTimeout(loadDraftToursForSeller, 0);
+  }
 
   // Load các trang đặc biệt
   if (pageKey === "addTour") {
@@ -985,11 +1195,18 @@ if (pageKey === "seller") {
     setTimeout(() => initCustomersPage(), 0);
   } else if (pageKey === "analytics") {
     initAnalyticsPage();
+  } else if (pageKey === "places") {
+    // Khởi tạo trang Places
+    setTimeout(() => initPlacesPage(), 0);
   }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
   loadPage("addTour");
+
+  // Load avatar cho navbar ngay khi trang load
+  loadUserAvatarForNavbar();
+
   const submenu = document.getElementById("tourSubmenu");
   const icon = document.querySelector("#tourToggle .toggle-icon");
 
@@ -1004,6 +1221,16 @@ document.addEventListener("DOMContentLoaded", function () {
       icon.classList.add("fa-chevron-down");
     });
   }
+});
+
+// Đảm bảo avatar được load sau khi trang load hoàn toàn
+window.addEventListener("load", function () {
+  // Kiểm tra và load lại avatar nếu cần
+  setTimeout(() => {
+    if (!isAvatarLoaded()) {
+      loadUserAvatarForNavbar();
+    }
+  }, 500);
 });
 
 function setMediaType(type) {
@@ -1352,7 +1579,7 @@ function renderTourList() {
     const category = tour.categoryName || "-";
     const regs =
       typeof tour.bookedCustomerCount === "number" &&
-      !isNaN(tour.bookedCustomerCount)
+        !isNaN(tour.bookedCustomerCount)
         ? tour.bookedCustomerCount
         : Number(tour.bookedCustomerCount) || 0;
     const creator = tour.createdByUserName || "-";
@@ -1475,23 +1702,20 @@ function renderPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage - 1
-        })">Trang trước</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1
+    })">Trang trước</a>
       </li>
       ${Array.from(
-        { length: totalPages },
-        (_, i) => `
+      { length: totalPages },
+      (_, i) => `
         <li class="page-item ${currentPage === i + 1 ? "active" : ""}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-            i + 1
-          })">${i + 1}</a>
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1
+        })">${i + 1}</a>
         </li>`
-      ).join("")}
+    ).join("")}
       <li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage + 1
-        })">Trang sau</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1
+    })">Trang sau</a>
       </li>
     </ul>
   `;
@@ -1562,11 +1786,14 @@ function showPopup(type, title, message) {
 function getRoleFromToken(token) {
   if (!token) return null;
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
     const payload = JSON.parse(jsonPayload);
     return (payload.role || "").toLowerCase();
   } catch {
@@ -1576,11 +1803,14 @@ function getRoleFromToken(token) {
 function getSubCompanyIdFromToken(token) {
   if (!token) return null;
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    ).join(''));
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
     const payload = JSON.parse(jsonPayload);
     return payload.subCompanyId || payload.userId || null;
   } catch {
@@ -1590,7 +1820,7 @@ function getSubCompanyIdFromToken(token) {
 
 // ==== Format tiền tệ, ngày tháng ====
 function formatVND(amount) {
-  return (Number(amount) || 0).toLocaleString('vi-VN') + ' ₫';
+  return (Number(amount) || 0).toLocaleString("vi-VN") + " ₫";
 }
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -1598,7 +1828,11 @@ function capitalize(str) {
 function formatAccountDate(isoString) {
   if (!isoString) return "";
   const d = new Date(isoString);
-  return d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 // ================== ANALYTICS PAGE MAIN FUNCTION ===================
@@ -1613,7 +1847,15 @@ function initAnalyticsPage() {
   const sysTableDay = document.getElementById("systemTbodyDay");
   const sysTableMonth = document.getElementById("systemTbodyMonth");
   const sysTableYear = document.getElementById("systemTbodyYear");
-  if (!btnFilter || !inpStart || !inpEnd || !tableDay || !tableMonth || !tableYear) return;
+  if (
+    !btnFilter ||
+    !inpStart ||
+    !inpEnd ||
+    !tableDay ||
+    !tableMonth ||
+    !tableYear
+  )
+    return;
 
   // --- Dữ liệu ---
   const revenueData = { day: [], month: [], year: [] };
@@ -1622,14 +1864,23 @@ function initAnalyticsPage() {
 
   // --- Chart object ---
   const chartObjects = {
-    systemDay: null, systemMonth: null, systemYear: null,
-    companyDay: null, companyMonth: null, companyYear: null
+    systemDay: null,
+    systemMonth: null,
+    systemYear: null,
+    companyDay: null,
+    companyMonth: null,
+    companyYear: null,
   };
 
   // ========== RENDER TABLES ==========
   function renderSystemTable(type) {
     let data = sysRevenueData[type] || [];
-    let tbody = type === "day" ? sysTableDay : type === "month" ? sysTableMonth : sysTableYear;
+    let tbody =
+      type === "day"
+        ? sysTableDay
+        : type === "month"
+          ? sysTableMonth
+          : sysTableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -1647,7 +1898,8 @@ function initAnalyticsPage() {
 
   function renderCompanyTable(type) {
     let data = revenueData[type] || [];
-    let tbody = type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+    let tbody =
+      type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -1659,7 +1911,9 @@ function initAnalyticsPage() {
       let company = row.companyName || "-";
       let value = Number(row.totalRevenue) || 0;
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${label}</td><td>${company}</td><td>${formatVND(value)}</td>`;
+      tr.innerHTML = `<td>${label}</td><td>${company}</td><td>${formatVND(
+        value
+      )}</td>`;
       tbody.appendChild(tr);
     }
   }
@@ -1672,22 +1926,24 @@ function initAnalyticsPage() {
     const role = getRoleFromToken(accessToken);
 
     // Ẩn/hiện các bảng tổng hệ thống cho đúng role
-    document.querySelectorAll('[id^="systemRevenue"]').forEach(div => {
-      div.parentElement.style.display = (role === "admin") ? "" : "none";
+    document.querySelectorAll('[id^="systemRevenue"]').forEach((div) => {
+      div.parentElement.style.display = role === "admin" ? "" : "none";
     });
 
     // Loading message
-    [tableDay, tableMonth, tableYear].forEach(tbody =>
-        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`
+    [tableDay, tableMonth, tableYear].forEach(
+      (tbody) =>
+        (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
     );
     if (role === "admin") {
-      [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-          tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`
+      [sysTableDay, sysTableMonth, sysTableYear].forEach(
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`)
       );
     }
 
     try {
-      const headers = { "Authorization": "Bearer " + accessToken };
+      const headers = { Authorization: "Bearer " + accessToken };
       if (role === "admin") {
         // ADMIN: gọi API tổng hệ thống và từng company
         const sysDayUrl = `/tourify/api/revenue/system/by-day?start=${start}&end=${end}`;
@@ -1697,17 +1953,15 @@ function initAnalyticsPage() {
         const cmpMonthUrl = `/tourify/api/revenue/company/by-month?start=${start}&end=${end}`;
         const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
 
-        const [
-          sysDay, sysMonth, sysYear,
-          cmpDay, cmpMonth, cmpYear
-        ] = await Promise.all([
-          fetch(sysDayUrl, { headers }).then(r => r.json()),
-          fetch(sysMonthUrl, { headers }).then(r => r.json()),
-          fetch(sysYearUrl, { headers }).then(r => r.json()),
-          fetch(cmpDayUrl, { headers }).then(r => r.json()),
-          fetch(cmpMonthUrl, { headers }).then(r => r.json()),
-          fetch(cmpYearUrl, { headers }).then(r => r.json()),
-        ]);
+        const [sysDay, sysMonth, sysYear, cmpDay, cmpMonth, cmpYear] =
+          await Promise.all([
+            fetch(sysDayUrl, { headers }).then((r) => r.json()),
+            fetch(sysMonthUrl, { headers }).then((r) => r.json()),
+            fetch(sysYearUrl, { headers }).then((r) => r.json()),
+            fetch(cmpDayUrl, { headers }).then((r) => r.json()),
+            fetch(cmpMonthUrl, { headers }).then((r) => r.json()),
+            fetch(cmpYearUrl, { headers }).then((r) => r.json()),
+          ]);
         sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
         sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
         sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
@@ -1718,8 +1972,8 @@ function initAnalyticsPage() {
         const subCompanyId = getSubCompanyIdFromToken(accessToken);
         if (!subCompanyId) {
           [tableDay, tableMonth, tableYear].forEach(
-              (tbody) =>
-                  (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+            (tbody) =>
+              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
           );
           return;
         }
@@ -1727,25 +1981,27 @@ function initAnalyticsPage() {
         const monthUrl = `/tourify/api/revenue/by-month?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
         const yearUrl = `/tourify/api/revenue/by-year?subCompanyId=${subCompanyId}&start=${start}&end=${end}`;
         const [d, m, y] = await Promise.all([
-          fetch(dayUrl, { headers }).then(r => r.json()),
-          fetch(monthUrl, { headers }).then(r => r.json()),
-          fetch(yearUrl, { headers }).then(r => r.json()),
+          fetch(dayUrl, { headers }).then((r) => r.json()),
+          fetch(monthUrl, { headers }).then((r) => r.json()),
+          fetch(yearUrl, { headers }).then((r) => r.json()),
         ]);
         revenueData.day = Array.isArray(d) ? d : [];
         revenueData.month = Array.isArray(m) ? m : [];
         revenueData.year = Array.isArray(y) ? y : [];
       } else {
-        [tableDay, tableMonth, tableYear].forEach(tbody =>
-            tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+        [tableDay, tableMonth, tableYear].forEach(
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
-        [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-            tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`
+        [sysTableDay, sysTableMonth, sysTableYear].forEach(
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
         return;
       }
 
       // Render bảng
-      const activeTab = document.querySelector('.tab-pane.active').id;
+      const activeTab = document.querySelector(".tab-pane.active").id;
       if (activeTab === "revenue-day") {
         if (role === "admin") renderSystemTable("day");
         renderCompanyTable("day");
@@ -1760,12 +2016,14 @@ function initAnalyticsPage() {
       }
       afterRender();
     } catch (err) {
-      [tableDay, tableMonth, tableYear].forEach(tbody =>
-          tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+      [tableDay, tableMonth, tableYear].forEach(
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
       );
       if (role === "admin") {
-        [sysTableDay, sysTableMonth, sysTableYear].forEach(tbody =>
-            tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`
+        [sysTableDay, sysTableMonth, sysTableYear].forEach(
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
         );
       }
       console.error(err);
@@ -1775,9 +2033,9 @@ function initAnalyticsPage() {
   // ========== THỐNG KÊ HEADER ==========
   async function loadActiveToursCount() {
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const role = getRoleFromToken(token)?.toLowerCase();
-      let url = '/tourify/api/revenue/active-tours/count';
+      let url = "/tourify/api/revenue/active-tours/count";
 
       // Nếu là sub_company thì truyền subCompanyId vào param (giả sử backend nhận param ?subCompanyId=)
       if (role === "sub_company") {
@@ -1787,11 +2045,11 @@ function initAnalyticsPage() {
       }
 
       const resp = await fetch(url, {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        headers: token ? { Authorization: "Bearer " + token } : {},
       });
       if (!resp.ok) throw new Error("Lỗi API active tours");
       const json = await resp.json();
-      const count = (json.result != null) ? json.result : (json.count || 0);
+      const count = json.result != null ? json.result : json.count || 0;
       document.getElementById("activeToursCount").textContent = count;
     } catch (err) {
       document.getElementById("activeToursCount").textContent = "—";
@@ -1801,7 +2059,7 @@ function initAnalyticsPage() {
 
   async function loadTopBookedTours(start, end) {
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const role = getRoleFromToken(token)?.toLowerCase();
       let url = `/tourify/api/revenue/top-booked?limit=10`;
 
@@ -1814,7 +2072,7 @@ function initAnalyticsPage() {
       // Nếu cần filter theo ngày thì truyền thêm start/end
 
       const resp = await fetch(url, {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        headers: token ? { Authorization: "Bearer " + token } : {},
       });
       if (!resp.ok) throw new Error("Lỗi API top booked tours");
       const json = await resp.json();
@@ -1824,7 +2082,7 @@ function initAnalyticsPage() {
       if (data.length === 0) {
         tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted">No data</td></tr>`;
       } else {
-        data.forEach(t => {
+        data.forEach((t) => {
           tbody.innerHTML += `
         <tr>
           <td>${t.tourName || "-"}</td>
@@ -1834,7 +2092,7 @@ function initAnalyticsPage() {
       }
     } catch (err) {
       document.getElementById("topBookedToursTbody").innerHTML =
-          `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
+        `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
   }
@@ -1843,10 +2101,7 @@ function initAnalyticsPage() {
   async function analyticsHeaderStats() {
     const start = inpStart.value;
     const end = inpEnd.value;
-    await Promise.all([
-      loadActiveToursCount(),
-      loadTopBookedTours(start, end)
-    ]);
+    await Promise.all([loadActiveToursCount(), loadTopBookedTours(start, end)]);
   }
 
   // ========== CHART RENDERING ==========
@@ -1862,41 +2117,51 @@ function initAnalyticsPage() {
     let labels = [];
     let datasets = [];
     if (isSystem) {
-      dataArr.forEach(row => {
+      dataArr.forEach((row) => {
         let label = row.time || row.date || row.month || row.year || "-";
         labels.push(label);
       });
-      datasets = [{
-        label: "Total Revenue (VND)",
-        data: dataArr.map(row => Number(row.totalRevenue) || 0),
-        backgroundColor: "#4097e3"
-      }];
+      datasets = [
+        {
+          label: "Total Revenue (VND)",
+          data: dataArr.map((row) => Number(row.totalRevenue) || 0),
+          backgroundColor: "#4097e3",
+        },
+      ];
     } else {
       // Multi company chart
       const companySet = new Set();
       const labelSet = new Set();
-      dataArr.forEach(row => {
+      dataArr.forEach((row) => {
         let label = row.time || row.date || row.month || row.year || "-";
         labelSet.add(label);
         companySet.add(row.companyName || "-");
       });
       labels = Array.from(labelSet);
       const companyMap = {};
-      companySet.forEach(c => companyMap[c] = {});
-      dataArr.forEach(row => {
+      companySet.forEach((c) => (companyMap[c] = {}));
+      dataArr.forEach((row) => {
         let label = row.time || row.date || row.month || row.year || "-";
         let company = row.companyName || "-";
         let value = Number(row.totalRevenue) || 0;
         companyMap[company][label] = value;
       });
       const colorList = [
-        "#fd9134", "#00C49F", "#FFBB28", "#8884d8", "#d7c51b", "#ae31cf", "#24d463", "#e94560", "#497174"
+        "#fd9134",
+        "#00C49F",
+        "#FFBB28",
+        "#8884d8",
+        "#d7c51b",
+        "#ae31cf",
+        "#24d463",
+        "#e94560",
+        "#497174",
       ];
       let colorIdx = 0;
-      datasets = Array.from(companySet).map(company => ({
+      datasets = Array.from(companySet).map((company) => ({
         label: company,
-        data: labels.map(label => companyMap[company][label] || 0),
-        backgroundColor: colorList[colorIdx++ % colorList.length]
+        data: labels.map((label) => companyMap[company][label] || 0),
+        backgroundColor: colorList[colorIdx++ % colorList.length],
       }));
     }
     document.getElementById(tableWrapId).classList.add("d-none");
@@ -1914,9 +2179,12 @@ function initAnalyticsPage() {
         plugins: { legend: { display: true } },
         scales: {
           x: { title: { display: true, text: capitalize(type) } },
-          y: { title: { display: true, text: 'Revenue (VND)' }, beginAtZero: true }
-        }
-      }
+          y: {
+            title: { display: true, text: "Revenue (VND)" },
+            beginAtZero: true,
+          },
+        },
+      },
     });
   }
 
@@ -1934,17 +2202,23 @@ function initAnalyticsPage() {
 
   function addToggleEvents() {
     [
-      ["day", true], ["month", true], ["year", true],
-      ["day", false], ["month", false], ["year", false]
+      ["day", true],
+      ["month", true],
+      ["year", true],
+      ["day", false],
+      ["month", false],
+      ["year", false],
     ].forEach(([type, isSystem]) => {
       const key = (isSystem ? "system" : "company") + capitalize(type);
       const btnChartId = `btnShowChart${capitalize(key)}`;
       const btnTableId = `btnShowTable${capitalize(key)}`;
       if (document.getElementById(btnChartId)) {
-        document.getElementById(btnChartId).onclick = () => renderChart(type, isSystem);
+        document.getElementById(btnChartId).onclick = () =>
+          renderChart(type, isSystem);
       }
       if (document.getElementById(btnTableId)) {
-        document.getElementById(btnTableId).onclick = () => showTable(type, isSystem);
+        document.getElementById(btnTableId).onclick = () =>
+          showTable(type, isSystem);
       }
     });
   }
@@ -1957,32 +2231,41 @@ function initAnalyticsPage() {
     fetchAndRenderAll();
     analyticsHeaderStats(); // ← Gọi lại header stats khi filter
   };
-  document.getElementById('revenue-range-tabs').addEventListener('click', function (e) {
-    if (e.target.classList.contains('nav-link')) {
-      setTimeout(() => {
-        const activeTab = document.querySelector('.tab-pane.active').id;
-        if (activeTab === "revenue-day") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("day");
-          renderCompanyTable("day");
-        }
-        if (activeTab === "revenue-month") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("month");
-          renderCompanyTable("month");
-        }
-        if (activeTab === "revenue-year") {
-          if (getRoleFromToken(accessToken) === "admin") renderSystemTable("year");
-          renderCompanyTable("year");
-        }
-        afterRender();
-        analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
-      }, 50);
-    }
-  });
+  document
+    .getElementById("revenue-range-tabs")
+    .addEventListener("click", function (e) {
+      if (e.target.classList.contains("nav-link")) {
+        setTimeout(() => {
+          const activeTab = document.querySelector(".tab-pane.active").id;
+          if (activeTab === "revenue-day") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("day");
+            renderCompanyTable("day");
+          }
+          if (activeTab === "revenue-month") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("month");
+            renderCompanyTable("month");
+          }
+          if (activeTab === "revenue-year") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("year");
+            renderCompanyTable("year");
+          }
+          afterRender();
+          analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
+        }, 50);
+      }
+    });
 
   // Set ngày mặc định cho input
   const today = new Date();
   inpEnd.value = today.toISOString().slice(0, 10);
-  const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+  const lastMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() - 1,
+    today.getDate()
+  );
   inpStart.value = lastMonth.toISOString().slice(0, 10);
 
   // Khởi động lần đầu
@@ -1997,36 +2280,35 @@ function capitalize(str) {
 
 // Utility: formatVND (nếu chưa có)
 function formatVND(n) {
-  return (n || 0).toLocaleString('vi-VN') + " ₫";
+  return (n || 0).toLocaleString("vi-VN") + " ₫";
 }
 
-
 // Gọi khi HTML đã load xong
-document.addEventListener('DOMContentLoaded', initAnalyticsPage);
+document.addEventListener("DOMContentLoaded", initAnalyticsPage);
 
 // ===================== ACCOUNT LIST (CUSTOMERS) =====================
 function parseJwt(token) {
   try {
-    return JSON.parse(atob(token.split('.')[1]));
+    return JSON.parse(atob(token.split(".")[1]));
   } catch (e) {
     return {};
   }
 }
 
 function isAdmin(role) {
-  return role && role.toUpperCase() === 'ADMIN';
+  return role && role.toUpperCase() === "ADMIN";
 }
 
 function isActive(status) {
-  return status && status.toUpperCase() === 'ACTIVE';
+  return status && status.toUpperCase() === "ACTIVE";
 }
 
 async function loadAccounts(query = "") {
-  const table = document.getElementById('accountTable');
+  const table = document.getElementById("accountTable");
   if (!table) return;
-  const tbody = table.querySelector('tbody');
+  const tbody = table.querySelector("tbody");
   if (!tbody) return;
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   if (!token) return;
 
   // Giải mã lấy role của người đăng nhập (không phân biệt hoa thường)
@@ -2034,54 +2316,64 @@ async function loadAccounts(query = "") {
   const myRole = userInfo && userInfo.role ? userInfo.role.toUpperCase() : "";
 
   try {
-    const resp = await fetch('/tourify/api/user' + (query ? `?search=${encodeURIComponent(query)}` : ''), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+    const resp = await fetch(
+      "/tourify/api/user" +
+      (query ? `?search=${encodeURIComponent(query)}` : ""),
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       }
-    });
+    );
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const json = await resp.json();
     const users = json.result || [];
-    tbody.innerHTML = '';
-    users.forEach(u => {
-      let dob = u.dob ? formatAccountDate(u.dob) : '';
-      const gender = u.gender === true || u.gender === 'Male'
-          ? 'Male' : u.gender === false || u.gender === 'Female'
-              ? 'Female' : '';
+    tbody.innerHTML = "";
+    users.forEach((u) => {
+      let dob = u.dob ? formatAccountDate(u.dob) : "";
+      const gender =
+        u.gender === true || u.gender === "Male"
+          ? "Male"
+          : u.gender === false || u.gender === "Female"
+            ? "Female"
+            : "";
       const statusClass = isActive(u.status)
-          ? 'status-active' : 'status-blocked';
+        ? "status-active"
+        : "status-blocked";
 
       // Không phân biệt hoa thường khi kiểm tra role và status
       let lockBtn = "";
       const targetRole = u.role ? u.role.toUpperCase() : "";
-      if (myRole === 'ADMIN' && targetRole !== 'ADMIN') {
+      if (myRole === "ADMIN" && targetRole !== "ADMIN") {
         lockBtn = isActive(u.status)
-            ? `<i class="fa fa-lock text-danger toggle-status-btn" title="Block Account" data-status="ACTIVE" data-userid="${u.userId}"></i>`
-            : `<i class="fa fa-unlock text-success toggle-status-btn" title="Unblock Account" data-status="BLOCKED" data-userid="${u.userId}"></i>`;
+          ? `<i class="fa fa-lock text-danger toggle-status-btn" title="Block Account" data-status="ACTIVE" data-userid="${u.userId}"></i>`
+          : `<i class="fa fa-unlock text-success toggle-status-btn" title="Unblock Account" data-status="BLOCKED" data-userid="${u.userId}"></i>`;
       }
 
-      const tr = document.createElement('tr');
+      const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><input type="checkbox"></td>
-        <td>${u.role || ''}</td>
+        <td>${u.role || ""}</td>
         <td>
           <div class="d-flex align-items-center">
-            <img src="${u.avatar || '/static/images/avatar_default.jpg'}"
+            <img src="${u.avatar || "/static/images/avatar_default.jpg"}"
                  style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
             <div>
-              <div style="font-weight:600; color:#22292f;">${u.userName || ''}</div>
-              <div style="font-size:0.95em; color:#8b909a;">${u.email || ''}</div>
+              <div style="font-weight:600; color:#22292f;">${u.userName || ""
+        }</div>
+              <div style="font-size:0.95em; color:#8b909a;">${u.email || ""
+        }</div>
             </div>
           </div>
         </td>
-        <td>${(u.firstName || '') + ' ' + (u.lastName || '')}</td>
+        <td>${(u.firstName || "") + " " + (u.lastName || "")}</td>
         <td>${gender}</td>
-        <td>${u.phoneNumber || ''}</td>
-        <td>${u.address || ''}</td>
+        <td>${u.phoneNumber || ""}</td>
+        <td>${u.address || ""}</td>
         <td>${dob}</td>
-        <td><span class="${statusClass}">${u.status || ''}</span></td>
+        <td><span class="${statusClass}">${u.status || ""}</span></td>
         <td class="action-btns">
           <i class="fa fa-pen text-primary" title="Edit"></i>
           ${lockBtn}
@@ -2090,49 +2382,51 @@ async function loadAccounts(query = "") {
       tbody.appendChild(tr);
 
       // Gắn sự kiện cho từng nút lock/unlock của từng user (nếu có)
-      const toggleBtn = tr.querySelector('.toggle-status-btn');
+      const toggleBtn = tr.querySelector(".toggle-status-btn");
       if (toggleBtn) {
-        toggleBtn.addEventListener('click', async function() {
-          const userId = this.getAttribute('data-userid');
-          const status = this.getAttribute('data-status');
+        toggleBtn.addEventListener("click", async function () {
+          const userId = this.getAttribute("data-userid");
+          const status = this.getAttribute("data-status");
           if (!userId || !token) return;
-          let url = '';
-          let successMsg = '';
-          if (status && status.toUpperCase() === 'ACTIVE') {
+          let url = "";
+          let successMsg = "";
+          if (status && status.toUpperCase() === "ACTIVE") {
             url = `/tourify/api/useradmins/${userId}/lock`;
-            successMsg = 'Khoá tài khoản thành công!';
+            successMsg = "Khoá tài khoản thành công!";
           } else {
             url = `/tourify/api/useradmins/${userId}/unlock`;
-            successMsg = 'Mở khoá tài khoản thành công!';
+            successMsg = "Mở khoá tài khoản thành công!";
           }
           try {
             const resp = await fetch(url, {
-              method: 'PUT',
+              method: "PUT",
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-              }
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
             });
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             alert(successMsg); // Có thể thay alert bằng toast UI đẹp hơn
             loadAccounts(query); // Reload lại list để update icon
           } catch (e) {
-            alert('Có lỗi xảy ra khi đổi trạng thái tài khoản.');
+            alert("Có lỗi xảy ra khi đổi trạng thái tài khoản.");
             console.error(e);
           }
         });
       }
     });
   } catch (err) {
-    console.error('Fetch users failed:', err);
+    console.error("Fetch users failed:", err);
   }
 }
 
 function initCustomersPage() {
-  const table = document.getElementById('accountTable');
+  const table = document.getElementById("accountTable");
   if (!table) return;
-  const tbody = table.querySelector('tbody');
-  const searchInput = document.querySelector('input[placeholder="Search account..."]');
+  const tbody = table.querySelector("tbody");
+  const searchInput = document.querySelector(
+    'input[placeholder="Search account..."]'
+  );
   if (!tbody || !searchInput) return;
   // Load lần đầu
   loadAccounts();
@@ -2146,21 +2440,21 @@ function initCustomersPage() {
     const btn = e.target.closest("i");
     if (!btn) return;
     // TODO: Gắn logic edit/delete nếu cần
-      // Xử lý toggle block/unblock
-      if (btn.classList.contains('toggle-status-btn')) {
-          let status = btn.getAttribute("data-status");
-          if (status === "ACTIVE") {
-              btn.setAttribute("data-status", "BLOCKED");
-              btn.classList.remove("fa-unlock", "text-success");
-              btn.classList.add("fa-lock", "text-danger");
-              btn.title = "Unblock Account";
-          } else {
-              btn.setAttribute("data-status", "ACTIVE");
-              btn.classList.remove("fa-lock", "text-danger");
-              btn.classList.add("fa-unlock", "text-success");
-              btn.title = "Block Account";
-          }
+    // Xử lý toggle block/unblock
+    if (btn.classList.contains("toggle-status-btn")) {
+      let status = btn.getAttribute("data-status");
+      if (status === "ACTIVE") {
+        btn.setAttribute("data-status", "BLOCKED");
+        btn.classList.remove("fa-unlock", "text-success");
+        btn.classList.add("fa-lock", "text-danger");
+        btn.title = "Unblock Account";
+      } else {
+        btn.setAttribute("data-status", "ACTIVE");
+        btn.classList.remove("fa-lock", "text-danger");
+        btn.classList.add("fa-unlock", "text-success");
+        btn.title = "Block Account";
       }
+    }
   });
 }
 
@@ -2179,8 +2473,11 @@ async function loadServicesAndActivities() {
         select.appendChild(opt);
       });
     }
-    if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
-  } catch (e) { console.error("❌ Service fetch error:", e); }
+    if (typeof $ !== "undefined" && select)
+      $(select).select2({ width: "100%", placeholder: "Select..." });
+  } catch (e) {
+    console.error("❌ Service fetch error:", e);
+  }
 
   // Load Activities
   try {
@@ -2196,49 +2493,59 @@ async function loadServicesAndActivities() {
         select.appendChild(opt);
       });
     }
-    if (typeof $ !== "undefined" && select) $(select).select2({ width: '100%', placeholder: "Select..." });
-  } catch (e) { console.error("❌ Activity fetch error:", e); }
+    if (typeof $ !== "undefined" && select)
+      $(select).select2({ width: "100%", placeholder: "Select..." });
+  } catch (e) {
+    console.error("❌ Activity fetch error:", e);
+  }
 }
 
 async function loadDraftToursForSeller() {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
   try {
-    const res = await fetch('/tourify/api/tours/all-draft', {
-      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+    const res = await fetch("/tourify/api/tours/all-draft", {
+      headers: token ? { Authorization: "Bearer " + token } : {},
     });
-    if (!res.ok) throw new Error('API error');
+    if (!res.ok) throw new Error("API error");
     const tours = await res.json();
 
-    const tbody = document.querySelector('#sellerTable tbody');
+    const tbody = document.querySelector("#sellerTable tbody");
     if (!tbody) return;
-    tbody.innerHTML = '';
+    tbody.innerHTML = "";
 
     if (!Array.isArray(tours) || tours.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No draft tour found.</td></tr>`;
       return;
     }
     tours.forEach((tour, idx) => {
-      const row = document.createElement('tr');
+      const row = document.createElement("tr");
       row.innerHTML = `
         <td><input type="checkbox" data-id="${tour.tourId}"></td>
         <td>
-          <img src="${tour.thumbnail || 'https://via.placeholder.com/60x40?text=IMG'}"
+          <img src="${tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
+        }"
                alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
         </td>
         <td>
-          <span class="fw-semibold">${tour.tourName || '-'}</span>
+          <span class="fw-semibold">${tour.tourName || "-"}</span>
         </td>
         <td>
-          <span>${tour.createdByUserName || '-'}</span>
+          <span>${tour.createdByUserName || "-"}</span>
         </td>
-        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString('vi-VN') + ' ₫' : '-'}</td>
-        <td>${tour.placeName || '-'}</td>
-        <td>${tour.createdAt ? new Date(tour.createdAt).toLocaleDateString('vi-VN') : '-'}</td>
+        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
+        }</td>
+        <td>${tour.placeName || "-"}</td>
+        <td>${tour.createdAt
+          ? new Date(tour.createdAt).toLocaleDateString("vi-VN")
+          : "-"
+        }</td>
         <td>
-          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId}')">
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId
+        }')">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId}')">
+          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${tour.tourId
+        }')">
             <i class="bi bi-trash"></i>
           </button>
         </td>
@@ -2246,48 +2553,875 @@ async function loadDraftToursForSeller() {
       tbody.appendChild(row);
     });
   } catch (e) {
-    const tbody = document.querySelector('#sellerTable tbody');
-    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Error loading draft tours</td></tr>`;
+    const tbody = document.querySelector("#sellerTable tbody");
+    if (tbody)
+      tbody.innerHTML = `<tr><td colspan="8" class="text-danger text-center">Error loading draft tours</td></tr>`;
     console.error(e);
   }
 }
 
 async function approveTour(tourId) {
-  if (!confirm('Bạn chắc chắn muốn duyệt tour này?')) return;
-  const token = localStorage.getItem('accessToken');
+  if (!confirm("Bạn chắc chắn muốn duyệt tour này?")) return;
+  const token = localStorage.getItem("accessToken");
   try {
     const res = await fetch(`/tourify/api/tours/${tourId}/approve`, {
-      method: 'PUT',
-      headers: { 'Authorization': 'Bearer ' + token }
+      method: "PUT",
+      headers: { Authorization: "Bearer " + token },
     });
-    if (!res.ok) throw new Error('Approve failed');
+    if (!res.ok) throw new Error("Approve failed");
     // Thông báo
-    showPopup && showPopup('success', 'Thành công', 'Tour đã được duyệt!');
+    showPopup && showPopup("success", "Thành công", "Tour đã được duyệt!");
     // Reload lại bảng
     loadDraftToursForSeller();
   } catch (e) {
-    showPopup && showPopup('danger', 'Thất bại', 'Không thể duyệt tour!');
+    showPopup && showPopup("danger", "Thất bại", "Không thể duyệt tour!");
     console.error(e);
   }
 }
 
 async function deleteTour(tourId) {
-  if (!confirm('Bạn chắc chắn muốn xóa tour này?')) return;
-  const token = localStorage.getItem('accessToken');
+  if (!confirm("Bạn chắc chắn muốn xóa tour này?")) return;
+  const token = localStorage.getItem("accessToken");
   try {
     const res = await fetch(`/tourify/api/tours/${tourId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': 'Bearer ' + token }
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
     if (res.ok && data.code === 1000) {
-      showPopup && showPopup('success', 'Thành công', data.message || 'Xóa tour thành công!');
+      showPopup &&
+        showPopup(
+          "success",
+          "Thành công",
+          data.message || "Xóa tour thành công!"
+        );
       loadDraftToursForSeller(); // Reload lại bảng, hoặc gọi hàm tương tự bạn đã dùng
     } else {
-      showPopup && showPopup('danger', 'Thất bại', data.message || 'Xóa tour thất bại!');
+      showPopup &&
+        showPopup("danger", "Thất bại", data.message || "Xóa tour thất bại!");
     }
   } catch (e) {
-    showPopup && showPopup('danger', 'Lỗi', 'Không thể kết nối máy chủ!');
+    showPopup && showPopup("danger", "Lỗi", "Không thể kết nối máy chủ!");
     console.error(e);
   }
 }
+
+// ==== ADD PROMOTION LOGIC ====
+const promotionRequiredFields = [
+  { selector: "#promotionCode", label: "Code" },
+  { selector: "#promotionDescription", label: "Description" },
+  { selector: "#promotionQuantity", label: "Quantity" },
+  { selector: "#promotionMinPurchase", label: "Min Purchase" },
+  { selector: "#promotionDiscountPercent", label: "Discount (%)" },
+  {
+    selector: "#promotionMinPurchaseDescription",
+    label: "Min Purchase Description",
+  },
+  { selector: "#promotionStartTime", label: "Start Time" },
+  { selector: "#promotionEndTime", label: "End Time" },
+  { selector: "#promotionTourIds", label: "Apply to Tours", isSelect: true },
+];
+
+function calculatePromotionCompletion() {
+  let filled = 0;
+  const missingFields = [];
+  promotionRequiredFields.forEach(({ selector, label, isSelect }) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      if (isSelect) {
+        // Kiểm tra cho Select2 và select thường
+        let hasSelection = false;
+
+        // Kiểm tra Select2
+        if (
+          typeof $ !== "undefined" &&
+          $(el).hasClass("select2-hidden-accessible")
+        ) {
+          const select2Data = $(el).select2("data");
+          hasSelection = select2Data && select2Data.length > 0;
+        } else {
+          // Kiểm tra select thường
+          hasSelection = el.selectedOptions && el.selectedOptions.length > 0;
+        }
+
+        if (hasSelection) {
+          filled++;
+        } else {
+          missingFields.push({ label, scrollTo: selector });
+        }
+      } else if (el.value.trim() !== "") {
+        filled++;
+      } else {
+        missingFields.push({ label, scrollTo: selector });
+      }
+    } else {
+      missingFields.push({ label, scrollTo: selector });
+    }
+  });
+  const totalFields = promotionRequiredFields.length;
+  const percent = Math.round((filled / totalFields) * 100);
+  const badge = document.getElementById("promotionCompletionBadge");
+  if (badge) {
+    badge.innerText = `${percent}%`;
+    badge.className = "badge ms-1 bg-" + (percent < 100 ? "danger" : "success");
+  }
+  const btn = document.getElementById("addPromotionBtn");
+  if (btn) btn.disabled = percent < 100;
+  const msg = document.getElementById("promotionMissingFieldsMsg");
+  if (msg) {
+    if (missingFields.length > 0) {
+      msg.innerHTML =
+        "⚠️ Missing: " +
+        missingFields
+          .map(
+            ({ label, scrollTo }) =>
+              `<a href=\"javascript:void(0)\" onclick=\"scrollToPromotionElement('${scrollTo}')\" class=\"text-danger fw-semibold text-decoration-underline me-1\">${label}</a>`
+          )
+          .join(", ");
+    } else {
+      msg.innerHTML = "";
+    }
+  }
+}
+
+function scrollToPromotionElement(selector) {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("border", "border-3", "border-danger", "rounded");
+    if (["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) {
+      el.focus({ preventScroll: true });
+    }
+    setTimeout(() => {
+      el.classList.remove("border", "border-3", "border-danger", "rounded");
+    }, 2500);
+  }
+}
+
+function initAddPromotionPage() {
+  // Gắn sự kiện input/change cho các trường
+  promotionRequiredFields.forEach(({ selector, isSelect }) => {
+    const el = document.querySelector(selector);
+    if (el) {
+      el.addEventListener("input", calculatePromotionCompletion);
+      el.addEventListener("change", calculatePromotionCompletion);
+    }
+  });
+  setTimeout(() => {
+    calculatePromotionCompletion();
+  }, 100);
+  // Gán sự kiện cho nút Add Promotion
+  const addBtn = document.getElementById("addPromotionBtn");
+  if (addBtn) {
+    addBtn.onclick = handleAddPromotion;
+  }
+
+  // Gán sự kiện cho nút Add All Tours
+  const addAllBtn = document.getElementById("addAllToursBtn");
+  if (addAllBtn) {
+    addAllBtn.onclick = handleAddAllTours;
+  }
+
+  // Gán sự kiện cho nút Clear All
+  const clearAllBtn = document.getElementById("clearAllToursBtn");
+  if (clearAllBtn) {
+    clearAllBtn.onclick = handleClearAllTours;
+  }
+
+  // Load danh sách tour khi click vào select (chỉ load 1 lần)
+  const select = document.getElementById("promotionTourIds");
+  if (select) {
+    let loaded = false;
+    select.addEventListener("focus", function () {
+      if (!loaded) {
+        loadPromotionTours();
+        loaded = true;
+      }
+    });
+    // Nếu muốn reload mỗi lần click, bỏ biến loaded và chỉ giữ loadPromotionTours();
+  }
+}
+
+async function loadPromotionTours() {
+  try {
+    const select = document.getElementById("promotionTourIds");
+    if (!select) return;
+    select.innerHTML = "<option disabled>Loading...</option>";
+    const token = localStorage.getItem("accessToken");
+    let url = "";
+    let headers = {};
+    const role = getRoleFromToken(token);
+    if (role === "admin") {
+      url = "/tourify/api/tours";
+      headers = { Authorization: `Bearer ${token}` };
+    } else if (role === "sub_company") {
+      const subCompanyId = getSubCompanyIdFromToken(token);
+      url = `/tourify/api/tours/my-tours`;
+      headers = { Authorization: `Bearer ${token}` };
+    } else {
+      select.innerHTML = "<option disabled>No permission</option>";
+      return;
+    }
+    const res = await fetch(url, { headers });
+    const result = await res.json();
+    select.innerHTML = "";
+    // Xử lý nhiều kiểu trả về
+    let tours = [];
+    if (Array.isArray(result.result)) {
+      tours = result.result;
+    } else if (Array.isArray(result.data)) {
+      tours = result.data;
+    } else if (Array.isArray(result)) {
+      tours = result;
+    } else {
+      console.warn(
+        "Không tìm thấy danh sách tour phù hợp trong API trả về",
+        result
+      );
+    }
+    if (Array.isArray(tours)) {
+      tours
+        .filter((tour) => (tour.status || "").toUpperCase() === "ACTIVE")
+        .forEach((tour) => {
+          const opt = document.createElement("option");
+          opt.value = tour.tourId;
+          opt.textContent = tour.tourName || tour.tourId;
+          select.appendChild(opt);
+        });
+    }
+    if (typeof $ !== "undefined" && select) {
+      $(select).select2({
+        width: "100%",
+        placeholder: "Select tours...",
+        dropdownParent: $(select).parent(),
+        dropdownPosition: "below",
+      });
+
+      // Thêm sự kiện change cho Select2 để tính lại completion
+      $(select).on("change", function () {
+        calculatePromotionCompletion();
+      });
+    }
+  } catch (e) {
+    const select = document.getElementById("promotionTourIds");
+    if (select)
+      select.innerHTML = "<option disabled>Error loading tours</option>";
+    console.error("❌ Promotion tour fetch error:", e);
+  }
+}
+
+// Hàm xử lý nút Add All Tours
+function handleAddAllTours() {
+  const select = document.getElementById("promotionTourIds");
+  if (!select) return;
+
+  // Nếu đang sử dụng Select2
+  if (
+    typeof $ !== "undefined" &&
+    $(select).hasClass("select2-hidden-accessible")
+  ) {
+    // Lấy tất cả options có sẵn
+    const allOptions = $(select).find("option:not(:disabled)");
+    const allValues = allOptions
+      .map(function () {
+        return this.value;
+      })
+      .get();
+
+    // Chọn tất cả
+    $(select).val(allValues).trigger("change");
+  } else {
+    // Cho select thường
+    const options = select.querySelectorAll("option:not([disabled])");
+    options.forEach((option) => {
+      option.selected = true;
+    });
+    // Trigger change event
+    select.dispatchEvent(new Event("change"));
+  }
+
+  // Tính lại completion
+  calculatePromotionCompletion();
+
+  // Hiển thị thông báo
+  showPopup("success", "Success", "All tours have been added to the promotion");
+}
+
+// Hàm xử lý nút Clear All
+function handleClearAllTours() {
+  const select = document.getElementById("promotionTourIds");
+  if (!select) return;
+
+  // Nếu đang sử dụng Select2
+  if (
+    typeof $ !== "undefined" &&
+    $(select).hasClass("select2-hidden-accessible")
+  ) {
+    $(select).val(null).trigger("change");
+  } else {
+    // Cho select thường
+    const options = select.querySelectorAll("option");
+    options.forEach((option) => {
+      option.selected = false;
+    });
+    // Trigger change event
+    select.dispatchEvent(new Event("change"));
+  }
+
+  // Tính lại completion
+  calculatePromotionCompletion();
+
+  // Hiển thị thông báo
+  showPopup(
+    "success",
+    "Success",
+    "All tours have been cleared from the promotion"
+  );
+}
+
+async function handleAddPromotion() {
+  try {
+    // Lấy dữ liệu từ form
+    const tourSelect = document.getElementById("promotionTourIds");
+    const tourIds = Array.from(tourSelect.selectedOptions).map(
+      (opt) => opt.value
+    );
+
+    // Validate required fields
+    const code = document.getElementById("promotionCode").value.trim();
+    const description = document
+      .getElementById("promotionDescription")
+      .value.trim();
+    const quantity = document.getElementById("promotionQuantity").value;
+    const minPurchase = document.getElementById("promotionMinPurchase").value;
+    const discountPercent = document.getElementById(
+      "promotionDiscountPercent"
+    ).value;
+    const minPurchaseDescription = document
+      .getElementById("promotionMinPurchaseDescription")
+      .value.trim();
+    const startTime = document.getElementById("promotionStartTime").value;
+    const endTime = document.getElementById("promotionEndTime").value;
+
+    // Validation
+    if (!code) {
+      showPopup("error", "Error", "Promotion code is required");
+      return;
+    }
+    if (!quantity || quantity <= 0) {
+      showPopup("error", "Error", "Quantity must be greater than 0");
+      return;
+    }
+    if (!discountPercent || discountPercent <= 0 || discountPercent > 100) {
+      showPopup("error", "Error", "Discount percent must be between 1 and 100");
+      return;
+    }
+    if (!startTime || !endTime) {
+      showPopup("error", "Error", "Start time and end time are required");
+      return;
+    }
+    if (new Date(startTime) >= new Date(endTime)) {
+      showPopup("error", "Error", "End time must be after start time");
+      return;
+    }
+    if (tourIds.length === 0) {
+      showPopup("error", "Error", "Please select at least one tour");
+      return;
+    }
+
+    // Prepare request data
+    const requestData = {
+      code: code,
+      description: description,
+      quantity: parseInt(quantity),
+      minPurchase: minPurchase ? parseInt(minPurchase) : null,
+      discountPercent: parseInt(discountPercent),
+      startTime: startTime + "T00:00:00", // Thêm giờ 00:00:00 cho ngày bắt đầu
+      endTime: endTime + "T23:59:59", // Thêm giờ 23:59:59 cho ngày kết thúc
+      conditions: minPurchaseDescription || null,
+      tourIds: tourIds,
+    };
+
+    // Get token
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      showPopup("error", "Error", "Authentication required");
+      return;
+    }
+
+    // Call API
+    const response = await fetch("/tourify/api/promotions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      showPopup(
+        "success",
+        "Success",
+        result.message || "Promotion created successfully"
+      );
+      // Reset form
+      document.getElementById("promotionCode").value = "";
+      document.getElementById("promotionDescription").value = "";
+      document.getElementById("promotionQuantity").value = "";
+      document.getElementById("promotionMinPurchase").value = "";
+      document.getElementById("promotionDiscountPercent").value = "";
+      document.getElementById("promotionMinPurchaseDescription").value = "";
+      document.getElementById("promotionStartTime").value = "";
+      document.getElementById("promotionEndTime").value = "";
+      if (tourSelect) {
+        tourSelect.innerHTML = "";
+      }
+      // Recalculate completion
+      calculatePromotionCompletion();
+    } else {
+      showPopup(
+        "error",
+        "Error",
+        result.message || "Failed to create promotion"
+      );
+    }
+  } catch (error) {
+    console.error("Error creating promotion:", error);
+    showPopup("error", "Error", "An error occurred while creating promotion");
+  }
+}
+
+// ==== LOAD USER AVATAR FOR NAVBAR ====
+async function loadUserAvatarForNavbar() {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.log("Không có token, không thể load avatar");
+      // Vẫn cập nhật username từ JWT nếu có
+      updateNavbarAvatar("/static/images/avatar_default.jpg");
+      return;
+    }
+
+    const response = await fetch("/tourify/api/user/info", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.result) {
+      // Cập nhật avatar trên navbar
+      const avatarUrl =
+        result.result.avatar || "/static/images/avatar_default.jpg";
+      updateNavbarAvatar(avatarUrl);
+
+      // Lưu thông tin user vào localStorage để sử dụng sau
+      localStorage.setItem("userInfo", JSON.stringify(result.result));
+    } else {
+      // Sử dụng avatar mặc định nếu không có
+      updateNavbarAvatar("/static/images/avatar_default.jpg");
+    }
+  } catch (error) {
+    console.error("Lỗi load avatar:", error);
+    // Sử dụng avatar mặc định khi có lỗi
+    updateNavbarAvatar("/static/images/avatar_default.jpg");
+  }
+}
+
+function updateNavbarAvatar(avatarUrl) {
+  // Tìm và cập nhật avatar trên navbar - sử dụng selector cụ thể hơn
+  const navbarAvatars = document.querySelectorAll(
+    '.topbar img.rounded-circle, .topbar img[width="32"], .topbar img[height="32"], .navbar img, .top-navbar img'
+  );
+
+  navbarAvatars.forEach((avatar) => {
+    if (avatar.tagName === "IMG") {
+      avatar.src = avatarUrl;
+      // Thêm alt text cho accessibility
+      avatar.alt = "User Avatar";
+    } else {
+      avatar.style.backgroundImage = `url(${avatarUrl})`;
+    }
+  });
+
+  // Cập nhật username từ JWT token
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const username = payload.userName || payload.username || "User";
+
+      const usernameElements = document.querySelectorAll(
+        "#usernameDisplay, .username-display, .user-name"
+      );
+      usernameElements.forEach((element) => {
+        element.textContent = username;
+      });
+    } catch (error) {
+      console.error("Lỗi parse JWT token:", error);
+    }
+  }
+}
+
+// Tích hợp vào loadPage
+const oldLoadPage = loadPage;
+loadPage = function (pageKey) {
+  oldLoadPage(pageKey);
+  if (pageKey === "addPromotion") {
+    setTimeout(initAddPromotionPage, 0);
+  }
+
+  // Load avatar cho navbar
+  setTimeout(loadUserAvatarForNavbar, 100);
+};
+
+// ==== UTILITY FUNCTIONS FOR AVATAR ====
+// Hàm để refresh avatar (có thể gọi từ console hoặc khi cần)
+function refreshNavbarAvatar() {
+  loadUserAvatarForNavbar();
+}
+
+// Hàm để kiểm tra xem avatar đã được load chưa
+function isAvatarLoaded() {
+  const avatarElements = document.querySelectorAll(
+    ".topbar img.rounded-circle"
+  );
+  return (
+    avatarElements.length > 0 &&
+    avatarElements[0].src !== "https://randomuser.me/api/portraits/men/32.jpg"
+  );
+}
+
+// Place Management Functions
+let placesData = [];
+let currentPlacePage = 0;
+let placePageSize = 10;
+let editingPlaceId = null;
+
+// Initialize Place page
+function initPlacesPage() {
+  loadPlaces();
+  setupPlaceEventListeners();
+}
+
+// Load places from API
+async function loadPlaces() {
+  try {
+    const response = await fetch('/tourify/api/place/paged?page=' + currentPlacePage + '&size=' + placePageSize);
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      placesData = data.result.content || [];
+      renderPlacesTable();
+      renderPlacePagination(data.result);
+    } else {
+      console.error('Failed to load places:', data.message);
+      showPopup('error', 'Error', 'Failed to load places');
+    }
+  } catch (error) {
+    console.error('Error loading places:', error);
+    showPopup('error', 'Error', 'Network error while loading places');
+  }
+}
+
+// Render places table
+function renderPlacesTable() {
+  const tbody = document.getElementById('placeTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+
+  if (placesData.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-muted py-4">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          No places found
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  placesData.forEach(place => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="checkbox" class="place-checkbox" value="${place.placeId}"></td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <img src="${place.image || 'https://via.placeholder.com/40x40?text=IMG'}" 
+               class="rounded" width="40" height="40" 
+               style="object-fit:cover; border:1.5px solid #ddd;">
+          <div>
+            <div class="fw-semibold lh-sm mb-1">${place.placeName}</div>
+          </div>
+        </div>
+      </td>
+      <td class="text-break">${place.placeDescription || '-'}</td>
+      <td>
+        <span class="badge bg-warning text-dark">
+          <i class="bi bi-star-fill me-1"></i>${place.rating || 'N/A'}
+        </span>
+      </td>
+      <td class="text-break">${place.gpsCoordinates || '-'}</td>
+      <td>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-primary" onclick="editPlace('${place.placeId}')" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-outline-danger" onclick="deletePlace('${place.placeId}')" title="Delete">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// Render place pagination
+function renderPlacePagination(pageData) {
+  const paginationInfo = document.getElementById('placePaginationInfo');
+  const pagination = document.getElementById('placePagination');
+
+  if (paginationInfo) {
+    const start = currentPlacePage * placePageSize + 1;
+    const end = Math.min(start + placePageSize - 1, pageData.totalElements);
+    paginationInfo.textContent = `Showing ${start}-${end} from ${pageData.totalElements}`;
+  }
+
+  if (pagination) {
+    pagination.innerHTML = '';
+
+    // Previous button
+    const prevLi = document.createElement('li');
+    prevLi.className = `page-item-mint ${currentPlacePage === 0 ? 'disabled' : ''}`;
+    prevLi.innerHTML = '<span>&lt;</span>';
+    if (currentPlacePage > 0) {
+      prevLi.onclick = () => changePlacePage(currentPlacePage - 1);
+    }
+    pagination.appendChild(prevLi);
+
+    // Page numbers
+    const totalPages = pageData.totalPages;
+    const startPage = Math.max(0, currentPlacePage - 1);
+    const endPage = Math.min(totalPages, startPage + 3);
+
+    for (let i = startPage; i < endPage; i++) {
+      const pageLi = document.createElement('li');
+      pageLi.className = `page-item-mint ${i === currentPlacePage ? 'active' : ''}`;
+      pageLi.innerHTML = `<span>${i + 1}</span>`;
+      pageLi.onclick = () => changePlacePage(i);
+      pagination.appendChild(pageLi);
+    }
+
+    // Next button
+    const nextLi = document.createElement('li');
+    nextLi.className = `page-item-mint ${currentPlacePage >= totalPages - 1 ? 'disabled' : ''}`;
+    nextLi.innerHTML = '<span>&gt;</span>';
+    if (currentPlacePage < totalPages - 1) {
+      nextLi.onclick = () => changePlacePage(currentPlacePage + 1);
+    }
+    pagination.appendChild(nextLi);
+  }
+}
+
+// Change place page
+function changePlacePage(newPage) {
+  currentPlacePage = newPage;
+  loadPlaces();
+}
+
+// Setup place event listeners
+function setupPlaceEventListeners() {
+  // Search functionality
+  const searchInput = document.getElementById('placeSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(function () {
+      // Implement search functionality if needed
+      console.log('Searching for:', this.value);
+    }, 300));
+  }
+
+  // Select all functionality
+  const selectAllCheckbox = document.getElementById('selectAllPlaces');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function () {
+      const checkboxes = document.querySelectorAll('.place-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+  }
+}
+
+// Initialize place modal
+function initPlaceModal(placeId = null) {
+  editingPlaceId = placeId;
+  const modal = document.getElementById('placeModal');
+  const modalLabel = document.getElementById('placeModalLabel');
+  const saveBtn = document.getElementById('savePlaceBtn');
+
+  if (placeId) {
+    // Edit mode
+    modalLabel.textContent = 'Edit Place';
+    saveBtn.textContent = 'Update Place';
+    loadPlaceForEdit(placeId);
+  } else {
+    // Add mode
+    modalLabel.textContent = 'Add New Place';
+    saveBtn.textContent = 'Save Place';
+    clearPlaceForm();
+  }
+}
+
+// Load place data for editing
+async function loadPlaceForEdit(placeId) {
+  try {
+    const response = await fetch(`/tourify/api/place/${placeId}`);
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      const place = data.result;
+      document.getElementById('placeName').value = place.placeName || '';
+      document.getElementById('placeDescription').value = place.placeDescription || '';
+      document.getElementById('placeImage').value = place.image || '';
+      document.getElementById('placeRating').value = place.rating || 5.0;
+      document.getElementById('placeGpsCoordinates').value = place.gpsCoordinates || '';
+    } else {
+      showPopup('error', 'Error', 'Failed to load place data');
+    }
+  } catch (error) {
+    console.error('Error loading place:', error);
+    showPopup('error', 'Error', 'Network error while loading place');
+  }
+}
+
+// Clear place form
+function clearPlaceForm() {
+  document.getElementById('placeName').value = '';
+  document.getElementById('placeDescription').value = '';
+  document.getElementById('placeImage').value = '';
+  document.getElementById('placeRating').value = '5.0';
+  document.getElementById('placeGpsCoordinates').value = '';
+}
+
+// Save place (create or update)
+async function savePlace() {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    showPopup('error', 'Error', 'Please login to continue');
+    return;
+  }
+
+  const placeData = {
+    placeName: document.getElementById('placeName').value.trim(),
+    placeDescription: document.getElementById('placeDescription').value.trim(),
+    image: document.getElementById('placeImage').value.trim(),
+    rating: parseFloat(document.getElementById('placeRating').value),
+    gpsCoordinates: document.getElementById('placeGpsCoordinates').value.trim()
+  };
+
+  // Validation
+  if (!placeData.placeName) {
+    showPopup('error', 'Validation Error', 'Place name is required');
+    return;
+  }
+
+  try {
+    const url = editingPlaceId
+      ? `/tourify/api/place/${editingPlaceId}`
+      : '/tourify/api/place';
+
+    const method = editingPlaceId ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(placeData)
+    });
+
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      showPopup('success', 'Success', editingPlaceId ? 'Place updated successfully' : 'Place created successfully');
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('placeModal'));
+      if (modal) {
+        modal.hide();
+      }
+
+      // Reload places
+      loadPlaces();
+    } else {
+      showPopup('error', 'Error', data.message || 'Operation failed');
+    }
+  } catch (error) {
+    console.error('Error saving place:', error);
+    showPopup('error', 'Error', 'Network error while saving place');
+  }
+}
+
+// Edit place
+function editPlace(placeId) {
+  initPlaceModal(placeId);
+  const modal = new bootstrap.Modal(document.getElementById('placeModal'));
+  modal.show();
+}
+
+// Delete place
+async function deletePlace(placeId) {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    showPopup('error', 'Error', 'Please login to continue');
+    return;
+  }
+
+  // Confirm deletion
+  if (!confirm('Are you sure you want to delete this place?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/tourify/api/place/${placeId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.code === 1000) {
+      showPopup('success', 'Success', 'Place deleted successfully');
+      loadPlaces();
+    } else {
+      showPopup('error', 'Error', data.message || 'Failed to delete place');
+    }
+  } catch (error) {
+    console.error('Error deleting place:', error);
+    showPopup('error', 'Error', 'Network error while deleting place');
+  }
+}
+
+// Debounce utility function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func.apply(this, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+

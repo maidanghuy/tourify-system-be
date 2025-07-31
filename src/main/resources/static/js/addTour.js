@@ -193,14 +193,16 @@ async function loadPlacesAndCategories() {
   const placeSelect = document.getElementById("place");
 
   // XÓA hết option cũ
-  categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
-  placeSelect.innerHTML = '<option value="" disabled selected>Select a place</option>';
+  if (categorySelect)
+    categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+  if (placeSelect)
+    placeSelect.innerHTML = '<option value="" disabled selected>Select a place</option>';
 
   // Fetch categories
   try {
     const res = await fetch("/tourify/api/categories");
     const categories = await res.json();
-    if (Array.isArray(categories)) {
+    if (Array.isArray(categories) && categorySelect) {
       categories.forEach((c) => {
         const opt = document.createElement("option");
         opt.value = c.categoryId;
@@ -216,7 +218,7 @@ async function loadPlacesAndCategories() {
   try {
     const res = await fetch("/tourify/api/place");
     const result = await res.json();
-    if (Array.isArray(result.result)) {
+    if (Array.isArray(result.result) && placeSelect) {
       result.result.forEach((p) => {
         const opt = document.createElement("option");
         opt.value = p.placeId;
@@ -229,11 +231,13 @@ async function loadPlacesAndCategories() {
   }
 
   // Setup lại Select2 (sau khi đã append option)
-  $("#categorySelect, #place").select2({
-    width: "100%",
-    placeholder: "Select an option",
-    allowClear: true,
-  });
+  if (window.$ && $("#categorySelect").length && $("#place").length) {
+    $("#categorySelect, #place").select2({
+      width: "100%",
+      placeholder: "Select an option",
+      allowClear: true,
+    });
+  }
 }
 
 function getFirstImageUrlOrNull() {
@@ -268,9 +272,210 @@ function previewStartDates() {
     "</ul>";
 }
 
+async function suggestTourWithAI() {
+  const placeText = document.getElementById("place").selectedOptions[0]?.textContent;
+  const categoryText = document.getElementById("categorySelect").selectedOptions[0]?.textContent;
+  const duration = document.getElementById("duration").value;
 
-document.getElementById("startDate").addEventListener("input", previewStartDates);
-document.getElementById("repeatTimes").addEventListener("input", previewStartDates);
-document.getElementById("repeatCycle").addEventListener("input", previewStartDates);
+  if (!placeText || !categoryText || !duration) {
+    Swal.fire({
+      icon: "warning",
+      title: "Please choose Place, Category and Duration first!"
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch("/tourify/api/ai/suggest-tour", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        place: placeText,
+        category: categoryText,
+        duration: parseInt(duration)
+      })
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch AI suggestion");
+    }
+
+    const aiData = await res.json();
+
+    // Đổ dữ liệu vào form
+    document.getElementById("productName").value = aiData.tourName;
+    document.getElementById("productDescription").value = aiData.description;
+    document.getElementById("basePrice").value = aiData.price;
+
+    // Auto chọn services
+    const serviceSelect = document.getElementById("servicesSelect");
+    Array.from(serviceSelect.options).forEach(opt => {
+      opt.selected = aiData.serviceIds.includes(opt.value);
+    });
+    $(serviceSelect).trigger("change");
+
+    // Auto chọn activities
+    const activitySelect = document.getElementById("activitiesSelect");
+    Array.from(activitySelect.options).forEach(opt => {
+      opt.selected = aiData.activityIds.includes(opt.value);
+    });
+    $(activitySelect).trigger("change");
+
+    calculateCompletion();
+
+    Swal.fire({
+      icon: "success",
+      title: "AI Suggestion Completed",
+      text: "Form has been filled with AI suggestion."
+    });
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "AI Suggestion Failed",
+      text: err.message
+    });
+  }
+}
+
+function openImageSuggestModal() {
+  const modal = new bootstrap.Modal(document.getElementById('imageSuggestModal'));
+  modal.show();
+}
+
+
+async function suggestTourFromImage() {
+  const fileInput = document.getElementById("aiImageFile");
+  if (!fileInput.files.length) {
+    alert("Hãy chọn một hình ảnh!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("image", fileInput.files[0]);
+
+  const res = await fetch("/tourify/api/ai/suggest-tour-from-image", {
+    method: "POST",
+    body: formData
+  });
+
+  if (!res.ok) {
+    alert("AI image analysis failed");
+    return;
+  }
+
+  const aiData = await res.json();
+
+  // Gán dữ liệu chung
+  document.getElementById("productName").value = aiData.tourName;
+  document.getElementById("productDescription").value = aiData.description;
+  document.getElementById("basePrice").value = aiData.price;
+
+  // Auto chọn place nếu trả về
+  if (aiData.place) {
+    const placeSelect = document.getElementById("place");
+    const normalizedAI = aiData.place.trim().toLowerCase();
+
+    let matched = false;
+    Array.from(placeSelect.options).forEach(opt => {
+      const text = opt.textContent.trim().toLowerCase();
+      if (text.includes(normalizedAI)) { // so sánh gần đúng
+        opt.selected = true;
+        matched = true;
+      }
+    });
+
+    if (!matched) {
+      console.warn("Không tìm thấy place khớp với:", aiData.place);
+    }
+
+    placeSelect.dispatchEvent(new Event("change"));
+  }
+
+  // Auto chọn category nếu trả về
+  if (aiData.category) {
+    const categorySelect = document.getElementById("categorySelect");
+    Array.from(categorySelect.options).forEach(opt => {
+      if (opt.textContent.trim().toLowerCase() === aiData.category.trim().toLowerCase()) {
+        opt.selected = true;
+      }
+    });
+    categorySelect.dispatchEvent(new Event("change"));
+  }
+
+  // Auto chọn services
+  const serviceSelect = document.getElementById("servicesSelect");
+  Array.from(serviceSelect.options).forEach(opt => {
+    opt.selected = aiData.serviceIds.includes(opt.value);
+  });
+  $(serviceSelect).trigger("change");
+
+  // Auto chọn activities
+  const activitySelect = document.getElementById("activitiesSelect");
+  Array.from(activitySelect.options).forEach(opt => {
+    opt.selected = aiData.activityIds.includes(opt.value);
+  });
+  $(activitySelect).trigger("change");
+
+  calculateCompletion();
+  bootstrap.Modal.getInstance(document.getElementById('imageSuggestModal')).hide();
+}
+
+async function generateItineraryWithAI() {
+  const placeText = document.getElementById("place").selectedOptions[0]?.textContent;
+  const duration = parseInt(document.getElementById("duration").value);
+  const servicesSelect = document.getElementById("servicesSelect");
+  const services = Array.from(servicesSelect.selectedOptions).map(opt => opt.textContent);
+
+  if (!placeText || !duration) {
+    Swal.fire({ icon: "warning", title: "Hãy chọn Place và Duration trước!" });
+    return;
+  }
+
+  const res = await fetch("/tourify/api/ai/generate-itinerary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ place: placeText, duration, services })
+  });
+
+  if (!res.ok) {
+    Swal.fire({ icon: "error", title: "AI Itinerary Failed" });
+    return;
+  }
+
+  const aiData = await res.json();
+
+  // Gán giá vào basePrice
+  document.getElementById("basePrice").value = aiData.estimatedPrice;
+
+  // Hiển thị lịch trình ra UI
+  const container = document.getElementById("itineraryContainer");
+  container.innerHTML = "";
+  aiData.itinerary.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "card mb-2";
+    div.innerHTML = `
+      <div class="card-header">Day ${day.day}</div>
+      <div class="card-body">
+        <ul>${day.activities.map(a => `<li>${a}</li>`).join("")}</ul>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  Swal.fire({
+    icon: "success",
+    title: "AI Lịch Trình Hoàn Tất",
+    text: "Lịch trình và giá tour đã được đề xuất!"
+  });
+}
+
+
+if (document.getElementById("startDate"))
+  document.getElementById("startDate").addEventListener("input", previewStartDates);
+if (document.getElementById("repeatTimes"))
+  document.getElementById("repeatTimes").addEventListener("input", previewStartDates);
+if (document.getElementById("repeatCycle"))
+  document.getElementById("repeatCycle").addEventListener("input", previewStartDates);
 
 
