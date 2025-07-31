@@ -422,6 +422,54 @@ async function suggestTourFromImage() {
   bootstrap.Modal.getInstance(document.getElementById('imageSuggestModal')).hide();
 }
 
+async function generateItineraryWithAI() {
+  const placeText = document.getElementById("place").selectedOptions[0]?.textContent;
+  const duration = parseInt(document.getElementById("duration").value);
+  const servicesSelect = document.getElementById("servicesSelect");
+  const services = Array.from(servicesSelect.selectedOptions).map(opt => opt.textContent);
+
+  if (!placeText || !duration) {
+    Swal.fire({ icon: "warning", title: "Hãy chọn Place và Duration trước!" });
+    return;
+  }
+
+  const res = await fetch("/tourify/api/ai/generate-itinerary", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ place: placeText, duration, services })
+  });
+
+  if (!res.ok) {
+    Swal.fire({ icon: "error", title: "AI Itinerary Failed" });
+    return;
+  }
+
+  const aiData = await res.json();
+
+  // Gán giá vào basePrice
+  document.getElementById("basePrice").value = aiData.estimatedPrice;
+
+  // Hiển thị lịch trình ra UI
+  const container = document.getElementById("itineraryContainer");
+  container.innerHTML = "";
+  aiData.itinerary.forEach(day => {
+    const div = document.createElement("div");
+    div.className = "card mb-2";
+    div.innerHTML = `
+      <div class="card-header">Day ${day.day}</div>
+      <div class="card-body">
+        <ul>${day.activities.map(a => `<li>${a}</li>`).join("")}</ul>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  Swal.fire({
+    icon: "success",
+    title: "AI Lịch Trình Hoàn Tất",
+    text: "Lịch trình và giá tour đã được đề xuất!"
+  });
+}
+
 
 if (document.getElementById("startDate"))
   document.getElementById("startDate").addEventListener("input", previewStartDates);

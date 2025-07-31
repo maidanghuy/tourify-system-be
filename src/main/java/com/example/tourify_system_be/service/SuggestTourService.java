@@ -1,6 +1,7 @@
 package com.example.tourify_system_be.service;
 
 import com.example.tourify_system_be.dto.request.SuggestTourRequest;
+import com.example.tourify_system_be.dto.response.AiItineraryResponse;
 import com.example.tourify_system_be.dto.response.SuggestTourResponse;
 import com.example.tourify_system_be.repository.IActivityRepository;
 import com.example.tourify_system_be.repository.IServicesRepository;
@@ -180,4 +181,44 @@ public class SuggestTourService {
             throw new RuntimeException("Failed to process image", e);
         }
     }
+
+    public AiItineraryResponse generateItineraryAndPrice(String place, int duration, List<String> services) {
+        String prompt = """
+    Bạn là chuyên gia du lịch.
+    Hãy tạo kế hoạch chi tiết cho tour %d ngày tại %s.
+    Yêu cầu:
+    - Với mỗi ngày: 2-3 hoạt động (có thể là tham quan, ăn uống, trải nghiệm).
+    - Dựa theo dịch vụ: %s, hãy ước lượng giá tour hợp lý (VNĐ).
+    - Trả về **chỉ JSON thuần**, không markdown, không giải thích.
+    Format:
+    {
+      "itinerary": [
+        { "day": 1, "activities": ["...","..."] },
+        { "day": 2, "activities": ["...","..."] }
+      ],
+      "estimatedPrice": 5000000
+    }
+    """.formatted(duration, place, String.join(", ", services));
+
+        String aiText = chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
+
+        // Làm sạch
+        aiText = aiText.replace("```json","").replace("```","").trim();
+        if (aiText.contains("{") && aiText.contains("}")) {
+            aiText = aiText.substring(aiText.indexOf("{"), aiText.lastIndexOf("}")+1);
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        AiItineraryResponse response = new AiItineraryResponse();
+        try {
+            response = mapper.readValue(aiText, AiItineraryResponse.class);
+        } catch (Exception e) {
+            System.err.println("Parse JSON error: " + e.getMessage());
+        }
+        return response;
+    }
+
 }
