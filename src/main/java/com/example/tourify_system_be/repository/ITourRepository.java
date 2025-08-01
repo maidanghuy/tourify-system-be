@@ -29,4 +29,7 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
 
   // Nếu cần đếm cho toàn hệ thống
   long countByStatusIgnoreCase(String status);
+
+  boolean existsByPlace_PlaceId(String placeId);
+
 }
