@@ -157,6 +157,23 @@ public class TourController {
         );
     }
 
+    @PatchMapping("/{tourId}/reject")
+    public ResponseEntity<APIResponse<Void>> rejectTour(
+            @PathVariable String tourId,
+            @RequestBody(required = false) Map<String, String> payload) {
+
+        String reason = payload != null ? payload.getOrDefault("reason", "") : "";
+        tourService.rejectTour(tourId, reason);
+
+        return ResponseEntity.ok(
+                APIResponse.<Void>builder()
+                        .code(1000)
+                        .message("Từ chối tour thành công")
+                        .build()
+        );
+    }
+
+
     /**
      * GET /api/tours/{id}/start-date
      * Trả về ngày khởi hành active (LocalDateTime)

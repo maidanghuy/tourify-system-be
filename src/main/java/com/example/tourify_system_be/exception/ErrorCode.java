@@ -34,7 +34,7 @@ public enum ErrorCode {
     SESSION_EXPIRED(1022, "The login session has expired", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(1023, "Unauthorized to cancel this booking", HttpStatus.UNAUTHORIZED),
     ROLE_NOT_ALLOWED(1024, "Only admin or tour-company has permission to perform this function", HttpStatus.UNAUTHORIZED),
-    ROLE_ALLOWED_ADMIN(1025, "Only tour-company has permission to perform this function", HttpStatus.UNAUTHORIZED),
+    ROLE_ALLOWED_ADMIN(1025, "Only Admin has permission to perform this function", HttpStatus.UNAUTHORIZED),
     TOUR_NOT_FOUND(1201, "Tour not found", HttpStatus.NOT_FOUND),
     EXCEED_MAX_PEOPLE(1202, "The number of people exceeds the tour's capacity", HttpStatus.BAD_REQUEST),
     BELOW_MIN_PEOPLE(1203, "The number of participants is below the tour's minimum requirement", HttpStatus.BAD_REQUEST),
@@ -59,6 +59,7 @@ public enum ErrorCode {
     ACTIVITY_NOT_FOUND(1044,"Not found Activity",HttpStatus.BAD_REQUEST),
     TOUR_ALREADY_REPORTED(1602, "You have already reported this tour.", HttpStatus.BAD_REQUEST),
     USER_BLOCKED(1045,"Account is blocked",HttpStatus.BAD_REQUEST),
+    PLACE_HAS_TOUR(1046,"Place has tour",HttpStatus.BAD_REQUEST),
     ;
 
 

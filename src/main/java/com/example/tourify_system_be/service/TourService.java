@@ -204,9 +204,6 @@ public class TourService {
         return tour;
     }
 
-
-
-
     public List<TourResponse> getToursByPlaceName(String placeName) {
         return tourRepository.findByPlace_PlaceNameIgnoreCase(placeName)
                 .stream()
@@ -308,9 +305,6 @@ public class TourService {
         return response;
     }
 
-
-
-
     /**
      * Lấy danh sách TourResponse theo list id
      */
@@ -334,6 +328,18 @@ public class TourService {
         tourRepository.delete(tour);
     }
 
+    @Transactional
+    public void rejectTour(String tourId, String reason) {
+        // 1️⃣ Kiểm tra tour có tồn tại?
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new EntityNotFoundException("Tour not found: " + tourId));
+
+        // 2️⃣ Cập nhật trạng thái thành REJECTED
+        tour.setStatus("REJECTED");
+        tourRepository.save(tour);
+    }
+
+
     public List<LocalDateTime> getAllStartDatesByTourId(String tourId) {
         // 1. Lấy danh sách ngày từ repository
         List<LocalDateTime> dates = iToursStartMappingRepository
@@ -343,8 +349,7 @@ public class TourService {
         if (dates.isEmpty()) {
             throw new AppException(
                     ErrorCode.TOUR_START_DATE_NOT_FOUND,
-                    "Không có lịch khởi hành cho tourId=" + tourId
-            );
+                    "Không có lịch khởi hành cho tourId=" + tourId);
         }
 
         // 3. Ngược lại trả về danh sách
@@ -393,7 +398,6 @@ public class TourService {
         tour.setUpdatedAt(LocalDateTime.now());
         tourRepository.save(tour);
     }
-
 
     @Transactional
     public void updateTour(String tourId, TourUpdateRequest req, String bearerToken) {
@@ -517,7 +521,5 @@ public class TourService {
         tour.setStatus(status);
         tourRepository.save(tour);
     }
-
-
 
 }

@@ -66,7 +66,7 @@ public class AuthUtils {
 
         // Check if user has ADMIN role
         if (!"ADMIN".equals(userDetails.getRole())) {
-            throw new AppException(ErrorCode.ROLE_NOT_ALLOWED, "Only ADMIN role is allowed to perform this operation");
+            throw new AppException(ErrorCode.ROLE_ALLOWED_ADMIN, "Only ADMIN role is allowed to perform this operation");
         }
 
         return userDetails;

@@ -7,6 +7,7 @@ import com.example.tourify_system_be.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +66,7 @@ public class WebhookController {
             BookingTour booking = bookingTourRepository
                     .findByBookingId(bookingId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy booking cho user và tour"));
-            booking.setStatus("PAID");
+            booking.setStatus("SUCCESS");
             bookingTourRepository.save(booking);
 
             // Lấy phương thức thanh toán mặc định

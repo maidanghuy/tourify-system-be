@@ -330,14 +330,14 @@ const pages = {
                 <div id="missingFieldsMsg" class="text-danger mt-1 small"></div>
                 </div>
         
-
+        
                 <div class="button-group">
                   <button class="btn btn-outline-danger" onclick="location.reload()">Cancel</button>
-                  <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
+                    <button class="btn btn-success" id="addTourBtn" disabled>+ Add Tour</button>
 
-                  <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
-                    <i class="bi bi-robot"></i> AI Suggest
-                  </button>
+                    <button type="button" class="btn btn-primary" onclick="suggestTourWithAI()">
+                        <i class="bi bi-robot"></i> AI Suggest
+                      </button>
 
                   <button type="button" class="btn btn-info" onclick="openImageSuggestModal()">
                     <i class="bi bi-image"></i> AI Image
@@ -423,7 +423,7 @@ const pages = {
                   </ul>
                 </div>
               </div>
-            </div>
+          </div>  
           `,
   },
 
@@ -1170,8 +1170,7 @@ function loadPage(pageKey) {
               </li>`
       )
       .join("")}
-            <li class="breadcrumb-item active text-success" aria-current="page">${
-              page.title
+            <li class="breadcrumb-item active text-success" aria-current="page">${page.title
     }</li>
           </ol>
         </nav>
@@ -1269,7 +1268,7 @@ function loadPage(pageKey) {
           '#promotionListBody tbody input[type="checkbox"]:checked'
         );
         const ids = Array.from(checked).map((cb) => cb.getAttribute("data-id"));
-        
+
         // Sử dụng hàm mới để xóa nhiều promotion
         await deleteMultiplePromotions(ids);
       });
@@ -1487,14 +1486,14 @@ function initAddTourPage() {
   }
 
   if (typeof $ !== "undefined") {
-  $("#statusSelect").on("change", function () {
-    const selected = $(this).val();
-    $("#statusBadge").text(selected);
-  });
+    $("#statusSelect").on("change", function () {
+      const selected = $(this).val();
+      $("#statusBadge").text(selected);
+    });
 
-  $("#categorySelect, #place").on("change", function () {
-    calculateCompletion();
-  });
+    $("#categorySelect, #place").on("change", function () {
+      calculateCompletion();
+    });
   }
 
   requiredFields.forEach(({ selector }) => {
@@ -1521,7 +1520,7 @@ function initAddTourPage() {
   if (addBtn) {
     // Kiểm tra xem hàm handleAddTour có tồn tại không
     if (typeof handleAddTour === "function") {
-    addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
+      addBtn.onclick = handleAddTour; // handleAddTour là hàm submit tour (async function ở addTour.js hoặc trong cùng file)
     } else {
       console.warn(
         "handleAddTour function is not available. Make sure addTour.js is loaded."
@@ -1581,6 +1580,8 @@ function statusBadge(status) {
       return `<span class="badge bg-danger-subtle text-danger">Out of Stock</span>`;
     case "ARCHIVED":
       return `<span class="badge bg-light text-dark">Archived</span>`;
+    case "REJECTED":
+      return `<span class="badge bg-danger-subtle text-danger">Rejected</span>`;
     default:
       return `<span class="badge bg-light text-dark">${status}</span>`;
   }
@@ -1824,22 +1825,19 @@ function renderPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage - 1
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1
     })">Trang trước</a>
       </li>
       ${Array.from(
       { length: totalPages },
       (_, i) => `
         <li class="page-item ${currentPage === i + 1 ? "active" : ""}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-            i + 1
+          <a class="page-link" href="javascript:void(0)" onclick="changePage(${i + 1
         })">${i + 1}</a>
         </li>`
     ).join("")}
       <li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePage(${
-          currentPage + 1
+        <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1
     })">Trang sau</a>
       </li>
     </ul>
@@ -2054,9 +2052,8 @@ function renderPromotionList() {
     tr.innerHTML = `
       <td><input type="checkbox" data-id="${promotion.promotionId}"></td>
       <td>
-        <div class="fw-semibold" style="font-size:0.95rem;">${
-          promotion.code || "-"
-        }</div>
+        <div class="fw-semibold" style="font-size:0.95rem;">${promotion.code || "-"
+      }</div>
       </td>
       <td class="align-middle text-break" style="max-width: 200px;" title="${description}">${shortDescription}</td>
       <td class="align-middle text-success fw-semibold text-center">${discount}</td>
@@ -2130,25 +2127,21 @@ function renderPromotionPagination() {
   pagination.innerHTML = `
     <ul class="pagination justify-content-center">
       <li class="page-item ${currentPromotionPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
-          currentPromotionPage - 1
-        })">Trang trước</a>
+        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${currentPromotionPage - 1
+    })">Trang trước</a>
       </li>
       ${Array.from(
-        { length: totalPages },
-        (_, i) => `
+      { length: totalPages },
+      (_, i) => `
         <li class="page-item ${currentPromotionPage === i + 1 ? "active" : ""}">
-          <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
-            i + 1
-          })">${i + 1}</a>
+          <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${i + 1
+        })">${i + 1}</a>
         </li>`
-      ).join("")}
-      <li class="page-item ${
-        currentPromotionPage === totalPages ? "disabled" : ""
-      }">
-        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${
-          currentPromotionPage + 1
-        })">Trang sau</a>
+    ).join("")}
+      <li class="page-item ${currentPromotionPage === totalPages ? "disabled" : ""
+    }">
+        <a class="page-link" href="javascript:void(0)" onclick="changePromotionPage(${currentPromotionPage + 1
+    })">Trang sau</a>
       </li>
     </ul>
   `;
@@ -2518,14 +2511,14 @@ async function saveEditPromotion() {
     const result = await res.json();
     if (res.ok && result.code === 1000) {
       showPopup("success", "Thành công", "Promotion đã được cập nhật thành công!");
-      
+
       // Đóng modal
       const modal = document.getElementById('editPromotionModal');
       if (modal) {
         const bootstrapModal = bootstrap.Modal.getInstance(modal);
         bootstrapModal.hide();
       }
-      
+
       // Reload danh sách promotion
       loadPromotionList();
     } else {
@@ -3186,11 +3179,9 @@ async function loadAccounts(query = "") {
             <img src="${u.avatar || "/static/images/avatar_default.jpg"}"
                  style="width:36px;height:36px;border-radius:50%;object-fit:cover;margin-right:10px;border:2px solid #b7e4c7;">
             <div>
-              <div style="font-weight:600; color:#22292f;">${
-                u.userName || ""
+              <div style="font-weight:600; color:#22292f;">${u.userName || ""
         }</div>
-              <div style="font-size:0.95em; color:#8b909a;">${
-                u.email || ""
+              <div style="font-size:0.95em; color:#8b909a;">${u.email || ""
         }</div>
             </div>
           </div>
@@ -3349,8 +3340,7 @@ async function loadDraftToursForSeller() {
       row.innerHTML = `
         <td><input type="checkbox" data-id="${tour.tourId}"></td>
         <td>
-          <img src="${
-            tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
+          <img src="${tour.thumbnail || "https://via.placeholder.com/60x40?text=IMG"
         }"
                alt="Thumb" style="width:60px;height:40px;object-fit:cover;border-radius:6px;border:1.5px solid #ddd;">
         </td>
@@ -3360,25 +3350,20 @@ async function loadDraftToursForSeller() {
         <td>
           <span>${tour.createdByUserName || "-"}</span>
         </td>
-        <td class="text-success">${
-          tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
+        <td class="text-success">${tour.price ? Number(tour.price).toLocaleString("vi-VN") + " ₫" : "-"
         }</td>
         <td>${tour.placeName || "-"}</td>
-        <td>${
-          tour.createdAt
+        <td>${tour.createdAt
           ? new Date(tour.createdAt).toLocaleDateString("vi-VN")
           : "-"
         }</td>
         <td>
-          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${
-            tour.tourId
+          <button class="btn btn-outline-success btn-sm" title="Approve" onclick="approveTour('${tour.tourId
         }')">
             <i class="bi bi-check-lg"></i>
           </button>
-          <button class="btn btn-outline-danger btn-sm" title="Delete" onclick="deleteTour('${
-            tour.tourId
-        }')">
-            <i class="bi bi-trash"></i>
+          <button class="btn btn-outline-danger btn-sm" title="Reject" onclick="rejectTour('${tour.tourId}')">
+            <i class="bi bi-x-circle"></i>
           </button>
         </td>
       `;
@@ -3472,6 +3457,54 @@ async function deleteTour(tourId) {
     console.error(e);
   }
 }
+
+async function rejectTour(tourId) {
+  const result = await showConfirmDialog({
+    title: 'Xác nhận từ chối',
+    text: 'Bạn chắc chắn muốn từ chối tour này?',
+    confirmButtonText: 'Có, từ chối!'
+  });
+
+  if (!result.isConfirmed) return;
+
+  const token = localStorage.getItem("accessToken");
+  try {
+    const res = await fetch(`/tourify/api/tours/${tourId}/reject`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ reason: "Không đạt yêu cầu" }) // Nếu muốn gửi lý do
+    });
+
+    const data = await res.json();
+    if (res.ok && data.code === 1000) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: data.message || "Đã từ chối tour!",
+        timer: 2000,
+        showConfirmButton: false
+      });
+      loadDraftToursForSeller(); // reload lại danh sách
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Thất bại',
+        text: data.message || "Từ chối tour thất bại!"
+      });
+    }
+  } catch (e) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không thể kết nối máy chủ!'
+    });
+    console.error(e);
+  }
+}
+
 
 // ==== ADD PROMOTION LOGIC ====
 const promotionRequiredFields = [
@@ -3863,11 +3896,11 @@ async function handleAddPromotion() {
 
 // ==== LOAD USER AVATAR FOR NAVBAR ====
 async function loadUserAvatarForNavbar() {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
     updateNavbarAvatar("/static/images/avatar_default.jpg", "User");
-      return;
-    }
+    return;
+  }
   try {
     const res = await fetch("/tourify/api/user/info", {
       headers: {
@@ -3910,14 +3943,14 @@ function updateNavbarAvatar(avatarUrl, fullName) {
 
   // Hiển thị tên đầy đủ (firstName + lastName)
   const username = fullName || "User";
-      const usernameElements = document.querySelectorAll(
-        "#usernameDisplay, .username-display, .user-name"
-      );
-      usernameElements.forEach((element) => {
+  const usernameElements = document.querySelectorAll(
+    "#usernameDisplay, .username-display, .user-name"
+  );
+  usernameElements.forEach((element) => {
     if (element) {
-        element.textContent = username;
+      element.textContent = username;
     }
-      });
+  });
 }
 
 // Tích hợp vào loadPage
@@ -4013,14 +4046,12 @@ function renderPlacesTable() {
   placesData.forEach((place) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><input type="checkbox" class="place-checkbox" value="${
-        place.placeId
+      <td><input type="checkbox" class="place-checkbox" value="${place.placeId
       }"></td>
       <td>
         <div class="d-flex align-items-center gap-2">
-          <img src="${
-            place.image || "https://via.placeholder.com/40x40?text=IMG"
-          }" 
+          <img src="${place.image || "https://via.placeholder.com/40x40?text=IMG"
+      }" 
                class="rounded" width="40" height="40" 
                style="object-fit:cover; border:1.5px solid #ddd;">
           <div>
@@ -4037,14 +4068,12 @@ function renderPlacesTable() {
       <td class="text-break">${place.gpsCoordinates || "-"}</td>
       <td>
         <div class="btn-group btn-group-sm">
-          <button class="btn btn-outline-primary" onclick="editPlace('${
-            place.placeId
-          }')" title="Edit">
+          <button class="btn btn-outline-primary" onclick="editPlace('${place.placeId
+      }')" title="Edit">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="btn btn-outline-danger" onclick="deletePlace('${
-            place.placeId
-          }')" title="Delete">
+          <button class="btn btn-outline-danger" onclick="deletePlace('${place.placeId
+      }')" title="Delete">
             <i class="bi bi-trash"></i>
           </button>
         </div>
@@ -4070,9 +4099,8 @@ function renderPlacePagination(pageData) {
 
     // Previous button
     const prevLi = document.createElement("li");
-    prevLi.className = `page-item-mint ${
-      currentPlacePage === 0 ? "disabled" : ""
-    }`;
+    prevLi.className = `page-item-mint ${currentPlacePage === 0 ? "disabled" : ""
+      }`;
     prevLi.innerHTML = "<span>&lt;</span>";
     if (currentPlacePage > 0) {
       prevLi.onclick = () => changePlacePage(currentPlacePage - 1);
@@ -4086,9 +4114,8 @@ function renderPlacePagination(pageData) {
 
     for (let i = startPage; i < endPage; i++) {
       const pageLi = document.createElement("li");
-      pageLi.className = `page-item-mint ${
-        i === currentPlacePage ? "active" : ""
-      }`;
+      pageLi.className = `page-item-mint ${i === currentPlacePage ? "active" : ""
+        }`;
       pageLi.innerHTML = `<span>${i + 1}</span>`;
       pageLi.onclick = () => changePlacePage(i);
       pagination.appendChild(pageLi);
@@ -4096,9 +4123,8 @@ function renderPlacePagination(pageData) {
 
     // Next button
     const nextLi = document.createElement("li");
-    nextLi.className = `page-item-mint ${
-      currentPlacePage >= totalPages - 1 ? "disabled" : ""
-    }`;
+    nextLi.className = `page-item-mint ${currentPlacePage >= totalPages - 1 ? "disabled" : ""
+      }`;
     nextLi.innerHTML = "<span>&gt;</span>";
     if (currentPlacePage < totalPages - 1) {
       nextLi.onclick = () => changePlacePage(currentPlacePage + 1);
