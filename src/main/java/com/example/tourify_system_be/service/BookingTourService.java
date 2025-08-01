@@ -226,4 +226,9 @@ public class BookingTourService {
         booking.setStatus("PAID");
         bookingTourRepository.save(booking);
     }
+
+    public BookingTour findByBookingId(String bookingId) {
+        return bookingTourRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+    }
 }

@@ -894,7 +894,7 @@ function createBookingCard(booking) {
                     data-bs-target="#feedbackModal-${booking.bookingId}">
                     <i class="fas fa-comment-dots me-1"></i> Feedback
                 </button>
-                <a href="/tourify/tour-detail/${booking.tourId}" class="btn btn-outline-success btn-sm">
+                <a href="/tourify/tourDetail?id=${booking.tourId}" class="btn btn-outline-success btn-sm">
                     <i class="fas fa-redo me-1"></i> Re-book
                 </a>
             </div>

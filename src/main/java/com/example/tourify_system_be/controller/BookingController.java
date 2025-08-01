@@ -3,11 +3,16 @@ import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.BookingCancelRequest;
 import com.example.tourify_system_be.dto.request.BookingTourRequest;
 import com.example.tourify_system_be.dto.response.BookingTourResponse;
+import com.example.tourify_system_be.entity.BookingTour;
 import com.example.tourify_system_be.service.BookingTourService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/booking")
 @RequiredArgsConstructor
@@ -37,6 +42,12 @@ public class BookingController {
                 .message("Cancel tour successfully")
                 .result(cancelBooking)
                 .build();
+    }
+
+    @GetMapping("/status/{bookingId}")
+    public ResponseEntity<?> getBookingStatus(@PathVariable String bookingId) {
+        BookingTour booking = bookingsTourService.findByBookingId(bookingId);
+        return ResponseEntity.ok(Map.of("status", booking.getStatus()));
     }
 }
 
