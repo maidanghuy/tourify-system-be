@@ -95,8 +95,8 @@ cloudinary:
 
 app:
   backend:
-    url: https://41ce8a26982b.ngrok-free.app/tourify
-    basicUrl: https://41ce8a26982b.ngrok-free.app
+    url: https://ce9cd71506de.ngrok-free.app/tourify
+    basicUrl: https://ce9cd71506de.ngrok-free.app
 
 logging:
   level:
