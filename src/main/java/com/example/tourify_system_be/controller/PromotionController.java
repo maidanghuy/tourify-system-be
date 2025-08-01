@@ -7,9 +7,12 @@ import com.example.tourify_system_be.dto.request.UpdatePromotionRequest;
 import com.example.tourify_system_be.dto.response.PromotionResponse;
 import com.example.tourify_system_be.service.PromotionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/promotions")
@@ -82,4 +85,15 @@ public class PromotionController {
                 .result(promotionService.listPromotions(token))
                 .build();
     }
+
+    @PostMapping("/parse-excel")
+    public ResponseEntity<?> parsePromotionExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            List<Map<String, Object>> result = promotionService.parsePromotionExcel(file);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }
