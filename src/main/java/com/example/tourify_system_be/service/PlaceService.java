@@ -9,6 +9,7 @@ import com.example.tourify_system_be.exception.AppException;
 import com.example.tourify_system_be.exception.ErrorCode;
 import com.example.tourify_system_be.mapper.PlaceMapper;
 import com.example.tourify_system_be.repository.IPlaceRepository;
+import com.example.tourify_system_be.repository.ITourRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PlaceService {
     IPlaceRepository placeRepository;
+    ITourRepository tourRepository;
     PlaceMapper placeMapper;
 
     public List<PlaceResponse> getPlaces() {
@@ -91,6 +94,7 @@ public class PlaceService {
         placeRepository.deleteById(placeId);
     }
 
+    @Transactional
     public void deletePlaces(List<String> placeIds) {
         if (placeIds == null || placeIds.isEmpty()) {
             throw new AppException(ErrorCode.INVALID_REQUEST, "No place IDs provided");
@@ -102,6 +106,19 @@ public class PlaceService {
             throw new AppException(ErrorCode.PLACE_NOT_FOUND, "Some places not found");
         }
 
+        // Kiểm tra từng place có tour nào không
+        for (String placeId : placeIds) {
+            boolean linked = tourRepository.existsByPlace_PlaceId(placeId);
+            if (linked) {
+                throw new AppException(
+                        ErrorCode.PLACE_HAS_TOUR,
+                        "Không thể xóa địa điểm vì đã có tour liên kết: " + placeId
+                );
+            }
+        }
+
+        // Không có tour liên quan => xóa
         placeRepository.deleteAllById(placeIds);
     }
+
 }
