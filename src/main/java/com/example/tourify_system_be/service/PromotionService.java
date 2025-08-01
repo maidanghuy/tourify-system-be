@@ -14,16 +14,18 @@ import com.example.tourify_system_be.entity.User;
 import com.example.tourify_system_be.entity.TourPromotion;
 import com.example.tourify_system_be.entity.TourPromotionId;
 import com.example.tourify_system_be.dto.request.UpdatePromotionRequest;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -309,5 +311,52 @@ public class PromotionService {
                 .map(promotionMapper::toPromotionResponse)
                 .toList();
     }
+
+    public List<Map<String, Object>> parsePromotionExcel(MultipartFile file) throws IOException {
+        List<Map<String, Object>> promotions = new ArrayList<>();
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            int lastRow = sheet.getLastRowNum();
+            for (int i = 1; i <= lastRow; i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("code", getStringCellValue(row.getCell(0)));
+                data.put("description", getStringCellValue(row.getCell(1)));
+                data.put("quantity", getIntCellValue(row.getCell(2)));
+                data.put("minPurchase", getIntCellValue(row.getCell(3)));
+                data.put("minPurchaseDescription", getStringCellValue(row.getCell(4)));
+                data.put("discountPercent", getIntCellValue(row.getCell(5)));
+                data.put("startTime", getStringCellValue(row.getCell(6)));
+                data.put("endTime", getStringCellValue(row.getCell(7)));
+                data.put("conditions", row.getCell(8) != null ? getStringCellValue(row.getCell(8)) : "");
+                promotions.add(data);
+            }
+        }
+        return promotions;
+    }
+
+    private int getIntCellValue(Cell cell) {
+        if (cell == null) return 0;
+        return switch (cell.getCellType()) {
+            case NUMERIC -> (int) cell.getNumericCellValue();
+            case STRING -> {
+                String val = cell.getStringCellValue().trim();
+                if (val.isEmpty()) yield 0;
+                yield Integer.parseInt(val.replaceAll("[^0-9]", "")); // loại ký tự thừa
+            }
+            default -> 0;
+        };
+    }
+
+    private String getStringCellValue(Cell cell) {
+        if (cell == null) return "";
+        return cell.getCellType() == CellType.NUMERIC
+                ? String.valueOf((int) cell.getNumericCellValue())
+                : cell.getStringCellValue();
+    }
+
 
 }
