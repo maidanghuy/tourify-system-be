@@ -1064,6 +1064,10 @@ const pages = {
               <div>
                 <button class="btn btn-outline-danger">Cancel</button>
                 <button class="btn btn-success" id="addPromotionBtn" disabled>+ Add Promotion</button>
+                <button type="button" class="btn btn-excel" id="btnImportPromotionExcel">
+                  <i class="bi bi-file-earmark-spreadsheet"></i> Import Excel
+                </button>
+                <input type="file" id="promotionExcelInput" accept=".xlsx" style="display:none" />
               </div>
             </div>
           </div>
@@ -3894,6 +3898,147 @@ async function handleAddPromotion() {
   }
 }
 
+function attachPromotionExcelImportEvents() {
+  const input = document.getElementById("promotionExcelInput");
+  const button = document.getElementById("btnImportPromotionExcel");
+  if (!input || !button) return;
+
+  button.addEventListener("click", () => input.click());
+
+  input.addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/tourify/api/promotions/parse-excel", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        Swal.fire({ icon: "error", title: "Import failed", text: "Failed to parse Promotion Excel!" });
+        return;
+      }
+
+      const promotions = await res.json();
+      console.log("Excel promotions:", promotions);
+
+      if (!Array.isArray(promotions) || promotions.length === 0) {
+        Swal.fire({ icon: "warning", title: "No data", text: "Không có promotion nào trong file Excel!" });
+        return;
+      }
+
+      await importMultiplePromotions(promotions);
+
+      Swal.fire({
+        icon: "success",
+        title: "Completed!",
+        text: `Đã import ${promotions.length} promotions thành công`
+      });
+
+    } catch (err) {
+      console.error("Promotion Excel import error", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Có lỗi khi đọc file Excel."
+      });
+    }
+  });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForToursLoaded(selectEl, timeout = 10000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    // Khi có hơn 1 option (không tính option disabled) thì coi như load xong
+    const options = Array.from(selectEl.options)
+      .filter(o => !o.disabled && o.value && o.value.trim() !== "");
+    if (options.length > 0) return true;
+    await sleep(500);
+  }
+  return false;
+}
+
+async function fillPromotionForm(p) {
+  document.getElementById("promotionCode").value = p.code || "";
+  document.getElementById("promotionDescription").value = p.description || "";
+  document.getElementById("promotionQuantity").value = p.quantity || "";
+  document.getElementById("promotionMinPurchase").value = p.minPurchase || "";
+  document.getElementById("promotionDiscountPercent").value = p.discountPercent || "";
+  document.getElementById("promotionMinPurchaseDescription").value = p.conditions || "";
+  document.getElementById("promotionStartTime").value = convertExcelDate(p.startTime);
+  document.getElementById("promotionEndTime").value = convertExcelDate(p.endTime);
+
+  const tourSelect = document.getElementById("promotionTourIds");
+  const addAllToursBtn = document.getElementById("addAllToursBtn");
+
+  if (tourSelect && addAllToursBtn) {
+    // Click container của select2, không phải select
+    const select2Container = document.querySelector('#promotionTourIds + .select2');
+    if (select2Container) {
+      select2Container.click();
+    } else {
+      tourSelect.click();
+    }
+
+    // Chờ load options
+    // Gọi loadPromotionTours trước khi chờ
+    await loadPromotionTours();
+    const loaded = await waitForToursLoaded(tourSelect);
+
+    if (!loaded) {
+      console.error("Tours not loaded in time");
+      return;
+    }
+
+    // Click Add All Tours
+    addAllToursBtn.click();
+
+    // Đảm bảo tất cả được chọn
+    Array.from(tourSelect.options).forEach(opt => opt.selected = true);
+  }
+
+  calculatePromotionCompletion();
+}
+
+
+function convertExcelDate(raw) {
+  let str = raw.trim();
+  if (str.includes("thg")) {
+    const parts = str.split(/[\s-]+/);
+    const day = parts[0];
+    const month = parts[2];
+    const year = parts[3];
+    return `${year}-${month.padStart(2,"0")}-${day.padStart(2,"0")}`;
+  } else if (str.includes("/")) {
+    const parts = str.split("/");
+    return `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+  }
+  return str;
+}
+
+async function importMultiplePromotions(promotions) {
+  for (let i = 0; i < promotions.length; i++) {
+    await fillPromotionForm(promotions[i]);
+
+    // Sau khi fill xong, gọi API
+    await handleAddPromotion();
+
+    // Đợi thêm 2 giây trước khi thêm promotion tiếp theo
+    await sleep(2000);
+  }
+}
+
+
+
+
 // ==== LOAD USER AVATAR FOR NAVBAR ====
 async function loadUserAvatarForNavbar() {
   const token = localStorage.getItem("accessToken");
@@ -3958,12 +4103,16 @@ const originalLoadPage = loadPage;
 loadPage = function (pageKey) {
   originalLoadPage(pageKey);
   if (pageKey === "addPromotion") {
-    setTimeout(initAddPromotionPage, 0);
+    setTimeout(() => {
+      initAddPromotionPage();
+      attachPromotionExcelImportEvents(); // GỌI THÊM Ở ĐÂY
+    }, 0);
   }
 
   // Load avatar cho navbar
   setTimeout(loadUserAvatarForNavbar, 100);
 };
+
 
 // ==== UTILITY FUNCTIONS FOR AVATAR ====
 // Hàm để refresh avatar (có thể gọi từ console hoặc khi cần)

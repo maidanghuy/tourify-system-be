@@ -63,7 +63,7 @@ public class AuthService {
 
         tokenRepo.save(tokenAuth);
 
-        String resetLink = "https://41ce8a26982b.ngrok-free.app/tourify/reset_password?token=" + token;
+        String resetLink = "https://ce9cd71506de.ngrok-free.app/tourify/reset_password?token=" + token;
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
