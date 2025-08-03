@@ -22,10 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -49,6 +46,7 @@ public class TourService {
     private final ITourServicesRepository iTourServicesRepository;
     private final IActivityRepository iActivityRepository;
     private final IServicesRepository iServicesRepository;
+    private final ITourFavoriteRepository tourFavoriteRepository;
     private final JwtUtil jwtUtil;
 
     public List<TourResponse> searchTours(TourSearchRequest request) {
@@ -520,6 +518,55 @@ public class TourService {
                 .orElseThrow(() -> new RuntimeException("Tour not found!"));
         tour.setStatus(status);
         tourRepository.save(tour);
+    }
+
+    public List<Tour> getRecommendedTours(String userId) {
+        User user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 1. Lấy address (nơi ở) user
+        String address = user.getAddress();
+
+        // 2. Lấy tourId đã booking/favorite
+        List<BookingTour> bookingTours = IBookingRepository.findByUser_UserId(userId);
+        List<String> bookedTourIds = bookingTours.stream()
+                .map(b -> b.getTour().getTourId())
+                .toList();
+
+        List<TourFavorite> favorites = tourFavoriteRepository.findByUser_UserId(userId);
+        List<String> favTourIds = favorites.stream()
+                .map(f -> f.getTour().getTourId())
+                .toList();
+
+        // 3. Lấy list category & place user hay chọn nhất
+        Set<String> preferredCategories = bookingTours.stream()
+                .map(b -> b.getTour().getCategory().getCategoryName())
+                .collect(Collectors.toSet());
+        preferredCategories.addAll(favorites.stream()
+                .map(f -> f.getTour().getCategory().getCategoryName())
+                .collect(Collectors.toSet()));
+
+        Set<String> preferredPlaces = bookingTours.stream()
+                .map(b -> b.getTour().getPlace().getPlaceName())
+                .collect(Collectors.toSet());
+        preferredPlaces.addAll(favorites.stream()
+                .map(f -> f.getTour().getPlace().getPlaceName())
+                .collect(Collectors.toSet()));
+
+        // 4. Query Tour gợi ý: nơi ở (address), hoặc nơi hay booking, hoặc cùng category đã booking/fav
+        List<Tour> tours = tourRepository
+                .findTop10ByStatusAndPlace_PlaceNameContainingIgnoreCaseOrPlace_PlaceNameInOrCategory_CategoryNameIn(
+                        "active", address, preferredPlaces, preferredCategories);
+
+        // Nếu vẫn chưa đủ thì random thêm tour nổi bật
+        if (tours.size() < 4) {
+            List<Tour> hotTours = tourRepository.findTop5ByStatusOrderByCreatedAtDesc("active");
+            for (Tour t : hotTours) {
+                if (!tours.contains(t)) tours.add(t);
+            }
+        }
+
+        return tours.stream().distinct().limit(6).toList();
     }
 
 }

@@ -178,4 +178,7 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
                         "GROUP BY b.tour_id, t.tour_name " +
                         "ORDER BY cnt DESC", nativeQuery = true)
         List<Object[]> findTopBookedToursBySubCompanyId(@Param("subCompanyId") String subCompanyId, Pageable pageable);
+
+        // Tìm tất cả booking của user theo userId
+        List<BookingTour> findByUser_UserId(String userId);
 }
