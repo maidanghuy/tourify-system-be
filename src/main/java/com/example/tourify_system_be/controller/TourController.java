@@ -1,6 +1,7 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
+import com.example.tourify_system_be.dto.response.TourRecommendResponse;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.exception.AppException;
@@ -229,4 +230,12 @@ public class TourController {
                 .build();
     }
 
+    @GetMapping("/recommend")
+    public ResponseEntity<?> getRecommendedTours(@RequestParam String userId) {
+        List<Tour> tours = tourService.getRecommendedTours(userId);
+
+        // Đưa về DTO để không trả ra entity gốc
+        List<TourRecommendResponse> dtos = tours.stream().map(TourRecommendResponse::fromTour).toList();
+        return ResponseEntity.ok(Map.of("result", dtos));
+    }
 }

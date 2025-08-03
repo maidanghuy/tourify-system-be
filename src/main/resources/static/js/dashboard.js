@@ -995,6 +995,20 @@ const pages = {
   </div>
 </div>
 
+<!-- AI Analytics / Insights -->
+<div class="card-glass p-4 mb-4 shadow-sm" id="aiInsightsSection">
+  <h5 class="fw-semibold mb-3">
+    <i class="bi bi-robot"></i> AI Insights: Trends & Hot Tours
+  </h5>
+  <div id="aiTrends" class="mb-3">
+    <!-- JS sẽ show trend summary ở đây -->
+  </div>
+  <div id="aiTopTours">
+    <!-- JS sẽ render danh sách các tour nổi bật được AI gợi ý -->
+  </div>
+</div>
+
+
           `,
   },
 
@@ -2677,12 +2691,12 @@ function initAnalyticsPage() {
   const sysTableMonth = document.getElementById("systemTbodyMonth");
   const sysTableYear = document.getElementById("systemTbodyYear");
   if (
-    !btnFilter ||
-    !inpStart ||
-    !inpEnd ||
-    !tableDay ||
-    !tableMonth ||
-    !tableYear
+      !btnFilter ||
+      !inpStart ||
+      !inpEnd ||
+      !tableDay ||
+      !tableMonth ||
+      !tableYear
   )
     return;
 
@@ -2705,11 +2719,11 @@ function initAnalyticsPage() {
   function renderSystemTable(type) {
     let data = sysRevenueData[type] || [];
     let tbody =
-      type === "day"
-        ? sysTableDay
-        : type === "month"
-          ? sysTableMonth
-          : sysTableYear;
+        type === "day"
+            ? sysTableDay
+            : type === "month"
+                ? sysTableMonth
+                : sysTableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -2728,7 +2742,7 @@ function initAnalyticsPage() {
   function renderCompanyTable(type) {
     let data = revenueData[type] || [];
     let tbody =
-      type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+        type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -2741,7 +2755,7 @@ function initAnalyticsPage() {
       let value = Number(row.totalRevenue) || 0;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td>${label}</td><td>${company}</td><td>${formatVND(
-        value
+          value
       )}</td>`;
       tbody.appendChild(tr);
     }
@@ -2761,13 +2775,13 @@ function initAnalyticsPage() {
 
     // Loading message
     [tableDay, tableMonth, tableYear].forEach(
-      (tbody) =>
-        (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
+        (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
     );
     if (role === "admin") {
       [sysTableDay, sysTableMonth, sysTableYear].forEach(
-        (tbody) =>
-          (tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`)
+          (tbody) =>
+              (tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`)
       );
     }
 
@@ -2783,14 +2797,14 @@ function initAnalyticsPage() {
         const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
 
         const [sysDay, sysMonth, sysYear, cmpDay, cmpMonth, cmpYear] =
-          await Promise.all([
-            fetch(sysDayUrl, { headers }).then((r) => r.json()),
-            fetch(sysMonthUrl, { headers }).then((r) => r.json()),
-            fetch(sysYearUrl, { headers }).then((r) => r.json()),
-            fetch(cmpDayUrl, { headers }).then((r) => r.json()),
-            fetch(cmpMonthUrl, { headers }).then((r) => r.json()),
-            fetch(cmpYearUrl, { headers }).then((r) => r.json()),
-          ]);
+            await Promise.all([
+              fetch(sysDayUrl, { headers }).then((r) => r.json()),
+              fetch(sysMonthUrl, { headers }).then((r) => r.json()),
+              fetch(sysYearUrl, { headers }).then((r) => r.json()),
+              fetch(cmpDayUrl, { headers }).then((r) => r.json()),
+              fetch(cmpMonthUrl, { headers }).then((r) => r.json()),
+              fetch(cmpYearUrl, { headers }).then((r) => r.json()),
+            ]);
         sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
         sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
         sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
@@ -2801,8 +2815,8 @@ function initAnalyticsPage() {
         const subCompanyId = getSubCompanyIdFromToken(accessToken);
         if (!subCompanyId) {
           [tableDay, tableMonth, tableYear].forEach(
-            (tbody) =>
-              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+              (tbody) =>
+                  (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
           );
           return;
         }
@@ -2819,12 +2833,12 @@ function initAnalyticsPage() {
         revenueData.year = Array.isArray(y) ? y : [];
       } else {
         [tableDay, tableMonth, tableYear].forEach(
-          (tbody) =>
-            (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
+            (tbody) =>
+                (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
         [sysTableDay, sysTableMonth, sysTableYear].forEach(
-          (tbody) =>
-            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
+            (tbody) =>
+                (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
         return;
       }
@@ -2846,16 +2860,85 @@ function initAnalyticsPage() {
       afterRender();
     } catch (err) {
       [tableDay, tableMonth, tableYear].forEach(
-        (tbody) =>
-          (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+          (tbody) =>
+              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
       );
       if (role === "admin") {
         [sysTableDay, sysTableMonth, sysTableYear].forEach(
-          (tbody) =>
-            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+            (tbody) =>
+                (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
         );
       }
       console.error(err);
+    }
+  }
+
+  // ========== AI INSIGHTS ==========
+  function toISOStringDateOnly(dateStr, isEnd = false) {
+    // Chuyển '2025-08-02' thành '2025-08-02T00:00:00' hoặc '2025-08-02T23:59:59'
+    if (!dateStr) return "";
+    return dateStr + (isEnd ? "T23:59:59" : "T00:00:00");
+  }
+
+  async function fetchAIInsights(start, end) {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const role = getRoleFromToken(token)?.toLowerCase();
+      // Chuyển ngày về ISO-8601
+      const startIso = toISOStringDateOnly(start, false);
+      const endIso = toISOStringDateOnly(end, true);
+      let url = `/tourify/api/ai/ai-insights?start=${encodeURIComponent(startIso)}&end=${encodeURIComponent(endIso)}`;
+      if (role === "sub_company") {
+        const subCompanyId = getSubCompanyIdFromToken(token);
+        if (!subCompanyId) throw new Error("Không lấy được subCompanyId!");
+        url += `&subCompanyId=${encodeURIComponent(subCompanyId)}`;
+      }
+      const resp = await fetch(url, {
+        headers: token ? { Authorization: "Bearer " + token } : {},
+      });
+      if (!resp.ok) throw new Error("Lỗi API AI Insights");
+      const json = await resp.json();
+      renderAIInsights(json);
+    } catch (err) {
+      document.getElementById("aiTrends").innerHTML = `<div class="text-danger">Cannot load AI insights.</div>`;
+      document.getElementById("aiTopTours").innerHTML = "";
+      console.error("Lỗi lấy AI insights:", err);
+    }
+  }
+
+
+  function renderAIInsights(data) {
+    document.getElementById("aiTrends").innerHTML = data.trends
+        ? `<div class="alert alert-info">${data.trends}</div>`
+        : `<div class="text-muted">No trend insights found.</div>`;
+    if (Array.isArray(data.hotTours) && data.hotTours.length > 0) {
+      document.getElementById("aiTopTours").innerHTML = `
+        <div class="row">
+          ${data.hotTours
+          .map(
+              (tour) => `
+            <div class="col-md-6 col-lg-4 mb-3">
+              <div class="card shadow-sm h-100">
+                <div class="card-body">
+                  <h6 class="fw-bold mb-2">${tour.tourName}</h6>
+                  <div class="mb-1">
+                    <span class="badge bg-warning text-dark me-1">AI Hot${
+                  tour.bookingCount ? ` (${tour.bookingCount})` : ""
+              }</span>
+                  </div>
+                  <small class="text-muted">${tour.reason || ""}</small>
+                </div>
+              </div>
+            </div>
+          `
+          )
+          .join("")}
+        </div>
+      `;
+    } else {
+      document.getElementById(
+          "aiTopTours"
+      ).innerHTML = `<div class="text-muted">No hot tours detected by AI.</div>`;
     }
   }
 
@@ -2866,7 +2949,6 @@ function initAnalyticsPage() {
       const role = getRoleFromToken(token)?.toLowerCase();
       let url = "/tourify/api/revenue/active-tours/count";
 
-      // Nếu là sub_company thì truyền subCompanyId vào param (giả sử backend nhận param ?subCompanyId=)
       if (role === "sub_company") {
         const subCompanyId = getSubCompanyIdFromToken(token);
         if (!subCompanyId) throw new Error("Không lấy được subCompanyId!");
@@ -2878,7 +2960,8 @@ function initAnalyticsPage() {
       });
       if (!resp.ok) throw new Error("Lỗi API active tours");
       const json = await resp.json();
-      const count = json.result != null ? json.result : json.count || 0;
+      const count =
+          json.result != null ? json.result : json.count || 0;
       document.getElementById("activeToursCount").textContent = count;
     } catch (err) {
       document.getElementById("activeToursCount").textContent = "—";
@@ -2892,13 +2975,11 @@ function initAnalyticsPage() {
       const role = getRoleFromToken(token)?.toLowerCase();
       let url = `/tourify/api/revenue/top-booked?limit=10`;
 
-      // Nếu là sub_company thì truyền subCompanyId cho backend filter
       if (role === "sub_company") {
         const subCompanyId = getSubCompanyIdFromToken(token);
         if (!subCompanyId) throw new Error("Không lấy được subCompanyId!");
         url += `&subCompanyId=${encodeURIComponent(subCompanyId)}`;
       }
-      // Nếu cần filter theo ngày thì truyền thêm start/end
 
       const resp = await fetch(url, {
         headers: token ? { Authorization: "Bearer " + token } : {},
@@ -2921,7 +3002,7 @@ function initAnalyticsPage() {
       }
     } catch (err) {
       document.getElementById(
-        "topBookedToursTbody"
+          "topBookedToursTbody"
       ).innerHTML = `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
@@ -2959,7 +3040,6 @@ function initAnalyticsPage() {
         },
       ];
     } else {
-      // Multi company chart
       const companySet = new Set();
       const labelSet = new Set();
       dataArr.forEach((row) => {
@@ -3044,11 +3124,11 @@ function initAnalyticsPage() {
       const btnTableId = `btnShowTable${capitalize(key)}`;
       if (document.getElementById(btnChartId)) {
         document.getElementById(btnChartId).onclick = () =>
-          renderChart(type, isSystem);
+            renderChart(type, isSystem);
       }
       if (document.getElementById(btnTableId)) {
         document.getElementById(btnTableId).onclick = () =>
-          showTable(type, isSystem);
+            showTable(type, isSystem);
       }
     });
   }
@@ -3059,48 +3139,51 @@ function initAnalyticsPage() {
   // ========== SỰ KIỆN UI ==========
   btnFilter.onclick = function () {
     fetchAndRenderAll();
-    analyticsHeaderStats(); // ← Gọi lại header stats khi filter
+    analyticsHeaderStats();
+    fetchAIInsights(inpStart.value, inpEnd.value);
   };
   document
-    .getElementById("revenue-range-tabs")
-    .addEventListener("click", function (e) {
-      if (e.target.classList.contains("nav-link")) {
-        setTimeout(() => {
-          const activeTab = document.querySelector(".tab-pane.active").id;
-          if (activeTab === "revenue-day") {
-            if (getRoleFromToken(accessToken) === "admin")
-              renderSystemTable("day");
-            renderCompanyTable("day");
-          }
-          if (activeTab === "revenue-month") {
-            if (getRoleFromToken(accessToken) === "admin")
-              renderSystemTable("month");
-            renderCompanyTable("month");
-          }
-          if (activeTab === "revenue-year") {
-            if (getRoleFromToken(accessToken) === "admin")
-              renderSystemTable("year");
-            renderCompanyTable("year");
-          }
-          afterRender();
-          analyticsHeaderStats(); // Gọi lại header stats khi đổi tab, đảm bảo filter đúng
-        }, 50);
-      }
-    });
+      .getElementById("revenue-range-tabs")
+      .addEventListener("click", function (e) {
+        if (e.target.classList.contains("nav-link")) {
+          setTimeout(() => {
+            const activeTab = document.querySelector(".tab-pane.active").id;
+            if (activeTab === "revenue-day") {
+              if (getRoleFromToken(accessToken) === "admin")
+                renderSystemTable("day");
+              renderCompanyTable("day");
+            }
+            if (activeTab === "revenue-month") {
+              if (getRoleFromToken(accessToken) === "admin")
+                renderSystemTable("month");
+              renderCompanyTable("month");
+            }
+            if (activeTab === "revenue-year") {
+              if (getRoleFromToken(accessToken) === "admin")
+                renderSystemTable("year");
+              renderCompanyTable("year");
+            }
+            afterRender();
+            analyticsHeaderStats();
+            fetchAIInsights(inpStart.value, inpEnd.value);
+          }, 50);
+        }
+      });
 
   // Set ngày mặc định cho input
   const today = new Date();
   inpEnd.value = today.toISOString().slice(0, 10);
   const lastMonth = new Date(
-    today.getFullYear(),
-    today.getMonth() - 1,
-    today.getDate()
+      today.getFullYear(),
+      today.getMonth() - 1,
+      today.getDate()
   );
   inpStart.value = lastMonth.toISOString().slice(0, 10);
 
   // Khởi động lần đầu
   fetchAndRenderAll();
   analyticsHeaderStats();
+  fetchAIInsights(inpStart.value, inpEnd.value);
 }
 
 // Utility functions are already defined above
