@@ -443,6 +443,6 @@ public class ChatService {
 
     private String buildTourLink(String tourId) {
 
-        return "http://localhost:8080/tourify/tourDetail?id=" + tourId;
+        return "https://ce9cd71506de.ngrok-free.app/tourify/tourDetail?id=" + tourId;
     }
 }
