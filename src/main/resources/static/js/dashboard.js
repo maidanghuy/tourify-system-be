@@ -549,71 +549,37 @@ const pages = {
     title: "Booking",
     breadcrumbs: ["dashboard"],
     content: `
-          <div class="container-fluid py-4">
-              <div class="admin-card p-4">
-                <!-- Time Filter + Filter Button -->
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-                  <!-- Search bên trái -->
-                  <div class="flex-grow-1" style="min-width:220px;max-width:520px;">
-                    <input
-                      class="form-control-mint w-100"
-                      type="text"
-                      placeholder="Search category..."
-                    />
-                  </div>
-                  <!-- 2 nút bên phải -->
-                  <div class="d-flex gap-2 flex-shrink-0">
-                    <button class="btn-mint-filter" type="button">
-                      <i class="bi bi-funnel"></i> Filters
-                    </button>
-                    <button
-                      class="btn-mint-accent"
-                      data-bs-toggle="modal"
-                      data-bs-target="#catModal"
-                    >
-                      <i class="bi bi-plus"></i> Add Booking
-                    </button>
-                  </div>
-                </div>
-            
-                <!-- Table -->
-                <div class="table-responsive-mint">
-                  <table class="mint-table w-100" id="bookingTable">
-                    <thead>
-                      <tr>
-                        <th style="width:32px"><input type="checkbox" /></th>
-                        <th style="min-width:100px">Booking ID</th>
-                        <th style="min-width:170px">BookingTour</th>
-                        <th style="min-width:160px">Customer</th>
-                        <th style="min-width:90px">Total</th>
-                        <th style="min-width:100px">Payment</th>
-                        <th style="min-width:100px">Status</th>
-                        <th style="min-width:80px">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- JS render booking rows here -->
-                    </tbody>
-                  </table>
-                </div>
-            
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
-                  <div class="small text-muted">Showing 1-10 from 100</div>
-                  <ul class="pagination-mint mb-0">
-                    <li class="page-item-mint disabled"><span>&lt;</span></li>
-                    <li class="page-item-mint active"><span>1</span></li>
-                    <li class="page-item-mint"><span>2</span></li>
-                    <li class="page-item-mint"><span>3</span></li>
-                    <li class="page-item-mint"><span>4</span></li>
-                    <li class="page-item-mint"><span>5</span></li>
-                    <li class="page-item-mint"><span>...</span></li>
-                    <li class="page-item-mint"><span>&gt;</span></li>
-                  </ul>
-                </div>
-              </div>
+    <div class="container py-4">
+      <div class="admin-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+          <div class="flex-grow-1" style="min-width:220px; max-width:520px;">
+            <input class="form-control-mint w-100" type="text" id="bookingSearchInput" placeholder="Search bookings..."/>
           </div>
-          `,
+        </div>
+
+        <div class="table-responsive-mint">
+          <table class="mint-table w-100" id="bookingTable">
+            <thead>
+              <tr>
+                <th style="min-width:200px">Tour Name</th>
+                <th style="min-width:150px">Start Date</th>
+                <th style="min-width:150px">Created At</th>
+                <th style="min-width:120px">Status</th>
+                <th style="min-width:120px">Total Price</th>
+                <th style="min-width:90px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+          <div class="small text-muted" id="bookingPaginationInfo">Showing 0-0 from 0</div>
+          <ul class="pagination-mint mb-0" id="bookingPagination"></ul>
+        </div>
+      </div>
+    </div>
+  `
   },
 
   /* === 7. CUSTOMERS === */
@@ -1306,6 +1272,8 @@ function loadPage(pageKey) {
   } else if (pageKey === "places") {
     // Khởi tạo trang Places
     setTimeout(() => initPlacesPage(), 0);
+  } else if (pageKey === "booking"){
+    setTimeout( () => initBookingsPage(), 0);
   }
 }
 
@@ -4794,4 +4762,92 @@ function confirmMapLocation() {
   }
   const modal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
   if (modal) modal.hide();
+}
+
+async function deleteBooking(bookingId) {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return Swal.fire("Error", "Please login", "error");
+
+  const result = await Swal.fire({
+    title: "Confirm Delete",
+    text: "Do you really want to delete this booking?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!"
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const response = await fetch(`/tourify/api/booking/${bookingId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (data.code === 1000) {
+      Swal.fire("Success", "Booking deleted", "success");
+      loadBookings();
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (err) {
+    Swal.fire("Error", "Network error", "error");
+  }
+}
+
+function renderBookingTable() {
+  const tbody = document.getElementById("bookingTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = bookingData.length === 0
+      ? `<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No bookings found</td></tr>`
+      : bookingData.map((b) => `
+        <tr>
+          <td>${b.tourName}</td>
+          <td>${b.dayStart}</td>
+          <td>${b.createdAt}</td>
+          <td><span class="badge bg-info">${b.status}</span></td>
+          <td>${new Intl.NumberFormat('vi-VN').format(b.totalPrice)} đ</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-danger" onclick="deleteBooking('${b.bookingId}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+}
+
+let bookingData = [];
+let currentBookingPage = 0;
+let bookingPageSize = 10;
+let currentBookingSearchTerm = '';
+
+async function loadBookings() {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Missing token");
+
+    const response = await fetch("/tourify/api/booking", {
+      headers: {Authorization: `Bearer ${token}`},
+    });
+
+    const data = await response.json();
+    if (data.code === 1000) {
+      bookingData = data.result || [];
+      renderBookingTable();
+      // renderBookingPagination(); // nếu cần
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Failed to load bookings", "error");
+  }
+}
+
+function initBookingsPage() {
+  loadBookings();
+  // search input debounce nếu cần
 }
