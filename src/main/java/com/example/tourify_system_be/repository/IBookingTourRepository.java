@@ -1,6 +1,8 @@
 package com.example.tourify_system_be.repository;
 
+import com.example.tourify_system_be.dto.response.BookingTourResponse;
 import com.example.tourify_system_be.entity.BookingTour;
+import com.example.tourify_system_be.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -181,4 +183,8 @@ public interface IBookingTourRepository extends JpaRepository<BookingTour, Strin
 
         // Tìm tất cả booking của user theo userId
         List<BookingTour> findByUser_UserId(String userId);
+
+        List<BookingTour> findByTour_ManageBy_UserId(String userId);
+
+
 }

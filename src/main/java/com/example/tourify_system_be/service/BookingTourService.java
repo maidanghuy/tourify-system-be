@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -231,4 +232,158 @@ public class BookingTourService {
         return bookingTourRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Not found"));
     }
+
+    public List<BookingTourResponse> getAllBookingsForUser(String token) {
+
+        // Tách token khỏi chuỗi "Bearer ..."
+        String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+
+        TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (tokenAuth == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Không tim thấy token trong DB!");
+        }
+
+        // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
+        TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Token này không tồn tại trong hệ thống!");
+        }
+        if (!session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên đăng nhập!");
+        }
+
+        // Trích xuất thông tin user
+        User user = tokenAuth.getUser();
+
+        List<BookingTour> bookings;
+
+        switch (user.getRole().toLowerCase()) {
+            case "user":
+                bookings = bookingTourRepository.findByUser_UserId(user.getUserId());
+                break;
+
+            case "sub_company":
+                // Tìm danh sách booking thuộc các tour do user này quản lý
+                bookings = bookingTourRepository.findByTour_ManageBy_UserId(user.getUserId());
+                break;
+
+            case "admin":
+                bookings = bookingTourRepository.findAll();
+                break;
+
+            default:
+                throw new AppException(ErrorCode.UNAUTHORIZED, "Vai trò không hợp lệ");
+        }
+
+        return bookings.stream()
+                .map(this::convertToBookingTourResponse)
+                .collect(Collectors.toList());
+
+    }
+
+
+    public BookingTourResponse getBookingById(String id, String token) {
+
+        // Tách token khỏi chuỗi "Bearer ..."
+        String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (tokenAuth == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Không tim thấy token trong DB!");
+        }
+
+        // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
+        TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Token này không tồn tại trong hệ thống!");
+        }
+        if (!session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên đăng nhập!");
+        }
+
+        // Trích xuất thông tin user
+        User user = tokenAuth.getUser();
+
+        BookingTour booking = bookingTourRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND, "Không tìm thấy booking"));
+
+        String role = user.getRole().toLowerCase();
+
+        if (role.equals("user") && !booking.getUser().getUserId().equals(user.getUserId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Bạn không có quyền truy cập booking này");
+        }
+
+        if (role.equals("sub_company")) {
+            String tourOwnerId = booking.getTour().getManageBy().getUserId();
+            if (!tourOwnerId.equals(user.getUserId())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED, "Bạn không có quyền xem booking này");
+            }
+        }
+
+        return convertToBookingTourResponse(booking);
+    }
+
+    public void deleteBooking(String id, String token) {
+
+        // Tách token khỏi chuỗi "Bearer ..."
+        String tokenValue = token.startsWith("Bearer ") ? token.substring(7) : token;
+
+        TokenAuthentication tokenAuth = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (tokenAuth == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN, "Không tim thấy token trong DB!");
+        }
+
+        // Kiểm tra nếu token đã hết hạn hoặc bị vô hiệu
+        TokenAuthentication session = iTokenAuthenticationRepository.findByTokenValue(tokenValue);
+        if (session == null || !session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Token này không tồn tại trong hệ thống!");
+        }
+        if (!session.getIsUsed()) {
+            throw new AppException(ErrorCode.SESSION_EXPIRED, "Hết phiên đăng nhập!");
+        }
+
+        // Trích xuất thông tin user
+        User user = tokenAuth.getUser();
+
+        BookingTour booking = bookingTourRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND, "Không tìm thấy booking"));
+
+        String role = user.getRole().toLowerCase();
+
+        if (role.equals("user") && !booking.getUser().getUserId().equals(user.getUserId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED, "Bạn không có quyền xoá booking này");
+        }
+
+        if (role.equals("sub_company")) {
+            String tourOwnerId = booking.getTour().getManageBy().getUserId();
+            if (!tourOwnerId.equals(user.getUserId())) {
+                throw new AppException(ErrorCode.UNAUTHORIZED, "Bạn không có quyền xoá booking này");
+            }
+        }
+
+        // ADMIN thì không cần check
+
+        bookingTourRepository.delete(booking);
+    }
+
+    private BookingTourResponse convertToBookingTourResponse(BookingTour booking) {
+        return BookingTourResponse.builder()
+                .bookingId(booking.getBookingId())
+                .userId(booking.getUser().getUserId())
+                .userName(booking.getUser().getFullName())
+                .tourId(booking.getTour().getTourId())
+                .tourName(booking.getTour().getTourName())
+                .adultNumber(booking.getAdultNumber())
+                .childNumber(booking.getChildNumber())
+                .totalPrice(booking.getTotalPrice())
+                .status(booking.getStatus())
+                .createdAt(booking.getCreatedAt())
+                .dayStart(booking.getDayStart())
+                .dayEnd(booking.getDayEnd())
+                .thumbnail(booking.getTour().getThumbnail())
+                .build();
+    }
+
+
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -48,6 +49,31 @@ public class BookingController {
     public ResponseEntity<?> getBookingStatus(@PathVariable String bookingId) {
         BookingTour booking = bookingsTourService.findByBookingId(bookingId);
         return ResponseEntity.ok(Map.of("status", booking.getStatus()));
+    }
+
+    @GetMapping
+    public APIResponse<?> getAllBookings(@RequestHeader("Authorization") String token) {
+        return APIResponse.<List<BookingTourResponse>>builder()
+                .message("Fetched bookings successfully")
+                .result(bookingsTourService.getAllBookingsForUser(token))
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    public APIResponse<?> getBookingById(@PathVariable String id, @RequestHeader("Authorization") String token) {
+        BookingTourResponse booking = bookingsTourService.getBookingById(id, token);
+        return APIResponse.<BookingTourResponse>builder()
+                .message("Fetched booking successfully")
+                .result(booking)
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public APIResponse<?> deleteBooking(@PathVariable String id, @RequestHeader("Authorization") String token) {
+        bookingsTourService.deleteBooking(id, token);
+        return APIResponse.builder()
+                .message("Booking deleted successfully")
+                .build();
     }
 
 
