@@ -49,6 +49,8 @@ public class BookingController {
         BookingTour booking = bookingsTourService.findByBookingId(bookingId);
         return ResponseEntity.ok(Map.of("status", booking.getStatus()));
     }
+
+
 }
 
 
