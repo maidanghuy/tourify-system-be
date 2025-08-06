@@ -130,7 +130,7 @@ public class FeedbackService {
                 .title(req.getTitle())
                 .content(req.getContent())
                 .rating(BigDecimal.valueOf(req.getRating()))
-                .status(status)
+                .status("APPROVED")
                 .createAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

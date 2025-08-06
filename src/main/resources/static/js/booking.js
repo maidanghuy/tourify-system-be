@@ -291,6 +291,9 @@ function handlerevealQRCodeModal(bookingId) {
                     size: 256,
                     level: 'H'
                 });
+
+                // <<< Thêm dòng này
+                startBookingStatusPolling(bookingId);
             } else {
                 alert('Không thể tạo thanh toán. Vui lòng thử lại.');
             }
@@ -308,6 +311,51 @@ function reloadQRCode() {
         alert("Không tìm thấy bookingId để reload QR code.");
     }
 }
+
+let bookingStatusInterval = null;
+
+function startBookingStatusPolling(bookingId) {
+    // Nếu trước đó đã có interval thì clear
+    if (bookingStatusInterval) {
+        clearInterval(bookingStatusInterval);
+    }
+
+    bookingStatusInterval = setInterval(async () => {
+        try {
+            const res = await fetch(`/tourify/api/booking/status/${bookingId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                }
+            });
+            const data = await res.json();
+            if (data.status === "SUCCESS") {
+
+                clearInterval(bookingStatusInterval);
+                // Đóng modal QR nếu đang mở
+                const qrModalEl = document.getElementById("qrModal");
+                const qrModal = bootstrap.Modal.getInstance(qrModalEl);
+                if (qrModal) qrModal.hide();
+
+                // Hiện popup thông báo
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thanh toán thành công!',
+                    text: 'Cảm ơn bạn đã đặt tour. Hệ thống sẽ chuyển bạn về trang hồ sơ.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    // Chuyển hướng sau khi người dùng bấm OK
+                    window.location.href = "/tourify/user/profile";
+                });
+            }
+        } catch (err) {
+            console.error("Error checking booking status:", err);
+        }
+    }, 3000); // kiểm tra mỗi 3 giây
+}
+
 
 
 function toggleReveal(headerEl) {

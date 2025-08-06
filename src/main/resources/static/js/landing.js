@@ -179,3 +179,122 @@ function renderPagination(pageData) {
 document.addEventListener("DOMContentLoaded", () => {
     loadPlaces(0);
 });
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    let recommendTours = [];
+    const PAGE_SIZE = 4;
+    let currentPage = 1;
+
+    loadRecommendedTours();
+
+    function loadRecommendedTours() {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        const userId = parseJwt(token)?.userId;
+        if (!userId) return;
+
+        fetch(`/tourify/api/tours/recommend?userId=${userId}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.result && data.result.length > 0) {
+                    recommendTours = data.result;
+                    currentPage = 1;
+                    renderRecommendedTours();
+                    document.getElementById('recommendSection').style.display = '';
+                }
+            })
+            .catch(err => console.error('Error loading recommended tours:', err));
+    }
+
+    function renderRecommendedTours() {
+        const container = document.getElementById('recommendToursContainer');
+        container.innerHTML = '';
+
+        // Paging logic
+        const totalTours = recommendTours.length;
+        const totalPages = Math.ceil(totalTours / PAGE_SIZE);
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const end = Math.min(start + PAGE_SIZE, totalTours);
+        const toursPage = recommendTours.slice(start, end);
+
+        toursPage.forEach(tour => {
+            const card = document.createElement('div');
+            card.className = 'col-md-3';
+            card.innerHTML = `
+                <div class="card h-100 shadow">
+                    <img src="${tour.imageUrl || 'https://via.placeholder.com/400x220?text=Tour+Image'}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${tour.tourName}</h5>
+                        <p class="card-text text-muted mb-2">${tour.placeName || ''}</p>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-primary">${tour.price ? tour.price.toLocaleString() + ' ₫' : ''}</span>
+                            <a href="/tourify/tourDetail?id=${tour.tourId}" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        renderRecommendPagination(totalPages);
+    }
+
+    function renderRecommendPagination(totalPages) {
+        const pag = document.getElementById('recommendPagination');
+        pag.innerHTML = '';
+        if (totalPages <= 1) return; // Không cần phân trang nếu chỉ 1 trang
+
+        // Prev button
+        pag.innerHTML += `
+          <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" aria-label="Previous" data-page="${currentPage - 1}">&lt;</a>
+          </li>
+        `;
+        // Page numbers
+        for (let i = 1; i <= totalPages; ++i) {
+            pag.innerHTML += `
+              <li class="page-item ${currentPage === i ? 'active' : ''}">
+                <a class="page-link" href="#" data-page="${i}">${i}</a>
+              </li>
+            `;
+        }
+        // Next button
+        pag.innerHTML += `
+          <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" aria-label="Next" data-page="${currentPage + 1}">&gt;</a>
+          </li>
+        `;
+
+        // Add click events
+        pag.querySelectorAll('.page-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const page = Number(this.getAttribute('data-page'));
+                if (!isNaN(page) && page !== currentPage && page >= 1 && page <= totalPages) {
+                    currentPage = page;
+                    renderRecommendedTours();
+                }
+            });
+        });
+    }
+
+    function parseJwt(token) {
+        if (!token) return null;
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            return null;
+        }
+    }
+});
+

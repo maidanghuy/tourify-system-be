@@ -1,6 +1,7 @@
 package com.example.tourify_system_be.controller;
 
 import com.example.tourify_system_be.dto.request.*;
+import com.example.tourify_system_be.dto.response.TourRecommendResponse;
 import com.example.tourify_system_be.dto.response.TourResponse;
 import com.example.tourify_system_be.entity.Tour;
 import com.example.tourify_system_be.exception.AppException;
@@ -49,8 +50,7 @@ public class TourController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!"); // hoặc
-                                                                                                              // trả về
-                                                                                                              // 401
+                                                                                                              // trả về// 401
         }
 
         CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
@@ -216,6 +216,33 @@ public class TourController {
     @PutMapping("/{tourId}/approve")
     public ResponseEntity<?> approveTour(@PathVariable String tourId) {
         tourService.updateStatus(tourId, "ACTIVE");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Feedback không hợp lệ và đã bị xoá!"); // hoặc
+            // trả về// 401
+        }
+
+        CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
+
+        List<String> followerIds = followService.getFollowerIds(String.valueOf(currentUser.getId()));
+
+        TourResponse tour = tourService.getTourById(tourId);
+
+        if (!followerIds.isEmpty() && tourService.getTourById(tourId).getStatus().equals("ACTIVE")) {
+            // 3. Tạo NotificationRequest
+            NotificationRequest notificationRequest = new NotificationRequest();
+            notificationRequest.setTitle("New Tour from " + currentUser.getUsername());
+            notificationRequest.setMessage("A new tour '" + tour.getTourName() + "' has been published.");
+            notificationRequest.setType("TOUR");
+            notificationRequest.setLink("tourDetail?id=" + tour.getTourId());
+            notificationRequest.setImageUrl(tour.getThumbnail()); // nếu có
+            notificationRequest.setCreatedBy(String.valueOf(currentUser.getId()));
+            notificationRequest.setTargetUserIds(followerIds);
+
+            // 4. Gửi thông báo
+            notificationService.sendToUsers(notificationRequest);
+        }
         return ResponseEntity.ok().body(Map.of("success", true));
     }
 
@@ -229,4 +256,12 @@ public class TourController {
                 .build();
     }
 
+    @GetMapping("/recommend")
+    public ResponseEntity<?> getRecommendedTours(@RequestParam String userId) {
+        List<Tour> tours = tourService.getRecommendedTours(userId);
+
+        // Đưa về DTO để không trả ra entity gốc
+        List<TourRecommendResponse> dtos = tours.stream().map(TourRecommendResponse::fromTour).toList();
+        return ResponseEntity.ok(Map.of("result", dtos));
+    }
 }

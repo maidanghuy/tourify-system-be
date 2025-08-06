@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,5 +32,10 @@ public interface ITourRepository extends JpaRepository<Tour, String>, JpaSpecifi
   long countByStatusIgnoreCase(String status);
 
   boolean existsByPlace_PlaceId(String placeId);
+
+  List<Tour> findTop10ByStatusAndPlace_PlaceNameContainingIgnoreCaseOrPlace_PlaceNameInOrCategory_CategoryNameIn(
+          String status, String address, Collection<String> places, Collection<String> categories);
+
+  List<Tour> findTop5ByStatusOrderByCreatedAtDesc(String status);
 
 }

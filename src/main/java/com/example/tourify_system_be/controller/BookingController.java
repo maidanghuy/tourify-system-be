@@ -3,11 +3,17 @@ import com.example.tourify_system_be.dto.request.APIResponse;
 import com.example.tourify_system_be.dto.request.BookingCancelRequest;
 import com.example.tourify_system_be.dto.request.BookingTourRequest;
 import com.example.tourify_system_be.dto.response.BookingTourResponse;
+import com.example.tourify_system_be.entity.BookingTour;
 import com.example.tourify_system_be.service.BookingTourService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/booking")
 @RequiredArgsConstructor
@@ -38,6 +44,39 @@ public class BookingController {
                 .result(cancelBooking)
                 .build();
     }
+
+    @GetMapping("/status/{bookingId}")
+    public ResponseEntity<?> getBookingStatus(@PathVariable String bookingId) {
+        BookingTour booking = bookingsTourService.findByBookingId(bookingId);
+        return ResponseEntity.ok(Map.of("status", booking.getStatus()));
+    }
+
+    @GetMapping
+    public APIResponse<?> getAllBookings(@RequestHeader("Authorization") String token) {
+        return APIResponse.<List<BookingTourResponse>>builder()
+                .message("Fetched bookings successfully")
+                .result(bookingsTourService.getAllBookingsForUser(token))
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    public APIResponse<?> getBookingById(@PathVariable String id, @RequestHeader("Authorization") String token) {
+        BookingTourResponse booking = bookingsTourService.getBookingById(id, token);
+        return APIResponse.<BookingTourResponse>builder()
+                .message("Fetched booking successfully")
+                .result(booking)
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public APIResponse<?> deleteBooking(@PathVariable String id, @RequestHeader("Authorization") String token) {
+        bookingsTourService.deleteBooking(id, token);
+        return APIResponse.builder()
+                .message("Booking deleted successfully")
+                .build();
+    }
+
+
 }
 
 

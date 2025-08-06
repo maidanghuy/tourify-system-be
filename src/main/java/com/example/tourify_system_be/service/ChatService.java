@@ -586,6 +586,9 @@ public class ChatService {
 
     private String buildTourLink(String tourId) {
 
+
         return "/tourify/tourDetail?id=" + tourId;
+
+
     }
 }
