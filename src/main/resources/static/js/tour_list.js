@@ -103,9 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
            style="min-width:220px; max-width:220px; border-radius: 20px 0 0 20px;
                   overflow: hidden;">
         <img src="${tour.thumbnail}"
-             class="w-100 h-100 object-fit-cover"
-             alt="Thumbnail"
-             style="min-height:200px; object-fit:cover;">
+     class="w-100 object-fit-cover"
+     alt="Thumbnail"
+     style="height:250px; object-fit:cover;">
+
         <span class="badge tour-type-badge position-absolute"
               style="top:16px; left:16px;">
           ${tour.categoryName || 'Unknown'}
@@ -138,10 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ${tour.createdByUserName || 'Unknown'}
           </div>
         </div>
-        <div class="tour-desc p-2 px-3 rounded-3 bg-white shadow-sm mb-3"
-             style="font-size:1rem;color:#566478;">
-          ${tour.description || 'Discover an amazing journey with Tourify'}
+        <div class="tour-desc p-2 px-3 rounded-3 bg-white shadow-sm mb-3" style="font-size:1rem;color:#566478;">
+          <div class="tour-desc-text line-clamp">
+            ${tour.description || 'Discover an amazing journey with Tourify'}
+          </div>
         </div>
+
+
         <div class="d-flex justify-content-between align-items-center mt-auto">
           <div class="fw-bold" style="font-size:1.5rem;color:#139169;">
             ${tour.price.toLocaleString()}
