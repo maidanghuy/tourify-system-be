@@ -550,10 +550,10 @@ function fillTourForm(t) {
       const month = parts[2];
       const year = parts[3];
       const m = month.toString().padStart(2, "0");
-      raw = `${year}-${m}-${day.padStart(2,"0")}`;
+      raw = `${year}-${m}-${day.padStart(2, "0")}`;
     } else if (raw.includes("/")) {
       const parts = raw.split("/");
-      raw = `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+      raw = `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
     }
     document.getElementById("startDate").value = raw;
   }

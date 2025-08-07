@@ -549,71 +549,37 @@ const pages = {
     title: "Booking",
     breadcrumbs: ["dashboard"],
     content: `
-          <div class="container-fluid py-4">
-              <div class="admin-card p-4">
-                <!-- Time Filter + Filter Button -->
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
-                  <!-- Search bên trái -->
-                  <div class="flex-grow-1" style="min-width:220px;max-width:520px;">
-                    <input
-                      class="form-control-mint w-100"
-                      type="text"
-                      placeholder="Search category..."
-                    />
-                  </div>
-                  <!-- 2 nút bên phải -->
-                  <div class="d-flex gap-2 flex-shrink-0">
-                    <button class="btn-mint-filter" type="button">
-                      <i class="bi bi-funnel"></i> Filters
-                    </button>
-                    <button
-                      class="btn-mint-accent"
-                      data-bs-toggle="modal"
-                      data-bs-target="#catModal"
-                    >
-                      <i class="bi bi-plus"></i> Add Booking
-                    </button>
-                  </div>
-                </div>
-            
-                <!-- Table -->
-                <div class="table-responsive-mint">
-                  <table class="mint-table w-100" id="bookingTable">
-                    <thead>
-                      <tr>
-                        <th style="width:32px"><input type="checkbox" /></th>
-                        <th style="min-width:100px">Booking ID</th>
-                        <th style="min-width:170px">BookingTour</th>
-                        <th style="min-width:160px">Customer</th>
-                        <th style="min-width:90px">Total</th>
-                        <th style="min-width:100px">Payment</th>
-                        <th style="min-width:100px">Status</th>
-                        <th style="min-width:80px">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- JS render booking rows here -->
-                    </tbody>
-                  </table>
-                </div>
-            
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
-                  <div class="small text-muted">Showing 1-10 from 100</div>
-                  <ul class="pagination-mint mb-0">
-                    <li class="page-item-mint disabled"><span>&lt;</span></li>
-                    <li class="page-item-mint active"><span>1</span></li>
-                    <li class="page-item-mint"><span>2</span></li>
-                    <li class="page-item-mint"><span>3</span></li>
-                    <li class="page-item-mint"><span>4</span></li>
-                    <li class="page-item-mint"><span>5</span></li>
-                    <li class="page-item-mint"><span>...</span></li>
-                    <li class="page-item-mint"><span>&gt;</span></li>
-                  </ul>
-                </div>
-              </div>
+    <div class="container py-4">
+      <div class="admin-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+          <div class="flex-grow-1" style="min-width:220px; max-width:520px;">
+            <input class="form-control-mint w-100" type="text" id="bookingSearchInput" placeholder="Search bookings..."/>
           </div>
-          `,
+        </div>
+
+        <div class="table-responsive-mint">
+          <table class="mint-table w-100" id="bookingTable">
+            <thead>
+              <tr>
+                <th style="min-width:200px">Tour Name</th>
+                <th style="min-width:150px">Start Date</th>
+                <th style="min-width:150px">Created At</th>
+                <th style="min-width:120px">Status</th>
+                <th style="min-width:120px">Total Price</th>
+                <th style="min-width:90px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+          <div class="small text-muted" id="bookingPaginationInfo">Showing 0-0 from 0</div>
+          <ul class="pagination-mint mb-0" id="bookingPagination"></ul>
+        </div>
+      </div>
+    </div>
+  `
   },
 
   /* === 7. CUSTOMERS === */
@@ -1306,6 +1272,8 @@ function loadPage(pageKey) {
   } else if (pageKey === "places") {
     // Khởi tạo trang Places
     setTimeout(() => initPlacesPage(), 0);
+  } else if (pageKey === "booking"){
+    setTimeout( () => initBookingsPage(), 0);
   }
 }
 
@@ -2691,12 +2659,12 @@ function initAnalyticsPage() {
   const sysTableMonth = document.getElementById("systemTbodyMonth");
   const sysTableYear = document.getElementById("systemTbodyYear");
   if (
-      !btnFilter ||
-      !inpStart ||
-      !inpEnd ||
-      !tableDay ||
-      !tableMonth ||
-      !tableYear
+    !btnFilter ||
+    !inpStart ||
+    !inpEnd ||
+    !tableDay ||
+    !tableMonth ||
+    !tableYear
   )
     return;
 
@@ -2719,11 +2687,11 @@ function initAnalyticsPage() {
   function renderSystemTable(type) {
     let data = sysRevenueData[type] || [];
     let tbody =
-        type === "day"
-            ? sysTableDay
-            : type === "month"
-                ? sysTableMonth
-                : sysTableYear;
+      type === "day"
+        ? sysTableDay
+        : type === "month"
+          ? sysTableMonth
+          : sysTableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -2742,7 +2710,7 @@ function initAnalyticsPage() {
   function renderCompanyTable(type) {
     let data = revenueData[type] || [];
     let tbody =
-        type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
+      type === "day" ? tableDay : type === "month" ? tableMonth : tableYear;
     if (!tbody) return;
     tbody.innerHTML = "";
     if (!Array.isArray(data) || !data.length) {
@@ -2755,7 +2723,7 @@ function initAnalyticsPage() {
       let value = Number(row.totalRevenue) || 0;
       const tr = document.createElement("tr");
       tr.innerHTML = `<td>${label}</td><td>${company}</td><td>${formatVND(
-          value
+        value
       )}</td>`;
       tbody.appendChild(tr);
     }
@@ -2775,13 +2743,13 @@ function initAnalyticsPage() {
 
     // Loading message
     [tableDay, tableMonth, tableYear].forEach(
-        (tbody) =>
-            (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
+      (tbody) =>
+        (tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary">Loading...</td></tr>`)
     );
     if (role === "admin") {
       [sysTableDay, sysTableMonth, sysTableYear].forEach(
-          (tbody) =>
-              (tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`)
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="2" class="text-center text-secondary">Loading...</td></tr>`)
       );
     }
 
@@ -2797,14 +2765,14 @@ function initAnalyticsPage() {
         const cmpYearUrl = `/tourify/api/revenue/company/by-year?start=${start}&end=${end}`;
 
         const [sysDay, sysMonth, sysYear, cmpDay, cmpMonth, cmpYear] =
-            await Promise.all([
-              fetch(sysDayUrl, { headers }).then((r) => r.json()),
-              fetch(sysMonthUrl, { headers }).then((r) => r.json()),
-              fetch(sysYearUrl, { headers }).then((r) => r.json()),
-              fetch(cmpDayUrl, { headers }).then((r) => r.json()),
-              fetch(cmpMonthUrl, { headers }).then((r) => r.json()),
-              fetch(cmpYearUrl, { headers }).then((r) => r.json()),
-            ]);
+          await Promise.all([
+            fetch(sysDayUrl, { headers }).then((r) => r.json()),
+            fetch(sysMonthUrl, { headers }).then((r) => r.json()),
+            fetch(sysYearUrl, { headers }).then((r) => r.json()),
+            fetch(cmpDayUrl, { headers }).then((r) => r.json()),
+            fetch(cmpMonthUrl, { headers }).then((r) => r.json()),
+            fetch(cmpYearUrl, { headers }).then((r) => r.json()),
+          ]);
         sysRevenueData.day = Array.isArray(sysDay) ? sysDay : [];
         sysRevenueData.month = Array.isArray(sysMonth) ? sysMonth : [];
         sysRevenueData.year = Array.isArray(sysYear) ? sysYear : [];
@@ -2815,8 +2783,8 @@ function initAnalyticsPage() {
         const subCompanyId = getSubCompanyIdFromToken(accessToken);
         if (!subCompanyId) {
           [tableDay, tableMonth, tableYear].forEach(
-              (tbody) =>
-                  (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
+            (tbody) =>
+              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không lấy được subCompanyId từ token!</td></tr>`)
           );
           return;
         }
@@ -2833,12 +2801,12 @@ function initAnalyticsPage() {
         revenueData.year = Array.isArray(y) ? y : [];
       } else {
         [tableDay, tableMonth, tableYear].forEach(
-            (tbody) =>
-                (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
         [sysTableDay, sysTableMonth, sysTableYear].forEach(
-            (tbody) =>
-                (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Không có quyền xem doanh thu!</td></tr>`)
         );
         return;
       }
@@ -2860,13 +2828,13 @@ function initAnalyticsPage() {
       afterRender();
     } catch (err) {
       [tableDay, tableMonth, tableYear].forEach(
-          (tbody) =>
-              (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+        (tbody) =>
+          (tbody.innerHTML = `<tr><td colspan="3" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
       );
       if (role === "admin") {
         [sysTableDay, sysTableMonth, sysTableYear].forEach(
-            (tbody) =>
-                (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
+          (tbody) =>
+            (tbody.innerHTML = `<tr><td colspan="2" class="text-danger">Lỗi tải dữ liệu!</td></tr>`)
         );
       }
       console.error(err);
@@ -2909,21 +2877,20 @@ function initAnalyticsPage() {
 
   function renderAIInsights(data) {
     document.getElementById("aiTrends").innerHTML = data.trends
-        ? `<div class="alert alert-info">${data.trends}</div>`
-        : `<div class="text-muted">No trend insights found.</div>`;
+      ? `<div class="alert alert-info">${data.trends}</div>`
+      : `<div class="text-muted">No trend insights found.</div>`;
     if (Array.isArray(data.hotTours) && data.hotTours.length > 0) {
       document.getElementById("aiTopTours").innerHTML = `
         <div class="row">
           ${data.hotTours
           .map(
-              (tour) => `
+            (tour) => `
             <div class="col-md-6 col-lg-4 mb-3">
               <div class="card shadow-sm h-100">
                 <div class="card-body">
                   <h6 class="fw-bold mb-2">${tour.tourName}</h6>
                   <div class="mb-1">
-                    <span class="badge bg-warning text-dark me-1">AI Hot${
-                  tour.bookingCount ? ` (${tour.bookingCount})` : ""
+                    <span class="badge bg-warning text-dark me-1">AI Hot${tour.bookingCount ? ` (${tour.bookingCount})` : ""
               }</span>
                   </div>
                   <small class="text-muted">${tour.reason || ""}</small>
@@ -2937,7 +2904,7 @@ function initAnalyticsPage() {
       `;
     } else {
       document.getElementById(
-          "aiTopTours"
+        "aiTopTours"
       ).innerHTML = `<div class="text-muted">No hot tours detected by AI.</div>`;
     }
   }
@@ -2961,7 +2928,7 @@ function initAnalyticsPage() {
       if (!resp.ok) throw new Error("Lỗi API active tours");
       const json = await resp.json();
       const count =
-          json.result != null ? json.result : json.count || 0;
+        json.result != null ? json.result : json.count || 0;
       document.getElementById("activeToursCount").textContent = count;
     } catch (err) {
       document.getElementById("activeToursCount").textContent = "—";
@@ -3002,7 +2969,7 @@ function initAnalyticsPage() {
       }
     } catch (err) {
       document.getElementById(
-          "topBookedToursTbody"
+        "topBookedToursTbody"
       ).innerHTML = `<tr><td colspan="2" class="text-danger text-center">Lỗi tải dữ liệu</td></tr>`;
       console.error("Không lấy được top booked tours:", err);
     }
@@ -3124,11 +3091,11 @@ function initAnalyticsPage() {
       const btnTableId = `btnShowTable${capitalize(key)}`;
       if (document.getElementById(btnChartId)) {
         document.getElementById(btnChartId).onclick = () =>
-            renderChart(type, isSystem);
+          renderChart(type, isSystem);
       }
       if (document.getElementById(btnTableId)) {
         document.getElementById(btnTableId).onclick = () =>
-            showTable(type, isSystem);
+          showTable(type, isSystem);
       }
     });
   }
@@ -3143,40 +3110,40 @@ function initAnalyticsPage() {
     fetchAIInsights(inpStart.value, inpEnd.value);
   };
   document
-      .getElementById("revenue-range-tabs")
-      .addEventListener("click", function (e) {
-        if (e.target.classList.contains("nav-link")) {
-          setTimeout(() => {
-            const activeTab = document.querySelector(".tab-pane.active").id;
-            if (activeTab === "revenue-day") {
-              if (getRoleFromToken(accessToken) === "admin")
-                renderSystemTable("day");
-              renderCompanyTable("day");
-            }
-            if (activeTab === "revenue-month") {
-              if (getRoleFromToken(accessToken) === "admin")
-                renderSystemTable("month");
-              renderCompanyTable("month");
-            }
-            if (activeTab === "revenue-year") {
-              if (getRoleFromToken(accessToken) === "admin")
-                renderSystemTable("year");
-              renderCompanyTable("year");
-            }
-            afterRender();
-            analyticsHeaderStats();
-            fetchAIInsights(inpStart.value, inpEnd.value);
-          }, 50);
-        }
-      });
+    .getElementById("revenue-range-tabs")
+    .addEventListener("click", function (e) {
+      if (e.target.classList.contains("nav-link")) {
+        setTimeout(() => {
+          const activeTab = document.querySelector(".tab-pane.active").id;
+          if (activeTab === "revenue-day") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("day");
+            renderCompanyTable("day");
+          }
+          if (activeTab === "revenue-month") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("month");
+            renderCompanyTable("month");
+          }
+          if (activeTab === "revenue-year") {
+            if (getRoleFromToken(accessToken) === "admin")
+              renderSystemTable("year");
+            renderCompanyTable("year");
+          }
+          afterRender();
+          analyticsHeaderStats();
+          fetchAIInsights(inpStart.value, inpEnd.value);
+        }, 50);
+      }
+    });
 
   // Set ngày mặc định cho input
   const today = new Date();
   inpEnd.value = today.toISOString().slice(0, 10);
   const lastMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() - 1,
-      today.getDate()
+    today.getFullYear(),
+    today.getMonth() - 1,
+    today.getDate()
   );
   inpStart.value = lastMonth.toISOString().slice(0, 10);
 
@@ -4099,10 +4066,10 @@ function convertExcelDate(raw) {
     const day = parts[0];
     const month = parts[2];
     const year = parts[3];
-    return `${year}-${month.padStart(2,"0")}-${day.padStart(2,"0")}`;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
   } else if (str.includes("/")) {
     const parts = str.split("/");
-    return `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+    return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
   }
   return str;
 }
@@ -4795,4 +4762,92 @@ function confirmMapLocation() {
   }
   const modal = bootstrap.Modal.getInstance(document.getElementById('mapModal'));
   if (modal) modal.hide();
+}
+
+async function deleteBooking(bookingId) {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return Swal.fire("Error", "Please login", "error");
+
+  const result = await Swal.fire({
+    title: "Confirm Delete",
+    text: "Do you really want to delete this booking?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!"
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const response = await fetch(`/tourify/api/booking/${bookingId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (data.code === 1000) {
+      Swal.fire("Success", "Booking deleted", "success");
+      loadBookings();
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (err) {
+    Swal.fire("Error", "Network error", "error");
+  }
+}
+
+function renderBookingTable() {
+  const tbody = document.getElementById("bookingTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = bookingData.length === 0
+      ? `<tr><td colspan="6" class="text-center text-muted py-4"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No bookings found</td></tr>`
+      : bookingData.map((b) => `
+        <tr>
+          <td>${b.tourName}</td>
+          <td>${b.dayStart}</td>
+          <td>${b.createdAt}</td>
+          <td><span class="badge bg-info">${b.status}</span></td>
+          <td>${new Intl.NumberFormat('vi-VN').format(b.totalPrice)} đ</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-danger" onclick="deleteBooking('${b.bookingId}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+}
+
+let bookingData = [];
+let currentBookingPage = 0;
+let bookingPageSize = 10;
+let currentBookingSearchTerm = '';
+
+async function loadBookings() {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Missing token");
+
+    const response = await fetch("/tourify/api/booking", {
+      headers: {Authorization: `Bearer ${token}`},
+    });
+
+    const data = await response.json();
+    if (data.code === 1000) {
+      bookingData = data.result || [];
+      renderBookingTable();
+      // renderBookingPagination(); // nếu cần
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Failed to load bookings", "error");
+  }
+}
+
+function initBookingsPage() {
+  loadBookings();
+  // search input debounce nếu cần
 }

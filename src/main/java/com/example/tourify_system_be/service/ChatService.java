@@ -14,7 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -66,6 +72,15 @@ public class ChatService {
             "(?:danh sách|list|xem) (?:tất cả )?tour(?: ở| tại)?\\s*([\\p{L} ]+)",
             Pattern.CASE_INSENSITIVE
     );
+
+    // Duration (số ngày)
+    private static final Pattern DURATION_PATTERN = Pattern.compile("(?:tour|chuyến đi)?\\s*(?:trong|kéo dài|dài)?\\s*(?:khoảng|tầm)?\\s*(\\d{1,2})\\s*ngày");
+
+    // Số người
+    private static final Pattern PEOPLE_PATTERN = Pattern.compile("(?:cho|dành cho)?\\s*(\\d{1,2})\\s*(người|khách|thành viên)");
+
+    // Ngày bắt đầu
+    private static final Pattern START_DATE_REGEX = Pattern.compile("\\b(\\d{1,2}[-/.]\\d{1,2}[-/.]\\d{4})\\b");
 
 
     public ChatService(ChatClient.Builder builder, TourService tourService, GoogleDocsService gdocs) {
@@ -149,6 +164,9 @@ public class ChatService {
         if (isPriceBelow(text))  return handlePriceBelow(text, source, placeName);
         if (isPriceAbove(text))  return handlePriceAbove(text, source, placeName);
         if (baseline != null)    return handlePlaceOnly(baseline, placeName);
+        if (hasDuration(text)) return handleDuration(text, source);
+        if (hasPeopleCount(text)) return handlePeople(text, source);
+        if (hasStartDate(text)) return handleStartDate(text, source);
 
         // Nếu không match pattern nào: fallback AI
         return handleAI(request.message());
@@ -210,6 +228,131 @@ public class ChatService {
     private boolean isPriceAbove(String text) {
         return PRICE_ABOVE.matcher(text).find();
     }
+    private boolean hasDuration(String text) {
+        return DURATION_PATTERN.matcher(text).find();
+    }
+    private boolean hasPeopleCount(String text) {
+        return PEOPLE_PATTERN.matcher(text).find();
+    }
+    private boolean hasStartDate(String text) {
+        // Sử dụng START_DATE_REGEX đã được sửa
+        return START_DATE_REGEX.matcher(text).find();
+    }
+
+
+    private String handleDuration(String text, List<TourResponse> source) {
+        Matcher m = DURATION_PATTERN.matcher(text);
+        if (!m.find()) return "";
+        int days = Integer.parseInt(m.group(1));
+
+        List<TourResponse> list = source.stream()
+                .filter(t -> t.getDuration() != null && t.getDuration() == days)
+                .toList();
+
+        String header = String.format("Các tour có thời lượng %d ngày:", days);
+        return formatFilteredTours(list, header);
+    }
+
+    private String handlePeople(String text, List<TourResponse> source) {
+        Matcher m = PEOPLE_PATTERN.matcher(text);
+        if (!m.find()) return "";
+        int people = Integer.parseInt(m.group(1));
+
+        List<TourResponse> list = source.stream()
+                .filter(t -> t.getTouristNumberAssigned() != null && t.getTouristNumberAssigned() == people)
+                .toList();
+
+        String header = String.format("Các tour dành cho %d người:", people);
+        return formatFilteredTours(list, header);
+    }
+
+    private String handleStartDate(String text, List<TourResponse> source) {
+        List<DateTimeFormatter> formatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("d/M/yyyy"),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+                DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+                DateTimeFormatter.ofPattern("d-M-yyyy")
+        );
+
+        // Sử dụng biểu thức chính quy để trích xuất ngày
+        Matcher m = START_DATE_REGEX.matcher(text);
+
+        String dateString = null;
+        if (m.find()) {
+            dateString = m.group(1);
+        }
+
+        if (dateString == null) {
+            return "Không thể nhận diện ngày khởi hành từ câu nhập vào.";
+        }
+
+        LocalDate targetDate = null;
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                targetDate = LocalDate.parse(dateString, formatter);
+                break;
+            } catch (DateTimeParseException e) {
+                // Thử định dạng tiếp theo
+            }
+        }
+
+        if (targetDate == null) {
+            return "Ngày nhập vào không hợp lệ.";
+        }
+
+        // Lọc tour dựa trên logic đã được sửa và tối ưu
+        final ZoneId appZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+        final LocalDate finalTargetDate = targetDate;
+
+        System.out.println("Ngày người dùng tìm kiếm: " + finalTargetDate);
+        System.out.println("Bắt đầu lọc danh sách tour...");
+
+        List<TourResponse> list = source.stream()
+                .filter(t -> {
+                    if (t.getStartDate() == null) {
+                        System.out.println("Bỏ qua tour '" + t.getTourName() + "' vì không có ngày khởi hành.");
+                        return false;
+                    }
+
+                    try {
+                        LocalDate startDateOfTour = t.getStartDate()
+                                .atZone(ZoneId.of("UTC"))
+                                .withZoneSameInstant(appZoneId)
+                                .toLocalDate();
+
+                        System.out.println("So sánh ngày tour '" + t.getTourName() + "': " + startDateOfTour + " với " + finalTargetDate);
+
+                        return startDateOfTour.isEqual(finalTargetDate);
+
+                    } catch (DateTimeException e) {
+                        System.err.println("Lỗi xử lý ngày cho tour '" + t.getTourName() + "': " + e.getMessage());
+                        return false;
+                    }
+                })
+                .toList();
+
+        String header = String.format("Các tour khởi hành vào ngày %s:",
+                targetDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+
+        return formatFilteredTours(list, header);
+    }
+
+    private String formatFilteredTours(List<TourResponse> tours, String header) {
+        Locale vn = new Locale("vi","VN");
+        StringBuilder sb = new StringBuilder(header).append("\n\n");
+        if (tours.isEmpty()) {
+            sb.append("• Không tìm thấy tour nào phù hợp.");
+        } else {
+            tours.forEach(t -> sb.append("• ")
+                    .append(t.getTourName())
+                    .append(" — ")
+                    .append(NumberFormat.getNumberInstance(vn).format(t.getPrice()))
+                    .append(" ₫\n  <a href=\"")
+                    .append(buildTourLink(t.getTourId()))
+                    .append("\" target=\"_blank\">Xem chi tiết</a>\n"));
+        }
+        return sb.toString();
+    }
 
     private String handleTourMaxPrice(List<TourResponse> source, String place) {
         Locale vn = new Locale("vi","VN");
@@ -223,7 +366,7 @@ public class ChatService {
         String header = place != null
                 ? String.format("Tour đắt nhất ở %s:", capitalize(place))
                 : "Tour đắt nhất:";
-        return String.format("%s\n\n• %s — %s ₫\n  Link: %s",
+        return String.format("%s\n\n• %s — %s ₫\n  <a href=\"%s\" target=\"_blank\">Xem chi tiết</a>",
                 header, max.getTourName(),
                 NumberFormat.getNumberInstance(vn).format(max.getPrice()),
                 buildTourLink(max.getTourId())
@@ -242,7 +385,7 @@ public class ChatService {
         String header = place != null
                 ? String.format("Tour rẻ nhất ở %s:", capitalize(place))
                 : "Tour rẻ nhất:";
-        return String.format("%s\n\n• %s — %s ₫\n  Link: %s",
+        return String.format("%s\n\n• %s — %s ₫\n  <a href=\"%s\" target=\"_blank\">Xem chi tiết</a>",
                 header, min.getTourName(),
                 NumberFormat.getNumberInstance(vn).format(min.getPrice()),
                 buildTourLink(min.getTourId())
@@ -443,6 +586,9 @@ public class ChatService {
 
     private String buildTourLink(String tourId) {
 
-        return "http://localhost:8080/tourify/tourDetail?id=" + tourId;
+
+        return "/tourify/tourDetail?id=" + tourId;
+
+
     }
 }
